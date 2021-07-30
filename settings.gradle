@@ -1,0 +1,3 @@
+include ':Git'
+include ':app'
+rootProject.name = "Blackboard"
