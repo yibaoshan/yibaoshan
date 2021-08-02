@@ -1,4 +1,4 @@
-package com.android.git;
+package com.android.git
 
 /*
 * #### Git提交规范
@@ -21,10 +21,5 @@ package com.android.git;
 - build - 打包
 - delete - 删除
 * */
-public class GitDoc {
-
-    public static void main(String[] args) {
-
-    }
-
+class Main {
 }
