@@ -1,3 +1,4 @@
+include ':Notebook'
 include ':Algorithm'
 include ':DataStructure'
 include ':Git'
