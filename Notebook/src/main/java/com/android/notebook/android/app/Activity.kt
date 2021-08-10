@@ -12,6 +12,16 @@ class Activity {
      * Activity启动模式
      * @see ActivityLaunchMode
      *
+     * @TODO
+     * 1. AMS通知其他进程启动时，已经建立连接了吗？不然，如何通信呢？
+     * 猜想：因为是从zygote进程孵化出去的，所以已经有连接了？
+     * 2. ActivityStarter启动时，如何确定Activity所在的Task和如何压入ActivityStack的？
+     * 3. Activity启动另一个Activity时，其自身和another的生命周期如何变化？
+     * 4. Activity的构造函数和onCreate()哪个先执行？为什么？
+     * 5. 如何目标Activity所在的进程已经启动了，如何处理？
+     * 6. ActivityThread、ActivityRecord、Instrument、ActivityStarter、ActivityStartController分别是什么？在整个启动过程中担任什么样的角色？
+     * 7. ActivityTaskManager和ActivityTaskManagerService的区别是什么？他们分别运行在哪个进程？
+     *
      * */
 
     private class ActivityLifeCycle {
@@ -69,13 +79,6 @@ class Activity {
          *
          * */
 
-        /**
-         * Tips：
-         *
-         * 1. Activity的构造函数和onCreate()哪个先执行?为什么?
-         *
-         * */
-
     }
 
     private class ActivityLaunchMode {
@@ -125,6 +128,21 @@ class Activity {
          *
          * 八、Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENT
          * 新的Activity不会在最近启动的Activity的列表中保存。
+         *
+         * */
+
+    }
+
+    private class ActivityLaunchProcess {
+
+        /**
+         * 谈到Activity的启动过程，就绕不过AMS(ActivityManagerService)(Android 10及以上版本拆分出ActivityTaskManager管理Activity)
+         * 谈到AMS，就绕不过进程通信Binder
+         *
+         * 好了，我们先来大概介绍一下，当你调用startActivity之后，会发生些什么
+         *
+         * Activity.startActivity()->Instrument.execStartActivity()->AMS/ATM.startActivity(aidl)
+         * ->ActivityTaskManagerService.startActivityAsUser()->ActivityStarter.execute()
          *
          * */
 
