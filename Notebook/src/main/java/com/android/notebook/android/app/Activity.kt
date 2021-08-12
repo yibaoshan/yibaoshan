@@ -12,15 +12,22 @@ class Activity {
      * Activity启动模式
      * @see ActivityLaunchMode
      *
+     * Activity启动过程
+     * @see ActivityLaunchProcess
+     *
+     * Activity安全攻防
+     * @see ActivitySafe
+     *
+     * Activity常见问题
+     * @see AboutActivityQuestions
+     *
      * @TODO
-     * 1. AMS通知其他进程启动时，已经建立连接了吗？不然，如何通信呢？
-     * 猜想：因为是从zygote进程孵化出去的，所以已经有连接了？
-     * 2. ActivityStarter启动时，如何确定Activity所在的Task和如何压入ActivityStack的？
-     * 3. Activity启动另一个Activity时，其自身和another的生命周期如何变化？
-     * 4. Activity的构造函数和onCreate()哪个先执行？为什么？
-     * 5. 如何目标Activity所在的进程已经启动了，如何处理？
-     * 6. ActivityThread、ActivityRecord、Instrument、ActivityStarter、ActivityStartController分别是什么？在整个启动过程中担任什么样的角色？
-     * 7. ActivityTaskManager和ActivityTaskManagerService的区别是什么？他们分别运行在哪个进程？
+     * - 理清楚启动过程中，涉及到各个类所在的进程
+     * - Activity对象保存在哪里？生命周期是谁回调的？什么场景下会回调？
+     * - Intent什么时候读取的flags
+     * - 如果待启动的Activity所在进程没有启动，那么是什么时候启动的？启动后AMS如何知道并继续通知进程启动目标Activity
+     * - 如何目标Activity所在的进程已经启动了，如何处理？
+     * - 做实验：allowBackup允许备份如何攻击？export设为true会怎样，拿到全量类目启动任意Activity
      *
      * */
 
@@ -95,6 +102,8 @@ class Activity {
          * 一、standard
          *
          * 二、singleTop
+         * 场景：
+         * 1. 防止重复启动，比如从列表点击进入详情，除了view做防止双击处理外，还可以将商品详情页启动模式指定为singleTop
          *
          * 三、singleTask
          * 在相同taskAffinity只有一个实例
@@ -141,8 +150,31 @@ class Activity {
          *
          * 好了，我们先来大概介绍一下，当你调用startActivity之后，会发生些什么
          *
-         * Activity.startActivity()->Instrument.execStartActivity()->AMS/ATM.startActivity(aidl)
-         * ->ActivityTaskManagerService.startActivityAsUser()->ActivityStarter.execute()
+         * Activity.startActivity()->Instrument.execStartActivity(rpc)
+         * ->ActivityTaskManagerService.startActivityAsUser(ActivityStarter.execute())
+         *
+         * 最后，关于Activity启动过程中涉及到的类，您可以查看：
+         * @see com.android.notebook.android.frameworks.base.core.android.app.Activity#startActivity()
+         *
+         * */
+
+    }
+
+    private class ActivitySafe {
+
+        /**
+         * Activity安全性一直被人诟病
+         * 比如攻击者可以
+         *
+         * */
+
+    }
+
+    private class AboutActivityQuestions {
+
+        /**
+         * 1. 构造函数和onCreate哪个先执行？以及，私有化构造函数Activity还能启动吗？
+         * 答：必然构造函数先执行，私有化构造函数会导致启动失败，newInstance失败
          *
          * */
 

@@ -38,6 +38,13 @@ class Main {
      * 如何您想了解Android各个系统版本间差异，请查看：
      * @see AndroidVersion
      *
+     * Android Root权限相关
+     * @see AndroidRoot
+     *
+     * Android相关算法、签名等，请查看：
+     * @see AndroidEncrypt
+     *
+     *
      * */
 
 }
