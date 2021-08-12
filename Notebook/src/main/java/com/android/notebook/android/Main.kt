@@ -25,7 +25,9 @@ class Main {
      * 最后，平时工作中使用到的第三方库，也是需要掌握的部分
      *
      * 一、Framework
+     * 1. 四大组件
      * @see com.android.notebook.android.app.Activity -包含了生命周期、启动模式等常见知识点
+     * 2. Context
      *
      * 二、Support Package And Android X
      *

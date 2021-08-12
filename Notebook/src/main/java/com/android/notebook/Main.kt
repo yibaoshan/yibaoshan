@@ -38,4 +38,32 @@ class Main {
      *
      * */
 
+    /**
+     * Blog Point
+     *
+     * Java基础
+     *  什么是泛型
+     *  什么是反射
+     *  什么是锁
+     *  什么是juc
+     *  Java集合类有哪些
+     *
+     * Android基础
+     *  四大组件-什么是Activity
+     *  四大组件-什么是Service
+     *  四大组件-什么是Broadcast Receiver
+     *  四大组件-什么是Content Provider
+     *  什么是Context
+     *  什么是Application
+     *
+     * Android进阶
+     *
+     * Android X
+     *
+     * Android JetPack
+     *
+     * Step
+     *
+     * */
+
 }
