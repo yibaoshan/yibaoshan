@@ -22,11 +22,11 @@ class Activity {
      * @see AboutActivityQuestions
      *
      * @TODO
-     * - 理清楚启动过程中，涉及到各个类所在的进程
      * - Activity对象保存在哪里？生命周期是谁回调的？什么场景下会回调？
      * - Intent什么时候读取的flags
      * - 如果待启动的Activity所在进程没有启动，那么是什么时候启动的？启动后AMS如何知道并继续通知进程启动目标Activity
      * - 如何目标Activity所在的进程已经启动了，如何处理？
+     * - 为什么Application启动Activity不加NEW_TASK会发生崩溃？
      * - 做实验：allowBackup允许备份如何攻击？export设为true会怎样，拿到全量类目启动任意Activity
      *
      * */
