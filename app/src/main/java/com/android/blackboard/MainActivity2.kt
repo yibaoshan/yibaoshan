@@ -14,7 +14,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity2 : AppCompatActivity() {
 
     private val TAG = "MainActivity"
     @RequiresApi(Build.VERSION_CODES.M)
@@ -22,9 +22,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<TextView>(R.id.text).setOnClickListener {
-            val intent = Intent(this@MainActivity,MainActivity2::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            application.startActivity(intent)
+            val intent = Intent(this@MainActivity2,MainActivity2::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
 
     }
