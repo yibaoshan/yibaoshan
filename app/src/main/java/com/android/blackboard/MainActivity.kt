@@ -17,14 +17,15 @@ import java.lang.reflect.Method
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<TextView>(R.id.text).setOnClickListener {
             val intent = Intent(this@MainActivity,MainActivity2::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            application.startActivity(intent)
+//            application.startActivity(intent)
+            startForegroundService(Intent(this@MainActivity,TestService::class.java))
         }
 
     }

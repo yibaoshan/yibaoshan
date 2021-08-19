@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         package="com.android.blackboard">
 
     <application
@@ -17,6 +18,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity2" android:launchMode="singleInstance"/>
+        <service android:name=".TestService"
+                tools:ignore="Instantiatable" />
     </application>
 
 </manifest>

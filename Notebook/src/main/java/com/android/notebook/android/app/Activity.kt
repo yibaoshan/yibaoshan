@@ -3,6 +3,11 @@ package com.android.notebook.android.app
 class Activity {
 
     /**
+     * 移动端和PC端的体验不同之处在于，不总是以固定位置开始
+     * 比如，我想要写邮件，PC端是打开邮件应用，移动端则直接跳转到写邮件页面，这其中就是Activity的作用
+     * 不需要启动整个应用，即可单独使用应用内的某个功能页
+     *
+     * Activity继承自ContextThemeWrapper
      * 此篇会介绍Activity生命周期和常见启动模式
      * 以及最重要的，Activity的启动过程
      *
@@ -104,15 +109,20 @@ class Activity {
          * 二、singleTop
          * 场景：
          * 1. 防止重复启动，比如从列表点击进入详情，除了view做防止双击处理外，还可以将商品详情页启动模式指定为singleTop
+         *    当需要从商详再打开商详，不加singleTop的flag即默认指定为standard
          *
          * 三、singleTask
-         * 在相同taskAffinity只有一个实例
+         * 在相同taskAffinity只有一个实例，一般主页会用这个模式
          *
          * 四、singleInstance
+         * 在此模式下的activity会被放入其他task中，在RunningTaskInfo(ActivityManager.getRunningTasks)可以看到
+         * 但如果不指定taskAffinity，会被默认放入当前包名下，这就会导致，命名activity存活在task中，但是最近任务中看不到，也无法通过返回键回退
+         * 适合开放给其他APP使用的业务，比如登录页
          *
          * Intent：setFlags：
          *
          * 一、Intent.FLAG_ACTIVITY_NEW_TASK(比较关键)
+         * 使用除Application和Service时需要加
          *
          * 二、Intent.FLAG_ACTIVITY_CLEAR_TASK
          * 只能与#FLAG_ACTIVITY_NEW_TASK配合使用，启动时清空当前栈，新启动的Activity变成这个空栈的根Activity并将这个栈移动到最前面。
