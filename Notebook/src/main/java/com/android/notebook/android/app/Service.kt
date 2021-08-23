@@ -3,7 +3,7 @@ package com.android.notebook.android.app
 class Service {
 
     /**
-     * Service继承自ContextWrapper
+     * Service继承自ContextWrapper，由AMS管理和管理，ActivityThread执行
      *
      * 本文围绕Service生命周期、启动方式展开
      * 什么是Service？

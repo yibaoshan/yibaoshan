@@ -2,14 +2,18 @@ package com.android.blackboard
 
 import android.app.Activity
 import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.renderscript.RenderScript
 import android.util.Log
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -17,17 +21,24 @@ import java.lang.reflect.Method
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<TextView>(R.id.text).setOnClickListener {
-            val intent = Intent(this@MainActivity,MainActivity2::class.java)
+            val intent = Intent(this@MainActivity, MainActivity2::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 //            application.startActivity(intent)
-            startForegroundService(Intent(this@MainActivity,TestService::class.java))
+            startForegroundService(Intent(this@MainActivity, TestService::class.java))
         }
+        val intentFilter = IntentFilter("")
+        intentFilter.priority = 1000
+        registerReceiver(broadcastReceiver, intentFilter)
 
+        sendOrderedBroadcast(Intent(),"")
+        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent())
+        sendStickyBroadcast()
     }
 
     override fun onResume() {
@@ -35,11 +46,11 @@ class MainActivity : AppCompatActivity() {
         val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val runningTaskInfoList = am.getRunningTasks(10)
         for (runningTaskInfo in runningTaskInfoList) {
-            Log.e(TAG,"id: " + runningTaskInfo.id)
-            Log.e(TAG,"description: " + runningTaskInfo.description)
-            Log.e(TAG,"number of activities: " + runningTaskInfo.numActivities)
-            Log.e(TAG,"topActivity: " + runningTaskInfo.topActivity)
-            Log.e(TAG,"baseActivity: " + runningTaskInfo.baseActivity.toString())
+            Log.e(TAG, "id: " + runningTaskInfo.id)
+            Log.e(TAG, "description: " + runningTaskInfo.description)
+            Log.e(TAG, "number of activities: " + runningTaskInfo.numActivities)
+            Log.e(TAG, "topActivity: " + runningTaskInfo.topActivity)
+            Log.e(TAG, "baseActivity: " + runningTaskInfo.baseActivity.toString())
         }
     }
 
@@ -66,4 +77,14 @@ class MainActivity : AppCompatActivity() {
         }
         return list
     }
+
+    private val broadcastReceiver = object : BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+            resultCode = 200
+            resultData = "叫爸爸"
+        }
+
+    }
+
 }

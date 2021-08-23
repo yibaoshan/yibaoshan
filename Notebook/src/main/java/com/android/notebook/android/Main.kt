@@ -25,8 +25,13 @@ class Main {
      * 最后，平时工作中使用到的第三方库，也是需要掌握的部分
      *
      * 一、Framework
-     * 1. 四大组件: Activity、Service、BroadcastReceiver、ContentProvider
-     * @see com.android.notebook.android.app.Activity -包含了生命周期、启动模式等常见知识点
+     * 1. 组件相关: Activity、Service、BroadcastReceiver、ContentProvider等
+     *  1.1 Activity(包含了生命周期、启动模式等常见知识点)
+     *  @see com.android.notebook.android.app.Activity
+     *  1.2 Service
+     *  @see com.android.notebook.android.app.Service
+     *  1.3 BroadcastReceiver
+     *  @see com.android.notebook.android.content.BroadcastReceiver
      *
      * 2. 系统服务
      *
@@ -50,7 +55,12 @@ class Main {
      * Android相关算法、签名等，请查看：
      * @see AndroidEncrypt
      *
-     *
+     * */
+
+    /**
+     * Questions：
+     * - 为什么adb命令可以执行发广播、启动Activity等操作
+     *  答：个人猜想未验证：开机启动adbd进程，adbd通过binder(serviceManager)进程发消息给system_server进程
      * */
 
 }
