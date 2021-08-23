@@ -6,14 +6,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
-import android.renderscript.RenderScript
 import android.util.Log
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.android.blackboard.TestContentProvider.CourseProviders
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -36,9 +37,8 @@ class MainActivity : AppCompatActivity() {
         intentFilter.priority = 1000
         registerReceiver(broadcastReceiver, intentFilter)
 
-        sendOrderedBroadcast(Intent(),"")
+        sendOrderedBroadcast(Intent(), "")
         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent())
-        sendStickyBroadcast()
     }
 
     override fun onResume() {
@@ -85,6 +85,13 @@ class MainActivity : AppCompatActivity() {
             resultData = "叫爸爸"
         }
 
+    }
+
+    private fun useTestContentProvider() {
+        val cursor: Cursor = contentResolver.query(CourseProviders.COURSE_URI, null, null, null, null) ?: return
+//        contentResolver.registerContentObserver()
+//        contentResolver.notifyChange()
+        cursor.close()
     }
 
 }

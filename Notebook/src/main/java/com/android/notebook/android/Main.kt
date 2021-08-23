@@ -28,15 +28,21 @@ class Main {
      * 1. 组件相关: Activity、Service、BroadcastReceiver、ContentProvider等
      *  1.1 Activity(包含了生命周期、启动模式等常见知识点)
      *  @see com.android.notebook.android.app.Activity
-     *  1.2 Service
+     *  1.2 Service(Service启动方式、IntentService等)
      *  @see com.android.notebook.android.app.Service
-     *  1.3 BroadcastReceiver
+     *  1.3 BroadcastReceiver(有序、无序、粘性、本地广播)
      *  @see com.android.notebook.android.content.BroadcastReceiver
+     *  1.4 ContentProvider
+     *  @see com.android.notebook.android.content.ContentProvider
      *
-     * 2. 系统服务
+     * 2. 基本通信方式：Binder、Handler、Socket
+     *  2.1 Binder
      *
-     * 2.1 Context
-     * @see com.android.notebook.android.content.Context
+     * 3. 系统服务：AMS、PMS、WMS、ServiceManager
+     *
+     * 4. 其他
+     *  4.1 Context
+     *  @see com.android.notebook.android.content.Context
      *
      * 二、Support Package And Android X
      *
