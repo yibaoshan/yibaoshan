@@ -7,6 +7,11 @@ class Main {
      * 根据维基百科的描述，Android以bionic取代Glibc、以Skia取代Cairo、再以OpenCORE取代FFmpeg等等
      * (维基百科-Android是什么:https://zh.wikipedia.org/wiki/Android)
      *
+     * Android系统之博大精深，包括Linux内核、Native、虚拟机、Framework
+     * 通过系统调用连通内核与用户空间
+     * 通过JNI打通用户空间的Java层和Native层
+     * 通过Binder、Socket、Handler等打通跨进程、跨线程的信息交换。
+     *
      * 由于Android采用Linux内核开发，所以：
      * 1. 每个APP可以简单理解为一个进程
      * 2. 该进程由zygote进程fork而出
@@ -14,7 +19,6 @@ class Main {
      * 4. APP启动时，由AMS发起进程间通信，通知zygote进程fork出新进程
      *
      * 学习Android开发，首先需要了解的就是Google提供的framework库
-     * 该库包含了常用的四大组件等
      *
      * 其次，还需要掌握AndroidX提供的类库
      * 平时开发过程中所使用的到的Fragment、RecyclerView等都包含在内
@@ -37,6 +41,7 @@ class Main {
      *
      * 2. 基本通信方式：Binder、Handler、Socket
      *  2.1 Binder
+     *  @see com.android.notebook.android.binder.Binder
      *
      * 3. 系统服务：AMS、PMS、WMS、ServiceManager
      *
