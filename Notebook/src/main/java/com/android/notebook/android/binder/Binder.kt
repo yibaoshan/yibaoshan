@@ -22,16 +22,22 @@ class Binder {
      * 4. Binder驱动：核心组件
      *
      * C++层
-     *
-     * Server：
-     * BpInterface(BpBinder)
-     *
-     * Client：
-     * BnInterface继承BBinder
+     * 1.IBinder
+     *  -> BpBinder
+     *  -> BBinder
+     *      -> BnInterface
+     *          -> BnXXX
+     * 2.BpInterface
+     *  -> BpXXX
      *
      * Java层
-     * IBinder接口
-     * IInterface接口
+     * 1.IBinder
+     *  -> Binder
+     *      -> xxxNative
+     *      -> xxxService
+     * 2.IInterface
+     *  -> Ixxx
+     *      -> xxxProxy
      *
      * */
 
