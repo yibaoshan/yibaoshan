@@ -17,6 +17,8 @@ class Main {
      * 2. 该进程由zygote进程fork而出
      * 3. zygote启动时会加载art虚拟机，并且初始化公共资源，比如framework类库
      * 4. APP启动时，由AMS发起进程间通信，通知zygote进程fork出新进程
+     * 关于Android系统启动过程的详细信息，请查看：
+     * @see com.android.notebook.android.docs.AndroidOSLaunchProcess
      *
      * 学习Android开发，首先需要了解的就是Google提供的framework库
      *
@@ -31,23 +33,23 @@ class Main {
      * 一、Framework
      * 1. 组件相关: Activity、Service、BroadcastReceiver、ContentProvider等
      *  1.1 Activity(包含了生命周期、启动模式等常见知识点)
-     *  @see com.android.notebook.android.app.Activity
+     *  @see com.android.notebook.android.docs.app.Activity
      *  1.2 Service(Service启动方式、IntentService等)
-     *  @see com.android.notebook.android.app.Service
+     *  @see com.android.notebook.android.docs.app.Service
      *  1.3 BroadcastReceiver(有序、无序、粘性、本地广播)
-     *  @see com.android.notebook.android.content.BroadcastReceiver
+     *  @see com.android.notebook.android.docs.content.BroadcastReceiver
      *  1.4 ContentProvider
-     *  @see com.android.notebook.android.content.ContentProvider
+     *  @see com.android.notebook.android.docs.content.ContentProvider
      *
      * 2. 基本通信方式：Binder、Handler、Socket
      *  2.1 Binder
-     *  @see com.android.notebook.android.binder.Binder
+     *  @see com.android.notebook.android.docs.binder.Binder
      *
      * 3. 系统服务：AMS、PMS、WMS、ServiceManager
      *
      * 4. 其他
      *  4.1 Context
-     *  @see com.android.notebook.android.content.Context
+     *  @see com.android.notebook.android.docs.content.Context
      *
      * 二、Support Package And Android X
      *
@@ -58,13 +60,13 @@ class Main {
      * 五、其他
      *
      * 如何您想了解Android各个系统版本间差异，请查看：
-     * @see AndroidVersion
+     * @see com.android.notebook.android.docs.AndroidVersion
      *
      * Android Root权限相关
-     * @see AndroidRoot
+     * @see com.android.notebook.android.docs.AndroidRoot
      *
      * Android相关算法、签名等，请查看：
-     * @see AndroidEncrypt
+     * @see com.android.notebook.android.docs.AndroidEncrypt
      *
      * */
 

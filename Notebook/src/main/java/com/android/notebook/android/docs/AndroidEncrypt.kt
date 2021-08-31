@@ -1,4 +1,4 @@
-package com.android.notebook.android
+package com.android.notebook.android.docs
 
 class AndroidEncrypt {
 

@@ -1,4 +1,4 @@
-package com.android.notebook.android.app
+package com.android.notebook.android.docs.app
 
 class Service {
 

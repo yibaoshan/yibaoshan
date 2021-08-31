@@ -1,4 +1,4 @@
-package com.android.notebook.android.content
+package com.android.notebook.android.docs.content
 
 
 class Context {

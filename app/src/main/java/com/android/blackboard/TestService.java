@@ -39,7 +39,6 @@ public class TestService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-// Add the buttons
         builder.setPositiveButton("", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
