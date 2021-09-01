@@ -74,6 +74,8 @@ class Main {
      * Questions：
      * - 为什么adb命令可以执行发广播、启动Activity等操作
      *  答：个人猜想未验证：开机启动adbd进程，adbd通过binder(serviceManager)进程发消息给system_server进程
+     * - c++层如何调用kernel层，Java层如何调用c++层
+     *  答：sysCall、JNI
      * */
 
 }

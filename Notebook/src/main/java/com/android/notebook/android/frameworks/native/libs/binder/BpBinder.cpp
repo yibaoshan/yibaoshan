@@ -11,7 +11,13 @@
 
   virtual const String16&    getInterfaceDescriptor() const;
 
-  virtual status_t    pingBinder();
+  virtual status_t pingBinder();
 
-  virtual status_t    transact(uint32_t code, const Parcel& data,
-                                        Parcel* reply, uint32_t flags = 0);
+  virtual status_t transact(uint32_t code, const Parcel& data,
+                                        Parcel* reply, uint32_t flags = 0){
+       //实际通过调用IPCThreadState的transact来完成传输数据动作
+      status_t status = IPCThreadState::self()->transact(
+                  mHandle, code, data, reply, flags);
+              if (status == DEAD_OBJECT) mAlive = 0;
+              return status;
+  }

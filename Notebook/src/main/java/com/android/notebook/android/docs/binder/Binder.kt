@@ -29,12 +29,20 @@ class Binder {
      * Surface GUI:Binder + 匿名共享内存
      * 虚拟机的fork:Socket
      *
-     * TODO ：
+     * TODO ：悠然红茶blog已看完，Binder暂且放一放，后续心态调整好了再来看gityuan的博客
      * 1. 驱动层、C++层分别提供哪些接口供Java层调用？或者说，驱动层提供哪些接口给C++层，Java层包装了哪些调用？
      * 2. APP所在进程想要发起一个RPC请求，要经历哪几个步骤？如何得到对方进程的BpBinder
      * 3. Binder是什么？是驱动对应的某一块内存区域吗？
      * 4. Java层的aidl为什么要求实体类和代理类拥有同一套aidl文件？
      *  答：代理类拿到binder对象后不知道调用哪个方法，同一套aidl即可解决这个问题
+     * 5. 如何通过sm注册和获取服务
+     * 6. 因为binder是驱动(dev/binder)，所以每个进程都能访问？每个进程去读0号位就是sm？通过0号位的sm查询其他已注册的服务的binder句柄号？再进行通信？
+     * 若是如此，那么接下来的问题就是：驱动层开发查询句柄的方法是哪个？另外，拿到句柄后发送数据，目标端是如何感知的？
+     * 7. 最重要的问题，Java层如何发起一个IPC请求，数据是如何流转到binder驱动的？整个链路涉及到各个层级的哪些方法？
+     *
+     * 关键词：
+     * 1. 每个进程都会维护自己的一套binder链表
+     * 2. Binder驱动根据BpBinder
      *
      * https://my.oschina.net/youranhongcha/blog/149575
      *
@@ -52,12 +60,18 @@ class Binder {
      * 3. Java层：
      * @see BinderJavaLayer
      *
+     * 最后还有一个很重要的类：ServiceManager
+     * @see com.android.notebook.android.frameworks.native.cmds.servicemanager
+     *
      * */
 
     private class BinderDriverLayer {
         /**
          * binder驱动层代码目录在
          * @see com.android.notebook.android.kernel.drivers.android
+         *
+         * 驱动层
+         *
          * */
     }
 
@@ -76,6 +90,22 @@ class Binder {
          * @see com.android.notebook.android.frameworks.native.libs.binder.BpBinder
          * 2. BpInterface和BnInterface负责传输的内容，前者为代理类接口，后者为实体类接口
          * @see com.android.notebook.android.frameworks.native.libs.binder.include.binder.IInterface
+         * 3. ProcessState为进程中的全局单例对象，保存binder句柄的链表，对应驱动层的binder_proc
+         * @see com.android.notebook.android.frameworks.native.libs.binder.ProcessState
+         *
+         * */
+
+        /**
+         * 数据流程方法时序图：
+         * BpBinder::transact()
+         *  ->IPCThreadState::self()->transact()
+         *      ->WaitForResponse()
+         *      ->talkWithDriver()
+         *          ->ioctl(mProcess->mDriverFD)
+         *              ->binder_ioctl()
+         *              ->copy_from_user()
+         *              ->binder_thread_write()
+         *              ->binder_thread_read()
          *
          * */
     }
