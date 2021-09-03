@@ -1,5 +1,6 @@
 package com.android.blackboard
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
@@ -7,13 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.database.Cursor
-import android.os.Binder
-import android.os.Build
-import android.os.Bundle
+import android.os.*
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.postDelayed
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.blackboard.TestContentProvider.CourseProviders
 import java.lang.reflect.Field
@@ -40,6 +41,18 @@ class MainActivity : AppCompatActivity() {
 
         sendOrderedBroadcast(Intent(), "")
         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent())
+
+        try {
+            val constructor = Handler::class.java.getConstructor(Handler.Callback::class.java, Boolean::class.java)
+            val callback = Handler.Callback { msg ->
+                Toast.makeText(this@MainActivity, msg.what.toString(), Toast.LENGTH_SHORT).show()
+                false
+            }
+            val handler = constructor.newInstance(callback, true)
+            handler.sendMessage(handler.obtainMessage(1))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override fun onResume() {

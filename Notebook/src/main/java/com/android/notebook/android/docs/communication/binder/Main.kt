@@ -1,6 +1,6 @@
-package com.android.notebook.android.docs.binder
+package com.android.notebook.android.docs.communication.binder
 
-class Binder {
+class Main {
 
     /**
      * 前言

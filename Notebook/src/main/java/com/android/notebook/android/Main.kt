@@ -43,7 +43,9 @@ class Main {
      *
      * 2. 基本通信方式：Binder、Handler、Socket
      *  2.1 Binder
-     *  @see com.android.notebook.android.docs.binder.Binder
+     *  @see com.android.notebook.android.docs.communication.binder.Main
+     *  2.2 Handler
+     *  @see com.android.notebook.android.docs.communication.handler.Main
      *
      * 3. 系统服务：AMS、PMS、WMS、ServiceManager
      *
