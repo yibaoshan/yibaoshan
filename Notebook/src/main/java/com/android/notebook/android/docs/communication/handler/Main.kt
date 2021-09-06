@@ -46,10 +46,14 @@ class Main {
      * + enqueueMessage()
      * @see com.android.notebook.android.frameworks.android.os.MessageQueue
      *
-     * TODO
+     * TODO：暂时兴趣不大，面试再来二刷
      * 1. 如何发送同步消息？
      * 2. handler消息分发流程是怎样的
      *
+     * */
+
+    /**
+     * 如何自己实现一套handler框架
      * */
 
 }

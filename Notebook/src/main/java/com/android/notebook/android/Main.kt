@@ -46,8 +46,11 @@ class Main {
      *  @see com.android.notebook.android.docs.communication.binder.Main
      *  2.2 Handler
      *  @see com.android.notebook.android.docs.communication.handler.Main
+     *  2.3 Socket
+     *  @see com.android.notebook.android.docs.communication.socket.Main
      *
      * 3. 系统服务：AMS、PMS、WMS、ServiceManager
+     *  3.1 ActivityManagerService
      *
      * 4. 其他
      *  4.1 Context
@@ -69,6 +72,9 @@ class Main {
      *
      * Android相关算法、签名等，请查看：
      * @see com.android.notebook.android.docs.AndroidEncrypt
+     *
+     * Android ADB常见命令：
+     * @see com.android.notebook.android.docs.AndroidAdb
      *
      * */
 
