@@ -3,6 +3,11 @@ package com.android.notebook.android.docs.communication.handler
 class Main {
 
     /**
+     * Handler-Looper使用流程
+     * 1. Looper.prepare()：持有queue，构造函数初始化
+     * 2. Looper.loop()：
+     * 3. new Handler().sendMessage()/postDelayed()
+     *
      * 在Android系统当中，大多数进程间通信都是使用的binder，同样的，大多数线程间通信使用的就是我们今天的主角：Handler
      *
      * 1. Handler：负责发送动作和处理消息
@@ -22,6 +27,7 @@ class Main {
      * # sThreadLocal: static ThreadLocal<Looper>
      * # sMainLooper: private static Looper
      * # sObserver: private static Observer
+     * # mQueue: MessageQueue
      * + prepare(quitAllowed)
      * + getMainLooper()
      * + loop()
@@ -46,14 +52,23 @@ class Main {
      * + enqueueMessage()
      * @see com.android.notebook.android.frameworks.android.os.MessageQueue
      *
-     * TODO：暂时兴趣不大，面试再来二刷
+     * TODO：
      * 1. 如何发送同步消息？
      * 2. handler消息分发流程是怎样的
+     * 3. handler提交消息如何保证线程安全的？
+     *  答：在调用enqueueMessage()时，方法里面加锁了
      *
      * */
 
     /**
-     * 如何自己实现一套handler框架
+     * 首页handler注意事项
+     *
+     * Looper：
+     * 1. Looper里常见方法都是静态方法
+     * 2. Looper里的threadLocal对象get方法和set方法里面会自动查找当前线程保存的对象
+     *
+     *
+     *
      * */
 
 }

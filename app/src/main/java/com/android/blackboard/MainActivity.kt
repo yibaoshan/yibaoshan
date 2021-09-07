@@ -53,6 +53,17 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
+        val handler2 = object : Handler() {
+
+            override fun handleMessage(msg: Message) {
+                super.handleMessage(msg)
+            }
+
+            override fun dispatchMessage(msg: Message) {
+                super.dispatchMessage(msg)
+            }
+        }
     }
 
     override fun onResume() {
