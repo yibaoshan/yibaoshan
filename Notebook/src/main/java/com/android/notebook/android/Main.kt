@@ -51,6 +51,7 @@ class Main {
      *
      * 3. 系统服务：AMS、PMS、WMS、ServiceManager
      *  3.1 ActivityManagerService
+     *  @see com.android.notebook.android.docs.system.ams.Main
      *
      * 4. 其他
      *  4.1 Context
