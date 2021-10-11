@@ -8,7 +8,7 @@ class AndroidOSLaunchProcess {
      *  @see IdleProcess
      *  @see InitProcess
      *  @see KthreaddProcess
-     * 3. init进程读取/解析init.rc文件，启动ServiceManager进程、Zygote进程
+     * 3. init进程读取/解析init.rc文件，启动ServiceManager(启动binder)进程、Zygote进程(启动vm/初始化jni)
      * 4. Zygote进程启动SystemServer进程
      *
      * */
