@@ -11,6 +11,9 @@ class AndroidOSLaunchProcess {
      * 3. init进程读取/解析init.rc文件，启动ServiceManager(启动binder)进程、Zygote进程(启动vm/初始化jni)
      * 4. Zygote进程启动SystemServer进程
      *
+     * system_server进程运行的服务：
+     * 1. InputManagerService
+     *
      * */
 
     private class IdleProcess {

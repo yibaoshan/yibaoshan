@@ -49,9 +49,12 @@ class Main {
      *  2.3 Socket
      *  @see com.android.notebook.android.docs.communication.socket.Main
      *
-     * 3. 系统服务：AMS、PMS、WMS、ServiceManager
-     *  3.1 ActivityManagerService
+     * 3. 系统服务：AMS、PMS、WMS、ServiceManager等
+     *  3.1 ActivityManagerService 各个组件是如何进行管理与调度
      *  @see com.android.notebook.android.docs.system.ams.Main
+     *  3.2 InputManagerService
+     *  @see com.android.notebook.android.docs.system.ims.Main
+     *
      *
      * 4. 其他
      *  4.1 Context
