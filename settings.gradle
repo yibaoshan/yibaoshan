@@ -1,3 +1,4 @@
+include ':AOSP'
 include ':Book'
 include ':Notebook'
 include ':Algorithm'

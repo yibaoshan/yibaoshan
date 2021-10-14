@@ -33,38 +33,57 @@ class Main {
      * 一、Framework
      * 1. 组件相关: Activity、Service、BroadcastReceiver、ContentProvider等
      *  1.1 Activity(包含了生命周期、启动模式等常见知识点)
-     *  @see com.android.notebook.android.docs.app.Activity
+     *  @see com.android.notebook.android.framework.component.Activity
      *  1.2 Service(Service启动方式、IntentService等)
-     *  @see com.android.notebook.android.docs.app.Service
+     *  @see com.android.notebook.android.framework.component.Service
      *  1.3 BroadcastReceiver(有序、无序、粘性、本地广播)
-     *  @see com.android.notebook.android.docs.content.BroadcastReceiver
+     *  @see com.android.notebook.android.framework.component.BroadcastReceiver
      *  1.4 ContentProvider
-     *  @see com.android.notebook.android.docs.content.ContentProvider
+     *  @see com.android.notebook.android.framework.component.ContentProvider
      *
      * 2. 基本通信方式：Binder、Handler、Socket
      *  2.1 Binder
-     *  @see com.android.notebook.android.docs.communication.binder.Main
+     *  @see com.android.notebook.android.framework.communication.Binder
      *  2.2 Handler
-     *  @see com.android.notebook.android.docs.communication.handler.Main
+     *  @see com.android.notebook.android.framework.communication.Handler
      *  2.3 Socket
-     *  @see com.android.notebook.android.docs.communication.socket.Main
+     *  @see com.android.notebook.android.framework.communication.Socket
      *
      * 3. 系统服务：AMS、PMS、WMS、ServiceManager等
      *  3.1 ActivityManagerService 各个组件是如何进行管理与调度
-     *  @see com.android.notebook.android.docs.system.ams.Main
+     *  @see com.android.notebook.android.framework.service.ActivityManagerService
      *  3.2 InputManagerService
-     *  @see com.android.notebook.android.docs.system.ims.Main
+     *  @see com.android.notebook.android.framework.service.InputManagerService
+     *  3.3 PackageManagerService Android安装策略
+     *  3.4 WindowManagerService 窗口管理机制
      *
+     * 4. Android View机制
+     *  4.1 Android 事件分发机制的设计与实现
+     *  4.2 Android 事件拦截机制的设计与实现
+     *  4.3 Android View视图渲染
+     *  4.4 Android View机制设计与实现：布局流程
+     *  4.5 Android View机制设计与实现：测量流程
+     *  4.6 Android LayoutInflater机制的设计与实现
      *
-     * 4. 其他
-     *  4.1 Context
-     *  @see com.android.notebook.android.docs.content.Context
+     * 5. 关键系统类
+     *  5.1 Context
+     *  @see com.android.notebook.android.framework.other.Context
      *
-     * 二、Support Package And Android X
+     * 二、Support Package And Android X And JetPack
+     * 1. Fragment
+     * 2. RecyclerView
+     * 3. ViewPager
+     * 4. Lifecycle
+     * 5. FragmentActivity
+     * 6. DataBinding
      *
      * 三、Third SDK
+     * 1. Glide
+     * 2. Retrofit
+     * 3. ButterKnife
+     * 4. Tinker
      *
-     * 四、Android开发框架和JetPack
+     * 四、元编程与开发框架
      *
      * 五、其他
      *
@@ -79,6 +98,8 @@ class Main {
      *
      * Android ADB常见命令：
      * @see com.android.notebook.android.docs.AndroidAdb
+     *
+     *
      *
      * */
 
