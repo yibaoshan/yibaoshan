@@ -3,6 +3,18 @@ package com.android.notebook.android.docs
 class AndroidOSLaunchProcess {
 
     /**
+     * 1. power：主板上电
+     * 2. BootLoader：刻录在芯片内部电路去找下一步执行的代码片
+     * 3. uboot
+     *   3.1 初始化外设
+     *   3.2 设置启动参数
+     *   3.3 引导内核启动
+     * 4. kernel
+     *   4.1 设置硬件加载驱动
+     *   4.2 根据uboot参数启动系统
+     * 5. Android
+     *   5.1 启动系统服务：mediaserver、servicemanager、adbd、bootanimation、surfaceflinger、zygote
+     *
      * 1. 主板上电，BootLoader拉起Linux内核代码
      * 2. Kernel内核代码初始化内存、磁盘等之后退化成0号进程idle，然后启动1号进程init进程和2号进程kthreadd进程
      *  @see IdleProcess
