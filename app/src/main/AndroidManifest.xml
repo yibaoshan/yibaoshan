@@ -10,15 +10,25 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.Blackboard">
-        <activity android:name=".MainActivity">
+        <activity android:name=".InterviewMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity2" android:launchMode="singleInstance"/>
-        <service android:name=".TestService"
+        <activity
+                android:name=".MainActivity2"
+                android:launchMode="singleInstance" />
+        <activity
+                android:name=".MainActivity"
+                android:launchMode="standard" />
+        <activity
+                android:name=".InterviewContentActivity"
+                android:launchMode="standard" />
+
+        <service
+                android:name=".TestService"
                 tools:ignore="Instantiatable" />
     </application>
 

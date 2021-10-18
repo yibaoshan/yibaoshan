@@ -55,10 +55,14 @@ class Main {
      *  3.2 InputManagerService
      *  @see com.android.notebook.android.framework.service.InputManagerService
      *  3.3 PackageManagerService Android安装策略
+     *  @see com.android.notebook.android.framework.service.PackageManagerService
      *  3.4 WindowManagerService 窗口管理机制
+     *  @see com.android.notebook.android.framework.service.WindowManagerService
      *
      * 4. Android View机制
+     * @see com.android.notebook.android.framework.view.Main 概述
      *  4.1 Android 事件分发机制的设计与实现
+     *  @see com.android.notebook.android.framework.view.ViewEventDispatch
      *  4.2 Android 事件拦截机制的设计与实现
      *  4.3 Android View视图渲染
      *  4.4 Android View机制设计与实现：布局流程
