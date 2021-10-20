@@ -23,12 +23,12 @@ class Main {
      * 学习Android开发，首先需要了解的就是Google提供的framework库
      *
      * 其次，还需要掌握AndroidX提供的类库
-     * 平时开发过程中所使用的到的Fragment、RecyclerView等都包含在内
+     * 开发过程中所使用的到的Fragment、RecyclerView等都包含在内
      * 学习完framework和AndroidX两部分知识点后，您还可以尝试了解Android的运行时环境ART虚拟机
      * ART虚拟机部分被分到其他模块中(VirtualMachine)，如果您有兴趣，可以查看：
      * @see com.android.notebook.virtualMachine.Main
      *
-     * 最后，平时工作中使用到的第三方库，也是需要掌握的部分
+     * 最后，工作中使用到的第三方库，也是需要掌握的部分
      *
      * 一、Framework
      * 1. 组件相关: Activity、Service、BroadcastReceiver、ContentProvider等
@@ -64,6 +64,7 @@ class Main {
      *  4.1 Android 事件分发机制的设计与实现
      *  @see com.android.notebook.android.framework.view.ViewEventDispatch
      *  4.2 Android 事件拦截机制的设计与实现
+     *  @see com.android.notebook.android.framework.view.ViewEventIntercept
      *  4.3 Android View视图渲染
      *  4.4 Android View机制设计与实现：布局流程
      *  4.5 Android View机制设计与实现：测量流程
@@ -102,8 +103,6 @@ class Main {
      *
      * Android ADB常见命令：
      * @see com.android.notebook.android.docs.AndroidAdb
-     *
-     *
      *
      * */
 

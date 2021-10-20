@@ -15,23 +15,27 @@ class ViewEventDispatch {
      * 分发链：每个ViewGroup持有的mFirstTouchTarget对象
      * */
 
-    var hasChild = false;
+    class ViewGroup{
 
-    open fun dispatchTouchEvent(event: MotionEvent?): Boolean {
-        var consume = false
-        // 1.将事件分发给Child
-        if (hasChild) {
+        var hasChild = false;
+
+        fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+            var consume = false
+            // 1.将事件分发给Child
+            if (hasChild) {
 //            consume = child.dispatchTouchEvent()
-        }
-        // 2.若Child不消费该事件,或者没有child，判断自身是否消费该事件
-        if (!consume) {
+            }
+            // 2.若Child不消费该事件,或者没有child，判断自身是否消费该事件
+            if (!consume) {
 //            consume = super.dispatchTouchEvent()
+            }
+            // 3.将结果向上层传递
+            return consume
         }
-        // 3.将结果向上层传递
-        return consume
-    }
 
-    class MotionEvent {}
+        class MotionEvent {}
+
+    }
 
     /**
      * DecorView的双重职责：
