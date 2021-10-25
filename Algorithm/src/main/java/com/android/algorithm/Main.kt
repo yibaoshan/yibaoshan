@@ -45,6 +45,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_141_环形链表
      * @see com.android.algorithm.leetcode.Easy_21_合并两个有序链表
      * @see com.android.algorithm.leetcode.Easy_203_移除链表元素
+     * @see com.android.algorithm.leetcode.Easy_206_反转链表
+     * @see com.android.algorithm.leetcode.Easy_83_删除排序链表中的重复元素
      * */
 
     /****力扣end****/
