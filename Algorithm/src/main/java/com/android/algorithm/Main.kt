@@ -47,6 +47,10 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_203_移除链表元素
      * @see com.android.algorithm.leetcode.Easy_206_反转链表
      * @see com.android.algorithm.leetcode.Easy_83_删除排序链表中的重复元素
+     *
+     * 栈/队列：
+     * @see com.android.algorithm.leetcode.Easy_20_有效的括号
+     * @see com.android.algorithm.leetcode.Easy_232_用栈实现队列
      * */
 
     /****力扣end****/
