@@ -69,6 +69,7 @@ class Main {
      *  4.4 Android View机制设计与实现：布局流程
      *  4.5 Android View机制设计与实现：测量流程
      *  4.6 Android LayoutInflater机制的设计与实现
+     *  @see com.android.notebook.android.framework.view.ViewLayoutInflater
      *
      * 5. 关键系统类
      *  5.1 Context

@@ -18,6 +18,10 @@ class Project {
      * wanAndroid
      * - 动态换肤、深色模式
      * - 图片视频加载
+     *
+     * 换肤实现：
+     * @link https://github.com/qingmei2/blogs/issues/55
+     * @link https://github.com/ximsfei/Android-skin-support
      * */
 
 }
