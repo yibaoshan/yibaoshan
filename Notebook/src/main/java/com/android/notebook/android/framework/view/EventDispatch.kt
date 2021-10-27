@@ -1,7 +1,7 @@
 package com.android.notebook.android.framework.view
 
 
-class ViewEventDispatch {
+class EventDispatch {
 
     /**
      * Android的事件分发机制总的来说是监听I/O变化，经过筛选后再派发给各个子系统

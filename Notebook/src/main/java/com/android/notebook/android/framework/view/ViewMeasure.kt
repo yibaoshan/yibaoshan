@@ -13,6 +13,10 @@ class ViewMeasure {
      *
      * 3. setMeasuredDimension()：标志测量的完成
      *
+     * */
+
+    /**
+     *
      * ViewGroup布局测量三部曲：
      * 1. measure()：同上
      *

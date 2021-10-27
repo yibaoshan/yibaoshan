@@ -61,15 +61,16 @@ class Main {
      *
      * 4. Android View机制
      *  4.1 Android 事件分发机制的设计与实现
-     *  @see com.android.notebook.android.framework.view.ViewEventDispatch
+     *  @see com.android.notebook.android.framework.view.EventDispatch
      *  4.2 Android 事件拦截机制的设计与实现
-     *  @see com.android.notebook.android.framework.view.ViewEventIntercept
-     *  4.3 Android View视图渲染
+     *  @see com.android.notebook.android.framework.view.EventIntercept
+     *  4.3 Android View视图刷新&渲染
      *  4.4 Android View机制设计与实现：布局流程
+     *  @see com.android.notebook.android.framework.view.ViewLayout
      *  4.5 Android View机制设计与实现：测量流程
      *  @see com.android.notebook.android.framework.view.ViewMeasure
      *  4.6 Android LayoutInflater机制的设计与实现
-     *  @see com.android.notebook.android.framework.view.ViewLayoutInflater
+     *  @see com.android.notebook.android.framework.view.LayoutInflater
      *
      * 5. 关键系统类
      *  5.1 Context
