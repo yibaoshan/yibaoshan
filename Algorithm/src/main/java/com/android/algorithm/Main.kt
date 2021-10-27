@@ -51,6 +51,12 @@ class Main {
      * 栈/队列：
      * @see com.android.algorithm.leetcode.Easy_20_有效的括号
      * @see com.android.algorithm.leetcode.Easy_232_用栈实现队列
+     *
+     * 树：
+     * @see com.android.algorithm.leetcode.Easy_144_二叉树的前序遍历
+     * @see com.android.algorithm.leetcode.Easy_94_二叉树的中序遍历
+     * @see com.android.algorithm.leetcode.Easy_145_二叉树的后序遍历
+     *
      * */
 
     /****力扣end****/
