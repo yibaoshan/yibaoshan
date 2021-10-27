@@ -1,4 +1,4 @@
-package com.android.blackboard
+package com.android.blackboard.interview
 
 import android.os.*
 import android.view.Gravity
@@ -14,7 +14,6 @@ import java.lang.ref.WeakReference
 /**
  *  author :Bob.
  *  date : 2021/1/26
- *  desc :
  */
 @ExperimentalStdlibApi
 class InterviewMainActivity : AppCompatActivity() {
@@ -42,7 +41,7 @@ class InterviewMainActivity : AppCompatActivity() {
             for (i in list!!.indices) {
                 val fileName = list[i]
                 if (!fileName.lowercase().contains(".md")) continue
-                addButtonView(fileName, View.OnClickListener { InterviewContentActivity.startContentActivity(this, fileName) })
+                addButtonView(fileName) { InterviewContentActivity.startContentActivity(this, fileName) }
             }
         } catch (e: IOException) {
             e.printStackTrace()

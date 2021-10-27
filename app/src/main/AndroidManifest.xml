@@ -10,7 +10,7 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.Blackboard">
-        <activity android:name=".InterviewMainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -18,14 +18,13 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".MainActivity2"
-                android:launchMode="singleInstance" />
-        <activity
-                android:name=".MainActivity"
+                android:name=".interview.InterviewMainActivity"
                 android:launchMode="standard" />
         <activity
-                android:name=".InterviewContentActivity"
+                android:name=".interview.InterviewContentActivity"
                 android:launchMode="standard" />
+        <activity android:name=".framework.FrameworkActivity" />
+        <activity android:name=".framework.FrameworkViewActivity" />
 
         <service
                 android:name=".TestService"

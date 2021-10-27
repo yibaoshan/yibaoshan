@@ -1,10 +1,11 @@
-package com.android.blackboard
+package com.android.blackboard.interview
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
+import com.android.blackboard.R
 import org.markdown4j.Markdown4jProcessor
 
 /**
