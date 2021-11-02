@@ -70,6 +70,11 @@ class Main {
      * 二分查找：
      * @see com.android.algorithm.leetcode.Easy_704_二分查找
      * @see com.android.algorithm.leetcode.Easy_278_第一个错误的版本
+     * @see com.android.algorithm.leetcode.Easy_35_搜索插入位置
+     *
+     * 双指针：
+     * @see com.android.algorithm.leetcode.Easy_977_有序数组的平方
+     * @see com.android.algorithm.leetcode.Medium_189_旋转数组
      * */
 
     /****力扣end****/
