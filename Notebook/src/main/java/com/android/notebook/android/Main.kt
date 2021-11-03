@@ -3,6 +3,27 @@ package com.android.notebook.android
 class Main {
 
     /**
+     * 参考书籍：
+     * - 深入理解Android：卷1 邓凡平
+     * 以Native层Framework模块为分析对象
+     * 知识点包括init、binder、zygote、jni、Message和Handler、audio系统、surface系统、vold、rild和mediascanner
+     *
+     * - 深入理解Android：卷2 邓凡平
+     * 以Java层Framework模块为分析对象
+     * PackageManagerService、ActivityManagerService、PowerManagerService、ContentService、ContentProvider等
+     *
+     * - 深入理解Android：卷3 张大伟
+     * 以SystemUI为切入点，分析了WindowsManagerService、输入系统、控件系统等
+     *
+     * - Android开发艺术探索 任玉刚
+     * Activity、IPC、View都有涉及，个人感觉章节较乱，不适合系统学习
+     *
+     * - Android进阶之光 刘望舒
+     * 讲了5.0/7.0新特性、View事件分发、Java的多线程与阻塞队列、网络和Retrofit框架、部分涉及模式、元编程里面的依赖注入等
+     * 个人感觉比较大杂烩，Android、Java、元编程、涉及模式、网络都有所涉及，不适合进阶
+     * 作者著有Android进阶三部曲，还有两本Android进阶解密和Android进阶指北没看过，从目录上来说：
+     * Android进阶解密偏framework，Android进阶指北偏Linux，质量和深度应该比进阶之光高一些，有机会可以看看
+     *
      * Android系统可以简单理解为Linux系统，但在Linux基础上删除/修改/增加了部分代码
      * 根据维基百科的描述，Android以bionic取代Glibc、以Skia取代Cairo、再以OpenCORE取代FFmpeg等等
      * (维基百科-Android是什么:https://zh.wikipedia.org/wiki/Android)

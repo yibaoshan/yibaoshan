@@ -75,6 +75,8 @@ class Main {
      * 双指针：
      * @see com.android.algorithm.leetcode.Easy_977_有序数组的平方
      * @see com.android.algorithm.leetcode.Medium_189_旋转数组
+     * @see com.android.algorithm.leetcode.Easy_283_移动零
+     * @see com.android.algorithm.leetcode.Easy_167_两数之和2输入有序数组
      * */
 
     /****力扣end****/
