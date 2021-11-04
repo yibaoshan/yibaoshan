@@ -77,6 +77,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_189_旋转数组
      * @see com.android.algorithm.leetcode.Easy_283_移动零
      * @see com.android.algorithm.leetcode.Easy_167_两数之和2输入有序数组
+     * @see com.android.algorithm.leetcode.Easy_344_反转字符串
+     * @see com.android.algorithm.leetcode.Easy_557_反转字符串中的单词3
      * */
 
     /****力扣end****/
