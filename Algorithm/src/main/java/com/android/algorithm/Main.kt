@@ -79,6 +79,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_167_两数之和2输入有序数组
      * @see com.android.algorithm.leetcode.Easy_344_反转字符串
      * @see com.android.algorithm.leetcode.Easy_557_反转字符串中的单词3
+     * @see com.android.algorithm.leetcode.Easy_876_链表的中间结点
+     * @see com.android.algorithm.leetcode.Medium_19_删除链表的倒数第N个结点
      * */
 
     /****力扣end****/
