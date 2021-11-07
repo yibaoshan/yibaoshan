@@ -81,6 +81,14 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_557_反转字符串中的单词3
      * @see com.android.algorithm.leetcode.Easy_876_链表的中间结点
      * @see com.android.algorithm.leetcode.Medium_19_删除链表的倒数第N个结点
+     *
+     * 滑动窗口：
+     * @see com.android.algorithm.leetcode.Medium_567_字符串的排列
+     * */
+
+    /**
+     * 力扣动态规划21天计划
+     * @see com.android.algorithm.leetcode.Easy_70_爬楼梯
      * */
 
     /****力扣end****/
