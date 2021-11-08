@@ -29,7 +29,6 @@ public class Easy_70_爬楼梯 {
         System.out.println(climbStairs(45));
     }
 
-
     public int climbStairs(int n) {
         if (n < 3) return n;
         return climbStairs(n - 1) + climbStairs(n - 2);
