@@ -42,6 +42,8 @@ class WindowManagerService {
 
     /**
      * 理解WindowToken
+     * 只要是一个Binder对象（随便一个），都可以作为Token向WMS进行声明
+     * 对WMS的客户端来说，Token仅仅是一个Binder对象而已。
      * */
 
 }
