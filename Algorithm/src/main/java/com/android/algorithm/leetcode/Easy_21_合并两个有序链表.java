@@ -36,8 +36,8 @@ public class Easy_21_合并两个有序链表 {
     /**
      * 双指针
      * 执行结果：通过
-     * 执行用时：1 ms, 在所有 Java 提交中击败了6.18%的用户
-     * 内存消耗：37.4 MB, 在所有 Java 提交中击败了97.37%的用户
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：37.9 MB, 在所有 Java 提交中击败了37.65%的用户
      */
     public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
         if (l1 == null) return l2;
@@ -46,13 +46,11 @@ public class Easy_21_合并两个有序链表 {
         while (l1 != null || l2 != null) {
             ListNode cur;
             if (l1 == null) {
-                temp = l2;
-                l2 = null;
-                break;
+                cur = l2;
+                l2 = l2.next;
             } else if (l2 == null) {
-                temp = l1;
-                l1 = null;
-                break;
+                cur = l1;
+                l1 = l1.next;
             } else if (l1.val < l2.val) {
                 cur = l1;
                 l1 = l1.next;
