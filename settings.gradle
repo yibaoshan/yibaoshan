@@ -3,6 +3,5 @@ include ':Book'
 include ':Notebook'
 include ':Algorithm'
 include ':DataStructure'
-include ':Git'
 include ':app'
 rootProject.name = "Blackboard"
