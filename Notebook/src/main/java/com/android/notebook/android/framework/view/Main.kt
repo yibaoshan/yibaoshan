@@ -11,7 +11,7 @@ class Main {
      *
      * Next：了解Android View绘制和渲染
      * 带着问题来思考View绘制&渲染过程：
-     * 1. SufaceFlinger机制如何工作？
+     * 1. SurfaceFlinger机制如何工作？
      * 2. requestLayout和invalidate区别？
      * 3. vSync垂直同步信号是什么？
      * 4. 什么是三级缓存，以及为什么要这么设计？
@@ -23,6 +23,9 @@ class Main {
      * 10. Activity发生跳转时，跳转动画执行的时机是什么时候？
      * 11. ViewRootImpl是什么
      * 12. Choreographer的作用是什么
+     *
+     * Android 显示系统：SurfaceFlinger详解
+     * @link https://www.cnblogs.com/blogs-of-lxl/p/11272756.html
      * */
 
 }

@@ -25,6 +25,10 @@
                 android:launchMode="standard" />
         <activity android:name=".framework.FrameworkActivity" />
         <activity android:name=".framework.FrameworkViewActivity" />
+        <activity android:name=".interview.LookImageMainActivity" />
+        <activity
+                android:name=".interview.LookImageContentActivity"
+                android:screenOrientation="landscape" />
 
         <service
                 android:name=".TestService"

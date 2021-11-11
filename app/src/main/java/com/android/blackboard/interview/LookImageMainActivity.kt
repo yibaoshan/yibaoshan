@@ -9,17 +9,14 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
+import com.android.blackboard.R
 import java.io.IOException
 import java.lang.ref.WeakReference
 
-/**
- *  author :Bob.
- *  date : 2021/1/26
- */
 @ExperimentalStdlibApi
-class InterviewMainActivity : AppCompatActivity() {
+class LookImageMainActivity : AppCompatActivity() {
 
-    lateinit var weakReference: WeakReference<ViewGroup>
+    private lateinit var weakReference: WeakReference<ViewGroup>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,21 +31,11 @@ class InterviewMainActivity : AppCompatActivity() {
 
         weakReference = WeakReference(contentView)
         setContentView(scrollView)
-        init()
+        addView("Android启动过程", R.mipmap.ic_android_start_process)
     }
 
-    private fun init() {
-        try {
-            val list = assets.list("")
-            for (i in list!!.indices) {
-                val fileName = list[i]
-                if (!fileName.lowercase().contains(".md")) continue
-                addButtonView(fileName) { InterviewContentActivity.startContentActivity(this, fileName) }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
+    private fun addView(title: String, resId: Int) {
+        addButtonView(title) { LookImageContentActivity.startContentActivity(this, title, resId) }
     }
 
     private fun addButtonView(text: String, onClickListener: View.OnClickListener): Button {

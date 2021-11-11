@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.android.blackboard.framework.FrameworkActivity
 import com.android.blackboard.interview.InterviewMainActivity
+import com.android.blackboard.interview.LookImageMainActivity
 
 @ExperimentalStdlibApi
 class MainActivity : AppCompatActivity() {
@@ -17,6 +18,10 @@ class MainActivity : AppCompatActivity() {
 
     fun onNotebookClick(view: View) {
         startActivity(Intent(this, InterviewMainActivity::class.java))
+    }
+
+    fun onLookImageClick(view: View) {
+        startActivity(Intent(this, LookImageMainActivity::class.java))
     }
 
     fun onFrameworkClick(view: View) {

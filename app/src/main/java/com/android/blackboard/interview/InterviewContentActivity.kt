@@ -3,6 +3,7 @@ package com.android.blackboard.interview
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import com.android.blackboard.R
@@ -29,6 +30,7 @@ class InterviewContentActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val contentUrl = intent.getStringExtra("url")
         if (contentUrl?.contains(".md") == true) {
             val open = assets.open(contentUrl);
@@ -40,6 +42,16 @@ class InterviewContentActivity : AppCompatActivity() {
         baseUrl += if (contentUrl?.isNotEmpty() == true) contentUrl
         else "default.html"
         findViewById<WebView>(R.id.webView).loadUrl(baseUrl)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 }

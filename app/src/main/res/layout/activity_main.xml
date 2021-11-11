@@ -13,6 +13,12 @@
 
     <Button
             android:layout_width="match_parent"
+            android:text="LookImage"
+            android:onClick="onLookImageClick"
+            android:layout_height="wrap_content" />
+
+    <Button
+            android:layout_width="match_parent"
             android:text="Framework"
             android:onClick="onFrameworkClick"
             android:layout_height="wrap_content" />
