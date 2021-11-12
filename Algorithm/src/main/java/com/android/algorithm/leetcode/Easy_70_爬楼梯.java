@@ -26,11 +26,34 @@ public class Easy_70_爬楼梯 {
 
     @Test
     public void main() {
-        System.out.println(climbStairs(45));
+        int step = 4;
+        System.out.println(climbStairs(step));
+        System.out.println(climbStairs2(step));
     }
 
+    /**
+     * 执行结果：超时
+     */
     public int climbStairs(int n) {
         if (n < 3) return n;
         return climbStairs(n - 1) + climbStairs(n - 2);
     }
+
+    /**
+     * 动态规划，评论区答案，这一次的结果依赖于上一次计算结果
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：34.9 MB, 在所有 Java 提交中击败了90.06%的用户
+     */
+    public int climbStairs2(int n) {
+        if (n < 3) return n;
+        int one = 1, two = 2, temp;
+        for (int i = 3; i <= n; i++) {
+            temp = one;
+            one = two;
+            two = temp + one;
+        }
+        return two;
+    }
+
 }
