@@ -61,6 +61,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_104_二叉树的最大深度
      * @see com.android.algorithm.leetcode.Easy_101_对称二叉树
      * @see com.android.algorithm.leetcode.Medium_102_二叉树的层序遍历
+     * @see com.android.algorithm.leetcode.Easy_700二叉搜索树中的搜索
+     * @see com.android.algorithm.leetcode.Easy_701_二叉搜索树中的插入操作
      *
      * */
 

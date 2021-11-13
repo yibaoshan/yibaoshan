@@ -19,4 +19,9 @@ class ViewSystem {
      *
      * */
 
+    /**
+     * SurfaceFlinger是干嘛的
+     * 
+     * */
+
 }
