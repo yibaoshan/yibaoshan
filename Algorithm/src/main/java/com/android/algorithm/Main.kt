@@ -108,6 +108,10 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_198_打家劫舍
      * @see com.android.algorithm.leetcode.Medium_120_三角形最小路径和
      *
+     * 位运算：
+     * @see com.android.algorithm.leetcode.Easy_231_2的幂
+     * @see com.android.algorithm.leetcode.Easy_191_位1的个数
+     *
      * */
 
     /**
