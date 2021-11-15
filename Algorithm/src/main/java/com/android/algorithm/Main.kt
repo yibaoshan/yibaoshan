@@ -25,7 +25,7 @@ class Main {
     /****力扣begin****/
 
     /**
-     * 数据结构十四天学习计划
+     * 数据结构
      * 数组：
      * @see com.android.algorithm.leetcode.Easy_217_存在重复元素
      * @see com.android.algorithm.leetcode.Easy_53_最大子序和
@@ -37,6 +37,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_118_杨辉三角
      * @see com.android.algorithm.leetcode.Medium_36_有效的数独
      * @see com.android.algorithm.leetcode.Medium_73_矩阵置零
+     * @see com.android.algorithm.leetcode.Easy_136_只出现一次的数字
+     * @see com.android.algorithm.leetcode.Easy_169_多数元素
+     * @see com.android.algorithm.leetcode.Medium_15_三数之和
      *
      * 字符串：
      * @see com.android.algorithm.leetcode.Easy_387_字符串中的第一个唯一字符
