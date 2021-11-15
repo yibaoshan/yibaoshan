@@ -20,8 +20,19 @@ class ViewSystem {
      * */
 
     /**
+     * Vsync信号->SurfaceFlinger->WMS->Activity->View
      * SurfaceFlinger是干嘛的
-     * 
+     *
      * */
+
+    class SurfaceFlinger {
+
+        /**
+         * 介绍：
+         * 起源：由init进程解析init.rc文件拉起，单独运行的进程
+         * 职责：
+         * */
+
+    }
 
 }

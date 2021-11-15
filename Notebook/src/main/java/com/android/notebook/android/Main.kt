@@ -82,7 +82,7 @@ class Main {
      *  2.3 Socket
      *  @see com.android.notebook.android.framework.communication.Socket
      *
-     * 3. 系统服务：AMS、PMS、WMS、ServiceManager等
+     * 3. 系统服务：AMS、PMS、WMS、ServiceManager等 TODO
      *  3.1 ActivityManagerService 各个组件是如何进行管理与调度
      *  @see com.android.notebook.android.framework.service.ActivityManagerService
      *  3.2 InputManagerService
@@ -97,7 +97,7 @@ class Main {
      *  @see com.android.notebook.android.framework.view.EventDispatch
      *  4.2 Android 事件拦截机制的设计与实现
      *  @see com.android.notebook.android.framework.view.EventIntercept
-     *  4.3 Android View视图刷新&渲染
+     *  4.3 Android View视图刷新&渲染 TODO
      *  @see com.android.notebook.android.framework.view.ViewSystem
      *  4.4 Android View机制设计与实现：布局流程
      *  @see com.android.notebook.android.framework.view.ViewLayout
