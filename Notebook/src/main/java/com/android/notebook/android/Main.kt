@@ -3,6 +3,18 @@ package com.android.notebook.android
 class Main {
 
     /**
+     * 借用邓凡平前辈的话：
+     * Android分为几个层次，首先是Kernel层，它用得是Linux Kernel。
+     * 然后是用户空间中的Framework层。最后是Application层。
+     * Android的核心内容大部分集中在Framework层，我个人又把它划分成两个层次：
+     * 1. 以Native语言编写的模块，包括负责显示的SurfaceFlinger、负责音频I/O的AudioFlinger、负责媒体播放的MediaPlayerService、负责Wi-Fi的wpa_supplicant、负责蓝牙的Bluez。
+     * 我称之为Native Framework
+     * 2. 以Java编写的模块，包括和App紧密交互的ActivityManagerService、WindowManagerService等。
+     * 我称之为Java Framework
+     * Android提供的开发工具有SDK和NDK之分。
+     * 其实两个都是传统意义上的SDK，只不过SDK提供的是Java API，而NDK提供Native语言的API罢了。
+     * NDK出现的目的是因为Android App是一个Java应用程序，它有时候需要调用Native库来做一些事情，而Native库就用Native语言的API来实现。
+     *
      * 参考书籍：
      * - 深入理解Android：卷1 邓凡平
      * 以Native层Framework模块为分析对象

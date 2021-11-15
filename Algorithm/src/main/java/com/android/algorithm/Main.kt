@@ -63,6 +63,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_102_二叉树的层序遍历
      * @see com.android.algorithm.leetcode.Easy_700二叉搜索树中的搜索
      * @see com.android.algorithm.leetcode.Easy_701_二叉搜索树中的插入操作
+     * @see com.android.algorithm.leetcode.Medium_98_验证二叉搜索树
+     * @see com.android.algorithm.leetcode.Easy_653_两数之和IV输入BST
+     * @see com.android.algorithm.leetcode.Easy_235_二叉搜索树的最近公共祖先
      *
      * */
 
@@ -111,6 +114,8 @@ class Main {
      * 位运算：
      * @see com.android.algorithm.leetcode.Easy_231_2的幂
      * @see com.android.algorithm.leetcode.Easy_191_位1的个数
+     * @see com.android.algorithm.leetcode.Easy_190_颠倒二进制位
+     * @see com.android.algorithm.leetcode.Easy_136_只出现一次的数字
      *
      * */
 
