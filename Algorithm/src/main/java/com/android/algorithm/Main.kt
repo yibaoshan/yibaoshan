@@ -43,6 +43,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_75_颜色分类
      * @see com.android.algorithm.leetcode.Medium_56_合并区间
      * @see com.android.algorithm.leetcode.Easy_706_设计哈希映射
+     * @see com.android.algorithm.leetcode.Easy_119_杨辉三角2
+     * @see com.android.algorithm.leetcode.Medium_48_旋转图像
+     * @see com.android.algorithm.leetcode.Medium_59_螺旋矩阵2
      *
      * 字符串：
      * @see com.android.algorithm.leetcode.Easy_387_字符串中的第一个唯一字符
