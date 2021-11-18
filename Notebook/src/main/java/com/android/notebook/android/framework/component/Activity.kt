@@ -3,6 +3,11 @@ package com.android.notebook.android.framework.component
 class Activity {
 
     /**
+     * blog
+     * 旋转屏幕导致Activity重建问题的解决办法：http://www.520monkey.com/archives/22
+     * */
+
+    /**
      * 移动端和PC端的体验不同之处在于，不总是以固定位置开始
      * 比如，我想要写邮件，PC端是打开邮件应用，移动端则直接跳转到写邮件页面，这其中就是Activity的作用
      * 不需要启动整个应用，即可单独使用应用内的某个功能页

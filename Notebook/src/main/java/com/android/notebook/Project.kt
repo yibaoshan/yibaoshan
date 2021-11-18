@@ -11,6 +11,7 @@ class Project {
      * WebView性能优化
      * https拦截器加签验证
      * 启动速度
+     * retrofit加密验签
      *
      * */
 
