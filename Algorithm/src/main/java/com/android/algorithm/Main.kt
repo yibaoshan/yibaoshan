@@ -50,6 +50,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_59_螺旋矩阵2
      * @see com.android.algorithm.leetcode.Medium_240_搜索二维矩阵2
      * @see com.android.algorithm.leetcode.Medium_435_无重叠区间
+     * @see com.android.algorithm.leetcode.Medium_334_递增的三元子序列
+     * @see com.android.algorithm.leetcode.Medium_238_除自身以外数组的乘积
+     * @see com.android.algorithm.leetcode.Medium_560_和为K的子数组
      *
      * 字符串：
      * @see com.android.algorithm.leetcode.Easy_387_字符串中的第一个唯一字符
