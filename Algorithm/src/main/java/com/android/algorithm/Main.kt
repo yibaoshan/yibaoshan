@@ -58,6 +58,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_387_字符串中的第一个唯一字符
      * @see com.android.algorithm.leetcode.Easy_383_赎金信
      * @see com.android.algorithm.leetcode.Easy_242_有效的字母异位词
+     * @see .android.algorithm.leetcode.Easy_409_最长回文串
+     * @see com.android.algorithm.leetcode.Easy_415_字符串相加
      *
      * 链表：
      * @see com.android.algorithm.leetcode.Easy_141_环形链表
