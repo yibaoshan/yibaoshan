@@ -64,6 +64,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_290_单词规律
      * @see com.android.algorithm.leetcode.Medium_49_字母异位词分组
      * @see com.android.algorithm.leetcode.Medium_43_字符串相乘
+     * @see com.android.algorithm.leetcode.Medium_5_最长回文子串
+     * @see com.android.algorithm.leetcode.Medium_187_重复的DNA序列
      *
      * 链表：
      * @see com.android.algorithm.leetcode.Easy_141_环形链表
