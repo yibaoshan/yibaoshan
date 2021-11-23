@@ -107,4 +107,31 @@ class Fragment {
      *
      * */
 
+    /**
+     * 为什么要使用/什么情况下使用
+     * 如何使用
+     * 使用的注意事项
+     * 实现的原理
+     * */
+
+    private class 使用方法 {
+
+        /**
+         * 1. <fragment>标签：静态方式
+         * 2. ViewGroup+FragmentManager
+         * 聊聊可见性的问题
+         * 3. ViewPager/ViewPager2+Fragment
+         * 懒加载的问题
+         * */
+
+        /**
+         * 1. xml中使用fragment标签
+         * name=全量类目
+         * id=唯一标识
+         * 注意要声明id或者tag值，不然会收到如下错误错误
+         * java.lang.IllegalArgumentException: Binary XML file line #: Must specify unique android:id, android:tag
+         *
+         * */
+
+    }
 }
