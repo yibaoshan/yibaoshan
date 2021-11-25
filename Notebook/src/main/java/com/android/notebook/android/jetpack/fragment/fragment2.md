@@ -6,6 +6,7 @@
 3. FragmentManager和FragmentTransaction分别扮演什么角色
 4. Fragment回退栈是如何实现的
 5. Fragment设计者使用了哪些设计模式
+6. 一个Activity加入了Fragment之后，事件分发的流程会怎样流转
 
 > Fragment核心的类有：
 Fragment：Fragment的基类，任何创建的Fragment都需要继承该类。

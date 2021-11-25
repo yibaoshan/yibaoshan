@@ -1,6 +1,6 @@
 
 ## Android JetPack Fragment：（一）使用方法和注意事项
-## Android JetPack Fragment：（二）简单剖析实现原理
+## Android JetPack Fragment：（二）浅析实现原理
 
 ### 前言
 1. Fragment的出现是为了解决各个厂商屏幕物理尺寸&屏幕像素不一致而产生的
