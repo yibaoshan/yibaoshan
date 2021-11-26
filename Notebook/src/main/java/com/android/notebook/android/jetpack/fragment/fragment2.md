@@ -7,6 +7,7 @@
 4. Fragment回退栈是如何实现的
 5. Fragment设计者使用了哪些设计模式
 6. 一个Activity加入了Fragment之后，事件分发的流程会怎样流转
+7. View是如何被添加到window上的，或者说FM是如何帮助Fragment显示到window上的
 
 > Fragment核心的类有：
 Fragment：Fragment的基类，任何创建的Fragment都需要继承该类。
