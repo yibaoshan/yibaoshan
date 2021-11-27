@@ -1,9 +1,5 @@
 ### 【AndroidX】Fragment（一）：介绍和使用说明
 
-##### fragment出现是为了解决导航栏和内容区，参考微信
-##### fragment可以是个有生命周期的viewgroup
-##### fragment的生命周期不是由activity决定的
-
 1. Fragment是什么，以及我们为什么需要使用他
    2. 众所周知，以微信举例，通讯录聊天页面之间显然没有直接联系，基于单一原则。我们可以把这两个页面分开设计，但在fragment出现之前
    3. 用activity实现显然太重了，需要处理跳转逻辑和维护一套回退栈
@@ -22,12 +18,24 @@
 就算你不知道，bugly也会让你知道。
 我们都知道，fragment是通过newInstance创建的
 
-> 这篇文章主要向大家介绍Android fragment 标签加载过程分析,主要内容包括基础应用、实用技巧、原理机制等方面，希望对大家有所帮助。
-> 笔者环境：macOS Mojave10.14.6;android-11.0.0_r4;Redmi Note 7
-
 一、背景
 
 ####  二、如何使用Fragment
+
+####  2.1 声明依赖项
+在应用或模块的 build.gradle 文件中添加所需工件的依赖项：
+```
+dependencies {
+    val fragment_version = "1.3.6"
+
+    // Java language implementation
+    implementation("androidx.fragment:fragment:$fragment_version")
+    // Kotlin
+    implementation("androidx.fragment:fragment-ktx:$fragment_version")
+    // Testing Fragments in Isolation
+    debugImplementation("androidx.fragment:fragment-testing:$fragment_version")
+}
+```
 
 ##### 2.1 在xml中使用fragment标签
 示例@Example1Activity

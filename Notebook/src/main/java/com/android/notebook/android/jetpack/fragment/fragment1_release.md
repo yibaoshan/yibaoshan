@@ -12,7 +12,7 @@
 
 ### 一、Fragment是什么？为什么需要他？
 
-`Fragment`直译过来是`碎片`的意思，从使用场景来看，笔者认为翻译成`子页面`可能更贴切
+`Fragment`直译过来是`碎片`的意思，官方翻译为`片段`，从使用场景来看，笔者认为翻译成`子页面`可能更贴切
 
 ![blog_fragment_wechat_home](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Notebook/src/main/java/com/android/notebook/android/jetpack/fragment/res/blog_fragment_wechat_home.gif)
 
@@ -29,6 +29,9 @@ _图片来源：自己做的_
 
 
 *以上是笔者个人理解，目前主流博客，若您有不同的看法，以您为准。不管有没有Pad，Android迟早会推出可复用且轻量化的`子页面`控件
+
+#### Fragment生命周期
+Fragment是依附于Activity生存的
 
 #### Fragment通信
 

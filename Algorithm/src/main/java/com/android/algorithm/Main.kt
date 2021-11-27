@@ -78,6 +78,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_160_相交链表
      * @see com.android.algorithm.leetcode.Medium_82_删除排序链表中的重复元素2
      * @see com.android.algorithm.leetcode.Medium_24_两两交换链表中的节点
+     * @see com.android.algorithm.leetcode.Hard_25_K个一组翻转链表
+     * @see com.android.algorithm.leetcode.Medium_143_重排链表
      *
      * 栈/队列：
      * @see com.android.algorithm.leetcode.Easy_20_有效的括号
