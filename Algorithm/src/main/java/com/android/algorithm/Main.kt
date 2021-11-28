@@ -84,6 +84,8 @@ class Main {
      * 栈/队列：
      * @see com.android.algorithm.leetcode.Easy_20_有效的括号
      * @see com.android.algorithm.leetcode.Easy_232_用栈实现队列
+     * @see com.android.algorithm.leetcode.Easy_155_最小栈
+     * @see com.android.algorithm.leetcode.Medium_1249_移除无效的括号
      *
      * 树：
      * @see com.android.algorithm.leetcode.Easy_144_二叉树的前序遍历
