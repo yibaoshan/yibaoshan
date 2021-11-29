@@ -55,6 +55,22 @@ hide&show&onHiddenChanged
 
 AndroidX&FragmentStatePagerAdapter
 
+|  方法   | 释义  |
+|  ----  | ----  |
+| replace  | 每次销毁重建 |
+
+|  方法   | 释义  | 可见性 |
+|  ----  | ----  | |
+| add  | 单元格 | |
+| hide  | 单元格 | |
+| show  | 单元格 | |
+
+提示：对于每个片段事务，您都可通过在提交前调用 setTransition() 来应用过渡动画。
+
+1. 获取FragmentManager
+2. 获取FragmentTransaction
+3. 
+
 ##### 2.3 ViewPager
 为您的Fragment添加切换动画：https://developer.android.google.cn/training/animation/screen-slide?hl=zh-cn#pagetransformer
 懒加载：setUserVisibleHint

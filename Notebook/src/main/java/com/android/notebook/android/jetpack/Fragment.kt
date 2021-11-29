@@ -3,6 +3,35 @@ package com.android.notebook.android.jetpack
 class Fragment {
 
     /**
+     * Android Jetpack架构组件(五)之Navigation
+     * 一、 Navigation简介
+     * 1.1 Navigation诞生背景
+     * 介绍组件诞生背景以及能够做哪些事
+     * 1.2 Navigation元素
+     * 介绍相关类
+     *
+     * 二、Navigation使用
+     * 2.1 添加依赖
+     * gradle依赖讲解
+     * 2.2 创建导航图
+     * 2.3 Navigation graph
+     * 2.4 NavHostFragment
+     * 2.5 NavController
+     * 2.6 添加动画
+     *
+     * 三、参数传递
+     * 这里介绍了传参的几种方式以及注意事项
+     * 3.1 使用Bundle传递数据
+     * 示例代码
+     * 3.2 使用 Safe Args传递数据
+     * 示例代码
+     *
+     * 四、深层链接DeepLink
+     * 4.1 PendingIntent
+     * 4.2 URL
+     * */
+
+    /**
      * fragment是什么？
      * 诞生的背景
      * 解决了什么问题
