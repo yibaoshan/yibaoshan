@@ -1,16 +1,37 @@
 ### 【AndroidX】Fragment（一）：介绍和使用说明
 
-1. Fragment是什么，以及我们为什么需要使用他
+一、简介
+1.1 背景
+1.2 生命周期
+
+二、使用方式
+2.1 xml标签
+2.2 fm
+2.3 viewPager
+2.4 navigation
+
+三、通信
+3.1 接口&方法调用
+3.2 ViewModel
+3.3 Result API
+
+四、最后
+4.1 奇技淫巧
+4.2 常见注意事项
+
+参考资料
+
+2. Fragment是什么，以及我们为什么需要使用他
    2. 众所周知，以微信举例，通讯录聊天页面之间显然没有直接联系，基于单一原则。我们可以把这两个页面分开设计，但在fragment出现之前
    3. 用activity实现显然太重了，需要处理跳转逻辑和维护一套回退栈
-2. 在项目中如何使用Fragment
+3. 在项目中如何使用Fragment
    2.1 经典使用方式（懒加载）老三样
    2.2 JetPack组合使用方式
    2.3 Fragment的生命周期和可见性
    2.4 Fragment通信(为保证fragment的复用性，建议用接口)
    2.5 Fragment嵌套
-3. 奇技淫巧，关于fragment的妙用
-4. 注意事项
+4. 奇技淫巧，关于fragment的妙用
+5. 注意事项
    5. 空的构造函数
    6. activity强引用
 

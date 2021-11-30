@@ -2,6 +2,14 @@ package com.android.notebook.android.jetpack
 
 class Fragment {
 
+    class Blog2 {
+
+        /**
+         * 为什么Fragment会有生命周期？
+         * */
+
+    }
+
     /**
      * Android Jetpack架构组件(五)之Navigation
      * 一、 Navigation简介
