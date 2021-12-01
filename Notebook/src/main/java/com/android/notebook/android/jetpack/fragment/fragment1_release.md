@@ -1,6 +1,6 @@
-## Android JetPack Fragment：（一）使用方法和注意事项
+## Android JetPack Fragment：（一）使用方法介绍
 
-> 这篇文章主要探讨Fragment背景和常见的几种使用方式，希望对您有帮助。
+> 这篇文章主要介绍Fragment背景以及常见的几种使用方式，希望对您有帮助。
 >
 > 笔者环境：macOS Mojave10.14.6;android-11.0.0_r4;Redmi Note 7
 
@@ -61,9 +61,19 @@ dependencies {
 
 ### 2.2 在xml中使用 \<fragment \>标签
 
-使用
+标签方式使用起来比较简单
 
-唯一需要注意的一点是必须指定唯一标识，
+创建一个Activity继承于AppCompatActivity，随后在布局文件中使用 \<fragment \>标签创建即可，格式如下：
+
+```
+    <fragment
+            android:id="@+id/fragment"//唯一标识
+            android:name="Fragment"//显示的fragment
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+```
+
+唯一需要注意的一点是必须指定唯一标识，指定id或者tag，不然
 
 在Activity获取Fragment实例
 
@@ -88,6 +98,8 @@ dependencies {
 
 
 ### 2.5 Navigation
+
+Navigation和Fragment同为jetpack系列组件，使用方法，这里暂不展开
 
 ### 2.6 使用方式小结
 
