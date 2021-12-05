@@ -116,7 +116,9 @@ class Main {
      *
      * 优先队列：
      * @see com.android.algorithm.leetcode.Medium_215_数组中的第K个最大元素
-     * @see com.android.algorithm.leetcode.Medium_215_数组中的第K个最大元素
+     * @see com.android.algorithm.leetcode.Medium_347_前K个高频元素
+     * @see com.android.algorithm.leetcode.Medium_451_根据字符出现频率排序
+     * @see com.android.algorithm.leetcode.Medium_973_最接近原点的K个点
      *
      * */
 
