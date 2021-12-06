@@ -1,0 +1,3 @@
+
+一、单例模式
+饿汉模式，由于classloader的loadclass方法是加锁的，所以在多线程共同获取class信息时，保证class唯一
