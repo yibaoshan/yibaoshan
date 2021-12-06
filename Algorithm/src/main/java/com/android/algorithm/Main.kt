@@ -28,6 +28,7 @@ class Main {
 
     /**
      * 数据结构
+     *
      * 数组：
      * @see com.android.algorithm.leetcode.Easy_217_存在重复元素
      * @see com.android.algorithm.leetcode.Easy_53_最大子序和
@@ -123,12 +124,15 @@ class Main {
      * */
 
     /**
-     * 算法入门14天计划
+     * 算法
      *
      * 二分查找：
      * @see com.android.algorithm.leetcode.Easy_704_二分查找
      * @see com.android.algorithm.leetcode.Easy_278_第一个错误的版本
      * @see com.android.algorithm.leetcode.Easy_35_搜索插入位置
+     * @see com.android.algorithm.leetcode.Medium_34_在排序数组中查找元素的第一个和最后一个位置
+     * @see com.android.algorithm.leetcode.Medium_33_搜索旋转排序数组
+     * @see com.android.algorithm.leetcode.Medium_74_搜索二维矩阵
      *
      * 双指针：
      * @see com.android.algorithm.leetcode.Easy_977_有序数组的平方

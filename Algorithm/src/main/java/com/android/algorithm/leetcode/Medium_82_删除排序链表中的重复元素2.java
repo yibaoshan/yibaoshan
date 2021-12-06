@@ -22,7 +22,7 @@ public class Medium_82_删除排序链表中的重复元素2 {
      * 2. 不同，分别更新上个和上上个节点即可
      * 执行结果：通过
      * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：37.9 MB, 在所有 Java 提交中击败了29.23%的用户
+     * 内存消耗：37.8 MB, 在所有 Java 提交中击败了62.10%的用户
      */
     public ListNode deleteDuplicates(ListNode head) {
         if (head == null) return null;

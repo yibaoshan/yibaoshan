@@ -25,7 +25,7 @@ public class Medium_236_二叉树的最近公共祖先 {
      * 2. 从两个路径中找到最短的作为下标，倒序同时遍历两条路径，找到第一个交集的返回即可
      * 执行结果：通过
      * 执行用时：7 ms, 在所有 Java 提交中击败了57.51%的用户
-     * 内存消耗：40.8 MB, 在所有 Java 提交中击败了10.23%的用户
+     * 内存消耗：40.5 MB, 在所有 Java 提交中击败了58.22%的用户
      */
     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
         if (root == null || p == null || q == null) return null;

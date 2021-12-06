@@ -47,7 +47,7 @@ public class Medium_15_三数之和 {
      * 2.2 等于0则左指针+1右指针-1继续循环，开始之前，判断左右指针下一个值是否相同，跳过重复值
      * 执行结果：通过
      * 执行用时：17 ms, 在所有 Java 提交中击败了99.76%的用户
-     * 内存消耗：42.3 MB, 在所有 Java 提交中击败了63.19%的用户
+     * 内存消耗：41.7 MB, 在所有 Java 提交中击败了97.94%的用户
      */
     public List<List<Integer>> threeSum(int[] nums) {
         List<List<Integer>> res = new ArrayList<>();
