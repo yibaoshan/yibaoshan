@@ -133,6 +133,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_34_在排序数组中查找元素的第一个和最后一个位置
      * @see com.android.algorithm.leetcode.Medium_33_搜索旋转排序数组
      * @see com.android.algorithm.leetcode.Medium_74_搜索二维矩阵
+     * @see com.android.algorithm.leetcode.Medium_153_寻找旋转排序数组中的最小值
+     * @see com.android.algorithm.leetcode.Medium_162_寻找峰值
      *
      * 双指针：
      * @see com.android.algorithm.leetcode.Easy_977_有序数组的平方
