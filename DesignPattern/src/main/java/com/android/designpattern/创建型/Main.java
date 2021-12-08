@@ -12,11 +12,13 @@ public class Main {
      * @see com.android.designpattern.创建型.简单工厂.Main
      *
      * 3. 工厂方法模式(Factory Method Pattern)
-     * @see  com.android.designpattern.创建型.工厂方法.Main
+     * @see com.android.designpattern.创建型.工厂方法.Main
      *
      * 4. 抽象工厂模式(Abstract Factory)
+     * @see com.android.designpattern.创建型.抽象工厂.Main
      *
      * 5. 建造者模式(Builder Pattern)
+     * @see com.android.designpattern.创建型.建造者模式.Main
      *
      * 不是很重要的：
      *
