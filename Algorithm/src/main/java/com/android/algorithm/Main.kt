@@ -145,6 +145,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_557_反转字符串中的单词3
      * @see com.android.algorithm.leetcode.Easy_876_链表的中间结点
      * @see com.android.algorithm.leetcode.Medium_19_删除链表的倒数第N个结点
+     * @see com.android.algorithm.leetcode.Easy_844_比较含退格的字符串
+     * @see com.android.algorithm.leetcode.Medium_986_区间列表的交集
+     * @see com.android.algorithm.leetcode.Medium_11_盛最多水的容器
      *
      * 滑动窗口：
      * @see com.android.algorithm.leetcode.Medium_567_字符串的排列
