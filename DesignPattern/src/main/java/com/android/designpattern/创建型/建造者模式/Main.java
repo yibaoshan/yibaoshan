@@ -7,6 +7,7 @@ public class Main {
      * //限制公开属性
      * 1. 将自己不愿意暴露的属性（比如配置参数）放在builder中，一旦对象创建便不可更改，比如线程池对象中最大线程数量
      * 2. 批量设置参数（类似工厂模式），比如create中创建只包含确认按钮的对话框
+     * 为了更好的进行业务分层，我们甚至可以设计多个builder类，从而保证produce类的纯粹
      * 源码举例：AlertDialog、Notification、Glide、Picasso
      */
 

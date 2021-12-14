@@ -1,5 +1,9 @@
 package com.android.designpattern.创建型.简单工厂;
 
+import com.android.designpattern.创建型.简单工厂.product.ProductA;
+import com.android.designpattern.创建型.简单工厂.product.ProductB;
+import com.android.designpattern.创建型.简单工厂.product.ProductC;
+
 import org.junit.Test;
 
 public class Main {
