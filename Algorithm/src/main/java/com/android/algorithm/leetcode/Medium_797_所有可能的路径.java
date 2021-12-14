@@ -30,7 +30,7 @@ public class Medium_797_所有可能的路径 {
 
     public void dfs(int[][] graph, int x, int n, List<List<Integer>> ans, Deque<Integer> stack) {
         if (x == n) {
-            ans.add(new ArrayList<Integer>(stack));
+            ans.add(new ArrayList<>(stack));
             return;
         }
         for (int y : graph[x]) {
