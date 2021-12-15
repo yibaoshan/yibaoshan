@@ -4,7 +4,11 @@ public class Singleton1 {
 
     private static final Singleton1 instance = new Singleton1();
 
-    private Singleton1() {
+    public Singleton1() {
+    }
+
+    {
+        System.out.println(this.getClass().getName()+"init");
     }
 
     public static Singleton1 getInstance() {

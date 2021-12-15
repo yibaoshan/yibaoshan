@@ -7,6 +7,10 @@ public class Singleton3 {
     private Singleton3() {
     }
 
+    {
+        System.out.println(this.getClass().getName()+"init");
+    }
+
     public static Singleton3 getInstance() {
         if (instance == null) {
             synchronized (Singleton3.class) {
