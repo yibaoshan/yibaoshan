@@ -178,6 +178,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_784_字母大小写全排列
      * @see com.android.algorithm.leetcode.Medium_78_子集
      * @see com.android.algorithm.leetcode.Medium_90_子集2
+     * @see com.android.algorithm.leetcode.Medium_47_全排列2
+     * @see com.android.algorithm.leetcode.Medium_39_组合总和
+     * @see com.android.algorithm.leetcode.Medium_40_组合总和2
      *
      * 动态规划：
      * @see com.android.algorithm.leetcode.Easy_70_爬楼梯
