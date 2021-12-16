@@ -7,10 +7,6 @@ public class Singleton1 {
     public Singleton1() {
     }
 
-    {
-        System.out.println(this.getClass().getName()+"init");
-    }
-
     public static Singleton1 getInstance() {
         return instance;
     }

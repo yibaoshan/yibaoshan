@@ -18,14 +18,61 @@ public class Main {
 
     @Test
     public void main() {
-        ExecutorService executor = Executors.newFixedThreadPool(100);
-        int taskCount = 100;
-        for (int i = 0; i < taskCount; i++) {
-            executor.submit(new Run());
-        }
-        Singleton1 singleton1 = new Singleton1();
-        Singleton1 instance = Singleton1.getInstance();
+        testSingleton1();
+        testSingleton2();
+        testSingleton3();
     }
+
+    /*1.恶汉模式*/
+    private static void testSingleton1() {
+        Object fromInstance1 =  Singleton1.getInstance();
+        Object fromInstance2 =  Singleton1.getInstance();
+        Object fromReflect = createClassWithReflect(Singleton1.class);
+        System.out.println(fromInstance1.equals(fromInstance2));
+        System.out.println(fromInstance1.equals(fromReflect));
+    }
+
+    /*2.懒汉模式-静态内部类*/
+    private static void testSingleton2() {
+        Object fromInstance1 =  Singleton2.getInstance();
+        Object fromInstance2 =  Singleton2.getInstance();
+        Object fromReflect = createClassWithReflect(Singleton2.class);
+        System.out.println(fromInstance1.equals(fromInstance2));
+        System.out.println(fromInstance1.equals(fromReflect));
+    }
+
+    /*3.懒汉模式-DoubleCheckLock*/
+    private static void testSingleton3() {
+        Object fromInstance1 =  Singleton3.getInstance();
+        Object fromInstance2 =  Singleton3.getInstance();
+        Object fromReflect = createClassWithReflect(Singleton3.class);
+        System.out.println(fromInstance1.equals(fromInstance2));
+        System.out.println(fromInstance1.equals(fromReflect));
+    }
+
+    /*4.枚举类*/
+    private static void testSingleton4() {
+        Singleton4.getInstance.print();
+    }
+
+    private static <T> T createClassWithReflect(Class<T> clz) {
+        try {
+            Constructor<?> constructor = clz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return (T) constructor.newInstance();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
 
     private void testJavaHiddenApi() {
         try {
@@ -51,49 +98,6 @@ public class Main {
         }
 
 
-    }
-
-    /*1.恶汉模式*/
-    private static void testSingleton1() {
-        Singleton1.getInstance().print();
-        Singleton1 reflect = createClassWithReflect(Singleton1.class);
-        if (reflect != null) reflect.print();
-    }
-
-    /*2.懒汉模式-静态内部类*/
-    private static void testSingleton2() {
-        Singleton2.getInstance().print();
-        Singleton2 reflect = createClassWithReflect(Singleton2.class);
-        if (reflect != null) reflect.print();
-    }
-
-    /*3.懒汉模式-DoubleCheckLock*/
-    private static void testSingleton3() {
-        Singleton3.getInstance().print();
-        Singleton3 reflect = createClassWithReflect(Singleton3.class);
-        if (reflect != null) reflect.print();
-    }
-
-    /*4.枚举类*/
-    private static void testSingleton4() {
-        Singleton4.getInstance.print();
-    }
-
-    private static <T> T createClassWithReflect(Class<T> clz) {
-        try {
-            Constructor<?> constructor = clz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            return (T) constructor.newInstance();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
 }

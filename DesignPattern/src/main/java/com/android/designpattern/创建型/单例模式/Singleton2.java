@@ -6,10 +6,6 @@ public class Singleton2 {
 
     }
 
-    {
-        System.out.println(this.getClass().getName()+"init");
-    }
-
     public static Singleton2 getInstance() {
         return SingletonHolder.instance;
     }
