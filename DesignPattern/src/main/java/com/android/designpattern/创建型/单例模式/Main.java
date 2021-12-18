@@ -5,8 +5,6 @@ import org.junit.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Main {
 
@@ -25,8 +23,8 @@ public class Main {
 
     /*1.恶汉模式*/
     private static void testSingleton1() {
-        Object fromInstance1 =  Singleton1.getInstance();
-        Object fromInstance2 =  Singleton1.getInstance();
+        Object fromInstance1 = Singleton1.getInstance();
+        Object fromInstance2 = Singleton1.getInstance();
         Object fromReflect = createClassWithReflect(Singleton1.class);
         System.out.println(fromInstance1.equals(fromInstance2));
         System.out.println(fromInstance1.equals(fromReflect));
@@ -34,8 +32,8 @@ public class Main {
 
     /*2.懒汉模式-静态内部类*/
     private static void testSingleton2() {
-        Object fromInstance1 =  Singleton2.getInstance();
-        Object fromInstance2 =  Singleton2.getInstance();
+        Object fromInstance1 = Singleton2.getInstance();
+        Object fromInstance2 = Singleton2.getInstance();
         Object fromReflect = createClassWithReflect(Singleton2.class);
         System.out.println(fromInstance1.equals(fromInstance2));
         System.out.println(fromInstance1.equals(fromReflect));
@@ -43,8 +41,8 @@ public class Main {
 
     /*3.懒汉模式-DoubleCheckLock*/
     private static void testSingleton3() {
-        Object fromInstance1 =  Singleton3.getInstance();
-        Object fromInstance2 =  Singleton3.getInstance();
+        Object fromInstance1 = Singleton3.getInstance();
+        Object fromInstance2 = Singleton3.getInstance();
         Object fromReflect = createClassWithReflect(Singleton3.class);
         System.out.println(fromInstance1.equals(fromInstance2));
         System.out.println(fromInstance1.equals(fromReflect));
@@ -71,7 +69,6 @@ public class Main {
         }
         return null;
     }
-
 
 
     private void testJavaHiddenApi() {
