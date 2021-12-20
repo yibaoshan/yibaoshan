@@ -1,8 +1,8 @@
 package com.android.designpattern.创建型.抽象工厂.abstractproduct;
 
-public abstract class AbstractScreen {
+public abstract class AbstractProductScreen {
 
-    public AbstractScreen() {
+    public AbstractProductScreen() {
         createScreen();
     }
 

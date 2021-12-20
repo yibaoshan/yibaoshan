@@ -1,8 +1,8 @@
 package com.android.designpattern.创建型.抽象工厂.abstractproduct;
 
-public abstract class AbstractBattery {
+public abstract class AbstractProductBattery {
 
-    public AbstractBattery() {
+    public AbstractProductBattery() {
         createBattery();
     }
 

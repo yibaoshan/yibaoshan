@@ -1,8 +1,8 @@
 package com.android.designpattern.创建型.抽象工厂.product;
 
-import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractScreen;
+import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractProductScreen;
 
-public class LGScreen extends AbstractScreen {
+public class LGScreen extends AbstractProductScreen {
 
     @Override
     public String getScreenName() {

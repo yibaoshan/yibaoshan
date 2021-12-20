@@ -1,8 +1,8 @@
 package com.android.designpattern.创建型.抽象工厂.product;
 
-import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractBattery;
+import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractProductBattery;
 
-public class BYDBattery extends AbstractBattery {
+public class BYDBattery extends AbstractProductBattery {
 
     @Override
     public String getBatteryName() {

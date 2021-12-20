@@ -1,14 +1,14 @@
 package com.android.designpattern.创建型.抽象工厂.abstractfactory;
 
-import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractBattery;
-import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractScreen;
+import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractProductBattery;
+import com.android.designpattern.创建型.抽象工厂.abstractproduct.AbstractProductScreen;
 
 public abstract class AbstractPhoneFactory {
 
     protected String brand;
     protected String model;
-    protected AbstractScreen phoneScreen;
-    protected AbstractBattery phoneBattery;
+    protected AbstractProductScreen phoneScreen;
+    protected AbstractProductBattery phoneBattery;
 
     public AbstractPhoneFactory(String brand, String model) {
         this.brand = brand;
@@ -25,15 +25,15 @@ public abstract class AbstractPhoneFactory {
         return model;
     }
 
-    public AbstractScreen getPhoneScreen() {
+    public AbstractProductScreen getPhoneScreen() {
         return phoneScreen;
     }
 
-    public AbstractBattery getPhoneBattery() {
+    public AbstractProductBattery getPhoneBattery() {
         return phoneBattery;
     }
 
-    protected abstract AbstractScreen createPhoneScreen();
+    protected abstract AbstractProductScreen createPhoneScreen();
 
-    protected abstract AbstractBattery createPhoneBattery();
+    protected abstract AbstractProductBattery createPhoneBattery();
 }
