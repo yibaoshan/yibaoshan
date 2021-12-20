@@ -19,7 +19,7 @@
 
 ## 二、创建型模式：单例模式
 
-### 2.1 模式定义
+### 1、模式定义
 
 `单例模式`的目的是保证一个类仅有一个实例，并提供一个访问它的全局访问点。
 单例类拥有一个私有构造函数，确保用户无法通过`new`关键字直接实例化它。
@@ -30,11 +30,11 @@
 
 *图片来源：自己画的*
 
-### 2.2 使用方法
+### 2、使用方法
 
 单例使用方法简单，理解起来也比较容易，笔者这里就直接开门见山，介绍四种常见的使用方式
 
-#### 2.2.1 饿汉式
+#### 2.1 饿汉式
 
 ```java
 public class Singleton1 {
@@ -59,9 +59,9 @@ public class Singleton1 {
 
 `饿汉式`单例模式唯一的问题可能就是：并非懒加载，只要单例类被虚拟机加载，就必然会创建`instance`实例。此时，若是被提前初始化的示例工程中用不到，那的确是白白消耗了初始化的时间和内存空间
 
-不过考虑到`单例模式`的使用场景，笔者认为大多数情况下使用`饿汉式`并不会给项目带来多余的负担。毕竟，谁没事会在单例里面放的`静态属性`呢？
+不过考虑到`单例模式`的使用场景，笔者认为大多数情况下使用`饿汉式`并不会给项目带来多余的负担。
 
-#### 2.2.2 懒汉式：静态内部类
+#### 2.2 懒汉式：静态内部类
 
 ```java
 public class Singleton2 {
@@ -85,13 +85,13 @@ public class Singleton2 {
 }
 ```
 
-和`2.2.1`的代码示例相同，静态内部类同样由`JVM类加载机制`保证了多线程环境下的安全性；同时，由于没有在局部变量中声明，所以就算因为非主观因素导致单例类被虚拟机加载，也无需担心创建了暂时用不到的对象导致占用内存。
+和`2.1`的代码示例相同，静态内部类同样由`JVM类加载机制`保证了多线程环境下的安全性；同时，由于没有在局部变量中声明，所以就算因为非主观因素导致单例类被虚拟机加载，也无需担心创建了暂时用不到的对象导致占用内存。
 
 `静态内部类`的单例模式既能保证多线程环境下的安全，又实现了懒加载，代码量也不多，这样看起来好像非常适合在实际项目开发中使用
 
 的确，`静态内部类`的单例是笔者在项目中使用较多的一种方式，原因无他，就是简单、方便。如果非要给这种方式找个缺点的话，可能是由于多创建了内部类，在`32位`系统下增加了`4个字节`占用内存，考虑到字节对齐，最坏情况下多占用`8个字节`内存
 
-#### 2.2.3 懒汉式：双重校验锁DCL
+#### 2.3 懒汉式：双重校验锁DCL
 
 ```java
 public class Singleton3 {
@@ -125,7 +125,7 @@ public class Singleton3 {
 
 注：关于为什么要加`volatile`关键字和`synchronized`锁对象为什么是class笔者这里未展开，感兴趣的朋友请点击[这里](https://www.zhihu.com/question/46903811)
 
-#### 2.2.4 枚举类
+#### 2.4 枚举类
 
 ```java
 public enum Singleton4 {
@@ -139,7 +139,7 @@ public enum Singleton4 {
 }
 ```
 
-Java1.5以后，`单例模式`的实现终于迎来的新面孔：枚举类单例，这也是《Effective Java》作者Joshua 力荐的一种使用方式
+Java1.5以后，`单例模式`的实现方式终于迎来的新面孔：枚举类单例，这也是《Effective Java》作者Joshua 力荐的一种使用方式
 
 `枚举类`是没有构造方法的，`枚举类`的创建完全由`JVM`内部实现，不对外开放。这样的特性也使得我们不能使用`new`的方式来创建枚举对象，对应的缺点就是`枚举类`的`单例模式`不是懒加载的
 
@@ -159,9 +159,9 @@ Java1.5以后，`单例模式`的实现终于迎来的新面孔：枚举类单�
 
 
 
-### 2.3 破坏单例模式及防止破坏单例
+### 3、破坏单例模式及防止破坏单例
 
-正如`2.2.4`小节中提到的，除了`枚举类单例`外，其他的三种`单例模式`都可以通过使用反射来破坏在进程中的唯一性
+正如`2.4`小节中提到的，除了`枚举类单例`外，其他的三种`单例模式`都可以通过使用反射来破坏在进程中的唯一性
 
 `单例类`由于自身的特殊性导致无法被`反射`和`反序列化`创建，所以对象的唯一性暂时无法被破坏，但是可以修改枚举类的值
 
@@ -219,17 +219,17 @@ false
 
 最后提一句，网上其他文章提到了使用`clone`方法来破坏单例，笔者认为这点不成立，因为不重写`clone()`方法并且不将访问修饰符改为`public`，使用者是无法调用`clone`方法来创建新的`实例对象`的
 
-### 2.4 小结
+### 4、小结
 
 至此，几种常见的`单例模式`实现方式都介绍完了，简单总结下：上述几种实现方式都可以在保证多线程环境下安全性；除了`枚举单例`之外，其他几种方式的`单例模式`都可以被破坏
 
-此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/%E5%88%9B%E5%BB%BA%E5%9E%8B/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F)
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/singleton)
 
 
 
 ## 三、创建型模式：工厂方法
 
-### 3.1 模式定义
+### 1、模式定义
 
 `工厂方法`模式又称为工厂模式，在`工厂方法`模式中，工厂父类负责定义创建产品对象的公共接口，而工厂子类则负责生成具体的产品对象，这样做的目的是将产品类的`实例化`操作延迟到工厂子类中完成，即通过工厂子类来确定究竟应该实例化哪一个具体产品类。
 
@@ -244,9 +244,9 @@ false
 
 *图片来源：自己画的*
 
-### 3.2 代码示例
+### 2、代码示例
 
-角色1：抽象产品类
+**角色1：抽象产品类**
 
 ```java
 public abstract class AbstractProduct {
@@ -256,7 +256,7 @@ public abstract class AbstractProduct {
 }
 ```
 
-角色2：产品实现类
+**角色2：产品实现类**
 
 ```java
 public class ProductA extends AbstractProduct {
@@ -278,7 +278,7 @@ public class ProductB extends AbstractProduct {
 }
 ```
 
-角色3：抽象工厂类
+**角色3：抽象工厂类**
 
 ```java
 public abstract class AbstractFactory {
@@ -288,7 +288,7 @@ public abstract class AbstractFactory {
 }
 ```
 
-角色4：工厂实现类
+**角色4：工厂实现类**
 
 ```java
 public class ProductAFactory extends AbstractFactory {
@@ -310,7 +310,7 @@ public class ProductBFactory extends AbstractFactory {
 }
 ```
 
-工厂方法使用示例
+**工厂方法使用示例**
 
 ```java
 @Test
@@ -327,14 +327,14 @@ public void main() {
 }
 ```
 
-打印结果
+**打印结果**
 
 ```jav
 工厂A生产的产品名称：A
 工厂B生产的产品名称：B
 ```
 
-### 3.3 源码锚点
+### 3、源码锚点
 
 从本小节开始，笔者将会对每种设计模式都以Java/Android源码举例说明，用`锚点记忆法`来辅助记忆；比如提起`建造者模式`就像到`Android AlertDialog`，提到`观察者模式`就想到`OnClickListener`一样
 
@@ -342,32 +342,32 @@ public void main() {
 
 为了方便理解，我们这里简单剖析迭代器的角色分工：
 
-1. 抽象工厂
+1. **抽象工厂**
    1. Iterable
-2. 工厂实现
+2. **工厂实现**
    1. ArrayList
    2. HashMap
-3. 抽象产品
+3. **抽象产品**
    1. Iterator
-4. 产品实现(jdk1.8)
+4. **产品实现**(jdk1.8)
    1. ArrayList中的Itr类
    2. HashMap中的EntryIterator/KeyIterator/ValueIterator类
 
 从上面的结构来看，`ArrayList`和`HashMap`中的`iterator`方法其实就相当于一个`工厂方法`，专为`new`对象而生，这里`iterator`方法是构造并返回一个具体的迭代器
 
-### 3.4 小结
+### 4、小结
 
 `工厂方法`模式的主要优点是增加新的产品类时无须修改现有系统，并封装了产品对象的创建细节，系统具有良好的灵活性和可扩展性；其缺点在于增加新产品的同时需要增加新的工厂，导致系统类的个数成对增加，在一定程度上增加了系统的复杂性
 
 笔者这里没有提到`简单工厂`，实际上，当把`工厂方法`的抽象工厂类删除掉，就是`简单工厂`模式了，所以可以把`简单工厂`理解为`工厂方法`的简化版本；笔者这里没有给出示例，想要了解更多的可以去看`阿里巴巴淘系技术`在知乎上的回答：[简单工厂模式、工厂方法模式和抽象工厂模式有何区别](https://www.zhihu.com/question/27125796)
 
-此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/%E5%88%9B%E5%BB%BA%E5%9E%8B)
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/factorymethod)
 
 
 
 ## 四、创建型模式：抽象工厂
 
-### 4.1 模式定义
+### 1、模式定义
 
 `抽象工厂`模式是所有形式的工厂模式中最为抽象和最具一般性的一种形态。`抽象工厂`模式与`工厂方法`模式最大的区别在于，`工厂方法`模式针对的是一个产品等级结构，而`抽象工厂`模式则需要面对多个产品等级结构
 
@@ -382,19 +382,19 @@ public void main() {
 
 由于`抽象工厂`稍微有点复杂，不能再用上面的ProductA、FactoryB等无实际意义的类名来举例，为了方便理解，笔者这里使用`手机组装厂`来做类比，他们的角色分工如下：
 
-1. 抽象产品
+1. **抽象产品**
    1. 电池组装厂
    2. 屏幕组装厂
-2. 具体产品实现
+2. **具体产品实现**
    1. 电池
       1. 比亚迪电池供应商
       2. 德赛电池供应商
    2. 屏幕
       1. 京东方屏幕供应商
       2. LG屏幕供应商
-3. 抽象工厂
+3. **抽象工厂**
    1. 手机组装厂
-4. 具体工厂实现
+4. **具体工厂实现**
    1. 华为P50的组装厂
    2. 小米10的组装厂
 
@@ -404,9 +404,9 @@ public void main() {
 
 *图片来源：自己画的*
 
-### 4.2 代码示例
+### 2、代码示例
 
-角色1-1：抽象产品类-电池
+**角色1-1：抽象产品类-电池**
 
 ```java
 public abstract class AbstractProductBattery {
@@ -422,7 +422,7 @@ public abstract class AbstractProductBattery {
 }
 ```
 
-角色1-2：抽象产品类-屏幕
+**角色1-2：抽象产品类-屏幕**
 
 ```java
 public abstract class AbstractProductScreen {
@@ -438,7 +438,7 @@ public abstract class AbstractProductScreen {
 }
 ```
 
-角色2-1-1：产品实现类-电池-比亚迪
+**角色2-1-1：产品实现类-电池-比亚迪**
 
 ```java
 public class BYDBattery extends AbstractProductBattery {
@@ -455,7 +455,7 @@ public class BYDBattery extends AbstractProductBattery {
 }
 ```
 
-角色2-1-2：产品实现类-电池-德赛
+**角色2-1-2：产品实现类-电池-德赛**
 
 ```java
 public class DesayBattery extends AbstractProductBattery {
@@ -472,7 +472,7 @@ public class DesayBattery extends AbstractProductBattery {
 }
 ```
 
-角色2-2-1：产品实现类-屏幕-京东方
+**角色2-2-1：产品实现类-屏幕-京东方**
 
 ```java
 public class BOEScreen extends AbstractProductScreen {
@@ -490,7 +490,7 @@ public class BOEScreen extends AbstractProductScreen {
 }
 ```
 
-角色2-2-2：产品实现类-屏幕-LG
+**角色2-2-2：产品实现类-屏幕-LG**
 
 ```java
 public class LGScreen extends AbstractProductScreen {
@@ -508,7 +508,7 @@ public class LGScreen extends AbstractProductScreen {
 }
 ```
 
-角色3：抽象工厂类
+**角色3：抽象工厂类**
 
 ```java
 public abstract class AbstractPhoneFactory {
@@ -547,7 +547,7 @@ public abstract class AbstractPhoneFactory {
 }
 ```
 
-角色4-1：工厂实现类-华为
+**角色4-1：工厂实现类-华为**
 
 ```java
 public class HuaWeiPhoneFactory extends AbstractPhoneFactory {
@@ -568,7 +568,7 @@ public class HuaWeiPhoneFactory extends AbstractPhoneFactory {
 }
 ```
 
-角色4-2：工厂实现类-小米
+**角色4-2：工厂实现类-小米**
 
 ```java
 public class XiaoMiPhoneFactory extends AbstractPhoneFactory {
@@ -589,7 +589,7 @@ public class XiaoMiPhoneFactory extends AbstractPhoneFactory {
 }
 ```
 
-抽象工厂使用示例
+**抽象工厂使用示例**
 
 ```java
     public void main() {
@@ -607,7 +607,7 @@ public class XiaoMiPhoneFactory extends AbstractPhoneFactory {
     }
 ```
 
-打印结果
+**打印结果**
 
 ```java
 产线品牌：华为(HuaWei),生产型号：P50,电池厂商：德赛(Desay),屏幕厂商：LG
@@ -616,25 +616,25 @@ public class XiaoMiPhoneFactory extends AbstractPhoneFactory {
 
 
 
-### 4.3 源码锚点
+### 3、源码锚点
 
 `抽象工厂`方法模式在Android源码中的实现相对来说是比较少的，在`《Android 源码设计模式解析与实战》`一书中提到是Android底层对`MediaPlayer`的创建是可以看作为`抽象工厂`，这一块代码笔者不熟悉，为了防止误人子弟，`抽象工厂`模式的源码这里笔者就不再举例，对`抽象工厂`源码体现感兴趣的可以自行查找其他资料
 
-### 4.4 小结
+### 3、小结
 
 `抽象工厂`模式的主要优点是隔离了具体类的生成，使得客户并不需要知道什么被创建，而且每次可以通过具体工厂类创建一个产品族中的多个对象，增加或者替换产品族比较方便，增加新的具体工厂和产品族很方便；主要缺点在于增加新的产品等级结构很复杂，需要修改抽象工厂和所有的具体工厂类，对“开闭原则”的支持呈现倾斜性。
 
-为了方便记忆，笔者个人总结的`抽象工厂`和`工厂方法`不同点：`抽象工厂`模式拥有多个`抽象产品`类，也就是本示例的电池抽象类和屏幕抽象类
+笔者个人总结的`抽象工厂`和`工厂方法`不同点：`抽象工厂`模式拥有多个`抽象产品`类，也就是本示例的电池抽象类和屏幕抽象类
 
 `抽象工厂`模式适用情况包括：一个系统不应当依赖于产品类实例如何被创建、组合和表达的细节；系统中有多于一个的产品族，而每次只使用其中某一产品族；属于同一个产品族的产品将在一起使用；系统提供一个产品类的库，所有的产品以同样的接口出现，从而使客户端不依赖于具体实现。
 
-此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/%E5%88%9B%E5%BB%BA%E5%9E%8B)
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/abstractfactory)
 
 
 
 ## 五、创建型模式：建造者模式
 
-### 5.1 模式定义
+### 1、模式定义
 
 `建造者模式`将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。`建造者模式`是一步一步创建一个复杂的对象，它允许用户只通过指定复杂对象的类型和内容就可以构建它们，用户不需要知道内部的具体构建细节
 
@@ -646,7 +646,7 @@ public class XiaoMiPhoneFactory extends AbstractPhoneFactory {
 
 接下来我们来康康`5.2`中的代码示例
 
-### 5.2 代码示例
+### 2、代码示例
 
 ```java
 public class CommonDialog {
@@ -721,7 +721,7 @@ public class CommonDialog {
 }
 ```
 
-建造者模式使用示例
+**建造者模式使用示例**
 
 ```java
 public void main() {
@@ -741,11 +741,11 @@ public void main() {
 }
 ```
 
-### 5.3 源码锚点
+### 3、源码锚点
 
 建造者模式在Android源码中的实现：`AlertDialog`
 
-### 5.4 小结
+### 4、小结
 
 `建造者模式`的主要优点在于客户端不必知道产品内部组成的细节，将产品本身与产品的创建过程解耦，使得相同的创建过程可以创建不同的产品对象，每一个具体建造者都相对独立，而与其他的具体建造者无关，因此可以很方便地替换具体建造者或增加新的具体建造者，符合“`开闭原则`”，还可以更加精细地控制产品的创建过程
 
@@ -758,7 +758,7 @@ public void main() {
 3. 对象的创建过程独立于创建该对象的类；
 4. 隔离复杂对象的创建和使用，并使得相同的创建过程可以创建不同类型的产品。
 
-此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/%E5%88%9B%E5%BB%BA%E5%9E%8B)
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/creational/builder)
 
 
 
