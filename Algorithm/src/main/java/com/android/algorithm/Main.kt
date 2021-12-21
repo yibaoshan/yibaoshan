@@ -197,6 +197,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_413_等差数列划分
      * @see com.android.algorithm.leetcode.Medium_91_解码方法
      * @see com.android.algorithm.leetcode.Medium_139_单词拆分
+     * @see com.android.algorithm.leetcode.Medium_300_最长递增子序列
+     * @see com.android.algorithm.leetcode.Medium_673_最长递增子序列的个数
      *
      * 位运算：
      * @see com.android.algorithm.leetcode.Easy_231_2的幂
