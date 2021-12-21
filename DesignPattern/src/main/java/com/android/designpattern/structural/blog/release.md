@@ -78,3 +78,4 @@
 
 - [图说设计模式](https://design-patterns.readthedocs.io/zh_CN/latest/index.html)
 - [《Android 源码设计模式解析与实战》-何红辉 / 关爱民](https://item.jd.com/11793928.html)
+- [refactoringguru.cn](https://refactoringguru.cn/design-patterns)
