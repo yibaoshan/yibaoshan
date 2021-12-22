@@ -7,14 +7,14 @@ public class Main {
 
     @Test
     public void main() {
-        ListNode node = ListNode.obtain();
+        Message node = Message.obtain();
         node.setVal("I");
         print(node);
         node.recycle();
         print(node);
     }
 
-    private void print(ListNode node) {
+    private void print(Message node) {
         System.out.println(node + "," + node.getVal());
     }
 

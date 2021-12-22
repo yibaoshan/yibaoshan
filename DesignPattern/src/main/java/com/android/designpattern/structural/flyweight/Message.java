@@ -1,23 +1,23 @@
 package com.android.designpattern.structural.flyweight;
 
-public class ListNode {
+public class Message {
 
     private String val;
-    private ListNode next;
+    private Message next;
 
-    private static ListNode root;
+    private static Message root;
     private static int size = 0;
     private static final int MAX_SIZE = 5;
 
-    public static ListNode obtain() {
+    public static Message obtain() {
         if (root != null) {
-            ListNode temp = root;
+            Message temp = root;
             root = temp.next;
             temp.next = null;
             size--;
             return temp;
         }
-        return new ListNode();
+        return new Message();
     }
 
     public String getVal() {
