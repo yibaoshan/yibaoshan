@@ -7,21 +7,11 @@ class Main {
      *
      * 五大基本/常用算法
      * 分治法
-     *
-     * 动态规划：
-     * @see com.android.algorithm.leetcode.Easy_121_买卖股票的最佳时机
-     * @see com.android.algorithm.leetcode.Easy_118_杨辉三角
-     * @see com.android.algorithm.leetcode.Easy_1137_第N个泰波那契数
-     * @see com.android.algorithm.leetcode.Easy_509_斐波那契数
-     *
-     * 贪心算法：
-     * @see com.android.algorithm.leetcode.Medium_435_无重叠区间
-     *
+     * 动态规划
+     * 贪心算法
      * 回溯
      * 分支界定
-     *
-     * 滑动窗口：
-     * @see com.android.algorithm.leetcode.Medium_L3_无重复字符的最长子串
+     * 滑动窗口
      * */
 
     /****力扣begin****/
@@ -199,6 +189,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_139_单词拆分
      * @see com.android.algorithm.leetcode.Medium_300_最长递增子序列
      * @see com.android.algorithm.leetcode.Medium_673_最长递增子序列的个数
+     * @see com.android.algorithm.leetcode.Medium_1143_最长公共子序列
+     * @see com.android.algorithm.leetcode.Medium_583_两个字符串的删除操作
      *
      * 位运算：
      * @see com.android.algorithm.leetcode.Easy_231_2的幂
