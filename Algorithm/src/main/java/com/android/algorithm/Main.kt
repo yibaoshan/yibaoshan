@@ -191,6 +191,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_673_最长递增子序列的个数
      * @see com.android.algorithm.leetcode.Medium_1143_最长公共子序列
      * @see com.android.algorithm.leetcode.Medium_583_两个字符串的删除操作
+     * @see com.android.algorithm.leetcode.Hard_72_编辑距离
+     * @see com.android.algorithm.leetcode.Medium_322_零钱兑换
+     * @see com.android.algorithm.leetcode.Medium_343_整数拆分
      *
      * 位运算：
      * @see com.android.algorithm.leetcode.Easy_231_2的幂
@@ -198,11 +201,6 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_190_颠倒二进制位
      * @see com.android.algorithm.leetcode.Easy_136_只出现一次的数字
      *
-     * */
-
-    /**
-     * 力扣动态规划21天计划
-     * @see com.android.algorithm.leetcode.Easy_70_爬楼梯
      * */
 
     /****力扣end****/
