@@ -7,15 +7,17 @@ public class Message {
 
     private static Message root;
     private static int size = 0;
-    private static final int MAX_SIZE = 5;
+    private static final int MAX_SIZE = 2;
 
     public static Message obtain() {
-        if (root != null) {
-            Message temp = root;
-            root = temp.next;
-            temp.next = null;
-            size--;
-            return temp;
+        synchronized (Message.class) {
+            if (root != null) {
+                Message temp = root;
+                root = temp.next;
+                temp.next = null;
+                size--;
+                return temp;
+            }
         }
         return new Message();
     }
@@ -28,19 +30,15 @@ public class Message {
         this.val = val;
     }
 
-    public boolean recycle() {
-        if (size < MAX_SIZE) {
-            next = root;
-            root = this;
-            size++;
-            recycleUnchecked();
-            return true;
-        }
-        return false;
-    }
-
-    private void recycleUnchecked() {
+    public void recycle() {
         this.val = null;
+        synchronized (Message.class) {
+            if (size < MAX_SIZE) {
+                next = root;
+                root = this;
+                size++;
+            }
+        }
     }
 
 }

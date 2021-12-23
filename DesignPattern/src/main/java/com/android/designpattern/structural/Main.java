@@ -1,12 +1,14 @@
 package com.android.designpattern.structural;
 
+import com.android.designpattern.structural.flyweight.PersonTest;
+
 public class Main {
 
     /**
      * 结构性模式
      *
      * 1. 享元模式(Flyweight)
-     * @see com.android.designpattern.structural.flyweight.Main
+     * @see PersonTest
      *
      * 2. 代理模式(Proxy)
      *  @see com.android.designpattern.structural.proxy.Main
