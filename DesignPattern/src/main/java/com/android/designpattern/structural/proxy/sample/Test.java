@@ -1,13 +1,10 @@
-package com.android.designpattern.structural.proxy;
-
+package com.android.designpattern.structural.proxy.sample;
 
 import com.android.designpattern.structural.proxy.sample.proxy.ProxyStack;
 
-import org.junit.Test;
+public class Test {
 
-public class Main {
-
-    @Test
+    @org.junit.Test
     public void main() {
         ProxyStack stack = new ProxyStack();
         for (int i = 0; i < 10; i++) {

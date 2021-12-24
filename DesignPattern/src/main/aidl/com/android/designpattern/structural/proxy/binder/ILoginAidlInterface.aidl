@@ -4,6 +4,10 @@ package com.android.designpattern.structural.proxy.binder;
 
 interface ILoginAidlInterface {
 
-    boolean login(String id,String pwd);
+    void connect();
+
+    void disconnect();
+
+    int login(String id,String pwd);
 
 }

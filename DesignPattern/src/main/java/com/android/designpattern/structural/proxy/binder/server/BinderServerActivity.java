@@ -1,45 +1,55 @@
 package com.android.designpattern.structural.proxy.binder.server;
 
+import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Process;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.designpattern.R;
-import com.android.designpattern.structural.proxy.binder.ILoginAidlInterface;
 
-import java.util.HashMap;
-import java.util.Map;
-
-
+@RequiresApi(api = Build.VERSION_CODES.P)
 public class BinderServerActivity extends AppCompatActivity {
-
-    private final Map<String, String> dp = new HashMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_binder_server);
+
         TextView tvPid = findViewById(R.id.tv_pid);
+        TextView tvPName = findViewById(R.id.tv_process_name);
+
         tvPid.setText(String.valueOf(Process.myPid()));
-        init();
+        tvPName.setText(Application.getProcessName());
+
+        initDatabase();
     }
 
-    private void init() {
-        dp.put("admin", "123qwe");
+    private void initDatabase() {
+        Database.getInstance().put("admin", "123456");
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter("ACTION_BINDER_SERVICE_DISCONNECT"));
     }
 
-    private final ILoginAidlInterface.Stub binder = new ILoginAidlInterface.Stub() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
-        public boolean login(String id, String pwd) {
-            if (id == null || pwd == null) return false;
-            if (dp.containsKey(id)) return pwd.equals(dp.get(id));
-            return false;
+        public void onReceive(Context context, Intent intent) {
+            Database.getInstance().clear();
+            finish();
         }
     };
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+    }
 }
