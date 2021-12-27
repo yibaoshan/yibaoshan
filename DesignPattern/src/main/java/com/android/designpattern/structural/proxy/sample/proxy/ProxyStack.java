@@ -3,12 +3,16 @@ package com.android.designpattern.structural.proxy.sample.proxy;
 import com.android.designpattern.structural.proxy.sample.IStack;
 import com.android.designpattern.structural.proxy.sample.product.UnsupportedAppUsageStack;
 
+import java.util.Stack;
+
 public class ProxyStack implements IStack {
 
-    private final UnsupportedAppUsageStack stack;
+//    private final UnsupportedAppUsageStack stack;
+    private final Stack<Integer> stack;
 
     public ProxyStack() {
-        stack = new UnsupportedAppUsageStack();
+//        stack = new UnsupportedAppUsageStack();
+        stack = new Stack<>();
     }
 
     @Override

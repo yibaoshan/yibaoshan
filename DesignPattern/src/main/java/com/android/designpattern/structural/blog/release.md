@@ -77,5 +77,8 @@
 ## 十、参考资料
 
 - [图说设计模式](https://design-patterns.readthedocs.io/zh_CN/latest/index.html)
-- [《Android 源码设计模式解析与实战》-何红辉 / 关爱民](https://item.jd.com/11793928.html)
 - [refactoringguru.cn](https://refactoringguru.cn/design-patterns)
+- [《设计模式：可复用面向对象软件的基础》](https://item.jd.com/12623588.html)
+- [《Android 源码设计模式解析与实战》-何红辉 / 关爱民](https://item.jd.com/11793928.html)
+- [《深入浅出设计模式-LeetCode》](https://leetcode-cn.com/leetbook/detail/design-patterns/)
+- [《Head First 设计模式》](https://item.jd.com/10100236.html)
