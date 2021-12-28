@@ -7,17 +7,16 @@ public class Message {
 
     private static Message root;
     private static int size = 0;
-    private static final int MAX_SIZE = 2;
+    private static final int MAX_SIZE = 10;
 
     public static Message obtain() {
-        synchronized (Message.class) {
-            if (root != null) {
-                Message temp = root;
-                root = temp.next;
-                temp.next = null;
-                size--;
-                return temp;
-            }
+        if (root != null) {
+            //获取链表表头的对象
+            Message temp = root;
+            root = temp.next;
+            temp.next = null;
+            size--;
+            return temp;
         }
         return new Message();
     }
@@ -31,13 +30,13 @@ public class Message {
     }
 
     public void recycle() {
+        //回收对象，将属性内容清空
         this.val = null;
-        synchronized (Message.class) {
-            if (size < MAX_SIZE) {
-                next = root;
-                root = this;
-                size++;
-            }
+        //若缓存池还没满，将该对象保存至链表表头位置
+        if (size < MAX_SIZE) {
+            next = root;
+            root = this;
+            size++;
         }
     }
 

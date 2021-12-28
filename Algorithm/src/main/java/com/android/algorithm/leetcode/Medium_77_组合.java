@@ -47,30 +47,27 @@ public class Medium_77_组合 {
     }
 
     /**
-     * 回溯法，评论区答案
+     * 回溯法
      * 执行结果：通过
-     * 执行用时：15 ms, 在所有 Java 提交中击败了47.88%的用户
-     * 内存消耗：40 MB, 在所有 Java 提交中击败了13.19%的用户
+     * 执行用时：19 ms, 在所有 Java 提交中击败了17.58%的用户
+     * 内存消耗：39.7 MB, 在所有 Java 提交中击败了56.93%的用户
      */
     public List<List<Integer>> combine(int n, int k) {
+        Deque<Integer> deque = new LinkedList<>();
         List<List<Integer>> res = new ArrayList<>();
-        if (k <= 0 || n < k) {
-            return res;
-        }
-        Deque<Integer> path = new ArrayDeque<>();
-        dfs(n, k, 1, path, res);
+        dfs(n, k, 1, deque, res);
         return res;
     }
 
-    private void dfs(int n, int k, int begin, Deque<Integer> path, List<List<Integer>> res) {
-        if (path.size() == k) {
-            res.add(new ArrayList<>(path));
+    private void dfs(int n, int k, int start, Deque<Integer> deque, List<List<Integer>> res) {
+        if (deque.size() == k) {
+            res.add(new ArrayList<>(deque));
             return;
         }
-        for (int i = begin; i <= n; i++) {
-            path.addLast(i);
-            dfs(n, k, i + 1, path, res);
-            path.removeLast();
+        for (int i = start; i <= n; i++) {
+            deque.addLast(i);
+            dfs(n, k, i + 1, deque, res);
+            deque.removeLast();
         }
     }
 

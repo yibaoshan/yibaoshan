@@ -14,9 +14,9 @@ public class PersonTest {
     }
 
     private void testPerson() {
-        Person xm = new Person(18, "小明", Gender.MAN, Country.getCountry("China", "9,597,000"));
-        Person xh = new Person(18, "小红", Gender.WOMAN, Country.getCountry("China", "9,597,000"));
-        Person xg = new Person(18, "小刚", Gender.UNKNOWN, Country.getCountry("USA", "9,834,000"));
+        Person xm = new Person(18, "小明", Gender.MAN, Country.query("China"));
+        Person xh = new Person(18, "小红", Gender.WOMAN, Country.query("China"));
+        Person xg = new Person(18, "小刚", Gender.UNKNOWN, Country.query("The USA"));
         print(xm);
         print(xh);
         print(xg);
@@ -24,7 +24,7 @@ public class PersonTest {
 
     private void print(Person person) {
         System.out.println("name=" + person.name
-                + " , country=" + person.country.getCountryName() + "(" + person.country + ")"
+                + " , country=" + person.country.toString()
                 + " , gender=" + person.gender.name
                 + " , age=" + person.age
         );

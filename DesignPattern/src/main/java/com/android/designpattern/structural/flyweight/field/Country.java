@@ -7,34 +7,50 @@ public class Country {
 
     private String countryName;//国家名称
     private String countryArea;//国土面积
+    private String population;//人口总数
 
     private final static Map<String, Country> mpCache = new HashMap<>();
 
-    public static Country getCountry(String countryName, String countryArea) {
-        if (mpCache.containsKey(countryName)) return mpCache.get(countryName);
-        Country country = new Country(countryName, countryArea);
-        mpCache.put(countryName, country);
-        return country;
+    private Country() {
+
     }
 
-    public Country(String countryName, String countryArea) {
+    private Country(String countryName, String countryArea, String population) {
         this.countryName = countryName;
         this.countryArea = countryArea;
+        this.population = population;
+    }
+
+    public static Country query(String countryName) {
+        if (!mpCache.containsKey(countryName)) {
+            queryLatest();
+        }
+        return mpCache.get(countryName);
+    }
+
+    private static void queryLatest() {
+        mpCache.put("China", new Country("中国(China)", "959.7万平方公里(2021)", "14.02亿(2020)"));
+        mpCache.put("The USA", new Country("美国(The United States of America)", "983.4万平方公里(2021)", "3.295亿(2020)"));
     }
 
     public String getCountryName() {
         return countryName;
     }
 
-    public void setCountryName(String countryName) {
-        this.countryName = countryName;
-    }
-
     public String getCountryArea() {
         return countryArea;
     }
 
-    public void setCountryArea(String countryArea) {
-        this.countryArea = countryArea;
+    public String getPopulation() {
+        return population;
+    }
+
+    @Override
+    public String toString() {
+        return "Country{" +
+                "countryName='" + countryName + '\'' +
+                ", countryArea='" + countryArea + '\'' +
+                ", population='" + population + '\'' +
+                '}';
     }
 }
