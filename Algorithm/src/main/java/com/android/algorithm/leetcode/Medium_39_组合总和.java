@@ -2,9 +2,11 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 
 public class Medium_39_组合总和 {
@@ -23,8 +25,8 @@ public class Medium_39_组合总和 {
 
     @Test
     public void main() {
-        int[] nums = new int[]{2, 3, 5};
-        int target = 8;
+        int[] nums = new int[]{2, 3, 6, 7};
+        int target = 7;
         List<List<Integer>> lists = combinationSum(nums, target);
         for (int i = 0; i < lists.size(); i++) {
             System.out.println(Arrays.toString(new List[]{lists.get(i)}));
@@ -39,32 +41,39 @@ public class Medium_39_组合总和 {
      * 内存消耗：39.1 MB, 在所有 Java 提交中击败了6.49%的用户
      */
     public List<List<Integer>> combinationSum(int[] candidates, int target) {
-        List<Integer> list = new ArrayList<>();
+        Deque<Integer> path = new ArrayDeque<>();
         List<List<Integer>> res = new ArrayList<>();
-        find(candidates, target, 0, res, list);
+        cnt = new int[candidates.length];
+        dfs(path, res, candidates, target);
         return res;
     }
 
-    private void find(int[] nums, int target, int sum, List<List<Integer>> res, List<Integer> list) {
-        if (sum == target) {
-            List<Integer> once = new ArrayList<>(list);
-            Collections.sort(once);
-            for (int i = 0; i < res.size(); i++) {
-                if (once.equals(res.get(i))) return;
+    private HashSet<String> hashSet = new HashSet<>();
+    private int[] cnt;
+
+    private void dfs(Deque<Integer> path, List<List<Integer>> res, int[] candidates, int target) {
+        if (target == 0) {
+            String str = Arrays.toString(cnt);
+            if (!hashSet.contains(str)) {
+                hashSet.add(str);
+                res.add(new ArrayList<>(path));
             }
-            res.add(once);
             return;
         }
-        if (sum > target) return;
-        for (int i = 0; i < nums.length; i++) {
-            sum += nums[i];
-            list.add(nums[i]);
-            System.err.println("before:" + list.size());
-            find(nums, target, sum, res, list);
-            System.err.println("after:" + list.size());
-            sum -= nums[i];
-            list.remove(list.size() - 1);
+        if (target < 0) {
+            return;
+        }
+        for (int i = 0; i < candidates.length; i++) {
+            int cur = candidates[i];
+            path.addLast(cur);
+            target -= cur;
+            cnt[i] += 1;
+            dfs(path, res, candidates, target);
+            target += cur;
+            cnt[i] -= 1;
+            path.removeLast();
         }
     }
+
 
 }

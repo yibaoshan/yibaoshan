@@ -2,8 +2,11 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 
 public class Medium_40_组合总和2 {
@@ -23,8 +26,9 @@ public class Medium_40_组合总和2 {
     @Test
     public void main() {
 //        int[] nums = new int[]{10, 1, 2, 7, 6, 1, 5};
-        int[] nums = new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-        int target = 27;
+        int[] nums = new int[]{1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        System.out.println(nums.length);
+        int target = 8;
         List<List<Integer>> lists = combinationSum2(nums, target);
         System.out.println(lists.size());
         for (int i = 0; i < lists.size(); i++) {
@@ -32,12 +36,7 @@ public class Medium_40_组合总和2 {
         }
     }
 
-    List<List<Integer>> list = new ArrayList<>();
-    List<Integer> path = new ArrayList<>();
-
     /**
-     * 回溯法，评论区答案
-     * <p>
      * 执行结果：通过
      * 执行用时：2 ms, 在所有 Java 提交中击败了98.89%的用户
      * 内存消耗：38.5 MB, 在所有 Java 提交中击败了74.81%的用户
@@ -45,24 +44,29 @@ public class Medium_40_组合总和2 {
     public List<List<Integer>> combinationSum2(int[] candidates, int target) {
         Arrays.sort(candidates);
         dfs(candidates, target, 0);
-        return list;
+        return res;
     }
 
-    private void dfs(int[] candidates, int target, int index) {
+    List<List<Integer>> res = new ArrayList<>();
+    Deque<Integer> path = new ArrayDeque<>();
+
+    private void dfs(int[] candidates, int target, int start) {
         if (target == 0) {
-            list.add(new ArrayList<>(path));
+            res.add(new ArrayList<>(path));
             return;
         }
-        for (int i = index; i < candidates.length; i++) {
-            if (candidates[i] <= target) {
-                if (i > index && candidates[i] == candidates[i - 1]) {
-                    continue;
-                }
-                path.add(candidates[i]);
-                dfs(candidates, target - candidates[i], i + 1);
-                path.remove(path.size() - 1);
-            }
+        if (target < 0) return;
+        for (int i = start; i < candidates.length; i++) {
+            int cur = candidates[i];
+            if (cur > target) continue;
+            if (i > start && cur == candidates[i - 1]) continue;//重点在这
+            path.addLast(cur);
+            target -= cur;
+            dfs(candidates, target, i + 1);
+            target += cur;
+            path.removeLast();
         }
     }
+
 
 }
