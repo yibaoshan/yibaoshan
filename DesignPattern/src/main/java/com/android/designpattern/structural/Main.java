@@ -17,7 +17,7 @@ public class Main {
      * 4. 适配器模式(Adapter)
      *  @see com.android.designpattern.structural.adapter.Main
      *
-     * 5. 外观模式(Facade)
+     * 5. 外观模式(Facade) pass
      *  @see com.android.designpattern.structural.facade.Main
      *
      * 6. 桥接模式(Bridge)
