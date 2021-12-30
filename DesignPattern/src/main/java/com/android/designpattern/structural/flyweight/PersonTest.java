@@ -24,7 +24,7 @@ public class PersonTest {
 
     private void print(Person person) {
         System.out.println("name=" + person.name
-                + " , country=" + person.country.toString()
+                + " , country=" + person.country
                 + " , gender=" + person.gender.name
                 + " , age=" + person.age
         );

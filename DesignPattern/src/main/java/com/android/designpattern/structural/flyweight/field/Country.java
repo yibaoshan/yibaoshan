@@ -51,6 +51,7 @@ public class Country {
                 "countryName='" + countryName + '\'' +
                 ", countryArea='" + countryArea + '\'' +
                 ", population='" + population + '\'' +
+                ", address='" + Integer.toHexString(hashCode()) + '\'' +
                 '}';
     }
 }
