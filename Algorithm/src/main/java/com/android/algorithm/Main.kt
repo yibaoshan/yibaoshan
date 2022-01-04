@@ -211,4 +211,26 @@ class Main {
 
     /****力扣end****/
 
+    /****代码随想录begin****/
+
+    /**
+     * 回溯：
+     *
+     * 1. 组合问题
+     * @see com.android.algorithm.leetcode.Medium_77_组合
+     * @see com.android.algorithm.leetcode.Medium_17_电话号码的字母组合
+     * @see com.android.algorithm.leetcode.Medium_39_组合总和
+     * @see com.android.algorithm.leetcode.Medium_40_组合总和2
+     *
+     * 2. 分割
+     * @see com.android.algorithm.leetcode.Medium_131_分割回文串
+     *
+     * 3. 子集
+     * 4. 排列
+     * 5. 棋盘问题
+     * 6. 其他
+     * */
+
+    /****代码随想录end****/
+
 }
