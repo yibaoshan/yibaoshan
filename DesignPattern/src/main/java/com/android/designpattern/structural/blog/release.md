@@ -25,21 +25,20 @@
 另外，本篇文章是笔者个人对结构型模式的理解，由于结构型模式的概念有些抽象(相较于创建型模式)，每个人的理解也不尽相同
 因此，若您发现笔者的描述有不准确甚至完全错误的地方，请到这里进行反馈，感谢
 
-注意，外观模式和组合模式不包含在本文中，想要了解更多的可以点击这里
+注，外观模式和组合模式不包含在本文中，想要了解更多的可以点击这里
 
 ## 二、结构型模式：享元模式
 
 ### 1、模式定义
 
-享元模式是对象池的一种实现，它的英文名称叫做Flyweight，代表轻量级的意思。
-享元模式用来尽可能减少内存使用量，它适合用于可能存在大量重复对象的场景，来缓存可共享的对象，达到对象共享、避免创建过多对象的效果，这样一来就可以提升性能、避免内存移除等。
-以上，是《图说设计模式》一书中对享元模式的解释
+享元模式(又称蝇量模式)是对象池的一种实现，它的英文名称叫做Flyweight，代表轻量级的意思。
+享元模式用来尽可能减少内存使用量，它适合用于可能存在大量重复对象的场景，来缓存可共享的对象，达到对象共享、避免创建过多对象的效果，这样一来就可以提升性能，是典型的以空间换时间的设计模式。
 
-一直以来，笔者都不太能分清享元模式和复用池技术之间的区别，在大多数的技术文章中，似乎都将这两者直接画等号
-而在文章的评论区，往往又有质疑的声音：是不是写错了？享元模式关注的是对象的内部状态和外部状态，不单单是复用池。每每看到类似评论，笔者都一脸问号：什么叫做对象的内部状态和外部状态？
+关于享元模式唯一有[争议](https://blog.csdn.net/wangshihui512/article/details/51453839)的一点是：享元模式是否只是对象池的一种实现，如果是，那么原文中提到的需要关注对象的内部状态和外部状态是什么意思？
 
-为此，在享元模式下笔之前，笔者查阅了《设计模式：可复用面向对象软件的基础》、《Head First设计模式》、《Android源码设计模式解析与实战》、《设计模式之美-王争》、《深入浅出设计模式-LeetCode》等书籍资料
-在2.2的代码示例中，笔者会通过一个小栗子，来谈一谈笔者个人理解的享元模式
+换句话说，享元模式和池化技术之间是否可以直接划等号？
+
+要探讨这个问题，我们先来看一下《设计模式》中对享元模式的定义：
 
 > A **flyweight** is a shared object that can be used in multiple contexts simultaneously. The flyweight acts as an independent object in each context—it's indistinguishable from an instance of the object that's not shared. Flyweights cannot make assumptions about the context in which they operate. The key concept here is the distinction between **intrinsic** and **extrinsic** state.  **Intrinsic ** state is stored in the flyweight; it consists of information that's independent of the flyweight's context, thereby making it sharable.  **Extrinsic ** state depends on and varies with the flyweight's context and therefore can't be shared. Client objects are responsible for passing  **extrinsic ** state to the flyweight when it needs it.
 >
@@ -49,160 +48,380 @@
 >
 > —《设计模式：可复用面向对象软件的基础》机械工业出版社
 
+从文中的描述可以看出，作者强调的是对象的内部状态可变，外部状态不可变且不可被共享。究竟什么是对象的内部状态和外部状态？我们一起来看2.2中的代码示例
+
 ### 2、代码示例
 
 ```java
-/*性别枚举类*/
-public enum Gender {
-  
-    MAN("男"), WOMAN("女"), UNKNOWN("不想透露");
-
-    public String name;
-
-    Gender(String name) {
-        this.name = name;
-    }
-  
-}
-
 /*国家类*/
 public class Country {
 
     private String countryName;//国家名称
     private String countryArea;//国土面积
-  	//more...
-
-    private final static Map<String, Country> mpCache = new HashMap<>();
-
-    private Country() {
-
-    }
-
-    private Country(String countryName, String countryArea) {
-        this.countryName = countryName;
-        this.countryArea = countryArea;
-    }
-
-  	/*查询国家对象*/
-    public static Country query(String countryName) {
-        if (!mpCache.containsKey(countryName)) {
-            queryLatest();
-        }
-        return mpCache.get(countryName);
-    }
-
-  	/*去服务器查询最新数据*/
-    private static void queryLatest() {
-        mpCache.put("China", new Country("中国(China)", "959.7万平方公里(2021)"));
-        mpCache.put("The USA", new Country("美国(The USA)", "983.4万平方公里(2021)"));
-    }
-
-    public String getCountryName() {
-        return countryName;
-    }
-
-    public String getCountryArea() {
-        return countryArea;
-    }
+  	//more..
   
+  	public static Country query(String country){
+      //通过key查询内存/数据库等保存的国家对象
+    }
 }
 
-/*人类*/
-public class Person {
+/*用户信息类*/
+public class UserInfo {
 
-    public int age;
-    public String name;
-    public Gender gender;
-    public Country country;
-
-    public Person(int age, String name, Gender gender, Country country) {
-        this.age = age;
-        this.name = name;
-        this.gender = gender;
-        this.country = country;
+    public Integer age;//用户年龄
+    public String nickname;//昵称
+    public Country country;//国家
+  	//more..
+  
+  	public static UserInfo obtain(){
+      //内部维护一个对象缓存池
     }
+
 }
 
 /*测试类*/
-public class PersonTest {
+public class Test {
 
-    @Test
+    @org.junit.Test
     public void main() {
-      	print(new Person(16, "小明", Gender.MAN, Country.query("China")));
-        print(new Person(17, "小红", Gender.WOMAN, Country.query("China")));
-        print(xgnew Person(18, "小刚", Gender.UNKNOWN, Country.query("The USA")));
+        UserInfo sanZ = UserInfo.obtain(18, "张三", Country.query("中国"));
+        UserInfo siL = UserInfo.obtain(18, "李四", Country.query("中国"));
+        //移民到新加坡养老
+        siL.country = Country.query("新加坡");
     }
 
-    private void print(Person person) {
-        System.out.println("name=" + person.name
-                + " , country=" + person.country
-                + " , gender=" + person.gender.name
-                + " , age=" + person.age
-        );
+}
+
+```
+
+享元对象指的是可以被共享的对象，在2.2的示例代码中，用户信息类就是享元对象。由于享元对象可以被共享，其内部属性(姓名、年龄、国家等)可以被重新赋值，这就叫做对象的内部状态。
+
+在用户信息类的内部状态中，有一个国家属性，这个国家类内部维护一组数据，不公开set()方法。当某一个用户更改自身的国家属性时，只能通过国家名称重新查询国家对象，这就是所谓的享元对象内部属性更改时不影响其外部状态，国家类就叫做用户信息类的外部对象
+
+### 3、源码锚点
+
+看过了2.2小节的示例之后，我们再回头来看看Android中Message的实现
+
+```java
+/*伪代码*/
+public class Message {
+
+    private String val;
+    private Message next;
+
+    private static Message root;
+    private static int size = 0;
+    private static final int MAX_SIZE = 10;
+
+    public static Message obtain() {
+        if (root != null) {
+            //获取链表表头的对象
+            Message temp = root;
+            root = temp.next;
+            temp.next = null;
+            size--;
+            return temp;
+        }
+        return new Message();
+    }
+
+    public String getVal() {
+        return val;
+    }
+
+    public void setVal(String val) {
+        this.val = val;
+    }
+
+    public void recycle() {
+        //回收对象，将属性内容清空
+        this.val = null;
+        //若缓存池还没满，将该对象保存至链表表头位置
+        if (size < MAX_SIZE) {
+            next = root;
+            root = this;
+            size++;
+        }
     }
 
 }
 ```
 
-打印结果
+从代码中可以看到，Message用链表实现了个复用池，所以，回到2.1中的疑问，Android Message是享元模式吗？笔者认为，是的，只不过Message没有外部状态罢了
 
-```java
-name=小明,country=Country{countryName='中国(China)',countryArea='959.7万平方公里(2021)', address='4cdf35a9'},gender=男,age=16
-name=小红,country=Country{countryName='中国(China)',countryArea='959.7万平方公里(2021)', address='4cdf35a9'},gender=女,age=17
-name=小刚,country=Country{countryName='美国(The United States of America)', countryArea='983.4万平方公里(2021)', address='4c98385c'} ,gender=不想透露,age=18
-```
-
-从示例代码可以看到，小明和小红是来自同一个国家，那么国家这个对象肯定是可以使用相同的
-这就是所谓的对象的内部状态，而xx则是对象的外部状态
-
-内部状态的改变并不影响外部状态，也就是说，小明傍上了富婆移民美国，小明对象的国家属性从中国改为美国了，那也只是小明对象内部属性的更新，外部国家类不影响，返回给小明一个美国的共享对象即可
-
-可以理解为这个被共享的对象有个属性是
-
-典型的比如string常量池，integer，基础类型的包装类型，string str1="hahaha"
-
-对象本身不可变
-
-内部状态不可变，比如国家对象
-
-外部状态可变，比如Android Message
-
-所以才有复用的价值
-
-Android Message所有属性都可变
-
-### 3、源码锚点
-
-看过了2.2小节的示例之后，我们再来看看Android中Message的实现
-代码块
-从代码中可以看到，Message用链表实现了个复用池
+除了Android Message外，Java中还有String常量池，int，float等基础类型的包装类型也都使用了享元模式
 
 ### 4、小结
 
-享元模式是典型的空间换时间的设计模式
-
-在GoF设计模式中，作者提到因为对象是可以被共享的，用户不能直接对其实例化，因此FlyweightFactory可以帮助用户查找某个特定的Flyweight对象。
-
-总的来说，享元模式设计思想是通过复用对象，以达到节省内存的目的，这一点笔者认为
+享元模式设计思想是通过复用对象，以达到节省内存的目的；关于享元模式的[角色介绍](https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/flyweight.html)和[UML类图](https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/flyweight.html)本文并没有包含，笔者认为理解设计者的意图，了解设计模式适用的场景以及能够解决哪些问题，才是我们开发者需要关注的重点
 
 最后我们来总结一下享元模式的使用场景：
 
-1. 系统中存在大量的相似对象，例如2.2中的国家对象，适用阶段：开发中
-2. 需要缓冲池的场景，例如Android Message对象
+1. 系统中存在大量的相似对象，可以抽离为外部对象，例如2.2中的国家对象
+2. 需要缓冲池的场景，例如Android Message对象，Java基本类型的包装类
 
-有些书籍/资料将享元模式翻译为蝇量模式，这一点需要注意，享元模式和蝇量模式是同一个
+说明：有些书籍/资料将享元模式翻译为，这一点需要注意，享元模式和蝇量模式是同一个
 
-以上是笔者个人对享元模式的理解，若有不同的看法请到这里进行反馈，感谢
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/flyweight)
 
 ## 三、结构型模式：代理模式
 
 ### 1、模式定义
 
+代理模式是指在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能
+
+代理模式实现的场景分为两种，外部类和内部类。外部类指的是原始类无法进行更改的情况，以经典的耗时统计举例来说，想要统计Stack每个方法的耗时，我们可以创建StackProxy类继承自Stack类，然后在StackProxy中调用Stack的方法同时加入耗时统计的代码。内部类指的是原始类代码可以更改的情况，通常会抽象出统一的接口，实现类和代理类实现该接口，在代理类中添加耗时统计的代码。代理模式的原理和代码实现都不难掌握，接下来笔者通过3.2中的代码示例来解释这段话
+
 ### 2、代码示例
 
-### 3、源码锚点
+#### 2.1 内部类的实现
 
-### 4、小结
+```java
+/*统一接口类*/
+public interface IStack {
+
+    void push(int val);
+
+    int pop();
+
+}
+
+/*实现类*/
+public class Stack implements IStack {
+
+    private Node root;
+    private int size = 0;
+
+    @Override
+    public void push(int val) {
+        root = new Node(val, root);
+        size++;
+    }
+
+    @Override
+    public int pop() {
+        if (root != null) {
+            Node temp = root;
+            root = root.next;
+            size--;
+            return temp.val;
+        }
+        throw new EmptyStackException();
+    }
+
+    private static final class Node {
+        int val;
+        Node next;
+        public Node(int val, Node next) {
+            this.val = val;
+            this.next = next;
+        }
+    }
+}
+
+/*代理类*/
+public class StackProxy implements IStack {
+
+    private final IStack stack;
+
+    public StackProxy(IStack stack) {
+        this.stack = stack;
+    }
+
+    @Override
+    public void push(int val) {
+        long start = System.currentTimeMillis();
+        stack.push(val);
+        System.err.println("push:" + (System.currentTimeMillis() - start));
+    }
+
+    @Override
+    public int pop() {
+        long start = System.currentTimeMillis();
+        int res = stack.pop();
+        System.err.println("pop:" + (System.currentTimeMillis() - start));
+        return res;
+    }
+
+}
+
+/*使用示例*/
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        IStack stack = new StackProxy(new Stack());
+    }
+
+}
+```
+
+需求是统计Stack中插入和弹出的方法耗时，倘若上述角色只有Stack一个，那么统计耗时就需要耦合在业务代码之中，很明显违背了单一职责原则。我们可以使用代理模式来解决这个问题，将Stack类分成三个角色(统一接口、实现类、代理类)，这样就可以将统计逻辑和实际业务解耦，保持实现类的职责单一，这也是使用代理模式的优势
+
+#### 2.2 外部类的实现
+
+```java
+/*代理类*/
+public class StackProxy<E> extends java.util.Stack<E> {
+
+    @Override
+    public E push(E item) {
+        long start = System.currentTimeMillis();
+        E push = super.push(item);
+        System.err.println("push:" + (System.currentTimeMillis() - start));
+        return push;
+    }
+
+    @Override
+    public synchronized E pop() {
+        long start = System.currentTimeMillis();
+        E pop = super.pop();
+        System.err.println("pop:" + (System.currentTimeMillis() - start));
+        return pop;
+    }
+}
+
+/*使用示例*/
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        Stack<Integer> stack = new StackProxy<>();
+    }
+
+}
+```
+
+接着上面耗时统计的需求，在此示例中，Stack类是来自java.util包，内部代码不可以进行更改。这种情况便只有创建StackProxy继承java.util.Stack类，再对每个方法都加入耗时统计的代码来完成需求，这种方式被称为代理模式的外部类实现
+
+### 3、动态代理
+
+在2.1和2.2小节中我们发现，在每个方法中，耗时统计的逻辑代码是类似的，基于能自动生成绝不手动写的开发原则，我们可以利用动态代理来解决这个问题。
+
+所谓动态代理（Dynamic Proxy），就是我们不事先为每个原始类编写代理类，而是在运行的时候，动态地创建原始类对应的代理类，然后在系统中用代理类替换掉原始类。如果您使用的是 Java 语言，实现动态代理就是件很简单的事情，因为 Java 语言本身就已经提供了动态代理的语法：java.lang.reflect.Proxy.Proxy.newProxyInstance()
+
+我们来看一下，如何用 Java 的动态代理来实现刚刚的功能，具体的代码如下：
+
+```java
+/*动态代理类*/
+public class StackDynamicProxy {
+
+    public Object createProxy(Object proxyObject) {
+        Class[] interfaces = proxyObject.getClass().getInterfaces();
+        DynamicProxyHandler handler = new DynamicProxyHandler(proxyObject);
+        return Proxy.newProxyInstance(proxyObject.getClass().getClassLoader(), interfaces, handler);
+    }
+
+    private static class DynamicProxyHandler implements InvocationHandler {
+
+        private final Object proxyObject;
+
+        public DynamicProxyHandler(Object proxyObject) {
+            this.proxyObject = proxyObject;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            long start = System.currentTimeMillis();
+            Object result = method.invoke(proxyObject, args);
+            System.err.println(method.getName() + ":" + (System.currentTimeMillis() - start));
+            return result;
+        }
+    }
+}
+
+/*使用示例*/
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        StackDynamicProxy proxy = new StackDynamicProxy();
+        IStack stack = (IStack) proxy.createProxy(new Stack());
+    }
+
+}
+```
+
+### 4、源码锚点
+
+代理模式在Android源码中的应用，除了经典的retrofit外，Android Hook、插件化也都使用了代理模式
+
+#### 1. Android的插件化
+
+我们知道在Android开发中调用context.startActivity()方法启动Activity时，最终是由Instrumentation类负责创建Activity对象的。那么，我们可以创建代理类来替换掉系统的Instrumentation对象，在监控到启动的是AndroidManifest中占位Activity时，这样就可以替换成插件中的目标Activity，大致流程如下：
+
+##### 1.1 创建Instrumentation的代理类InstrumentationProxy
+
+```java
+public class InstrumentationProxy extends Instrumentation {
+
+    private final Instrumentation instrumentation;
+
+    public InstrumentationProxy(Instrumentation instrumentation) {
+        this.instrumentation = instrumentation;
+    }
+}
+```
+
+##### 1.2 Hook系统的Instrumentation
+
+```java
+//1. 获取进程中ActivityThread的对象
+Class<?> classes = Class.forName("android.app.ActivityThread");
+Method activityThread = classes.getDeclaredMethod("currentActivityThread");
+activityThread.setAccessible(true);
+Object currentThread = activityThread.invoke(null);
+Field instrumentationField = classes.getDeclaredField("mInstrumentation");
+instrumentationField.setAccessible(true);
+Instrumentation instrumentationInfo = (Instrumentation) instrumentationField.get(currentThread);
+//2. 创建代理对象，将mInstrumentation实例保存到代理对象中
+InstrumentationProxy proxy = new InstrumentationProxy(instrumentationInfo);
+//3. 将系统mInstrumentation示例替换为代理对象
+instrumentationField.set(currentThread, proxy);
+```
+
+##### 1.3 代理类中重写execStartActivity方法
+
+```java
+public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) {
+  	//...
+    ComponentName componentName = intent.getComponent();
+    String packageName = componentName.getPackageName();
+    String classname = componentName.getClassName();
+    if (classname.equals("TargetActivity")) { //判断是否为目标Activity
+        intent.setClassName(who, ProxyActivity.class.getCanonicalName()); // 替换为占位的Activity启动
+    }
+  	//...
+}
+```
+
+##### 1.4 代理类中重写newActivity方法，创建真正启动的Activity
+
+```java
+public Activity newActivity(ClassLoader cl, String className, Intent intent) {
+  	//...
+    String classnameIntent = intent.getStringExtra(ACTIVITY_RAW);
+    String packageName = intent.getComponent().getPackageName(); // 获取Intent中保存的真正Activity包名、类名
+    if (className.equals(ProxyActivity.class.getCanonicalName())) {
+        ComponentName componentName = new ComponentName(packageName, classnameIntent); // 替换真实Activity的包名和类名
+        intent.setComponent(componentName);
+        className = classnameIntent;
+    }
+  	//...
+}
+```
+
+Hook Instrumentation实现Activity插件化启动小结：
+
+1. Hook系统的Instrumentation对象，设置创建的代理类
+2. 在代理类中修改启动Activity的Intent，将启动的目标Activity替换为占位Activity，从而避免注册清单的检查
+3. 在代理类中重写newActivity（）将启动的活动换回真实目标，然后继续执行原有逻辑
+
+最后，前段时间笔者用xposed解决了公司APP隐私合规中的权限调用自查的问题，Android提供的AIDL跨进程通信同样也用到了代理模式，Client端调用asInterface()保存的interface对象其实就是Server端的代理，笔者实现了一个简单的Demo，感兴趣的同学可以点击[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy/binder)查看
+
+### 5、小结
+
+代理类在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能
 
 ## 四、结构型模式：装饰者模式
 
@@ -285,3 +504,4 @@ adapter模式使用在两个部分有不同的接口的情况,目的是改变接
 - [《Android 源码设计模式解析与实战》-何红辉 / 关爱民](https://item.jd.com/11793928.html)
 - [《深入浅出设计模式-LeetCode》](https://leetcode-cn.com/leetbook/detail/design-patterns/)
 - [《Head First 设计模式》](https://item.jd.com/10100236.html)
+- [Android插件化—高手必备的Hook技术](https://juejin.cn/post/6844903941105270798#comment)

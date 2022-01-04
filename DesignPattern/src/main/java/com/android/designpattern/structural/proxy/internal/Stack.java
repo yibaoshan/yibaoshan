@@ -1,11 +1,8 @@
-package com.android.designpattern.structural.proxy.sample.product;
-
-import com.android.designpattern.structural.proxy.sample.IStack;
+package com.android.designpattern.structural.proxy.internal;
 
 import java.util.EmptyStackException;
-import java.util.Random;
 
-public class UnsupportedAppUsageStack implements IStack {
+public class Stack implements IStack {
 
     private Node root;
     private int size = 0;
@@ -14,7 +11,6 @@ public class UnsupportedAppUsageStack implements IStack {
     public void push(int val) {
         root = new Node(val, root);
         size++;
-        theGiveMoneyToOptimizeMethod();
     }
 
     @Override
@@ -23,7 +19,6 @@ public class UnsupportedAppUsageStack implements IStack {
             Node temp = root;
             root = root.next;
             size--;
-            theGiveMoneyToOptimizeMethod();
             return temp.val;
         }
         throw new EmptyStackException();
@@ -45,14 +40,6 @@ public class UnsupportedAppUsageStack implements IStack {
     @Override
     public boolean empty() {
         return size == 0;
-    }
-
-    private void theGiveMoneyToOptimizeMethod() {
-        try {
-            Thread.sleep(new Random().nextInt(100));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     private static final class Node {

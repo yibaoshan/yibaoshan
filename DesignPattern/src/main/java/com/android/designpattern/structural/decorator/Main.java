@@ -6,18 +6,14 @@ public class Main {
 
     @Test
     public void main() {
-        //没有打扮时
-        IBeauty alicia = new Alicia();
-        System.out.println(alicia.getBeautyValue());
-        //带上耳环
-        alicia = new EarringDecorator(alicia);
-        System.out.println(alicia.getBeautyValue());
-        //带上项链
-        alicia = new EarringDecorator(alicia);
-        System.out.println(alicia.getBeautyValue());
-        //带上戒指
-        alicia = new RingDecorator(alicia);
-        System.out.println(alicia.getBeautyValue());
+        IClothes bob = new Bob();
+        System.out.println("什么都没穿时的保暖值：" + bob.getWarmValue());
+        bob = new Shirt(bob);
+        System.out.println("穿了件衬衫时的保暖值：" + bob.getWarmValue());
+        bob = new Pants(bob);
+        System.out.println("又穿了条裤子时的保暖值：" + bob.getWarmValue());
+        bob = new Coat(bob);
+        System.out.println("又穿了件外套时的保暖值：" + bob.getWarmValue());
     }
 
 }

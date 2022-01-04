@@ -1,4 +1,4 @@
-package com.android.designpattern.structural.proxy.sample;
+package com.android.designpattern.structural.proxy.internal;
 
 public interface IStack {
 
