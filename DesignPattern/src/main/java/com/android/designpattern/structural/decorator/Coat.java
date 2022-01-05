@@ -2,14 +2,14 @@ package com.android.designpattern.structural.decorator;
 
 public class Coat implements IClothes {
 
-    private final IClothes me;
+    private final IClothes clothes;
 
-    public Coat(IClothes me) {
-        this.me = me;
+    public Coat(IClothes clothes) {
+        this.clothes = clothes;
     }
 
     @Override
     public int getWarmValue() {
-        return me.getWarmValue() + 50;
+        return clothes.getWarmValue() + 50;
     }
 }

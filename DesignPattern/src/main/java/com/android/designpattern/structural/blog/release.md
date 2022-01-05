@@ -160,7 +160,7 @@ public class Message {
 1. 系统中存在大量的相似对象，可以抽离为外部对象，例如2.2中的国家对象
 2. 需要缓冲池的场景，例如Android Message对象，Java基本类型的包装类
 
-说明：有些书籍/资料将享元模式翻译为，这一点需要注意，享元模式和蝇量模式是同一个
+说明：有些书籍/资料将享元模式翻译为蝇量模式，这一点需要注意，享元模式和蝇量模式是同一个
 
 此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/flyweight)
 
@@ -298,9 +298,7 @@ public class Test {
 
 在2.1和2.2小节中我们发现，在每个方法中，耗时统计的逻辑代码是类似的，基于能自动生成绝不手动写的开发原则，我们可以利用动态代理来解决这个问题。
 
-所谓动态代理（Dynamic Proxy），就是我们不事先为每个原始类编写代理类，而是在运行的时候，动态地创建原始类对应的代理类，然后在系统中用代理类替换掉原始类。如果您使用的是 Java 语言，实现动态代理就是件很简单的事情，因为 Java 语言本身就已经提供了动态代理的语法：java.lang.reflect.Proxy.Proxy.newProxyInstance()
-
-我们来看一下，如何用 Java 的动态代理来实现刚刚的功能，具体的代码如下：
+所谓动态代理（Dynamic Proxy），就是我们不事先为每个原始类编写代理类，而是在运行的时候，动态地创建原始类对应的代理类，然后在系统中用代理类替换掉原始类。如果您使用的是 Java 语言，实现动态代理就是件很简单的事情，因为 Java 语言本身就已经提供了动态代理的语法。接下来我们看一下，如何用 Java 的动态代理来实现刚刚的功能，具体的代码如下：
 
 ```java
 /*动态代理类*/
@@ -344,13 +342,11 @@ public class Test {
 
 ### 4、源码锚点
 
-代理模式在Android源码中的应用，除了经典的retrofit外，Android Hook、插件化也都使用了代理模式
+代理模式在Android源码中的应用，除了经典的retrofit外，Android Hook、插件化也都使用了代理模式，我们这里简单介绍一下插件化是如何基于代理模式做到替换Activity的：
 
-#### 1. Android的插件化
+在Android开发中当我们调用context.startActivity()方法启动Activity时，最终是由Instrumentation类负责创建Activity对象的。那么，我们可以创建代理类来替换掉系统的Instrumentation对象，在监控到启动的是AndroidManifest中占位Activity时，这样就可以替换成插件中的目标Activity，大致流程如下：
 
-我们知道在Android开发中调用context.startActivity()方法启动Activity时，最终是由Instrumentation类负责创建Activity对象的。那么，我们可以创建代理类来替换掉系统的Instrumentation对象，在监控到启动的是AndroidManifest中占位Activity时，这样就可以替换成插件中的目标Activity，大致流程如下：
-
-##### 1.1 创建Instrumentation的代理类InstrumentationProxy
+1. 创建Instrumentation的代理类InstrumentationProxy
 
 ```java
 public class InstrumentationProxy extends Instrumentation {
@@ -363,7 +359,7 @@ public class InstrumentationProxy extends Instrumentation {
 }
 ```
 
-##### 1.2 Hook系统的Instrumentation
+2. Hook系统的Instrumentation
 
 ```java
 //1. 获取进程中ActivityThread的对象
@@ -380,7 +376,7 @@ InstrumentationProxy proxy = new InstrumentationProxy(instrumentationInfo);
 instrumentationField.set(currentThread, proxy);
 ```
 
-##### 1.3 代理类中重写execStartActivity方法
+3. 代理类中重写execStartActivity方法
 
 ```java
 public ActivityResult execStartActivity(Context who, IBinder contextThread, IBinder token, Activity target, Intent intent, int requestCode, Bundle options) {
@@ -395,7 +391,7 @@ public ActivityResult execStartActivity(Context who, IBinder contextThread, IBin
 }
 ```
 
-##### 1.4 代理类中重写newActivity方法，创建真正启动的Activity
+4. 代理类中重写newActivity方法，创建真正启动的Activity
 
 ```java
 public Activity newActivity(ClassLoader cl, String className, Intent intent) {
@@ -417,32 +413,148 @@ Hook Instrumentation实现Activity插件化启动小结：
 2. 在代理类中修改启动Activity的Intent，将启动的目标Activity替换为占位Activity，从而避免注册清单的检查
 3. 在代理类中重写newActivity（）将启动的活动换回真实目标，然后继续执行原有逻辑
 
-最后，前段时间笔者用xposed解决了公司APP隐私合规中的权限调用自查的问题，Android提供的AIDL跨进程通信同样也用到了代理模式，Client端调用asInterface()保存的interface对象其实就是Server端的代理，笔者实现了一个简单的Demo，感兴趣的同学可以点击[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy/binder)查看
+Android提供的AIDL跨进程通信同样也用到了代理模式，Client端调用asInterface()保存的interface对象其实就是Server端的代理，笔者实现了一个简单的Demo，感兴趣的同学可以点击[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy/binder)查看
 
 ### 5、小结
 
-代理类在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能
+最后我们再来复习一下代理模式的定义：在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能
+
+实现方式分为内部类和外部类，内部类使用接口或抽象类，外部类使用继承实现
+
+项目开发阶段对使用代理模式并没什么影响，在项目的前中后期都可以使用
+
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy)
 
 ## 四、结构型模式：装饰者模式
 
 ### 1、模式定义
 
+从代码结构上来看，装饰模式和代理模式(内部类实现)两者之间不能说是毫无关系，只能说是一模一样；回顾上一小节对代理模式的定义：代理模式是指在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能
+
+这句话动动俩字就是装饰模式：装饰模式是指在不改版原始类的情况下，通过新增装饰类的方式，加强原始类的属性。
+
+虽然装饰模式和代理模式结构非常相似，但在实际适用场景中却太不一样；装饰模式在日常开发中主要解决继承过于复杂的问题，通过组合来替代继承，也就是说装饰模式是继承关系的一种替代方案之一
+
+一般有两种方式可以实现给一个类或对象增加行为：
+
+- 继承：继承一个现有类可以使得子类在拥有自身方法的同时还拥有父类的方法，相当于给父类增加行为
+- 关联：将一个类的对象嵌入另一个对象中，由另一个对象来决定是否调用嵌入对象的行为以便扩展自己的行为
+
+接下来我们通过4.2示例代码来捋一捋装饰模式的应用场景：
+
 ### 2、代码示例
+
+```java
+/*衣服-接口类*/
+public interface IClothes {
+    int getWarmValue();
+}
+
+/*衣服-大衣类*/
+public class Coat implements IClothes {
+    private final IClothes clothes;
+
+    public Coat(IClothes clothes) {
+        this.clothes = clothes;
+    }
+
+    @Override
+    public int getWarmValue() {
+        return clothes.getWarmValue() + 50;
+    }
+}
+
+/*衣服-裤子类*/
+public class Pants implements IClothes {
+    private final IClothes clothes;
+
+    public Pants(IClothes clothes) {
+        this.clothes = clothes;
+    }
+
+    @Override
+    public int getWarmValue() {
+        return clothes.getWarmValue() + 50;
+    }
+}
+
+/*衣服-衬衫类*/
+public class Shirt implements IClothes {
+    private final IClothes clothes;
+
+    public Shirt(IClothes clothes) {
+        this.clothes = clothes;
+    }
+
+    @Override
+    public int getWarmValue() {
+        return clothes.getWarmValue() + 30;
+    }
+}
+
+/*使用示例*/
+public class Test {
+    @Test
+    public void main() {
+        IClothes bob = new Bob();
+      	//在浴室洗澡
+        System.out.println("什么都没穿时的保暖值：" + bob.getWarmValue());
+        bob = new Shirt(bob);
+      	//穿好衣服在家
+        System.out.println("穿了件衬衫时的保暖值：" + bob.getWarmValue());
+        bob = new Pants(bob);
+        System.out.println("又穿了条裤子时的保暖值：" + bob.getWarmValue());
+      	//出门约朋友
+        bob = new Coat(bob);
+        System.out.println("又穿了件外套时的保暖值：" + bob.getWarmValue());
+    }
+  
+  private class Bob implements IClothes {
+    	@Override
+    	public int getWarmValue() {
+        	return 0;
+    	}
+	}
+}
+```
+
+打印结果
+
+```java
+什么都没穿时的保暖值：0
+穿了件衬衫时的保暖值：30
+又穿了条裤子时的保暖值：80
+又穿了件外套时的保暖值：130
+```
+
+在该示例中，衬衫、裤子、外套等衣物分别实现了IClothes接口，不同的衣物保暖程度也不一样，也就是每件衣服增强的属性值都不一样；在不同场景的衣服搭配也不同，若本例不适用装饰模式而是使用继承的话，各种各样的排列组合可能会躲到爆炸；而采用了装饰模式就只需要为每件衣服生成一个装饰类即可，所以就增加对象功能来说，装饰模式比生成子类实现更为灵活。
 
 ### 3、源码锚点
 
+在[极客时间：设计模式之美](https://time.geekbang.org/column/intro/250)中王争老师提到了Java IO 类的设计中使用了装饰模式，无奈笔者水平有限，无法将王争老师的思想以自己的语言重新表述；笔者平时读/写文件都是通过项目中封装的工具类来操作，这块知识点确实不是很清楚，后期笔者复习到Java的IO类时会单独写一篇文章来介绍
+
+许多文章提到Android Context也是装饰模式，关于这一点笔者有不同的看法，我们先来看一下Context的类图
+
+我是类图
+
+从类图中可以看到，Application、Service、Activity都继承自ContextWapper；虽然ContextWapper和ContextImpl都是Context的实现类，但在ContextWapper中，所有的方法其实都委托给mBase(也就是ContextImpl)来实现；基于现在Context的结构，笔者认为Context说是代理模式可能更为贴切
+
+但是，我们现在假设新增ContextImpl2角色，增加的目的是为了使在Application和在Activity所能获取权限不同，ContextImpl2的权限更为强大，这样做就更符合装饰模式的设定
+
 ### 4、小结
+
+装饰模式来实现扩展比继承更加灵活，装饰模式和代理模式(内部类实现)极为相似，但它们所适用的场景不一样；当看到类似的代码结构时，需要联系上下文才能判断出设计者的意图；装饰模式和代理模式适用阶段也不相同，通常在项目前期设计中就应该考虑到。
+
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/decorator)
 
 ## 五、结构型模式：适配器模式
 
 ### 1、模式定义
 
-适配器模式使接口不兼容的那些类可以一起工作，其别名为包装器。在Android开发中，不管是Android5.0之前的ListView还是现在的RecyclerView，都需要使用到Adapter适配器，所以对Android开发者来说适配器模式并不会很陌生
+适配器模式适合在项目后期代码更改代价很高，或者功能由第三方提供，没有源代码的情况，适配器模式往往充当遗留问题的实现转换器
 
 适配器模式有两种实现方式：类适配器和对象适配器
-其中，类适配器使用继承关系来实现，对象适配器使用组合关系来实现，我们常用的LV/RV就属于对象适配器
-
-5.2小节中，笔者将展示
+其中，类适配器使用继承关系来实现，对象适配器使用组合关系来实现
 
 ### 2、代码示例
 
@@ -491,6 +603,18 @@ Hook Instrumentation实现Activity插件化启动小结：
 适用阶段：笔者个人认为任何阶段都可以使用外观模式，因为复杂有复杂的价值，简单有简单的局限
 adapter模式使用在两个部分有不同的接口的情况,目的是改变接口,使两个部分协同工作，代码已经有了而且还改不了
 桥梁模式是为了分离抽象和实现，属于代码设计之处需要考虑的事情
+
+代理、桥接、装饰器、适配器，这 4 种模式是比较常用的结构型设计模式。它们的代码结构非常相似。笼统来说，它们都可以称为 Wrapper 模式，也就是通过 Wrapper 类二次封装原始类。
+
+尽管代码结构相似，但这 4 种设计模式的用意完全不同，也就是说要解决的问题、应用场景不同，这也是它们的主要区别。这里我就简单说一下它们之间的区别。
+
+代理模式：代理模式在不改变原始类接口的条件下，为原始类定义一个代理类，主要目的是控制访问，而非加强功能，这是它跟装饰器模式最大的不同。
+
+装饰器模式：装饰者模式在不改变原始类接口的情况下，对原始类功能进行增强，并且支持多个装饰器的嵌套使用。
+
+适配器模式：适配器模式是一种事后的补救策略。适配器提供跟原始类不同的接口，而代理模式、装饰器模式提供的都是跟原始类相同的接口。
+
+桥接模式：桥接模式的目的是将接口部分和实现部分分离，从而让它们可以较为容易、也相对独立地加以改变。
 
 再次声明，以上是笔者个人对结构型模式的理解，由于结构型模式的概念有些抽象(相较于创建型模式)，每个人的理解会不尽相同
 若您觉得笔者的描述有任何不对的地方，请到这里进行反馈，再次感谢

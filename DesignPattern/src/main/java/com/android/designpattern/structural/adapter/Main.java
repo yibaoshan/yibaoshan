@@ -34,4 +34,10 @@ public class Main {
         }
     }
 
+    public static void main(String[] args) {
+        Adapter adapter = new Adapter();
+        Statistics statistics = adapter.create();
+        statistics.doSomething();
+    }
+
 }
