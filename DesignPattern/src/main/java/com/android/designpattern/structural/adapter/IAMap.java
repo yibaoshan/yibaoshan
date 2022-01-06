@@ -7,8 +7,8 @@ public interface IAMap {
 
     class AMapParams {
 
-        public float longitude;//经度
-        public float latitude;//纬度
+        public float aMapLongitude;//经度
+        public float aMapLatitude;//纬度
 
     }
 

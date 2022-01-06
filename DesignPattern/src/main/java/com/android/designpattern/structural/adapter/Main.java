@@ -6,6 +6,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.junit.Test;
+
 public class Main {
 
     public class MAdapter extends RecyclerView.Adapter<MViewHolder> {
@@ -34,10 +36,11 @@ public class Main {
         }
     }
 
-    public static void main(String[] args) {
-        Adapter adapter = new Adapter();
-        Statistics statistics = adapter.create();
-        statistics.doSomething();
+    @Test
+    public void main() {
+        ClassAdapter adapter = new ClassAdapter();
+        AliPay aliPay = new AliPay();
+        aliPay.login("admin", "admin", adapter);
     }
 
 }
