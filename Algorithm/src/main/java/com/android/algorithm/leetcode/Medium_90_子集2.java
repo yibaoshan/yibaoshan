@@ -3,6 +3,8 @@ package com.android.algorithm.leetcode;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -21,10 +23,14 @@ public class Medium_90_子集2 {
 
     @Test
     public void main() {
-        int[] nums = new int[]{1, 2, 2};
-        List<List<Integer>> lists = subsetsWithDup(nums);
+        int[] nums = new int[]{4, 4, 4, 1, 4};
+        List<List<Integer>> lists = subsetsWithDup2(nums);
         for (List<Integer> list : lists) System.out.println(Arrays.toString(new List[]{list}));
         System.out.println(lists.size());
+//        System.out.println();
+//        lists = subsetsWithDup2(nums);
+//        for (List<Integer> list : lists) System.out.println(Arrays.toString(new List[]{list}));
+//        System.out.println(lists.size());
     }
 
     /**
@@ -100,19 +106,34 @@ public class Medium_90_子集2 {
         return retList;
     }
 
-    public List<List<Integer>> subsets(int[] nums) {
-        List<List<Integer>> res = new LinkedList<>();
-        res.add(new LinkedList<>());
-        for (int i = 0; i < nums.length; i++) {
-            int count = res.size();
-            for (int j = 0; j < count; j++) {
-                List<Integer> cur = new LinkedList<>(res.get(j));
-                cur.add(nums[i]);
-                res.add(cur);
-            }
-        }
+    /**
+     * 回溯
+     * 执行结果：通过
+     * 执行用时：4 ms, 在所有 Java 提交中击败了9.34%的用户
+     * 内存消耗：38.6 MB, 在所有 Java 提交中击败了66.31%的用户
+     */
+    public List<List<Integer>> subsetsWithDup2(int[] nums) {
+        Arrays.sort(nums);
+        dfs(nums, 0);
         return res;
     }
 
+    List<List<Integer>> res = new LinkedList<>();
+    Deque<Integer> path = new LinkedList<>();
+    HashSet<String> hashSet = new HashSet<>();
+
+    private void dfs(int[] nums, int start) {
+        if (path.size() > nums.length) return;
+        if (!hashSet.contains(path.toString())) {
+            hashSet.add(path.toString());
+            res.add(new LinkedList<>(path));
+        }
+        for (int i = start; i < nums.length; i++) {
+            if (i > start && nums[i] == nums[i - 1]) continue;//去重问题，当不能重复被选择时，需要判断当前是否和上一个值相同，若相同，代表和我一样的值已经组合过了，我自个就不需要再选了
+            path.addLast(nums[i]);
+            dfs(nums, i + 1);
+            path.removeLast();
+        }
+    }
 
 }
