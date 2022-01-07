@@ -11,7 +11,7 @@ public class ObjectAdapter implements IAMap {
     @Override
     public AMapParams getAMapParams() {
         AMapParams aMapParams = new AMapParams();
-        ITencentMap.TencentMapParams tencentMapParams = tencentMap.getTencentMapParams();
+        TencentMap.TencentMapParams tencentMapParams = tencentMap.getTencentMapParams();
         aMapParams.aMapLongitude = tencentMapParams.tencentMapLongitude;
         aMapParams.aMapLatitude = tencentMapParams.tencentMapLatitude;
         return aMapParams;

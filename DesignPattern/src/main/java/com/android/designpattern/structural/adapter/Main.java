@@ -38,7 +38,10 @@ public class Main {
 
     @Test
     public void main() {
-        ClassAdapter adapter = new ClassAdapter();
+        //基于继承实现的类适配器
+//        ClassAdapter adapter = new ClassAdapter();
+        //基于组合实现的对象适配器
+        ObjectAdapter adapter = new ObjectAdapter();
         AliPay aliPay = new AliPay();
         aliPay.login("admin", "admin", adapter);
     }

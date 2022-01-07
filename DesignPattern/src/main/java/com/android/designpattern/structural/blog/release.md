@@ -14,6 +14,7 @@
 3. 装饰模式(Decorator)
 4. 适配器模式(Adapter)
 5. 桥接模式(Bridge)
+5. 外观模式(Facade)
 
 同时，为了更加方便的理解结构型模式的设计思想，本文将加入一个项目阶段的概念：
 1. 开发中，也包含开发前期，指的是代码未发布可以随意更改的阶段
@@ -24,8 +25,6 @@
 
 另外，本篇文章是笔者个人对结构型模式的理解，由于结构型模式的概念有些抽象(相较于创建型模式)，每个人的理解也不尽相同
 因此，若您发现笔者的描述有不准确甚至完全错误的地方，请到[这里](https://github.com/yibaoshan/Blackboard/issues)进行反馈，感谢
-
-注，外观模式和组合模式不包含在本文中，想要了解更多的可以点击这里
 
 ## 二、结构型模式：享元模式
 
@@ -153,9 +152,7 @@ public class Message {
 
 ### 4、小结
 
-享元模式设计思想是通过复用对象，以达到节省内存的目的；关于享元模式的[角色介绍](https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/flyweight.html)和[UML类图](https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/flyweight.html)本文并没有包含，笔者认为理解设计者的意图，了解设计模式适用的场景以及能够解决哪些问题，才是我们开发者需要关注的重点
-
-最后我们来总结一下享元模式的使用场景：
+享元模式设计思想是通过复用对象，以达到节省内存的目的，我们最后来总结一下享元模式的使用场景：
 
 1. 系统中存在大量的相似对象，可以抽离为外部对象，例如2.2中的国家对象
 2. 需要缓冲池的场景，例如Android Message对象，Java基本类型的包装类
@@ -170,7 +167,9 @@ public class Message {
 
 代理模式是指在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能
 
-代理模式实现的场景分为两种，外部类和内部类。外部类指的是原始类无法进行更改的情况，以经典的耗时统计举例来说，想要统计Stack每个方法的耗时，我们可以创建StackProxy类继承自Stack类，然后在StackProxy中调用Stack的方法同时加入耗时统计的代码。内部类指的是原始类代码可以更改的情况，通常会抽象出统一的接口，实现类和代理类实现该接口，在代理类中添加耗时统计的代码。代理模式的原理和代码实现都不难掌握，接下来笔者通过3.2中的代码示例来解释这段话
+代理模式实现的场景分为两种，外部类和内部类。外部类指的是原始类无法进行更改的情况，以经典的耗时统计举例来说，想要统计Stack每个方法的耗时，我们可以创建StackProxy类继承自Stack类，然后在StackProxy中调用Stack的方法同时加入耗时统计的代码。内部类指的是原始类代码可以更改的情况，通常会抽象出统一的接口，实现类和代理类实现该接口，在代理类中添加耗时统计的代码
+
+代理模式的原理和代码实现都不难掌握，接下来一起来看3.2中的代码示例
 
 ### 2、代码示例
 
@@ -413,15 +412,15 @@ Hook Instrumentation实现Activity插件化启动小结：
 2. 在代理类中修改启动Activity的Intent，将启动的目标Activity替换为占位Activity，从而避免注册清单的检查
 3. 在代理类中重写newActivity（）将启动的活动换回真实目标，然后继续执行原有逻辑
 
-Android提供的AIDL跨进程通信同样也用到了代理模式，Client端调用asInterface()保存的interface对象其实就是Server端的代理，笔者实现了一个简单的Demo，感兴趣的同学可以点击[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy/binder)查看
+Android提供的AIDL跨进程通信同样也用到了代理模式，Client端调用asInterface()保存的interface对象其实就是Server端的代理，笔者实现了一个简单的小Demo，感兴趣的同学可以点击[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy/binder)查看
 
 ### 5、小结
 
 最后我们再来复习一下代理模式的定义：在不改版原始类的情况下，通过新增代理类的方式，来给原始类加入新的功能
 
-实现方式分为内部类和外部类，内部类使用接口或抽象类，外部类使用继承实现
+实现方式分为内部类和外部类，内部类使用接口或抽象类，外部类使用继承实现。项目开发阶段对使用代理模式并没什么影响，在项目的前中后期都可以使用
 
-项目开发阶段对使用代理模式并没什么影响，在项目的前中后期都可以使用
+代理模式在平时的开发经常被用到，常用在业务系统中开发一些非功能性需求，比如：监控、统计、日志。我们将这些附加功能与业务功能解耦，放到代理类统一处理，让开发人员只需要关注业务方面的开发。除此之外，代理模式还可以用在RPC通信、插件化等应用场景中
 
 此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/proxy)
 
@@ -537,13 +536,13 @@ public class Test {
 
 我是类图
 
-从类图中可以看到，Application、Service、Activity都继承自ContextWapper；虽然ContextWapper和ContextImpl都是Context的实现类，但在ContextWapper中，所有的方法其实都委托给mBase(也就是ContextImpl)来实现；基于现在Context的结构，笔者认为Context说是代理模式可能更为贴切
+从类图中可以看到，Application、Service、Activity都继承自ContextWrapper；虽然ContextWrapper和ContextImpl都是Context的实现类，但在ContextWrapper中，所有的方法其实都委托给mBase(也就是ContextImpl)来实现；基于现在Context的结构，笔者认为Context说是代理模式可能更为贴切
 
 但是，我们现在假设新增ContextImpl2角色，增加的目的是为了使在Application和在Activity所能获取权限不同，ContextImpl2的权限更为强大，这样做就更符合装饰模式的设定
 
 ### 4、小结
 
-装饰模式来实现扩展比继承更加灵活，装饰模式和代理模式(内部类实现)极为相似，但它们所适用的场景不一样；当看到类似的代码结构时，需要联系上下文才能判断出设计者的意图；装饰模式和代理模式适用阶段也不相同，通常在项目前期设计中就应该考虑到。
+装饰模式来实现扩展比继承更加灵活，装饰模式和代理模式(内部类实现)极为相似，但它们所适用的场景不一样；当看到类似的代码结构时，需要联系上下文才能判断出设计者的意图；装饰模式和代理模式适用阶段也不相同，通常在项目前期设计阶段就应该考虑到。
 
 此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/decorator)
 
@@ -551,95 +550,165 @@ public class Test {
 
 ### 1、模式定义
 
-适配器模式将不兼容的接口转换为可兼容的接口，让原本由于接口不兼容而不能一起工作的类可以一起工作。
+适配器模式的定义是将不兼容的接口转换为可兼容的接口，让原本由于接口不兼容而不能一起工作的类可以一起工作
 
-适配器模式是比较容易理解又没那么容易的一种设计模式，容易理解的地方在于，适配器模式本身设计思想比较简单，简单到一个词就可以总结：转换；
-没那么容易理解的地方在于，适配器的解析总是出现在一些较高复杂度的框架源码中，要在对框架本身就缺乏足够了解的情况下去理解它使用到的设计模式，可能就更难了；
-实际上，绝大多数框架使用的远不止一种设计模式，甚至在某一个功能模块都有两三种模式叠加使用，所以容易给读者理解适配器模式时造成困扰，这同样是笔者在阅读讲解适配器模式书籍/资料时遇到的难题
+适配器模式有两种实现方式：类适配器和对象适配器；其中，类适配器使用继承关系来实现，对象适配器使用组合关系来实现，两者的区别可以在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/adapter)查看
 
-适配器模式适合在项目后期代码更改代价很高，或者功能由第三方提供，没有源代码的情况，适配器模式往往充当遗留问题的实现转换器
+在实际开发中，适配器模式往往充当遗留问题的实现转换器，通常在项目后期代码更改代价很高，或者某个功能依赖第三方来实现的情况下使用，举个栗子：
 
-适配器模式有两种实现方式：类适配器和对象适配器
-其中，类适配器使用继承关系来实现，对象适配器使用组合关系来实现
-
-接下来笔者通过小栗子来尝试解释什么是：把A转换成B给C使用
+假设我们在一个Android项目中集成了阿里支付SDK，在调用登录方法时需要传入高德地图提供的位置信息，但是早期项目中已经接入腾讯地图，腾讯地图能够提供阿里支付所需的位置信息，只是入参类型不同接口不兼容。这种场景我们就可以使用适配器模式，定义一个包装类，把腾讯地图提供的位置信息转换成阿里支付需要的类型，这个包装类指的就是适配器(Adapter)
 
 ### 2、代码示例
 
-假设我们在项目中集成了阿里支付SDK，其中调用登录方法时需要传入用户的位置信息，位置信息要求实现高德地图的IAMap接口
-那么要么创建一个类实现IAMap接口，调用Android自身API，自己来完成获取信息的功能，要么在项目中集成高德地图SDK，高德地图已经实现了IAMap接口
-但是，之前项目中已经集成了腾讯地图，腾讯地图
+```java
+
+/*阿里支付SDK*/
+public class AliPay {
+
+  	/*登录方法需要传入位置信息*/
+    public boolean login(String id, String pwd, IAMap.AMapParams location) {
+        return res;
+    }
+  
+  	/*高德地图接口*/
+		public interface IAMap {
+
+    		AMapParams getAMapParams();
+      
+    		class AMapParams {
+        		public float aMapLongitude;//经度
+        		public float aMapLatitude;//纬度
+    		}
+		}
+}
+
+/*腾讯地图SDK*/
+public class TencentMap {
+
+    private final TencentMapParams params;
+
+    public TencentMap() {
+        params = new TencentMapParams();
+        params.tencentMapLongitude = new Random().nextFloat();
+        params.tencentMapLatitude = new Random().nextFloat();
+    }
+
+  	/*提供腾讯地图的位置信息*/
+    public TencentMapParams getTencentMapParams() {
+        return params;
+    }
+
+    public static class TencentMapParams {
+        public float tencentMapLongitude;//经度
+        public float tencentMapLatitude;//纬度
+    }
+}
+
+/*适配器，使用继承实现，也可以改为使用对象实现*/
+public class Adapter extends TencentMap implements IAMap {
+
+    @Override
+    public AMapParams getAMapParams() {
+      	//将腾讯地图提供的位置信息转为高德的位置信息
+        AMapParams aMapParams = new AMapParams();
+        TencentMapParams tencentMapParams = this.getTencentMapParams();
+        aMapParams.aMapLongitude = tencentMapParams.tencentMapLongitude;
+        aMapParams.aMapLatitude = tencentMapParams.tencentMapLatitude;
+        return aMapParams;
+    }
+}
+
+/*使用示例*/
+public class Test {
+  
+    @Test
+    public void main() {
+        Adapter adapter = new Adapter();
+        AliPay aliPay = new AliPay();
+        aliPay.login("admin", "admin", adapter.getAMapParams());
+    }
+
+}
+```
+
+代码示例中有三个角色，阿里支付SDK、腾讯地图SDK、适配器Adapter，其中适配器的作用就是将腾讯地图提供的位置信息转换成阿里支付想要的高德地图接口的位置信息，这就是所谓的不兼容的接口转换为可兼容的接口
 
 ### 3、源码锚点
 
-在Android源码中，ListView和RecyclerView的适配器无疑是最合适的，但需要注意的是
-这里的Adapter并不是经典的适配器模式，但是却是对象适配器模式的优秀示例，也很好的体现了面向对象的一些基本原则
+在Android领域的大多数博客中，总是以RecyclerView.Adapter为例来讲解适配器模式，这一点笔者认为可能不是很恰当，在查看了部分RecyclerView源码和讲解设计模式的书籍之后，笔者认为RecyclerView的Adapter虽然名字叫适配器，但它完成的工作说是桥接模式可能更适合一些
+
+关于适配器模式的源码示例笔者暂时没有找到，若您发现适配器模式的源码应用，请到[这里](https://github.com/yibaoshan/Blackboard/issues)告诉我，感谢
 
 ### 4、小结
 
-适配器模式主要的工作就是转换，如何把A转换成B给C使用，在适配器模式中可以定义一个包装类，包装不兼容接口的对象，这个包装类指的就是适配器(Adapter)
+适配器模式更多时候可以看作一种“补偿模式”，大部分情况下用来补救设计上的缺陷，或者像5.2代码示例中，无法更改源码的情况；使用这种模式算是“无奈之举”，如果在设计初期，我们就能协调规避掉接口不兼容的问题，那这种模式就没有应用的机会了
 
-关于适配器模式的两种实现方式，笔者这一点知道就好，两种实现方式，甚至笔者任务都没必要区分两种实现方式出来，如何实现笔者认为不是很重要
+最后，此章节表述不够清晰，笔者的本意是适配器模式可以理解为转换器，但改了几版还是达不到笔者想要的效果，无奈放弃。talk is cheap show me the code，希望您在5.2的代码示例中能够理解笔者的想要表达的意图
 
-关于剖析LV/RV适配器的更多更详细的解析文章可以点击[这里](https://www.kancloud.cn/alex_wsc/android_framework/502061)
+此小节涉及到的代码在[这里](https://github.com/yibaoshan/Blackboard/tree/master/DesignPattern/src/main/java/com/android/designpattern/structural/adapter)
 
 ## 六、结构型模式：桥接模式
 
 ### 1、模式定义
 
-依赖倒置原则，抽象层定义
+桥接模式的定义比较简单，就一句话：将抽象部分与它的实现部分分离，使它们都可以独立地变化。
+
+但是，网上关于桥接模式的争议较多，不管是在中文网站还是英文网站；注意存在争议的地方，是桥接模式是GoF定义的的将实现与抽象分离，还是一个类存在两个(或多个)独立变化的维度，可以通过组合的方式，让这两个(或多个)维度可以独立进行扩展，若是后者，那么它和策略模式的区别是什么
+
+由于目前关于桥接模式还没有定论，所以本篇文章根据GoF的定义来展开。笔者会将桥接模式等同于依赖倒置原则，包括上文提到的桥接模式以及接下来的代码示例都基于此想法；若您觉得笔者理解有误，请到这里进行反馈，感谢。
+
+另外，关于桥接模式笔者提供其他的资料供您参考：[桥接模式](https://refactoringguru.cn/design-patterns/bridge)、[桥接模式2](https://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/bridge.html)、[Bridge Pattern](http://wiki.c2.com/?BridgePattern)、[Bridge Design Pattern in Java](https://www.journaldev.com/1491/bridge-design-pattern-java)
 
 ### 2、代码示例
 
-### 3、源码锚点
+### 3、小结
 
-### 4、小结
-
+在隔离第三方库的设计上，多数工程师使用的是代理模式，笔者认为不完全是。对项目而言，使用的是桥接，因为符合抽象和实现隔离。对实现而言，是代理，因为我把事情委托给了三方框架
 桥接模式在设计之初就应该考虑到
 
 ## 七、结构型模式：外观模式
 
 ### 1、模式定义
 
-### 2、代码示例
-
-### 3、源码锚点
-
-### 4、小结
-
-## 八、结构型模式：组合模式
-
-### 1、模式定义
-
-### 2、代码示例
-
-### 3、源码锚点
-
-### 4、小结
-
-## 九、总结
-
 外观模式是给一个复杂的系统提供一个统一的外观(接口)，方便调用者使用，可以简单理解为再封装，没有改变任何接口
 适用阶段：笔者个人认为任何阶段都可以使用外观模式，因为复杂有复杂的价值，简单有简单的局限
 adapter模式使用在两个部分有不同的接口的情况,目的是改变接口,使两个部分协同工作，代码已经有了而且还改不了
 桥梁模式是为了分离抽象和实现，属于代码设计之处需要考虑的事情
 
-代理、桥接、装饰器、适配器，这 4 种模式是比较常用的结构型设计模式。它们的代码结构非常相似。笼统来说，它们都可以称为 Wrapper 模式，也就是通过 Wrapper 类二次封装原始类。
+外观模式以下单为例，后端开发需要检查用户身份，邮费优惠券，商品库存价格等待
+外观模式用一句话和一个例子就可以总结，
 
-尽管代码结构相似，但这 4 种设计模式的用意完全不同，也就是说要解决的问题、应用场景不同，这也是它们的主要区别。这里我就简单说一下它们之间的区别。
+### 2、代码示例
 
-代理模式：代理模式在不改变原始类接口的条件下，为原始类定义一个代理类，主要目的是控制访问，而非加强功能，这是它跟装饰器模式最大的不同。
+### 3、源码锚点
 
-装饰器模式：装饰者模式在不改变原始类接口的情况下，对原始类功能进行增强，并且支持多个装饰器的嵌套使用。
+### 4、小结
 
-适配器模式：适配器模式是一种事后的补救策略。适配器提供跟原始类不同的接口，而代理模式、装饰器模式提供的都是跟原始类相同的接口。
+## 八、总结
 
-桥接模式：桥接模式的目的是将接口部分和实现部分分离，从而让它们可以较为容易、也相对独立地加以改变。
+本文介绍了7大结构型模式中的6种模式，其中，除了享元模式和外观模式相对独立之外，其他4种设计模式：代理、装饰者、适配器、桥接，它们的代码结构非常相似。笼统来说，它们都可以称为Wrapper模式，也就是通过Wrapper 类二次封装原始类。
+
+尽管代码结构相似，但这 4 种设计模式的用意完全不同，也就是说要解决的问题、应用场景、适用的项目阶段不同，这也是它们的主要区别，借用王争老师的观点：
+
+1. 代理模式：代理模式在不改变原始类接口的条件下，为原始类定义一个代理类，主要目的是控制访问，而非加强功能，这是它跟装饰器模式最大的不同。
+2. 装饰器模式：装饰者模式同样在不改变原始类接口的情况下，对原始类功能进行增强，并且支持多个装饰器的嵌套使用。
+3. 适配器模式：适配器模式是一种事后的补救策略。适配器提供跟原始类不同的接口，而代理模式、装饰器模式提供的都是跟原始类相同的接口。
+4. 桥接模式：桥接模式的目的是将接口部分和实现部分分离，从而让它们可以较为容易、也相对独立地加以改变。
+
+来源：[极客时间：设计模式之美-王争](https://time.geekbang.org/column/intro/250)
+
+Stack Overflow有关于代理、适配、适配器、桥接这4种模式有什么不同的讨论话题，可以点击下面的链接进行查看
+
+https://stackoverflow.com/questions/350404/how-do-the-proxy-decorator-adapter-and-bridge-patterns-differ/350471#350471
 
 说明：以上是笔者个人对结构型模式的理解，由于结构型模式的概念有些抽象(相较于创建型模式)，每个人的理解也不尽相同
 若您发现笔者的描述有不准确甚至完全错误的地方，请到[这里](https://github.com/yibaoshan/Blackboard/issues)进行反馈，再次感谢
 
-## 十、参考资料
+组合模式不包含在本文中，想要了解更多的可以点击这里
+
+全文完
+
+## 九、参考资料
 
 - [图说设计模式](https://design-patterns.readthedocs.io/zh_CN/latest/index.html)
 - [refactoringguru.cn](https://refactoringguru.cn/design-patterns)

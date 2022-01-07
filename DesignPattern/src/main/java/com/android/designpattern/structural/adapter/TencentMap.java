@@ -2,7 +2,7 @@ package com.android.designpattern.structural.adapter;
 
 import java.util.Random;
 
-public class TencentMap implements ITencentMap {
+public class TencentMap {
 
     private final TencentMapParams params;
 
@@ -12,8 +12,14 @@ public class TencentMap implements ITencentMap {
         params.tencentMapLatitude = new Random().nextFloat();
     }
 
-    @Override
     public TencentMapParams getTencentMapParams() {
         return params;
+    }
+
+    public static class TencentMapParams {
+
+        public float tencentMapLongitude;//经度
+        public float tencentMapLatitude;//纬度
+
     }
 }
