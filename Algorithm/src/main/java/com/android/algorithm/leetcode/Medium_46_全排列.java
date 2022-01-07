@@ -14,8 +14,6 @@ public class Medium_46_全排列 {
     /**
      * 给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
      * <p>
-     *  
-     * <p>
      * 示例 1：
      * <p>
      * 输入：nums = [1,2,3]
@@ -47,44 +45,33 @@ public class Medium_46_全排列 {
     }
 
     /**
-     * backtrack(路径, 选择列表):
-     * if 满足结束条件:
-     * result.add(路径)
-     * return
-     * for 选择 in 选择列表:
-     * 做选择
-     * backtrack(路径, 选择列表)
-     * 撤销选择
-     */
-
-    /**
-     * 回溯法，模仿答案
      * 执行结果：通过
-     * 执行用时：1 ms, 在所有 Java 提交中击败了82.83%的用户
-     * 内存消耗：38.8 MB, 在所有 Java 提交中击败了25.23%的用户
+     * 执行用时：1 ms, 在所有 Java 提交中击败了80.52%的用户
+     * 内存消耗：38.6 MB, 在所有 Java 提交中击败了67.11%的用户
      */
     public List<List<Integer>> permute(int[] nums) {
-        List<List<Integer>> result = new LinkedList<>();
-        Deque<Integer> deque = new ArrayDeque<>();
+        if (nums == null || nums.length == 0) return res;
         boolean[] visited = new boolean[nums.length];
-        backtrack(result, deque, nums, visited);
-        return result;
+        backtrack(nums, visited);
+        return res;
     }
 
-    private void backtrack(List<List<Integer>> result, Deque<Integer> deque, int[] nums, boolean[] visited) {
+    private List<List<Integer>> res = new ArrayList<>();
+    private Deque<Integer> deque = new ArrayDeque<>();
+
+    private void backtrack(int[] nums, boolean[] visited) {
         if (deque.size() == nums.length) {
-            result.add(new ArrayList<>(deque));
+            res.add(new ArrayList<>(deque));
             return;
         }
         for (int i = 0; i < nums.length; i++) {
             if (visited[i]) continue;
             visited[i] = true;
-            deque.add(nums[i]);
-            backtrack(result, deque, nums, visited);
+            deque.addLast(nums[i]);
+            backtrack(nums, visited);
             deque.removeLast();
             visited[i] = false;
         }
     }
-
 
 }

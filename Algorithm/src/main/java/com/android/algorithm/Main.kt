@@ -231,6 +231,10 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_90_子集2
      *
      * 4. 排列
+     * @see com.android.algorithm.leetcode.Medium_491_递增子序列
+     * @see com.android.algorithm.leetcode.Medium_46_全排列
+     * @see com.android.algorithm.leetcode.Medium_47_全排列2
+     *
      * 5. 棋盘问题
      * 6. 其他
      * */
