@@ -236,6 +236,8 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_47_全排列2
      *
      * 5. 棋盘问题
+     * @see com.android.algorithm.leetcode.Hard_51_N皇后
+     *
      * 6. 其他
      * */
 
