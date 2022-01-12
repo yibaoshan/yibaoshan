@@ -237,6 +237,7 @@ class Main {
      *
      * 5. 棋盘问题
      * @see com.android.algorithm.leetcode.Hard_51_N皇后
+     * @see com.android.algorithm.leetcode.Hard_37_解数独
      *
      * 6. 其他
      * */
