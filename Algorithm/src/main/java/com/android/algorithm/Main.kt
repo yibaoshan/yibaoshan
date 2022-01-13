@@ -239,7 +239,14 @@ class Main {
      * @see com.android.algorithm.leetcode.Hard_51_N皇后
      * @see com.android.algorithm.leetcode.Hard_37_解数独
      *
-     * 6. 其他
+     * */
+
+    /**
+     * 贪心算法：
+     *
+     * @see com.android.algorithm.leetcode.Easy_455_分发饼干
+     * @see com.android.algorithm.leetcode.Medium_376_摆动序列
+     * @see com.android.algorithm.leetcode.Easy_53_最大子序和
      * */
 
     /****代码随想录end****/
