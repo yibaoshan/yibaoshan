@@ -26,6 +26,7 @@
                 android:launchMode="singleInstance"
                 android:taskAffinity=".binder_client"
                 android:process=":binder_client" />
+        <activity android:name=".behavioral.cor.broadcast.OrderlyBroadcastActivity" />
 
         <service
                 android:name=".structural.proxy.binder.server.BinderService"
