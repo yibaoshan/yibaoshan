@@ -250,6 +250,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_122_买卖股票的最佳时机2
      * @see com.android.algorithm.leetcode.Medium_55_跳跃游戏
      * @see com.android.algorithm.leetcode.Medium_45_跳跃游戏2
+     * @see com.android.algorithm.leetcode.Easy_1005_K次取反后最大化的数组和
+     * @see com.android.algorithm.leetcode.Medium_134_加油站
+     *
      * */
 
     /****代码随想录end****/
