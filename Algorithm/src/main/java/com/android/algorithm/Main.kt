@@ -255,6 +255,23 @@ class Main {
      *
      * */
 
+    /**
+     * 动态规划(Dynamic Programming):
+     * 动规五部曲
+     * 1. 确定dp数组以及下标的含义
+     * 2. 确定递推公式
+     * 3. 如何初始化dp数组
+     * 4. 确定遍历顺序
+     * 5. 举例推导dp数组
+     *
+     * @see com.android.algorithm.leetcode.Easy_509_斐波那契数
+     * @see com.android.algorithm.leetcode.Easy_70_爬楼梯
+     * @see com.android.algorithm.leetcode.Easy_746_使用最小花费爬楼梯
+     * @see com.android.algorithm.leetcode.Medium_62_不同路径
+     * @see com.android.algorithm.leetcode.Medium_63_不同路径2
+     *
+     * */
+
     /****代码随想录end****/
 
 }
