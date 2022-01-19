@@ -269,6 +269,9 @@ class Main {
      * @see com.android.algorithm.leetcode.Easy_746_使用最小花费爬楼梯
      * @see com.android.algorithm.leetcode.Medium_62_不同路径
      * @see com.android.algorithm.leetcode.Medium_63_不同路径2
+     * @see com.android.algorithm.leetcode.Medium_343_整数拆分
+     * @see com.android.algorithm.leetcode.Medium_96_不同的二叉搜索树
+     * @see com.android.algorithm.leetcode.Medium_416_分割等和子集
      *
      * */
 
