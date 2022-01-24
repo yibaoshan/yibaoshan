@@ -23,6 +23,7 @@ public class Medium_62_不同路径 {
         int m = 3;
         int n = 7;
         System.out.println(uniquePaths(m, n));
+        System.out.println(uniquePaths2(m, n));
     }
 
     /**
@@ -58,6 +59,20 @@ public class Medium_62_不同路径 {
             System.out.println(Arrays.toString(dp[i]));
         }
         System.out.println();
+    }
+
+    public int uniquePaths2(int m, int n) {
+        int[][] matrix = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            matrix[i][0] = 1;
+        }
+        Arrays.fill(matrix[0], 1);
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                matrix[i][j] = matrix[i - 1][j] + matrix[i][j - 1];
+            }
+        }
+        return matrix[m - 1][n - 1];
     }
 
 }

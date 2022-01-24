@@ -39,6 +39,7 @@ public class Easy_509_斐波那契数 {
         int n = 17;
         System.out.println(fib(n));
         System.out.println(fib2(n));
+        System.out.println(fib3(n));
     }
 
     /**
@@ -67,6 +68,24 @@ public class Easy_509_斐波那契数 {
             b = count;
         }
         return count;
+    }
+
+    /**
+     * 动态规划解法
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：34.7 MB, 在所有 Java 提交中击败了98.00%的用户
+     */
+    public int fib3(int n) {
+        if (n < 2) return n;
+        int a = 0, b = 1, sum = 0;
+        while (n > 0) {
+            a = b;//等于上一个
+            b = sum;//等于上一个
+            sum = a + b;//重新计算结果
+            n--;
+        }
+        return sum;
     }
 
 }

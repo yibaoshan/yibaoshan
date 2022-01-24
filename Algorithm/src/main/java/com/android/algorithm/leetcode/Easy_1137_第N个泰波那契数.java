@@ -31,7 +31,9 @@ public class Easy_1137_第N个泰波那契数 {
      */
     @Test
     public void main() {
-        System.out.println(tribonacci(25));
+        int n = 4;
+        System.out.println(tribonacci(n));
+        System.out.println(tribonacci2(n));
     }
 
     /**
@@ -51,6 +53,32 @@ public class Easy_1137_第N个泰波那契数 {
             result = p + q + r;
         }
         return result;
+    }
+
+    /**
+     * 动态规划解法，参考509题，意思相同
+     *
+     * @see com.android.algorithm.leetcode.Easy_509_斐波那契数
+     * a = b;
+     * b = c;
+     * c = 上一次结果
+     * <p>
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：35 MB, 在所有 Java 提交中击败了76.14%的用户
+     */
+    public int tribonacci2(int n) {
+        if (n < 1) return n;
+        if (n < 3) return 1;
+        int a = 0, b = 1, c = 1, sum = a + b + c;
+        while (n > 3) {
+            a = b;
+            b = c;
+            c = sum;
+            sum = a + b + c;
+            n--;
+        }
+        return sum;
     }
 
 }
