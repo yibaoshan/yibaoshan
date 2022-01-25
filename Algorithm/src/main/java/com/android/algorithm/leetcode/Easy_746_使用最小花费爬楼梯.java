@@ -2,6 +2,8 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class Easy_746_使用最小花费爬楼梯 {
 
     /**
@@ -18,8 +20,10 @@ public class Easy_746_使用最小花费爬楼梯 {
 
     @Test
     public void main() {
-        int[] cost = new int[]{10, 15, 20};
+//        int[] cost = new int[]{10, 15, 20};
+        int[] cost = new int[]{1, 100, 1, 1, 1, 100, 1, 1, 100, 1};
         System.out.println(minCostClimbingStairs(cost));
+        System.out.println(minCostClimbingStairs2(cost));
     }
 
     /**
@@ -34,6 +38,62 @@ public class Easy_746_使用最小花费爬楼梯 {
         dp[1] = cost[1];
         for (int i = 2; i < cost.length; i++) {
             dp[i] = Math.min(dp[i - 1], dp[i - 2]) + cost[i];
+        }
+        return Math.min(dp[dp.length - 1], dp[dp.length - 2]);
+    }
+
+    /**
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * */
+
+    /**
+     * 动态规划，思路：
+     * 1. 初始化第一步和第二步的花费
+     * 2. 从第三步开始，计算第三步的花费加上前面两步的值，保存最小值到dp数组里
+     * <p>
+     * 执行结果：通过
+     * 执行用时：1 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：41.6 MB, 在所有 Java 提交中击败了5.12%的用户
+     */
+    public int minCostClimbingStairs2(int[] cost) {
+        if (cost == null || cost.length == 0) return 0;
+        if (cost.length == 1) return cost[0];
+        if (cost.length == 2) return Math.min(cost[0], cost[1]);
+        int[] dp = new int[cost.length];
+        dp[0] = cost[0];
+        dp[1] = cost[1];
+        for (int i = 2; i < cost.length; i++) {
+            dp[i] = Math.min(dp[i - 2] + cost[i], dp[i - 1] + cost[i]);
+            System.out.println(Arrays.toString(dp));
         }
         return Math.min(dp[dp.length - 1], dp[dp.length - 2]);
     }

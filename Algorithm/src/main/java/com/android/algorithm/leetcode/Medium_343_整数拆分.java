@@ -2,6 +2,8 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class Medium_343_整数拆分 {
 
     /**
@@ -21,6 +23,7 @@ public class Medium_343_整数拆分 {
     @Test
     public void main() {
         System.out.println(integerBreak(10));
+        System.out.println(integerBreak2(10));
     }
 
     /**
@@ -37,6 +40,26 @@ public class Medium_343_整数拆分 {
             a *= 3;
         }
         return a * n;
+    }
+
+    /**
+     * 动态规划，随想录的代码，暂时无法理解
+     */
+    public int integerBreak2(int n) {
+        if (n < 4) return n - 1;
+        int[] dp = new int[n + 1];
+        dp[2] = 1;
+        for (int i = 3; i <= n; ++i) {
+            for (int j = 1; j < i - 1; ++j) {
+                System.out.println("i=" + i + ",j=" + j + ",array=" + Arrays.toString(dp));
+                //j*(i-j)代表把i拆分为j和i-j两个数相乘
+                //j*dp[i-j]代表把i拆分成j和继续把(i-j)这个数拆分，取(i-j)拆分结果中的最大乘积与j相乘
+                int a = j * (i - j);
+                int b = j * dp[i - j];
+                dp[i] = Math.max(dp[i], Math.max(a, b));
+            }
+        }
+        return dp[n];
     }
 
 }

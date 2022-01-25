@@ -26,9 +26,10 @@ public class Easy_70_爬楼梯 {
 
     @Test
     public void main() {
-        int step = 4;
+        int step = 13;
         System.out.println(climbStairs(step));
         System.out.println(climbStairs2(step));
+        System.out.println(climbStairs3(step));
     }
 
     /**
@@ -54,6 +55,27 @@ public class Easy_70_爬楼梯 {
             two = temp + one;
         }
         return two;
+    }
+
+    /**
+     * 动态规划，和509 1137题思路一毛一样
+     *
+     * @see com.android.algorithm.leetcode.Easy_509_斐波那契数
+     * @see com.android.algorithm.leetcode.Easy_1137_第N个泰波那契数
+     * <p>
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：38.2 MB, 在所有 Java 提交中击败了5.37%的用户
+     */
+    public int climbStairs3(int n) {
+        if (n <= 3) return n;
+        int a = 1, b = 2, sum = a + b;
+        while (n-- > 3) {
+            a = b;
+            b = sum;
+            sum = a + b;
+        }
+        return sum;
     }
 
 }
