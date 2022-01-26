@@ -15,8 +15,10 @@ public class Medium_198_打家劫舍 {
      */
     @Test
     public void main() {
-        int[] nums = new int[]{2, 1, 1, 2};
+//        int[] nums = new int[]{2, 1, 1, 2};
+        int[] nums = new int[]{2, 7, 9, 3, 1};
         System.out.println(rob(nums));
+        System.out.println(rob2(nums));
     }
 
     /**
@@ -41,6 +43,25 @@ public class Medium_198_打家劫舍 {
             prev = result;
         }
         return result;
+    }
+
+    /**
+     * 动态规划
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：39.1 MB, 在所有 Java 提交中击败了5.50%的用户
+     */
+    public int rob2(int[] nums) {
+        if (nums == null || nums.length == 0) return 0;
+        if (nums.length == 1) return nums[0];
+        if (nums.length == 2) return Math.max(nums[0], nums[1]);
+        int[] dp = new int[nums.length];
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]);
+        for (int i = 2; i < nums.length; i++) {
+            dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
+        }
+        return dp[dp.length - 1];
     }
 
 }

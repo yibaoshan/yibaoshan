@@ -2,6 +2,8 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class Medium_213_打家劫舍2 {
 
     /**
@@ -19,6 +21,7 @@ public class Medium_213_打家劫舍2 {
     public void main() {
         int[] nums = new int[]{1, 3, 1, 3, 100};
         System.out.println(rob(nums));
+        System.out.println(rob2(nums));
     }
 
     /**
@@ -49,6 +52,32 @@ public class Medium_213_打家劫舍2 {
             prevRes = res;
         }
         return res;
+    }
+
+    /**
+     * 动态规划
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：39.1 MB, 在所有 Java 提交中击败了5.11%的用户
+     */
+    public int rob2(int[] nums) {
+        if (nums == null || nums.length == 0) return 0;
+        if (nums.length == 1) return nums[0];
+        if (nums.length == 2) return Math.max(nums[0], nums[1]);
+        return Math.max(dp(Arrays.copyOfRange(nums, 1, nums.length)), dp(Arrays.copyOfRange(nums, 0, nums.length - 1)));
+    }
+
+    public int dp(int[] nums) {
+        if (nums == null || nums.length == 0) return 0;
+        if (nums.length == 1) return nums[0];
+        if (nums.length == 2) return Math.max(nums[0], nums[1]);
+        int[] dp = new int[nums.length];
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]);
+        for (int i = 2; i < nums.length; i++) {
+            dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
+        }
+        return dp[dp.length - 1];
     }
 
 }

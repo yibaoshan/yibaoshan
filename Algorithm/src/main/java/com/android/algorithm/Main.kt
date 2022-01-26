@@ -17,6 +17,105 @@ class Main {
     /****力扣begin****/
 
     /**
+     * 算法
+     *
+     * 二分查找：
+     * @see com.android.algorithm.leetcode.Easy_704_二分查找
+     * @see com.android.algorithm.leetcode.Easy_278_第一个错误的版本
+     * @see com.android.algorithm.leetcode.Easy_35_搜索插入位置
+     * @see com.android.algorithm.leetcode.Medium_34_在排序数组中查找元素的第一个和最后一个位置
+     * @see com.android.algorithm.leetcode.Medium_33_搜索旋转排序数组
+     * @see com.android.algorithm.leetcode.Medium_74_搜索二维矩阵
+     * @see com.android.algorithm.leetcode.Medium_153_寻找旋转排序数组中的最小值
+     * @see com.android.algorithm.leetcode.Medium_162_寻找峰值
+     *
+     * 双指针：
+     * @see com.android.algorithm.leetcode.Easy_977_有序数组的平方
+     * @see com.android.algorithm.leetcode.Medium_189_旋转数组
+     * @see com.android.algorithm.leetcode.Easy_283_移动零
+     * @see com.android.algorithm.leetcode.Easy_167_两数之和2输入有序数组
+     * @see com.android.algorithm.leetcode.Easy_344_反转字符串
+     * @see com.android.algorithm.leetcode.Easy_557_反转字符串中的单词3
+     * @see com.android.algorithm.leetcode.Easy_876_链表的中间结点
+     * @see com.android.algorithm.leetcode.Medium_19_删除链表的倒数第N个结点
+     * @see com.android.algorithm.leetcode.Easy_844_比较含退格的字符串
+     * @see com.android.algorithm.leetcode.Medium_986_区间列表的交集
+     * @see com.android.algorithm.leetcode.Medium_11_盛最多水的容器
+     *
+     * 滑动窗口：
+     * @see com.android.algorithm.leetcode.Medium_567_字符串的排列
+     * @see com.android.algorithm.leetcode.Medium_L3_无重复字符的最长子串
+     * @see com.android.algorithm.leetcode.Medium_438_找到字符串中所有字母异位词
+     * @see com.android.algorithm.leetcode.Medium_713_乘积小于K的子数组
+     * @see com.android.algorithm.leetcode.Medium_209_长度最小的子数组
+     *
+     * 广度优先搜索/深度优先搜索：
+     * @see com.android.algorithm.leetcode.Easy_733_图像渲染
+     * @see com.android.algorithm.leetcode.Medium_695_岛屿的最大面积
+     * @see com.android.algorithm.leetcode.Easy_617_合并二叉树
+     * @see com.android.algorithm.leetcode.Medium_116_填充每个节点的下一个右侧节点指针
+     * @see com.android.algorithm.leetcode.Medium_542_01矩阵
+     * @see com.android.algorithm.leetcode.Medium_994_腐烂的橘子
+     * @see com.android.algorithm.leetcode.Medium_200_岛屿数量
+     * @see com.android.algorithm.leetcode.Medium_547_省份数量
+     * @see com.android.algorithm.leetcode.Easy_572_另一棵树的子树
+     * @see com.android.algorithm.leetcode.Medium_1091_二进制矩阵中的最短路径
+     * @see com.android.algorithm.leetcode.Medium_797_所有可能的路径
+     * @see com.android.algorithm.leetcode.Medium_130_被围绕的区域
+     *
+     * 递归/回溯：
+     * @see com.android.algorithm.leetcode.Easy_21_合并两个有序链表
+     * @see com.android.algorithm.leetcode.Easy_206_反转链表
+     * @see com.android.algorithm.leetcode.Medium_77_组合
+     * @see com.android.algorithm.leetcode.Medium_46_全排列
+     * @see com.android.algorithm.leetcode.Medium_784_字母大小写全排列
+     * @see com.android.algorithm.leetcode.Medium_78_子集
+     * @see com.android.algorithm.leetcode.Medium_90_子集2
+     * @see com.android.algorithm.leetcode.Medium_47_全排列2
+     * @see com.android.algorithm.leetcode.Medium_39_组合总和
+     * @see com.android.algorithm.leetcode.Medium_40_组合总和2
+     * @see com.android.algorithm.leetcode.Medium_17_电话号码的字母组合
+     * @see com.android.algorithm.leetcode.Medium_22_括号生成
+     * @see com.android.algorithm.leetcode.Medium_79_单词搜索
+     *
+     * 动态规划：
+     * @see com.android.algorithm.leetcode.Easy_509_斐波那契数
+     * @see com.android.algorithm.leetcode.Easy_1137_第N个泰波那契数
+     * @see com.android.algorithm.leetcode.Easy_70_爬楼梯
+     * @see com.android.algorithm.leetcode.Easy_746_使用最小花费爬楼梯
+     * @see com.android.algorithm.leetcode.Medium_198_打家劫舍
+     * @see com.android.algorithm.leetcode.Medium_213_打家劫舍2
+     * @see com.android.algorithm.leetcode.Medium_740_删除并获得点数
+     * @see com.android.algorithm.leetcode.Medium_120_三角形最小路径和
+     * @see com.android.algorithm.leetcode.Medium_55_跳跃游戏
+     * @see com.android.algorithm.leetcode.Medium_45_跳跃游戏2
+     * @see com.android.algorithm.leetcode.Medium_62_不同路径
+     * @see com.android.algorithm.leetcode.Medium_5_最长回文子串
+     * @see com.android.algorithm.leetcode.Medium_413_等差数列划分
+     * @see com.android.algorithm.leetcode.Medium_91_解码方法
+     * @see com.android.algorithm.leetcode.Medium_139_单词拆分
+     * @see com.android.algorithm.leetcode.Medium_300_最长递增子序列
+     * @see com.android.algorithm.leetcode.Medium_673_最长递增子序列的个数
+     * @see com.android.algorithm.leetcode.Medium_1143_最长公共子序列
+     * @see com.android.algorithm.leetcode.Medium_583_两个字符串的删除操作
+     * @see com.android.algorithm.leetcode.Hard_72_编辑距离
+     * @see com.android.algorithm.leetcode.Medium_322_零钱兑换
+     * @see com.android.algorithm.leetcode.Medium_343_整数拆分
+     *
+     * 位运算：
+     * @see com.android.algorithm.leetcode.Easy_231_2的幂
+     * @see com.android.algorithm.leetcode.Easy_191_位1的个数
+     * @see com.android.algorithm.leetcode.Easy_190_颠倒二进制位
+     * @see com.android.algorithm.leetcode.Easy_136_只出现一次的数字
+     * @see com.android.algorithm.leetcode.Medium_201_数字范围按位与
+     *
+     * 其他：
+     * @see com.android.algorithm.leetcode.Medium_384_打乱数组
+     * @see com.android.algorithm.leetcode.Easy_202_快乐数
+     * @see com.android.algorithm.leetcode.Hard_149_直线上最多的点数
+     *
+     * */
+    /**
      * 数据结构
      *
      * 数组：
@@ -113,101 +212,6 @@ class Main {
      *
      * */
 
-    /**
-     * 算法
-     *
-     * 二分查找：
-     * @see com.android.algorithm.leetcode.Easy_704_二分查找
-     * @see com.android.algorithm.leetcode.Easy_278_第一个错误的版本
-     * @see com.android.algorithm.leetcode.Easy_35_搜索插入位置
-     * @see com.android.algorithm.leetcode.Medium_34_在排序数组中查找元素的第一个和最后一个位置
-     * @see com.android.algorithm.leetcode.Medium_33_搜索旋转排序数组
-     * @see com.android.algorithm.leetcode.Medium_74_搜索二维矩阵
-     * @see com.android.algorithm.leetcode.Medium_153_寻找旋转排序数组中的最小值
-     * @see com.android.algorithm.leetcode.Medium_162_寻找峰值
-     *
-     * 双指针：
-     * @see com.android.algorithm.leetcode.Easy_977_有序数组的平方
-     * @see com.android.algorithm.leetcode.Medium_189_旋转数组
-     * @see com.android.algorithm.leetcode.Easy_283_移动零
-     * @see com.android.algorithm.leetcode.Easy_167_两数之和2输入有序数组
-     * @see com.android.algorithm.leetcode.Easy_344_反转字符串
-     * @see com.android.algorithm.leetcode.Easy_557_反转字符串中的单词3
-     * @see com.android.algorithm.leetcode.Easy_876_链表的中间结点
-     * @see com.android.algorithm.leetcode.Medium_19_删除链表的倒数第N个结点
-     * @see com.android.algorithm.leetcode.Easy_844_比较含退格的字符串
-     * @see com.android.algorithm.leetcode.Medium_986_区间列表的交集
-     * @see com.android.algorithm.leetcode.Medium_11_盛最多水的容器
-     *
-     * 滑动窗口：
-     * @see com.android.algorithm.leetcode.Medium_567_字符串的排列
-     * @see com.android.algorithm.leetcode.Medium_L3_无重复字符的最长子串
-     * @see com.android.algorithm.leetcode.Medium_438_找到字符串中所有字母异位词
-     * @see com.android.algorithm.leetcode.Medium_713_乘积小于K的子数组
-     * @see com.android.algorithm.leetcode.Medium_209_长度最小的子数组
-     *
-     * 广度优先搜索/深度优先搜索：
-     * @see com.android.algorithm.leetcode.Easy_733_图像渲染
-     * @see com.android.algorithm.leetcode.Medium_695_岛屿的最大面积
-     * @see com.android.algorithm.leetcode.Easy_617_合并二叉树
-     * @see com.android.algorithm.leetcode.Medium_116_填充每个节点的下一个右侧节点指针
-     * @see com.android.algorithm.leetcode.Medium_542_01矩阵
-     * @see com.android.algorithm.leetcode.Medium_994_腐烂的橘子
-     * @see com.android.algorithm.leetcode.Medium_200_岛屿数量
-     * @see com.android.algorithm.leetcode.Medium_547_省份数量
-     * @see com.android.algorithm.leetcode.Easy_572_另一棵树的子树
-     * @see com.android.algorithm.leetcode.Medium_1091_二进制矩阵中的最短路径
-     * @see com.android.algorithm.leetcode.Medium_797_所有可能的路径
-     * @see com.android.algorithm.leetcode.Medium_130_被围绕的区域
-     *
-     * 递归/回溯：
-     * @see com.android.algorithm.leetcode.Easy_21_合并两个有序链表
-     * @see com.android.algorithm.leetcode.Easy_206_反转链表
-     * @see com.android.algorithm.leetcode.Medium_77_组合
-     * @see com.android.algorithm.leetcode.Medium_46_全排列
-     * @see com.android.algorithm.leetcode.Medium_784_字母大小写全排列
-     * @see com.android.algorithm.leetcode.Medium_78_子集
-     * @see com.android.algorithm.leetcode.Medium_90_子集2
-     * @see com.android.algorithm.leetcode.Medium_47_全排列2
-     * @see com.android.algorithm.leetcode.Medium_39_组合总和
-     * @see com.android.algorithm.leetcode.Medium_40_组合总和2
-     * @see com.android.algorithm.leetcode.Medium_17_电话号码的字母组合
-     * @see com.android.algorithm.leetcode.Medium_22_括号生成
-     * @see com.android.algorithm.leetcode.Medium_79_单词搜索
-     *
-     * 动态规划：
-     * @see com.android.algorithm.leetcode.Easy_70_爬楼梯
-     * @see com.android.algorithm.leetcode.Medium_198_打家劫舍
-     * @see com.android.algorithm.leetcode.Medium_120_三角形最小路径和
-     * @see com.android.algorithm.leetcode.Medium_213_打家劫舍2
-     * @see com.android.algorithm.leetcode.Medium_55_跳跃游戏
-     * @see com.android.algorithm.leetcode.Medium_45_跳跃游戏2
-     * @see com.android.algorithm.leetcode.Medium_62_不同路径
-     * @see com.android.algorithm.leetcode.Medium_5_最长回文子串
-     * @see com.android.algorithm.leetcode.Medium_413_等差数列划分
-     * @see com.android.algorithm.leetcode.Medium_91_解码方法
-     * @see com.android.algorithm.leetcode.Medium_139_单词拆分
-     * @see com.android.algorithm.leetcode.Medium_300_最长递增子序列
-     * @see com.android.algorithm.leetcode.Medium_673_最长递增子序列的个数
-     * @see com.android.algorithm.leetcode.Medium_1143_最长公共子序列
-     * @see com.android.algorithm.leetcode.Medium_583_两个字符串的删除操作
-     * @see com.android.algorithm.leetcode.Hard_72_编辑距离
-     * @see com.android.algorithm.leetcode.Medium_322_零钱兑换
-     * @see com.android.algorithm.leetcode.Medium_343_整数拆分
-     *
-     * 位运算：
-     * @see com.android.algorithm.leetcode.Easy_231_2的幂
-     * @see com.android.algorithm.leetcode.Easy_191_位1的个数
-     * @see com.android.algorithm.leetcode.Easy_190_颠倒二进制位
-     * @see com.android.algorithm.leetcode.Easy_136_只出现一次的数字
-     * @see com.android.algorithm.leetcode.Medium_201_数字范围按位与
-     *
-     * 其他：
-     * @see com.android.algorithm.leetcode.Medium_384_打乱数组
-     * @see com.android.algorithm.leetcode.Easy_202_快乐数
-     * @see com.android.algorithm.leetcode.Hard_149_直线上最多的点数
-     *
-     * */
 
     /****力扣end****/
 
