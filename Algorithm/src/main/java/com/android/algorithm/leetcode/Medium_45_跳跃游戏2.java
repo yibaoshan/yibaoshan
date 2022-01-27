@@ -2,6 +2,8 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class Medium_45_跳跃游戏2 {
 
     /**
@@ -20,8 +22,11 @@ public class Medium_45_跳跃游戏2 {
 
     @Test
     public void main() {
-        int[] nums = new int[]{1, 2};
+//        int[] nums = new int[]{1, 2};
+//        int[] nums = new int[]{2, 3, 1, 1, 4};
+        int[] nums = new int[]{2, 3, 0, 1, 4};
         System.out.println(jump(nums));
+        System.out.println(jump2(nums));
     }
 
     /**
@@ -44,6 +49,34 @@ public class Medium_45_跳跃游戏2 {
             }
         }
         return count;
+    }
+
+    /**
+     * 稀里糊涂就过了，貌似是贪心
+     * 1. 初始化max，当前能达到的最大下标
+     * 2. 遍历数组，next一直记录最大能到达的位置下标，判断当前遍历下标是否等于最大下标了
+     * 2.1 是，判断是否已经到底了，没到底的话当前值赋值为next，计数++，继续遍历
+     * 2.2 否，不用管，继续遍历，继续更新next最大达到的位置
+     * <p>
+     * 执行结果：通过
+     * 执行用时：2 ms, 在所有 Java 提交中击败了45.64%的用户
+     * 内存消耗：39.6 MB, 在所有 Java 提交中击败了5.19%的用户
+     */
+    public int jump2(int[] nums) {
+        if (nums == null || nums.length < 2) return 0;
+        int maxPosition = nums[0];
+        int nextPosition = 0;
+        int cnt = 1;
+        for (int i = 1; i < nums.length; i++) {
+            nextPosition = Math.max(nums[i] + i, nextPosition);
+            if (i == maxPosition) {
+                if (i != nums.length - 1) {
+                    cnt++;
+                    maxPosition = nextPosition;
+                } else break;
+            }
+        }
+        return cnt;
     }
 
 }

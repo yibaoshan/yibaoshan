@@ -2,6 +2,8 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class Medium_55_跳跃游戏 {
 
     /**
@@ -14,10 +16,12 @@ public class Medium_55_跳跃游戏 {
 
     @Test
     public void main() {
-//        int[] nums = new int[]{2, 3, 1, 1, 4};
-//        int[] nums = new int[]{3, 2, 2, 0, 4};
-        int[] nums = new int[]{2, 0, 0};
+        int[] nums = new int[]{2, 3, 1, 1, 4};
+//        int[] nums = new int[]{3, 2, 1, 0, 4};
+//        int[] nums = new int[]{2, 0, 0};
+//        int[] nums = new int[]{0, 1};
         System.out.println(canJump(nums));
+        System.out.println(canJump2(nums));
     }
 
     /**
@@ -44,6 +48,24 @@ public class Medium_55_跳跃游戏 {
                 }
                 return false;
             }
+        }
+        return true;
+    }
+
+    /**
+     * 动态规划
+     * 执行结果：通过
+     * 执行用时：5 ms, 在所有 Java 提交中击败了17.02%的用户
+     * 内存消耗：39.4 MB, 在所有 Java 提交中击败了87.25%的用户
+     */
+    public boolean canJump2(int[] nums) {
+        if (nums == null) return false;
+        if (nums.length == 1) return true;
+        int[] dp = new int[nums.length];
+        dp[0] = nums[0];
+        for (int i = 1; i < dp.length; i++) {
+            if (dp[i - 1] - 1 < 0) return false;
+            dp[i] = Math.max(dp[i - 1] - 1, nums[i]);
         }
         return true;
     }
