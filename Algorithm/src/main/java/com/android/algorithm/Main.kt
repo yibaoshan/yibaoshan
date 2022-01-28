@@ -86,9 +86,11 @@ class Main {
      * @see com.android.algorithm.leetcode.Medium_198_打家劫舍
      * @see com.android.algorithm.leetcode.Medium_213_打家劫舍2
      * @see com.android.algorithm.leetcode.Medium_740_删除并获得点数
-     * @see com.android.algorithm.leetcode.Medium_120_三角形最小路径和
      * @see com.android.algorithm.leetcode.Medium_55_跳跃游戏
      * @see com.android.algorithm.leetcode.Medium_45_跳跃游戏2
+     * @see com.android.algorithm.leetcode.Easy_53_最大子序和
+     * @see com.android.algorithm.leetcode.Medium_918_环形子数组的最大和
+     * @see com.android.algorithm.leetcode.Medium_120_三角形最小路径和
      * @see com.android.algorithm.leetcode.Medium_62_不同路径
      * @see com.android.algorithm.leetcode.Medium_5_最长回文子串
      * @see com.android.algorithm.leetcode.Medium_413_等差数列划分
@@ -115,6 +117,7 @@ class Main {
      * @see com.android.algorithm.leetcode.Hard_149_直线上最多的点数
      *
      * */
+
     /**
      * 数据结构
      *
@@ -267,6 +270,14 @@ class Main {
      * 3. 如何初始化dp数组
      * 4. 确定遍历顺序
      * 5. 举例推导dp数组
+     *
+     * 背包问题
+     * 1. 有N件物品
+     * 2. 有个容量为W的背包
+     * 3. 每件物品价值为v[i]，体积w[i]
+     *
+     * 01背包：在每件物品只能用一次的情况下，如何得到最高价值的物品
+     * 完全背包：在每件物品不限数量的情况下，如何得到价值最高的物品
      *
      * @see com.android.algorithm.leetcode.Easy_509_斐波那契数
      * @see com.android.algorithm.leetcode.Easy_70_爬楼梯
