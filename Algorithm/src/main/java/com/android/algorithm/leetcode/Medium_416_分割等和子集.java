@@ -29,6 +29,7 @@ public class Medium_416_分割等和子集 {
         int[] nums = new int[]{1, 5, 11, 5};
         System.out.println(canPartition(nums));
         System.out.println(canPartition2(nums));
+        System.out.println(canPartition3(nums));
     }
 
     /**
@@ -90,5 +91,75 @@ public class Medium_416_分割等和子集 {
         }
     }
 
+    /**
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * 12
+     * 3
+     * <p>
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     */
+    public boolean canPartition3(int[] nums) {
+        if (nums == null || nums.length < 2) return false;
+        int sum = 0;
+        for (int i = 0; i < nums.length; i++) sum += nums[i];
+        if (sum % 2 != 0) return false;
+        sum /= 2;
+        int[][] dp = new int[nums.length][sum];
+        print(dp);
+        return true;
+    }
+
+    private void print(int[][] ints) {
+        for (int i = 0; i < ints.length; i++) {
+            System.out.println(Arrays.toString(ints[i]));
+        }
+    }
+
+    @Test
+    public void test() {
+        int[] weight = new int[]{1, 3, 4};
+        int[] values = new int[]{15, 20, 30};
+        int maxWeight = 4;
+        System.out.println(bag(weight, values, maxWeight));
+    }
+
+    private int bag(int[] weight, int[] values, int maxWeight) {
+        int[][] dp = new int[values.length][weight.length + 1];
+        for (int i = 1; i < dp[0].length; i++) {
+            dp[0][i] = values[0];
+        }
+        //dp[i][j] = 最大的价值
+        for (int i = 0; i < dp.length; i++) {
+            for (int j = 0; j < dp[i].length; j++) {
+                print(dp);
+            }
+        }
+        return 0;
+    }
 
 }
