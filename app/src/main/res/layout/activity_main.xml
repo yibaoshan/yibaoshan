@@ -7,20 +7,32 @@
 
     <Button
             android:layout_width="match_parent"
-            android:text="Notebook"
-            android:onClick="onNotebookClick"
+            android:text="Java"
+            android:onClick="onJavaClick"
             android:layout_height="wrap_content" />
 
     <Button
             android:layout_width="match_parent"
-            android:text="LookImage"
-            android:onClick="onLookImageClick"
+            android:text="Android"
+            android:onClick="onAndroidClick"
             android:layout_height="wrap_content" />
 
     <Button
             android:layout_width="match_parent"
-            android:text="Framework"
-            android:onClick="onFrameworkClick"
+            android:text="Network"
+            android:onClick="onNetworkClick"
+            android:layout_height="wrap_content" />
+
+    <Button
+            android:layout_width="match_parent"
+            android:text="JVM/DVM/ART"
+            android:onClick="onVMClick"
+            android:layout_height="wrap_content" />
+
+    <Button
+            android:layout_width="match_parent"
+            android:text="OS-Linux"
+            android:onClick="onOSClick"
             android:layout_height="wrap_content" />
 
 

@@ -1,12 +1,9 @@
 package com.android.blackboard
 
-import android.content.Intent
 import android.os.*
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.blackboard.framework.FrameworkActivity
-import com.android.blackboard.interview.InterviewMainActivity
-import com.android.blackboard.interview.LookImageMainActivity
 
 @ExperimentalStdlibApi
 class MainActivity : AppCompatActivity() {
@@ -16,16 +13,24 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    fun onNotebookClick(view: View) {
-        startActivity(Intent(this, InterviewMainActivity::class.java))
+    fun onJavaClick(view: View) {
+        MenuActivity.startActivity(this, TypeEnum.Java)
     }
 
-    fun onLookImageClick(view: View) {
-        startActivity(Intent(this, LookImageMainActivity::class.java))
+    fun onAndroidClick(view: View) {
+        MenuActivity.startActivity(this, TypeEnum.Android)
     }
 
-    fun onFrameworkClick(view: View) {
-        startActivity(Intent(this, FrameworkActivity::class.java))
+    fun onNetworkClick(view: View) {
+        MenuActivity.startActivity(this, TypeEnum.Network)
+    }
+
+    fun onVMClick(view: View) {
+        MenuActivity.startActivity(this, TypeEnum.VM)
+    }
+
+    fun onOSClick(view: View) {
+        Toast.makeText(this, "os not ready", Toast.LENGTH_SHORT).show()
     }
 
 }

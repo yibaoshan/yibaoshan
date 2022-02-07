@@ -1,4 +1,4 @@
-package com.android.blackboard.interview
+package com.android.blackboard
 
 import android.app.Activity
 import android.content.Intent
@@ -6,21 +6,15 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
-import com.android.blackboard.R
 import org.markdown4j.Markdown4jProcessor
 
-/**
- *  author :Bob.
- *  date : 2021/1/13
- *  desc :
- */
-class InterviewContentActivity : AppCompatActivity() {
+class ContentActivity : AppCompatActivity() {
 
     companion object {
 
         @JvmStatic
-        fun startContentActivity(activity: Activity, url: String? = null) {
-            val intent = Intent(activity, InterviewContentActivity::class.java)
+        fun startActivity(activity: Activity, url: String? = null) {
+            val intent = Intent(activity, ContentActivity::class.java)
             intent.putExtra("url", url)
             activity.startActivity(intent)
         }
