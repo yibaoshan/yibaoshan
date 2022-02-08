@@ -5,7 +5,8 @@
 排序问题，行为型模式数量较多，每个人的知识储备不同，了解的设计模式先后顺序也不同，所以排序也是面临开头的小困难之一
 笔者选择了看眼缘排序，热度排序
 
-大多数案例，本文将对应Android、Java世界，其他领域开发者请跳过此文章
+相关模式：
+1.
 
 ## 责任链模式
 
@@ -17,3 +18,12 @@ refactoring guru
 
 Android事件分发
 InputManagerService，以下简称IM，WindowManagerService
+Android触摸事件分发涉及内容非常之广，InputManagerService监听到I/O事件后，传递给WindowManagerService
+再由WindowManagerService处理(状态栏、系统左滑/右滑返回等)后传递给Activity，最后才进入到ViewGroup的onTou
+
+Android的事件分发机制总的来说是监听I/O变化，经过筛选后再派发给各个子系统
+本文重点讨论Android View中的事件分发机制，大致流程如下：
+1. InputManager收到事件后分发给当前激活的window
+2. window拿到事件传递给ViewRootImpl
+3. ViewRootImpl再传递给DecorView
+4. 接下来是双重职责，DecorView给把事件传递给Activity，若Activity不消费，再传递回DecorView，然后，DecorView再从root向下询问

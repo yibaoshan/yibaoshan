@@ -37,6 +37,13 @@ class Main {
      *
      * 11. 访问者模式(Visitor)-no
      * @see com.android.designpattern.behavioral.visitor.Main
+     *
+     * 准备放弃的模式：
+     * 1. 命令模式
+     * 2. 解释器模式
+     * 3. 中介者模式
+     *
+     * 这 3 个模式使用频率低、理解难度大，只在非常特定的应用场景下才会用到
      * */
 
 }
