@@ -1,5 +1,6 @@
 package com.android.designpattern.behavioral.command
 
+@Suppress("DEPRECATION")
 class Main {
 
     /**
