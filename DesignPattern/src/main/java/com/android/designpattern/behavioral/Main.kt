@@ -17,17 +17,8 @@ class Main {
      * 4. 备忘录模式(Memento)-ok
      * @see com.android.designpattern.behavioral.memento.Main
      *
-     * 5. 状态模式(State)-ok
-     * @see com.android.designpattern.behavioral.state.Main
-     *
-     * 6. 策略模式(Strategy)-maybe ok
+     * 5. 策略模式(Strategy)-ok
      * @see com.android.designpattern.behavioral.strategy.Main
-     *
-     * 7. 模板方法模式(Template Method)-ok
-     * @see com.android.designpattern.behavioral.templatemethod.Main
-     *
-     * 8. 访问者模式(Visitor)-no
-     * @see com.android.designpattern.behavioral.visitor.Main
      *
      * 放弃的模式：
      *
@@ -39,6 +30,15 @@ class Main {
      *
      * 3. 迭代器模式(Iterator)：没必要单独一章，参考Java iterator接口
      * @see com.android.designpattern.behavioral.iterator.Main
+     *
+     * 4. 状态模式(State)
+     * @see com.android.designpattern.behavioral.state.Main
+     *
+     * 5. 模板方法模式(Template Method)
+     * @see com.android.designpattern.behavioral.templatemethod.Main
+     *
+     * 6. 访问者模式(Visitor)
+     * @see com.android.designpattern.behavioral.visitor.Main
      *
      * */
 
