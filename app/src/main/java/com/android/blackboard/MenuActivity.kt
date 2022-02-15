@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.*
 import android.view.Gravity
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
@@ -64,12 +63,52 @@ class MenuActivity : AppCompatActivity() {
 
     private fun initJava() {
         createButtonViewAddedToRootView("Java-语言基础.md")
+        createButtonViewAddedToRootView("Java-语言基础-面向对象三大特性.md")
+        createButtonViewAddedToRootView("Java-语言基础-数据类型.md")
         createButtonViewAddedToRootView("Java-并发编程.md")
         createButtonViewAddedToRootView("Java-集合容器.md")
+        createButtonViewAddedToRootView("Java-其他-异常处理.md")
+        createButtonViewAddedToRootView("Java-其他-值传递.md")
     }
 
     private fun initAndroid() {
-
+        createButtonViewAddedToRootView("Android-四大组件-Activity.md")
+        createButtonViewAddedToRootView("Android-四大组件-Service.md")
+        createButtonViewAddedToRootView("Android-四大组件-ContentProvider.md")
+        createButtonViewAddedToRootView("Android-四大组件-BroadcastReceiver.md")
+        createButtonViewAddedToRootView("Android-系统组件-Context.md")
+        createButtonViewAddedToRootView("Android-系统组件-Application.md")
+        createButtonViewAddedToRootView("Android-通信-Handler机制.md")
+        createButtonViewAddedToRootView("Android-通信-Binder机制.md")
+        createButtonViewAddedToRootView("Android-View-动画.md")
+        createButtonViewAddedToRootView("Android-JetPack-Fragment.md")
+        createButtonViewAddedToRootView("Android-JetPack-RecyclerView.md")
+        createButtonViewAddedToRootView("Android-JetPack-ViewModel.md")
+        createButtonViewAddedToRootView("Android-JetPack-DataBinding.md")
+        createButtonViewAddedToRootView("Android-JetPack-LiveData.md")
+        createButtonViewAddedToRootView("Android-JetPack-Lifecycle.md")
+        createButtonViewAddedToRootView("Android-三方库-OkHttp.md")
+        createButtonViewAddedToRootView("Android-三方库-Retrofit.md")
+        createButtonViewAddedToRootView("Android-三方库-Glide.md")
+        createButtonViewAddedToRootView("Android-三方库-ButterKnife.md")
+        createButtonViewAddedToRootView("Android-三方库-LeakCanary.md")
+        createButtonViewAddedToRootView("Android-三方库-VLayout.md")
+        createButtonViewAddedToRootView("Android-三方库-ARouter.md")
+        createButtonViewAddedToRootView("Android-三方库-屏幕适配.md")
+        createButtonViewAddedToRootView("Android-优化-启动优化.md")
+        createButtonViewAddedToRootView("Android-优化-布局优化.md")
+        createButtonViewAddedToRootView("Android-优化-网络优化.md")
+        createButtonViewAddedToRootView("Android-优化-卡顿优化.md")
+        createButtonViewAddedToRootView("Android-优化-包体积优化.md")
+        createButtonViewAddedToRootView("Android-优化-WebView.md")
+        createButtonViewAddedToRootView("Android-系统服务-AMS.md")
+        createButtonViewAddedToRootView("Android-系统服务-PMS.md")
+        createButtonViewAddedToRootView("Android-系统服务-WMS.md")
+        createButtonViewAddedToRootView("Android-安全-打包&签名.md")
+        createButtonViewAddedToRootView("Android-安全-混淆&加固.md")
+        createButtonViewAddedToRootView("Android-其他-Root&Hook.md")
+        createButtonViewAddedToRootView("Android-其他-模块化&组件化.md")
+        createButtonViewAddedToRootView("Android-其他-热修复&插件化.md")
     }
 
     private fun initNetwork() {
@@ -77,7 +116,9 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun initVM() {
-
+        createButtonViewAddedToRootView("JVM-内存区域.md")
+        createButtonViewAddedToRootView("JVM-垃圾回收.md")
+        createButtonViewAddedToRootView("JVM-类加载.md")
     }
 
     private fun createButtonViewAddedToRootView(text: String): Button {

@@ -36,5 +36,6 @@ update：事件驱动和消息驱动没什么区别。事件/消息驱动举例�
 
 观察者模式缺点，当根据注册链分发消息时，只要有一个耗时久就会卡住整个分发链
 
-在JDK的java.util包中提供了Observable类以及Observer接口，它们构成了Java语言对观察者模式的支持。但需要注意，Observable内部集合使用的是Vector实现，并且其主要方法都加入synchronized关键字，在单线程环境中的性能可能会有影响
+在JDK的java.util包中提供了Observable类以及Observer接口，它们构成了Java语言对观察者模式的支持。
+但需要注意，Observable内部集合使用的是Vector实现，并且其主要方法都加入synchronized关键字，在单线程环境中的性能可能会有影响
 
