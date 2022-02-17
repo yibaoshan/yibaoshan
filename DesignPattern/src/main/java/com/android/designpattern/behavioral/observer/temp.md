@@ -5,7 +5,7 @@
 
 实际生活中：GitHub的watch，RSS Feeds、YouTube/小破站订阅
 
-源码应用，Android onClickListener()、BroadcastReceiver、RecyclerView.notifyDataSetChanged()、AndroidX DataBinding的Observable系列等待
+源码应用，Android onClickListener()、BroadcastReceiver、RecyclerView.notifyDataSetChanged()、AndroidX DataBinding的Observable系列等待LiveData等
 
 在并发环境中，或者说将观察者和被观察者加入消息队列解耦之后，就比较像生产者消费者模式
 

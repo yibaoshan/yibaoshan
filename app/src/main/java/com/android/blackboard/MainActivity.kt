@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onOSClick(view: View) {
-        Toast.makeText(this, "os not ready", Toast.LENGTH_SHORT).show()
+        MenuActivity.startActivity(this, TypeEnum.OS)
     }
 
 }

@@ -58,6 +58,9 @@ class MenuActivity : AppCompatActivity() {
             TypeEnum.VM.name == name -> {
                 initVM()
             }
+            TypeEnum.OS.name == name -> {
+                initOS()
+            }
         }
     }
 
@@ -119,6 +122,10 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("JVM-内存区域.md")
         createButtonViewAddedToRootView("JVM-垃圾回收.md")
         createButtonViewAddedToRootView("JVM-类加载.md")
+    }
+
+    private fun initOS() {
+        createButtonViewAddedToRootView("Linux-线程&进程.md")
     }
 
     private fun createButtonViewAddedToRootView(text: String): Button {

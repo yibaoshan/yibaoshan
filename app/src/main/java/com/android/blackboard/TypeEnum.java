@@ -4,7 +4,8 @@ public enum TypeEnum {
     Java("java"),
     Android("android"),
     Network("network"),
-    VM("vm");
+    VM("vm"),
+    OS("os");
 
     private String name;
 

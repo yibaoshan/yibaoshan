@@ -55,7 +55,7 @@ public class Medium_55_跳跃游戏 {
     /**
      * 动态规划
      * 执行结果：通过
-     * 执行用时：5 ms, 在所有 Java 提交中击败了17.02%的用户
+     * 执行用时：3 ms, 在所有 Java 提交中击败了34.68%的用户
      * 内存消耗：39.4 MB, 在所有 Java 提交中击败了87.25%的用户
      */
     public boolean canJump2(int[] nums) {
