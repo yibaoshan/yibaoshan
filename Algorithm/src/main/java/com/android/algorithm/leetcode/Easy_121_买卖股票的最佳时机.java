@@ -18,8 +18,11 @@ public class Easy_121_买卖股票的最佳时机 {
 
     @Test
     public void main() {
-        int[] prices = new int[]{2,4,1};
+//        int[] prices = new int[]{2, 4, 1};
+//        int[] prices = new int[]{7, 1, 5, 3, 6, 4};
+        int[] prices = new int[]{7, 6, 4, 3, 1};
         System.out.println(maxProfit(prices));
+        System.out.println(maxProfit2(prices));
     }
 
     //开始转变思路，最小值默认等于下标0
@@ -35,11 +38,11 @@ public class Easy_121_买卖股票的最佳时机 {
     /**
      * dp思想(dynamic programming)
      * 动态计算最小值
-     *
+     * <p>
      * 执行结果：通过
      * 执行用时：2 ms, 在所有 Java 提交中击败了93.52%的用户
      * 内存消耗：51.4 MB, 在所有 Java 提交中击败了39.99%的用户
-     * */
+     */
     public int maxProfit(int[] prices) {
         int min = prices[0];
         int max = Integer.MIN_VALUE;
@@ -50,6 +53,24 @@ public class Easy_121_买卖股票的最佳时机 {
             min = Math.min(min, prices[i]);
         }
         return Math.max(0, max);
+    }
+
+    /**
+     * 动态规划，dp[i]为最大差值，思路，记录最小值，遍历数组
+     * 1. 每次更新最小值，dp[i]为最大差值
+     * <p>
+     * 执行结果：通过
+     * 执行用时：4 ms, 在所有 Java 提交中击败了24.55%的用户
+     * 内存消耗：51.3 MB, 在所有 Java 提交中击败了41.28%的用户
+     */
+    public int maxProfit2(int[] prices) {
+        int min = prices[0];
+        int[] dp = new int[prices.length];
+        for (int i = 1; i < prices.length; i++) {
+            min = Math.min(min, prices[i]);
+            dp[i] = Math.max(dp[i - 1], prices[i] - min);
+        }
+        return dp[dp.length - 1];
     }
 
 }
