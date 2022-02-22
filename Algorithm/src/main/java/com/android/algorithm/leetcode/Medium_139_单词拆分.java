@@ -46,4 +46,9 @@ public class Medium_139_单词拆分 {
         return dp[n];
     }
 
+    public boolean wordBreak2(String s, List<String> wordDict) {
+        if (s == null || wordDict == null || wordDict.size() == 0) return false;
+       return true;
+    }
+
 }
