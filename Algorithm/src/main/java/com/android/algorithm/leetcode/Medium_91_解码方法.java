@@ -2,6 +2,8 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class Medium_91_解码方法 {
 
     /**
@@ -28,8 +30,11 @@ public class Medium_91_解码方法 {
 
     @Test
     public void main() {
-        String s = "10";
+//        String s = "10";
+//        String s = "226";
+        String s = "11111";
         System.out.println(numDecodings(s));
+        System.out.println(numDecodings2(s));
     }
 
     /**
@@ -65,7 +70,75 @@ public class Medium_91_解码方法 {
                 dp[i + 1] += dp[i - 1];
             }
         }
+        System.out.println(Arrays.toString(dp));
         return dp[length];
+    }
+
+    /**
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 01
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     * 1
+     * 2
+     * 3
+     * 4
+     * 5
+     * 6
+     * 7
+     * 8
+     * 9
+     * 0
+     */
+    public int numDecodings2(String s) {
+        if (s == null || s.length() == 0 || s.charAt(0) == '0') return 0;
+        int pre = 1, cur = 1;
+        for (int i = 1; i < s.length(); i++) {
+            int temp = cur;
+            if (s.charAt(i) == '0') {
+                if (s.charAt(i - 1) != '1' && s.charAt(i - 1) != '2') return 0;
+                cur = pre;
+            } else if (s.charAt(i - 1) == '1' || s.charAt(i - 1) == '2' && s.charAt(i) >= '1' && s.charAt(i) <= '6') {
+                cur = pre + cur;
+            }
+            pre = temp;
+        }
+        return cur;
     }
 
 }
