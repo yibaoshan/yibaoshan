@@ -35,9 +35,9 @@
 
 ## 二、行为型模式：观察者模式
 ### 1、模式介绍
-观察者模式(Observer Pattern)一般又称发布/订阅模式，它通常会有至少一个可被观察的对象和多个观察这个对象的观察者组成，当被观察者的状态发生变化时，会通知这些观察者
+观察者模式(Observer Pattern)通常有由至少一个可被观察的对象和多个观察这个对象的观察者组成，当被观察者的状态发生变化时，会通知这些观察者
 还有一种做法是增加一个中介角色，也叫发布订阅中心，把被观察者中的订阅和通知的逻辑抽离处理放在发布订阅中心，类似于Android EventBus
-网上讨论能否将观察者等同于发布/订阅模式的大多数争议的地方就是这一点
+网上讨论能否将观察者等同于发布/订阅模式的大多数争议的地方就在这一点
 
 为了方便记忆，本章节还是将两者区分开来，即：两个角色的叫观察者模式，三个角色的叫做发布/订阅模式
 
@@ -45,25 +45,78 @@
 
 观察者模式：
 
-如图所示，观察者模式一般有一个被观察者，这里使用的是Android LiveData，还有多个观察者，例如LiveDataObserver。通常情况下，被观察者至少要有三个方法：添加(addObserver)、删除(remove)和通知(setValue)；当被观察者将某个观察者添加到自己的`观察者列表(observers)`后，观察者与被观察者的关联就建立起来了。此后只要被观察者在某种时机触发`通知观察者`方法时，观察者即可接收到来自被观察者的消息。
+我是类图
+
+如图所示，观察者模式一般由至少一个可被观察的对象(示例中的LiveData) ，和多个观察这个对象的观察者(示例中的LiveDataObserver)组成去观察。二者的关系是通过被观察者来建立的，所以在被观察者中，至少要有三个方法：添加观察者、删除观察者、通知消息。
+当被观察者将某个观察者添加到自己的观察者列表(observers)后，观察者与被观察者的关联就建立起来了。此后只要被观察者在某种时机触发通知观察者方法时，观察者即可接收到来自被观察者的消息。
 
 发布/订阅模式：
 
-如图所示，发布订阅
+我是类图
 
-发布订阅模式在日常生活中随处可见，举几个例子：
-你骑自行车去网吧上网，出来发现车丢了，去派出所登记备案，你是个等通知的订阅者
-你坐公交车睡着了，下车发现手机被偷了，去派出所登记备案，你是个等通知的订阅者
-去图书馆学习，去个厕所的空电脑被偷了，去派出所登记备案，你是个等通知的订阅者
+如图所示，发布订阅模式是将原先在被观察者中的添加、删除、通知逻辑抽离出来，放在发布订阅中心；观察者和被观察者之间不直接进行通讯，而是发布者将要发布的消息交由中心管理，订阅者也是根据自己的情况，按需订阅中心中的消息。
 
-在上面的示例中，派出所是发布订阅中心，民警是消息的发布者，一直在等通知的我就是消息的订阅者
-
-除了这些惨痛的经理之外，还有诸如GitHub的watch、RSS Feeds、YouTube/小破站订阅、订报纸、订牛奶等都是生活当中的发布/订阅模式
-
-基于以上，Android EventBus等发布/订阅
+讲完了两者的区别后，我们通过两个简单的代码示例来分别实现一下观察者模式和发布/订阅模式：
 
 ### 2、代码示例
+
+观察者模式：
+
+```java
+//定义通知方法及值类型
+public interface Observer<T> {
+    void onChanged(T t);
+}
+//被观察者
+public class LiveData<T> {
+    private final List<Observer<T>> observers = new LinkedList<>();
+    
+    //添加观察者
+    public void addObserver(Observer<T> observer) {
+        observers.add(observer);
+    }
+    
+    //删除观察者
+    public void remove(Observer<T> observer) {
+        observers.remove(observer);
+    }
+    
+    //通知消息
+    public void setValue(T t) {
+        for (Observer<T> observer : observers) observer.onChanged(t);
+    }
+}
+//观察者
+public class LiveDataObserver implements Observer<String>{
+
+    @Override
+    public void onChanged(String s) {
+        System.out.println("received message:"+s);
+    }
+}
+//测试类
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        LiveData<String> liveData = new LiveData<>();
+        liveData.addObserver(new LiveDataObserver());
+        liveData.setValue("404");
+    }
+
+}
+```
+
+打印结果：
+
+```java
+received message:404
+```
+
+发布/订阅模式：
+
 ### 3、源码锚点
+
 ### 4、小结
 
 本章节把观察者等同于发布/订阅，至于网上讨论的观察者模式和发布/订阅是否有区别，我个人认为大可不必纠结，他们唯一的区别只是要不要把订阅&通知的逻辑单独拎出来而已
@@ -109,3 +162,7 @@ Android Handler机制
 行为型模式的数量看起来比较多，命令模式和解释器模式，稍有开发经验的工程师，为了代码的可读性，但随着语言特性和开发模式的进化，能够留下来在项目中真正落地的就不多了
 
 ## 九、参考资料
+
+[Wilson712：理解【观察者模式】和【发布订阅】的区别](https://juejin.cn/post/6978728619782701087)
+
+[flyingcr：经典并发同步模式：生产者-消费者设计模式](https://zhuanlan.zhihu.com/p/73442055)
