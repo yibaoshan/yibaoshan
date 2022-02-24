@@ -13,19 +13,19 @@
 经过筛选，本文将会介绍行为型中的5种模式：
 
 1. **观察者模式(Observer)**
-2. 责任链模式(Chain of Responsibility)
-3. 中介者模式(Mediator)
-4. 备忘录模式(Memento)
-5. 策略模式(Strategy)
+2. **责任链模式(Chain of Responsibility)**
+3. **中介者模式(Mediator)**
+4. **备忘录模式(Memento)**
+5. **策略模式(Strategy)**
 
 以下6种模式不包含在本文中：
 
 1. **命令模式(Command)**：简单的指令封装，参考Java封装概念
-2. 解释器模式(Interpreter)：为了解决业务需求必须存在的方案，个人认为称不上是设计模式，参考Android LayoutInflater
-3. 迭代器模式(Iterator)：源于容器访问，适用场景单一，参考Java iterator接口
-4. 模板方法(Template Method)：规范方法调用顺序，到处都是，参考Android生命周期及各种base层
-5. 状态模式(State)：不同的状态下执行不同的策略，个人认为等同策略模式
-6. 访问者模式(Visitor)：缺乏落地的业务场景(主要是看不懂)
+2. **解释器模式(Interpreter)**：为了解决业务需求必须存在的方案，个人认为称不上是设计模式，参考Android LayoutInflater
+3. **迭代器模式(Iterator)**：源于容器访问，适用场景单一，参考Java iterator接口
+4. **模板方法(Template Method)**：规范方法调用顺序，到处都是，参考Android生命周期及各种base层
+5. **状态模式(State)**：不同的状态下执行不同的策略，个人认为等同策略模式
+6. **访问者模式(Visitor)**：缺乏落地的业务场景(主要是看不懂)
 
 以上观点属于笔者个人理解，缺乏官方论据支撑，若您发现笔者的描述有不准确甚至完全错误的地方，请到[这里](https://github.com/yibaoshan/Blackboard/issues)进行反馈，感谢
 
@@ -36,10 +36,8 @@
 ## 二、行为型模式：观察者模式
 ### 1、模式介绍
 观察者模式(Observer Pattern)通常有由至少一个可被观察的对象和多个观察这个对象的观察者组成，当被观察者的状态发生变化时，会通知这些观察者
-还有一种做法是增加一个中介角色，也叫发布订阅中心，把被观察者中的订阅和通知的逻辑抽离处理放在发布订阅中心，类似于Android EventBus
-网上讨论能否将观察者等同于发布/订阅模式的大多数争议的地方就在这一点
-
-为了方便记忆，本章节还是将两者区分开来，即：两个角色的叫观察者模式，三个角色的叫做发布/订阅模式
+还有一种做法是增加一个中介角色，也叫发布订阅中心，把被观察者中的订阅和通知的逻辑抽离处理放在发布订阅中心，类似于Android EventBus，这种做法被叫做发布/订阅模式(Publish-Subscribe Design Pattern)
+为了方便记忆，本章会把两者区分开来，两个角色的叫观察者模式，三个角色的叫做发布/订阅模式
 
 接下来我们通过类图来看一看两者之间的区别
 
@@ -94,7 +92,7 @@ public class LiveDataObserver implements Observer<String>{
         System.out.println("received message:"+s);
     }
 }
-//测试类
+//测试代码
 public class Test {
 
     @org.junit.Test
@@ -113,16 +111,111 @@ public class Test {
 received message:404
 ```
 
+以Android LiveData为例，在LiveData中提供添加/删除观察者等一系列方法，当调用setValue改变状态时就会去通知保存在观察者列表(observers)各个观察者
+
 发布/订阅模式：
+
+```java
+//定义通知方法及值类型
+public interface BroadcastReceiver {
+    void onReceive(Object obj);
+}
+//消息订阅者
+public class LoginBroadcastReceiver implements BroadcastReceiver {
+    private String pageName;
+    public LoginBroadcastReceiver(String pageName) {
+        this.pageName = pageName;
+    }
+    @Override
+    public void onReceive(Object obj) {
+        System.out.println(pageName+"  :  "+obj);
+    }
+}
+//发布订阅中心
+public class LocalBroadcastManager {
+    private static final List<BroadcastReceiver> broadcasts = new LinkedList<>();
+    
+    public static void sendBroadcast(Object obj) {
+        for (BroadcastReceiver receiver : broadcasts) receiver.onReceive(obj);
+    }
+
+    public static void register(BroadcastReceiver broadcastReceiver) {
+        broadcasts.add(broadcastReceiver);
+    }
+
+    public static void unregister(BroadcastReceiver broadcastReceiver) {
+        broadcasts.remove(broadcastReceiver);
+    }
+}
+//消息发布者
+public class LoginPage {
+    private HashMap<String, String> dp;
+    public LoginPage() {
+        dp = new HashMap<>();
+        dp.put("admin", "admin");
+    }
+    
+    public void login(String name, String pwd) {
+        if (dp.containsKey(name)) {
+            if (dp.get(name).equals(pwd)) LocalBroadcastManager.sendBroadcast("successful login");
+            else LocalBroadcastManager.sendBroadcast("login failed, access denied");
+        } else {
+            LocalBroadcastManager.sendBroadcast("login failed, user does not exist");
+        }
+    }
+}
+//测试代码
+public class Test {
+
+    @org.junit.Test
+    public void main() {
+        register();
+        LoginPage loginPage  = new LoginPage();
+        loginPage.login("admin","admin");
+    }
+
+    private void register(){
+        LoginBroadcastReceiver mainReceiver = new LoginBroadcastReceiver("主页");
+        LoginBroadcastReceiver basketReceiver = new LoginBroadcastReceiver("购物车");
+        LoginBroadcastReceiver UCReceiver = new LoginBroadcastReceiver("用户中心");
+
+        LocalBroadcastManager.register(mainReceiver);
+        LocalBroadcastManager.register(basketReceiver);
+        LocalBroadcastManager.register(UCReceiver);
+    }
+}
+```
+
+打印结果：
+
+```java
+主页 : successful login
+购物车 : successful login
+用户中心 : successful login
+```
+
+同样的，在发布订阅中心LocalBroadcastManager中也提供添加/删除等一系列方法，和观察者不同的是，任意一个消息发布者都可以通过发布订阅中心来发布消息
 
 ### 3、源码锚点
 
+在Android源码中，大部分的事件监听都是使用观察者模式，所以我们随便挑一个记住就行了，比如OnClickListener
+
+发布/订阅模式有经典的Android EventBus，当然你在代码中发现有watch、watcher、observe、observer、listen、listener、dispatch、on、event、register这类单词出现的地方，很有可能是在使用`观察者模式`或`发布订阅`的思想
+
+在JDK的java.util包中提供了Observable类以及Observer接口，它们构成了Java语言对观察者模式的支持。
+但需要注意，Observable内部集合使用的是Vector实现，并且其主要方法都加入synchronized关键字，在单线程环境中的性能可能会有影响
+
 ### 4、小结
 
-本章节把观察者等同于发布/订阅，至于网上讨论的观察者模式和发布/订阅是否有区别，我个人认为大可不必纠结，他们唯一的区别只是要不要把订阅&通知的逻辑单独拎出来而已
-重要的是理解设计模式解决了哪些问题以及落地，在实现方案中多一个或少一个角色没什么影响
+看完以上，我想我们明白了，
+
+加入发布订阅中心角色的最重要作用就是解耦，将被观察者和观察者解耦，使得它们之间的依赖性更小。发布者的发布动作和订阅者的订阅动作相互独立，无需关注对方，消息派发由发布订阅中心负责。
 
 ## 三、行为型模式：责任链模式
+
+### 1、模式介绍
+
+
 
 ## 四、行为型模式：中介者模式
 
@@ -157,6 +250,8 @@ Android Handler机制
 
 这篇文章耗时超出笔者预期了，大部分时间都花在理解每种设计模式诞生的背景、能够解决哪些问题、以及能否在项目中落地
 举个例子，策略模式是什么，经过查阅好几本书籍和主流博客后笔者认为，选择不同的策略的这个行为本身，叫做策略模式，但凡有一点意义，也不至于一点意义都没有
+
+其中策略模式和责任链模式在实际开发中比较常用，通常用于在不改变源码的情况下服用和扩展框架的功能，比如使用策略模式更换图片加载库，或者使用责任链来拦截网络做请求验签
 
 
 行为型模式的数量看起来比较多，命令模式和解释器模式，稍有开发经验的工程师，为了代码的可读性，但随着语言特性和开发模式的进化，能够留下来在项目中真正落地的就不多了
