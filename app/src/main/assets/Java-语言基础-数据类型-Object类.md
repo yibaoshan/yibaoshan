@@ -17,8 +17,11 @@
 2. notifyAll()
 唤醒所有进入等待的线程，限制条件同上
 3. wait() throws InterruptedException
+在同步代码块内调用，释放锁资源，一直等到其他线程调用notify
 4. wait(long timeout) throws InterruptedException
+同上释放锁资源，到了设定时间(耗时统计不准确)自动去抢锁执行，若此时有个线程永久持有所资源，那么该同步代码块后续代码永远不会执行
 5. wait(long timeout, int nanos) throws InterruptedException
+同上,加入纳秒精度更高
 
 ### 3、其他
 1. final native getClass()
@@ -28,6 +31,7 @@
 3. toString()
 输出类的名字@实例的哈希码的16进制
 4. finalize() throws Throwable
+用于GC，对象不可达时判断是否复写finalize()，否的话直接回收，是的话加入F-Queue队列后续由低优先级线程执行
 
 ### 引用
 1. https://fangjian0423.github.io/2016/03/12/java-Object-method/

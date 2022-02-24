@@ -66,8 +66,8 @@ class MenuActivity : AppCompatActivity() {
 
     private fun initJava() {
         createButtonViewAddedToRootView("Java-语言基础-面向对象三大特性.md")
+        createButtonViewAddedToRootView("Java-语言基础-四大引用类型.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-基础数据类型.md")
-        createButtonViewAddedToRootView("Java-语言基础-数据类型-引用数据类型.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-Object类.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-Class类.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-String类.md")
