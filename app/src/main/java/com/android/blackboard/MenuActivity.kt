@@ -69,12 +69,12 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Java-语言基础-四大引用类型.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-基础数据类型.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-Object类.md")
-        createButtonViewAddedToRootView("Java-语言基础-数据类型-Class类.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-String类.md")
-        createButtonViewAddedToRootView("Java-语言基础-数据类型-Enum枚举类.md")
         createButtonViewAddedToRootView("Java-并发编程.md")
         createButtonViewAddedToRootView("Java-集合容器.md")
-        createButtonViewAddedToRootView("Java-其他-异常处理.md")
+        createButtonViewAddedToRootView("Java-进阶-泛型.md")
+        createButtonViewAddedToRootView("Java-进阶-反射机制.md")
+        createButtonViewAddedToRootView("Java-进阶-异常处理.md")
         createButtonViewAddedToRootView("Java-其他-值传递.md")
     }
 
