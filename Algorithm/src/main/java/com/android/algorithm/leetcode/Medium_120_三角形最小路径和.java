@@ -3,6 +3,7 @@ package com.android.algorithm.leetcode;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Medium_120_三角形最小路径和 {
@@ -36,6 +37,7 @@ public class Medium_120_三角形最小路径和 {
         triangle.add(list);
 
         System.out.println(minimumTotal(triangle));
+        System.out.println(minimumTotal2(triangle));
     }
 
     /**
@@ -76,18 +78,37 @@ public class Medium_120_三角形最小路径和 {
         int row = triangle.size();
 
         //记录最后一行数组的值（行数和列数相等）
-        int[] cache = new int[row];
+        int[] dp = new int[row];
         for (int k = 0; k < row; k++) {
-            cache[k] = triangle.get(row - 1).get(k);
+            dp[k] = triangle.get(row - 1).get(k);
         }
 
         //从倒数第二行数组开始遍历
         for (int i = row - 2; i >= 0; i--) {
             for (int j = 0; j <= i; j++) {
-                cache[j] = Math.min(cache[j], cache[j + 1]) + triangle.get(i).get(j);
+                dp[j] = Math.min(dp[j], dp[j + 1]) + triangle.get(i).get(j);
             }
         }
-        return cache[0];
+        return dp[0];
+    }
+
+    public int minimumTotal2(List<List<Integer>> triangle) {
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < triangle.size(); i++) {
+            for (int j = 0; j < triangle.get(i).size(); j++) {
+                if (i > 0) {
+                    int cur = triangle.get(i - 1).get(j);
+                    if (j > 0) cur = Math.min(cur, triangle.get(i - 1).get(j - 1));
+                    if (j < triangle.get(i).size() - 2) cur = Math.min(cur, triangle.get(i - 1).get(j + 1));
+                    triangle.get(i).set(j, triangle.get(i).get(j) + cur);
+                }
+                min = Math.min(min, triangle.get(i).get(j));
+            }
+        }
+        for (int i = 0; i < triangle.size(); i++) {
+            System.out.println(Arrays.toString(new List[]{triangle.get(i)}));
+        }
+        return 0;
     }
 
 }
