@@ -1,12 +1,23 @@
 ### Overview
 1. 集合框架简介
-2. 集合工具类Arrays&Collections
+2. Iterator迭代器
+3. 集合工具类Arrays&Collections
 
 ### 一、Java集合框架
 Java集合框架大致可以分为4类：List、Set、Queue、Map
-其中，前三个实现的是Collection接口，最后一个实现的是Map接口，它们的顶级上司是Iterator迭代器，详细的结构图在**附录**
+其中，前三个实现的是Collection接口，用于存放单一元素
+最后一个实现的是Map接口，用于存放键值对
+它们的顶级上司都是Iterator迭代器，详细的结构图在**附录**
 
-### 二、集合工具类Arrays&Collections
+### 二、Iterator迭代器
+1. fail-fast机制：
+当在遍历过程中改动元素数量就会抛异常，其实现逻辑是在创建迭代器时记录下modCount，每次取元素时校验两个值是否相同。
+调用Iterator.remove()能够安全删除是因为Iterator调用了原集合的删除方法后，将modCount值同步减去1
+
+2.fail-safe：
+拷贝一份原数据进行遍历，缺点是不保证数据一致性
+
+### 三、集合工具类Arrays&Collections
 #### 1、Arrays
 1. int binarySearch()：使用二分查找在排好序的数组中查找指定Key，找不到-1
 2. object[] copyOf()/copyOfRange()：复制数组

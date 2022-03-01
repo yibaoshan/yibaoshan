@@ -1,54 +1,38 @@
 ### Overview
-1. String类介绍
-2. String类高频面试题
-3. StringBuffer&StringBuilder
+1. List接口简介
+2. 源码解析之ArrayList
+3. 源码解析之LinkedList
+4. 源码解析之Vector
+5. 源码解析之Stack
 
+### 一、list接口简介
 
+### 二、ArrayList
+#### 1、底层数据结构
+ArrayList底层是Object数组：transient Object[] elementData
 
-####Java集合框架
+#### 2、默认容量
+默认容量10，Java1.8之后创建时长度为0，初始化操作延迟到添加首个元素
+1.8之前默认创建大小为10的数组
 
-1. java.util.Collection [I]
-   - java.util.List [I]：有序集合
-     - java.util.ArrayList [C]：数组结构，默认容量10，每次1.5倍扩容
-     - java.util.LinkedList [C]：双向链表结构
-     - java.util.Vector [C]：同ArrayList，每次2倍扩容，可设置单次扩容大小，增删改加锁
-       - java.util.Stack [C]
-   - java.util.Set [I]：无序集合
-     - java.util.HashSet [C]：内部维护一个HashMap实现，每次add将value存入map的key，value用present替代
-       - java.util.LinkedHashSet[C]：内部维护LinkedHashMap
-     - java.util.SortedSet [I]
-       - java.util.TreeSet [C]：TreeMap实现
-   - java.util.Queue[I]：有序队列
-     - java.util.LinkedList [C]
-2. java.util.Map [I]：KV键值对
-   - java.util.SortedMap [I]
-     - java.util.TreeMap [C]：红黑树实现，按key排序
-   - java.util.Hashtable [C]：线程安全，不允许null
-   - java.util.HashMap [C]
-     - java.util.LinkedHashMap [C]：
-   - java.util.WeakHashMap [C]
+#### 3、扩容机制
+每次调用add方法时会检查是否超出，放不下会调用公开方法ensureCapacity来扩容1.5倍。
+数组进行扩容时，会将老数组中的元素重新拷贝一份到新的数组中
 
-tips：
+#### 4、其他方法
+1. trimToSize()：容量调整为当前实际元素的大小
 
-1. queue常用方法区别
-   1. add()和offer()和put（）添加元素，队列如果有大小限制，add()会抛异常，offer()返回false，put则阻塞
-   2. poll()和remove()和take()删除元素并返回头部元素，队列为空时remove()抛异常，poll返回null，take阻塞
-   3. element()和peek()，队列为空element抛异常，peek返回null
+#### 5、Fail-Fast机制
+ArrayList不允许遍历时动态更改元素数量
 
-####HashMap详解
+### 三、LinkedList
+#### 1、底层实现
+LinkedList内部使用**双向链表**实现，同时它还实现了List接口和Deque接口，所以可以当做List集合、queue队列和deque双端队列使用
 
-1. hashmap数组部分被称为哈希桶
-2. 数组长度大于64并且链表长度大于8则会将链表转为红黑树，链表长度小于6会转为链表
+### 四、Vector
+#### 1、底层实现
+数组实现，可以参考ArrayList，增删改查都加锁而已
 
-####工具类
-
-- Arrays
-- Collections
-
-####问题分析
-
-- HashMap和HashTable的区别？
-  1. 父类不同，hashmap的父类是AbstractMap，hashtable父类是dictionary
-  2. hashtable方法加锁
-  3. hashtable的put方法判断value为空时抛空异常，如果key也为空，调用key的hashcode时jvm也会报空异常。hashmap调用putVal时会调用hash方法，如果key为空的话返回0
-  4. table初始容量11，map为16，负载因子都是0.75，而且hashtable在构造方法就进行初始化数组，map是在resize方法中，也就是put的时候
+### 五、Stack
+#### 1、底层实现
+继承自Vector，所以操作元素的方法都加锁，想要更快的可以自己实现

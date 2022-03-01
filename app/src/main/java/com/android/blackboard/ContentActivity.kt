@@ -26,6 +26,7 @@ class ContentActivity : AppCompatActivity() {
         setContentView(R.layout.activity_content)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val contentUrl = intent.getStringExtra("url")
+        title = contentUrl
         if (contentUrl?.contains(".md") == true) {
             val open = assets.open(contentUrl);
             var contentMd = Markdown4jProcessor().process(open)

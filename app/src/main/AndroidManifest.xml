@@ -22,6 +22,9 @@
         <activity
                 android:name=".ContentActivity"
                 android:launchMode="standard" />
+        <activity
+                android:name=".ImageActivity"
+                android:launchMode="standard" />
     </application>
 
 </manifest>

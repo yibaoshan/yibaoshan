@@ -2,6 +2,7 @@ package com.android.blackboard
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.*
 import android.view.Gravity
 import android.view.MenuItem
@@ -45,6 +46,7 @@ class MenuActivity : AppCompatActivity() {
 
     private fun init() {
         val name = intent.getStringExtra("name")
+        title = name
         when {
             TypeEnum.Java.name == name -> {
                 initJava()
@@ -70,17 +72,20 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Java-语言基础-数据类型-基础数据类型.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-Object类.md")
         createButtonViewAddedToRootView("Java-语言基础-数据类型-String类.md")
-        createButtonViewAddedToRootView("Java-容器-集合框架简介.md")
-        createButtonViewAddedToRootView("Java-容器-List.md")
-        createButtonViewAddedToRootView("Java-容器-Set.md")
-        createButtonViewAddedToRootView("Java-容器-Queue.md")
-        createButtonViewAddedToRootView("Java-容器-Map.md")
+        createButtonViewAddedToRootView("Java-容器-框架预览图.PNG", true, R.mipmap.java_collections_overview)
+        createButtonViewAddedToRootView("Java-容器-集合框架简介.md", true)
+        createButtonViewAddedToRootView("Java-容器-List.md", true)
+        createButtonViewAddedToRootView("Java-容器-Set.md", true)
+        createButtonViewAddedToRootView("Java-容器-Queue.md", true)
+        createButtonViewAddedToRootView("Java-容器-Map.md", true)
+        createButtonViewAddedToRootView("Java-并发-基础理论.md")
+        createButtonViewAddedToRootView("Java-并发编程.md")
+        createButtonViewAddedToRootView("Java-JUC预览图.PNG", false, R.mipmap.java_concurrent_overview)
         createButtonViewAddedToRootView("Java-JUC-原子类.md")
         createButtonViewAddedToRootView("Java-JUC-同步器.md")
         createButtonViewAddedToRootView("Java-JUC-执行器.md")
         createButtonViewAddedToRootView("Java-JUC-锁框架.md")
         createButtonViewAddedToRootView("Java-JUC-集合框架.md")
-        createButtonViewAddedToRootView("Java-并发编程.md")
         createButtonViewAddedToRootView("Java-进阶-泛型.md")
         createButtonViewAddedToRootView("Java-进阶-反射机制.md")
         createButtonViewAddedToRootView("Java-进阶-异常处理.md")
@@ -128,7 +133,6 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun initNetwork() {
-
     }
 
     private fun initVM() {
@@ -141,10 +145,12 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Linux-线程&进程.md")
     }
 
-    private fun createButtonViewAddedToRootView(text: String): Button {
+    private fun createButtonViewAddedToRootView(text: String, deep: Boolean = false, resId: Int = -1): Button {
         val button = AppCompatButton(this)
         button.text = text
-        button.setOnClickListener { ContentActivity.startActivity(this, text) }
+        if (deep) button.setTextColor(Color.BLUE)
+        if (resId > 0) button.setOnClickListener { ImageActivity.startContentActivity(this, text, resId) }
+        else button.setOnClickListener { ContentActivity.startActivity(this, text) }
         weakReference.get()?.addView(button)
         return button
     }
