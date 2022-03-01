@@ -13,4 +13,9 @@ public class LeetCodeUtil {
             System.out.println(Arrays.toString(ints));
     }
 
+    public static void print(char[][] array) {
+        for (char[] ints : array)
+            System.out.println(Arrays.toString(ints));
+    }
+
 }
