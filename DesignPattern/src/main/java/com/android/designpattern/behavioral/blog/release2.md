@@ -214,11 +214,80 @@ public class Test {
 
 ### 1、模式介绍
 
-对于链式结构，每个节点都可以被拆开再连接，因此，链式结构也具有很好的灵活性。我们可以把链上的每一个节点看作是一个对象，不同的对象拥有不同的处理逻辑，将一个请求从链式的首端发出，沿着链的路径依次传递，每一个注册到链上的处理者可以选择要不要消费当前的请求，我们将这样的一种模式称为责任链模式
+责任链顾名思义是一种基于链式结构实现的设计模式，对于链式结构来说，每个节点都可以被拆开再连接，因此，链式结构具有很好的灵活性。在责任链模式中，我们可以把链上的每一个节点看作是一个对象，不同的对象拥有不同的处理逻辑，将一个请求从链式的首端发出，沿着链的路径依次传递，每一个注册到链上的处理者可以选择要不要消费当前的请求
 
-在Android中，OKhttp
+在Android中的
 
+### 3、源码锚点
 
+责任链模式多使用于框架的设计中，我们可以利用责任链模来提供框架的扩展点，这样就能够让使用者在不修改框架源码的情况下，复用和扩展框架的功能，还是以square公司的**OkHttp**框架来举例：
+
+我们知道，Okhttp使用方法是通过OkHttpClient的newCall方法创建了一个Call对象，并调用execute方法发起同步请求或者调用enqueue方法发起异步请求；
+
+这其中，每一个Call对象就代表一个网络请求，它的实现类只有一个RealCall，我们这里重点关注RealCall是如何使用责任链模式的
+
+```java
+package okhttp3;
+
+final class RealCall implements Call {
+    
+    @Override
+    public Response execute() throws IOException {
+        //...
+        try {
+            client.dispatcher().executed(this);
+            return getResponseWithInterceptorChain();
+        } finally {
+            client.dispatcher().finished(this);
+        }
+    }
+
+    Response getResponseWithInterceptorChain() throws IOException {
+        // Build a full stack of interceptors.
+        List<Interceptor> interceptors = new ArrayList<>();
+        interceptors.addAll(client.interceptors());
+        interceptors.add(new RetryAndFollowUpInterceptor(client));
+        interceptors.add(new BridgeInterceptor(client.cookieJar()));
+        interceptors.add(new CacheInterceptor(client.internalCache()));
+        //...
+        Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, null, 0,
+                originalRequest, this, client.connectTimeoutMillis(),
+                client.readTimeoutMillis(), client.writeTimeoutMillis());
+        try {
+            Response response = chain.proceed(originalRequest);
+            return response;
+        } catch (IOException e) {
+            //...
+        }
+    }
+}
+```
+
+代码不是很复杂，就是 加加加 拦截器，然后组装成一个chain类，调用proceed方法，得到响应报文response。
+
+```java
+package okhttp3.internal.http;
+public final class RealInterceptorChain implements Interceptor.Chain {
+    public Response proceed(Request request, Transmitter transmitter, Exchange exchange) throws IOException {
+    // Call the next interceptor in the chain.
+    RealInterceptorChain next = new RealInterceptorChain(interceptors, transmitter, exchange,
+        index + 1, request, call, connectTimeout, readTimeout, writeTimeout);
+    Interceptor interceptor = interceptors.get(index);
+    Response response = interceptor.intercept(next);
+    return response;
+  }
+}
+```
+
+```java
+public final class Interceptor implements Interceptor {
+    Request request = chain.request(); //对request请求做些处理，请求报文加密之类就是在这一步
+    Response response = chain.proceedrequest);//处理返回结果，比如统一报错拦截
+    return response;
+}
+```
+
+提醒一下，OkHttp从4.0转为Kotlin实现，对Kotlin代码比较吃力的同学可以将分支切换到okhttp_3.14.x，源码点[这里](https://github.com/square/okhttp)
 
 ### 4、小结
 
