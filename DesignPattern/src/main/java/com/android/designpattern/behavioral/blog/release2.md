@@ -210,18 +210,75 @@ public class Test {
 
 发布订阅模式是在观察者模式的基础上增加一个发布订阅角色，加入这个角色的最重要作用就是解耦，将被观察者和观察者分离，使得它们之间的依赖性更小，发布者的发布动作和订阅者的订阅动作相互独立，无需关注对方，消息派发由发布订阅中心负责
 
+小结完
+
 ## 三、行为型模式：责任链模式
 
 ### 1、模式介绍
 
-责任链模式(Chain Of Responsibility Design Pattern)：
+责任链模式(Chain Of Responsibility Design Pattern)：将请求的发送和接收解耦，让多个接收对象都有机会处理这个请求。将这些接收对象串成一条链，并沿着这条链传递这个请求，直到链上的某个接收对象能够处理它为止。
 
-**将请求的发送和接收解耦，让多个接收对象都有机会处理这个请求。将这些接收对象串成一条链，并沿着这条链传递这个请求，直到链上的某个接收对象能够处理它为止。**
+根据以上GoF对责任链模式的定义，一旦某个处理器能处理这个请求，就不会继续将请求传递给后续的处理器了，事实上，在实际的开发中会有不允许请求中断的情况，每个处理器处理完成后需要继续向下传递，这个请求最终被所有的处理器都处理一遍，所以责任链模式的实现大体上可以分成两种：
 
-根据GoF的定义，一旦某个处理器能处理这个请求，就不会继续将请求传递给后续的处理器了，事实上，在实际的开发中会有不允许请求中断的情况，需要继续向下传递，最终被所有的处理器都处理一遍；所以责任链模式往往有以下两种实现：
+1. **允许中断请求：Android事件分发机制、Android有序广播**
+2. **不中断请求：Android OKhttp**
 
-- 中断请求：Android事件分发机制、有序广播
-- 不中断请求：
+我们接着来看责任链模式的角色分配，在一个完整的责任链模式中，至少要包含两个角色：
+
+1. **Handler：抽象处理者角色，声明一个请求处理的方法，并在其中保持一个对下一个处理节点Handler对象的引用**
+2. **ConcreteHandler：具体处理者角色，对请求进行处理，如果不能处理则将该请求转发给下一个节点上的处理对象**
+
+责任链模式UML类图
+
+我是类图
+
+### 2、代码示例
+
+```java
+//抽象处理者
+public abstract class Handler {
+
+    protected Handler next;
+
+    public abstract void handleRequest(String msg);
+
+}
+//具体的处理者1
+public class ConcreteHandler1 extends Handler {
+    
+    @Override
+    public void handleRequest(String msg) {
+        if (msg.equals("ConcreteHandler1")) System.out.println("ConcreteHandler1 handled");
+        else if (next != null) next.handleRequest(msg);
+    }
+}
+//具体的处理者2
+public class ConcreteHandler2 extends Handler {
+
+    @Override
+    public void handleRequest(String msg) {
+        if (msg.equals("ConcreteHandler2")) System.out.println("ConcreteHandler2 handled");
+        else if (next != null) next.handleRequest(msg);
+    }
+}
+//测试类
+public class Test {
+
+    public void main() {
+        ConcreteHandler1 handler1 = new ConcreteHandler1();
+        ConcreteHandler2 handler2 = new ConcreteHandler2();
+        handler1.next = handler2;
+        handler2.next = handler1;
+        handler1.handleRequest("ConcreteHandler2");
+    }
+}
+```
+
+打印结果
+
+```java
+ConcreteHandler2 handled
+```
 
 ### 3、源码锚点
 
@@ -313,19 +370,50 @@ public final class Interceptor implements Interceptor {
 
 ### 4、小结
 
-灵活，扩展性强
+责任链模式通常由链式结构组成，对于链式结构来说，每个节点都可以被拆开再连接(也叫可插拔)，因此，责任链模式生来就具有很好的灵活性
 
-对于链式结构来说，每个节点都可以被拆开再连接(也叫可插拔)，因此，责任链模式生来就具有很好的灵活性
+我们可以把链上的每一个节点看作是一个对象，不同的对象拥有不同的处理逻辑；将一个请求从链式的首端发出，沿着链的路径依次传递，每一个注册到链上的处理者可以选择要不要消费当前的请求，当前节点处理完成后，可以再根据业务场景选择要不要向下传递，直到最后一个处理者处理完成或者某个节点终止传递
 
-我们可以把链上的每一个节点看作是一个对象，不同的对象拥有不同的处理逻辑，将一个请求从链式的首端发出，沿着链的路径依次传递，每一个注册到链上的处理者可以选择要不要消费当前的请求
-
-责任链模式和观察者模式有一点相似，同样都是链式结构，区别在于观察者允许接收者动态地订阅或取消接收请求，而责任链通常不会这么做；另一个不相同的是：责任链上的每个处理者都会持有下一个处理者，而在观察者中，一般是由观察者列表来管理每个处理者
-
-需要根据场景来选择不同的设计模式
+小节完
 
 ## 四、行为型模式：中介者模式
 
+### 1、模式介绍
+
+中介模式（Mediator）定义了一个单独的中介对象，来封装一组对象之间的交互；将这组对象之间的交互委派给与中介对象交互，来避免对象之间的直接交互。
+
+当对象之间的交互操作很多且每个对象的行为操作都依赖彼此时，为防止在修改一个对象的行为时，同时涉及修改很多其他对象的行为，可采用中介者模式，来解决紧耦合问题。
+
+通过引入中介这个中间层，将一组对象之间的交互关系（或者说依赖关系）从多对多（网状关系）转换为一对多（星状关系）。原来一个对象要跟 n 个对象交互，现在只需要跟一个中介对象交互，从而最小化对象之间的交互关系，降低了代码的复杂度，提高了代码的可读性和可维护性。
+
+举个例子来解释这段话，电商首页要求banner切换的时同步修改背景图，下拉展示二楼和左右滑动切换tab时要渐变透明度，对于客户端来说，当一个页面的控件改变需要同步给其他若干个控件时，其它控件状态改变也需要互相之间同步，这代码写起来简直要爆炸；这个时候，我们就需要引入一个中间人，把每个控件状态改变都交给同一人处理，每个控件控制权也交由中间人，看图：
+
+我是图
+
+中介者模式是一种行为模式，在我看来并没有标准的实现方式，所以这里也就不展示UML类图和示例代码
+
+### 2、小结
+
+中介者模式从某种角度来说像是算法里面的贪心策略，回顾4.1中的例子，当一个页面的控件改变需要同步给其他若干个控件时，单单维护控件通信一项就已经很麻烦了，这时候会自然而然的选择最优解，即引入中间层然后将每个控件状态改变都交给它来处理，正因为如此，在客户端开发中，中介者模式常常与观察者模式同时出现
+
+小节完
+
 ## 五、行为型模式：备忘录模式
+
+### 1、模式介绍
+
+同样的，备忘录模式
+
+### 3、源码锚点
+
+备忘录模式用Android的canvas在合适不过了，不过canvas关键方法都是c++实现，我是跟不下去了，感兴趣的同学可以下载AOSP源码自行查看
+
+```java
+//笔者源码环境RP1A.201005.004 android-11.0.0_r4
+frameworks/base/graphics/java/android/graphics/Canvas.java
+frameworks/base/libs/hwui/jni/android_graphics_Canvas.cpp
+frameworks/base/libs/hwui/jni/SkiaCanvas.cpp //最终实现
+```
 
 ## 六、行为型模式：策略模式
 
