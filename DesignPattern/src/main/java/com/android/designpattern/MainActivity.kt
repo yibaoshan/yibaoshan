@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.android.designpattern.behavioral.cor.broadcast.OrderlyBroadcastActivity
 import com.android.designpattern.structural.proxy.binder.client.BinderClientActivity
 
 class MainActivity : AppCompatActivity() {
@@ -25,9 +24,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_launch_binder).setOnClickListener {
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent("IntentFilter_001"))
             startActivity(Intent(this, BinderClientActivity::class.java))
-        }
-        findViewById<Button>(R.id.btn_launch_orderly_broadcast).setOnClickListener {
-            startActivity(Intent(this, OrderlyBroadcastActivity::class.java))
         }
         val intentFilter1 = IntentFilter("IntentFilter_001");
         LocalBroadcastManager.getInstance(this).registerReceiver(object : BroadcastReceiver(){

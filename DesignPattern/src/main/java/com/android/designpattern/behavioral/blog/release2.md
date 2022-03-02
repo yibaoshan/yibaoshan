@@ -214,23 +214,31 @@ public class Test {
 
 ### 1、模式介绍
 
-责任链顾名思义是一种基于链式结构实现的设计模式，对于链式结构来说，每个节点都可以被拆开再连接，因此，链式结构具有很好的灵活性。在责任链模式中，我们可以把链上的每一个节点看作是一个对象，不同的对象拥有不同的处理逻辑，将一个请求从链式的首端发出，沿着链的路径依次传递，每一个注册到链上的处理者可以选择要不要消费当前的请求
+责任链模式(Chain Of Responsibility Design Pattern)：
 
-在Android中的
+**将请求的发送和接收解耦，让多个接收对象都有机会处理这个请求。将这些接收对象串成一条链，并沿着这条链传递这个请求，直到链上的某个接收对象能够处理它为止。**
+
+根据GoF的定义，一旦某个处理器能处理这个请求，就不会继续将请求传递给后续的处理器了，事实上，在实际的开发中会有不允许请求中断的情况，需要继续向下传递，最终被所有的处理器都处理一遍；所以责任链模式往往有以下两种实现：
+
+- 中断请求：Android事件分发机制、有序广播
+- 不中断请求：
 
 ### 3、源码锚点
 
-责任链模式多使用于框架的设计中，我们可以利用责任链模来提供框架的扩展点，这样就能够让使用者在不修改框架源码的情况下，复用和扩展框架的功能，还是以square公司的**OkHttp**框架来举例：
+责任链模式多使用于框架的设计中，我们可以利用责任链模来提供框架的扩展点，这样就能够让使用者在不修改框架源码的情况下，复用和扩展框架的功能，以**Android OkHttp**举例：
 
-我们知道，Okhttp使用方法是通过OkHttpClient的newCall方法创建了一个Call对象，并调用execute方法发起同步请求或者调用enqueue方法发起异步请求；
+我们知道，Okhttp使用方法是通过OkHttpClient的newCall方法创建了一个Call对象，并调用execute方法发起同步请求或者调用enqueue方法发起异步请求
 
-这其中，每一个Call对象就代表一个网络请求，它的实现类只有一个RealCall，我们这里重点关注RealCall是如何使用责任链模式的
+这其中，每一个Call对象就代表一个网络请求，它的实现类只有一个RealCall：
 
 ```java
 package okhttp3;
 
+//https://github.com/square/okhttp
+//OkHttp从4.0转为Kotlin实现，对Kotlin代码比较吃力的同学可以将分支切换到okhttp_3.14.x
 final class RealCall implements Call {
     
+  	//1. 调用execute发起请求
     @Override
     public Response execute() throws IOException {
         //...
@@ -242,14 +250,17 @@ final class RealCall implements Call {
         }
     }
 
+  	//2. 获取响应报文，基于责任链模式
     Response getResponseWithInterceptorChain() throws IOException {
         // Build a full stack of interceptors.
         List<Interceptor> interceptors = new ArrayList<>();
         interceptors.addAll(client.interceptors());
         interceptors.add(new RetryAndFollowUpInterceptor(client));
         interceptors.add(new BridgeInterceptor(client.cookieJar()));
-        interceptors.add(new CacheInterceptor(client.internalCache()));
-        //...
+      	//...
+      	//最终调用发起
+        interceptors.add(new CallServerInterceptor(forWebSocket));
+        
         Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, null, 0,
                 originalRequest, this, client.connectTimeoutMillis(),
                 client.readTimeoutMillis(), client.writeTimeoutMillis());
@@ -263,7 +274,9 @@ final class RealCall implements Call {
 }
 ```
 
-代码不是很复杂，就是 加加加 拦截器，然后组装成一个chain类，调用proceed方法，得到响应报文response。
+**getResponseWithInterceptorChain中的代码不是很复杂，就是将用户传入的拦截器收集起来再加上默认的一些缓存拦截器、连接拦截器等，然后组装成一个RealInterceptorChain类，再调用其proceed方法，得到响应报文response**
+
+**在proceed方法中，会不断的查找下一个拦截器，然后再调用拦截器的intercept()方法**
 
 ```java
 package okhttp3.internal.http;
@@ -272,6 +285,7 @@ public final class RealInterceptorChain implements Interceptor.Chain {
     // Call the next interceptor in the chain.
     RealInterceptorChain next = new RealInterceptorChain(interceptors, transmitter, exchange,
         index + 1, request, call, connectTimeout, readTimeout, writeTimeout);
+    //找到下一个拦截器
     Interceptor interceptor = interceptors.get(index);
     Response response = interceptor.intercept(next);
     return response;
@@ -279,17 +293,31 @@ public final class RealInterceptorChain implements Interceptor.Chain {
 }
 ```
 
+**在intercept方法中，我们就可以对请求报文和响应报文做处理**
+
 ```java
 public final class Interceptor implements Interceptor {
-    Request request = chain.request(); //对request请求做些处理，请求报文加密之类就是在这一步
-    Response response = chain.proceedrequest);//处理返回结果，比如统一报错拦截
+  @Override public Response intercept(Chain chain) throws IOException {
+    //处理request请求，报文加密之类就是在这一步
+    Request request = chain.request(); 
+    //处理返回结果，比如统一报错拦截
+    Response response = chain.proceed(request);
     return response;
+  }
 }
 ```
 
-提醒一下，OkHttp从4.0转为Kotlin实现，对Kotlin代码比较吃力的同学可以将分支切换到okhttp_3.14.x，源码点[这里](https://github.com/square/okhttp)
+至此，整个调用链路就结束了，最后我们用一张图来总结拦截器责任链：
+
+![image_uml_design_pattern_behavioral_corl_okhttp](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/DesignPattern/src/main/java/com/android/designpattern/behavioral/blog/imgs/image_uml_design_pattern_behavioral_corl_okhttp.jpg)
 
 ### 4、小结
+
+灵活，扩展性强
+
+对于链式结构来说，每个节点都可以被拆开再连接(也叫可插拔)，因此，责任链模式生来就具有很好的灵活性
+
+我们可以把链上的每一个节点看作是一个对象，不同的对象拥有不同的处理逻辑，将一个请求从链式的首端发出，沿着链的路径依次传递，每一个注册到链上的处理者可以选择要不要消费当前的请求
 
 责任链模式和观察者模式有一点相似，同样都是链式结构，区别在于观察者允许接收者动态地订阅或取消接收请求，而责任链通常不会这么做；另一个不相同的是：责任链上的每个处理者都会持有下一个处理者，而在观察者中，一般是由观察者列表来管理每个处理者
 
@@ -350,3 +378,5 @@ Android Handler机制
 [Wilson712：理解【观察者模式】和【发布订阅】的区别](https://juejin.cn/post/6978728619782701087)
 
 [flyingcr：经典并发同步模式：生产者-消费者设计模式](https://zhuanlan.zhihu.com/p/73442055)
+
+[jimuzz：从设计模式角度看OkHttp源码](https://www.cnblogs.com/jimuzz/p/14536105.html)
