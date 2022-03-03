@@ -34,6 +34,7 @@ public class Medium_5_最长回文子串 {
     @Test
     public void main() {
         System.out.println(longestPalindrome("abcdc"));
+        System.out.println(longestPalindrome2("abcdc"));
         System.out.println(isPalindrome(new char[]{1, 0, 1, 1}));
     }
 
@@ -84,6 +85,38 @@ public class Medium_5_最长回文子串 {
             stepping--;
         }
         return null;
+    }
+
+    /**
+     * dp[i][j]表示子串i～j是否是回文子串，循环s的子串，看是否满足s[i]，s[j]相等，
+     * 如果相等，则dp[i][j]是否为回文串取决于dp[i+1][j-1]是否也是回文子串，
+     * 在循环的过程中不断更新最大回文子串的长度，注意子串的长度是0或1也算回文子串
+     */
+    public String longestPalindrome2(String s) {
+        if (s == null) return null;
+        if (s.length() == 1) return s;
+        char[] chars = s.toCharArray();
+        if (s.length() == 2) {
+            if (chars[0] == chars[1]) return s;
+            else return String.valueOf(chars[0]);
+        }
+        int[][] dp = new int[s.length()][s.length()];
+        for (int i = 0; i < dp.length; i++) {
+            for (int j = 0; j < dp[i].length; j++) {
+                if (s.charAt(i) == s.charAt(j)) {
+                    dp[i][j] = 1;
+                    if (i + 1 < dp.length && j - 1 >= 0) {
+                        if (s.charAt(i + 1) == s.charAt(j - 1)) {
+                            System.out.println(s.charAt(i + 1) + "," + s.charAt(j - 1));
+                            dp[i][j] += dp[i + 1][j - 1];
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println(Arrays.toString(s.toCharArray()));
+        LeetCodeUtil.print(dp);
+        return "";
     }
 
     private boolean isPalindrome(char[] chars) {
