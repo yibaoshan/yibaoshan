@@ -25,7 +25,7 @@
 4. **模板方法(Template Method)**：规范方法调用顺序，到处都是，参考Android生命周期及各种base层
 5. **状态模式(State)**：不同的状态下执行不同的策略，个人认为等同策略模式
 6. **访问者模式(Visitor)**：看不懂/头大.jpg (´･_･`)
-6. **备忘录模式(Memento)**：Android Canvas的save和restore方法
+6. **备忘录模式(Memento)**：纯属业务需求，参考Android Canvas的save和restore方法
 
 以上观点属于个人理解，若您发现描述有不准确甚至完全错误的地方，请到[这里](https://github.com/yibaoshan/Blackboard/issues)进行反馈，感谢
 
@@ -402,35 +402,24 @@ public final class Interceptor implements Interceptor {
 
 ### 1、模式定义
 
-策略模式(Strategy Pattern)：
+策略模式，英文全称是 Strategy Design Pattern，在 GoF 的《设计模式》一书中，它是这样定义的：
 
 > Define a family of algorithms, encapsulate each one, and make them interchangeable. Strategy lets the algorithm vary independently from clients that use it.
 >
 > 定义一系列算法，将每个算法分别封装起来，并使它们可互换；策略模式可以使算法的变化独立于使用它们的客户端
 
-在翻阅了大量书籍/文章后，我认为上面的话可以理解为：在一个系统中，不同对象对同一行为会有不同的结果，便可使用策略模式
+GoF中还提到，在策略模式中，应当由客户端自己决定在什么情况下使用什么具体策略角色，策略模式仅仅封装算法
 
-听起来好像很熟悉，
+在翻阅了大量书籍/文章后，笔者认为上面的话也可以这么理解：在一个系统中，不同对象的同一行为会有不同的结果，便可使用策略模式
 
-策略模式是一个很容易理解的设计模式，在我看来，策略模式甚至可以直接等同于Java语言中的多态；
-
-本章与其说是介绍策略模式，实际上
-
-策略模式通常有两种实现方法：
-
-1. 子类继承父类(extends）
-2. 类实现相同接口(implements)
-
-### 2、小结
-
-同一行为的不同表现形式，总结一下，在一个系统中，不同对象对同一行为会有不同的结果，便可使用策略模式
+听起来好像很熟悉，和Java语言中的多态解决的场景是重复的，我们可以把策略模式等同于多态的话理解起来就容易多了
 
 小节完
 
 ## 六、番外篇：生产者-消费者模式
 ### 1、模式介绍
 
-生产者-消费者模式虽然不在23种设计模式之列，但我认为它在业务中的重要性不亚于23种设计模式中任何一种
+生产者-消费者模式虽然不在23种设计模式之列，但我认为它在软件工程的重要性绝不亚于23种设计模式中任何一种
 无论是Android客户端的Handler机制，还是后端的各种MQ消息中间件，包括java.util.concurrent包的线程池，他们的设计思想都是基于生产者-消费者模式
 简单一句话概括什么是生产者消费者模式：多个进程/线程共享一个阻塞队列，生产者负责push任务进队列，消费者负责取出任务去执行
 
@@ -438,17 +427,164 @@ public final class Interceptor implements Interceptor {
 
 ### 2、源码示例
 
-笔者是Android工程师，所以本章节我们简单来探讨一下Handler机制的设计
-Android Handler机制
+笔者是Android工程师，所以本章节我们来探讨一下Handler机制的设计
+
+我们干脆利实现一个handler好了，在实现之前，我们要先来理清原有的Handler机制是如何设计的，方便理清思路
+
+我们知道，一个线程代码执行完成后就死了，所以looper的任务就是保证当前线程一直是活的，消息队列可以为空，但线程不能死，死了就没得玩了
+
+looper内部持有消息队列，通过java的ThreadLocal来保证当前线程只有一份队列
+
+你别动，我去拿消息，我去拿消息，我去拿消息，消息是hA，这是你的，hB这是你的
+
+```java
+final static class Message {
+    int what;
+    long when;
+    Object obj;
+    Handler target;
+    Runnable callback;
+}
+```
+
+```java
+final static class MessageQueue {
+    PriorityQueue<Message> messages = new PriorityQueue<>();
+    
+    synchronized void queueMessage(Message msg) {
+        messages.offer(msg);
+    }
+
+    Message next() {
+        for (; ; ) {
+            Message msg = messages.peek();
+            if (msg != null) {
+                synchronized (this) {
+                    if (System.currentTimeMillis() >= msg.when) {
+                        return messages.poll();
+                    } else continue;
+                }
+            }
+        }
+    }
+
+}
+```
+
+```java
+final static class Looper {
+
+    final MessageQueue mQueue;
+
+    private static final ThreadLocal<Looper> sThreadLocal = new ThreadLocal<>();
+
+    private Looper() {
+        mQueue = new MessageQueue();
+    }
+
+    static Looper getLooper() {
+        return sThreadLocal.get();
+    }
+
+    static void prepare() {
+        if (sThreadLocal.get() != null) throw new RuntimeException("looper only init once");
+        sThreadLocal.set(new Looper());
+    }
+
+    static void loop() {
+        Looper looper = getLooper();
+        if (looper == null) throw new RuntimeException("please init looper");
+        for (; ; ) {
+            Message msg = looper.mQueue.next();
+            if (msg == null) return;
+            msg.target.dispatchMessage(msg);
+        }
+    }
+
+}
+```
+
+```java
+final static class Handler {
+
+    private final Looper mLooper;
+    private final MessageQueue mQueue;
+    private Callback mCallback;
+
+    public Handler() {
+        mLooper = Looper.getLooper();
+        if (mLooper == null) throw new RuntimeException("mLooper is null");
+        mQueue = mLooper.mQueue;
+    }
+
+    void dispatchMessage(Message msg) {
+        if (msg.callback != null) {
+            msg.callback.run();
+        } else {
+            if (mCallback != null) {
+                if (mCallback.handleMessage(msg)) return;
+            }
+            handleMessage(msg);
+        }
+    }
+
+    void sendMessage(Message msg) {
+        sendMessageDelayed(msg, 0);
+    }
+
+    void sendMessageDelayed(Message msg, int delay) {
+        msg.when = System.currentTimeMillis() + delay;
+        enqueueMessage(msg);
+    }
+
+    void post(Runnable runnable) {
+        postDelayed(runnable, 0);
+    }
+
+    void postDelayed(Runnable runnable, long delay) {
+        Message msg = Message.obtain();
+        msg.callback = runnable;
+        if (delay < 0) delay = 0;
+        msg.when = System.currentTimeMillis() + delay;
+        enqueueMessage(msg);
+    }
+
+    void enqueueMessage(Message msg) {
+        msg.target = this;
+        mQueue.queueMessage(msg);
+    }
+
+    public interface Callback {
+        boolean handleMessage(Message msg);
+    }
+
+}
+```
 
 ### 3、小结
 
 实际上，不只是Android，其他操作系统，即使在多线程设备中，应用程序用户界面也始终是单线程的，即UI线程(User Interface Thread)，比如iOS和Windows
 对显示内容的任何更改都需要通过单个"接入点"进行协调，这可以防止多个线程尝试同时更新同一像素
 
+由于消息队列的加入，将生产者类和消费者类进行解耦
+
 ## 七、总结
 
-至此，设计模式三大类型都已经介绍完了，我们再来简单回顾一下：
+至此，行为型模式已经全部介绍完了，我们再来简单回顾一下：
+
+属于业务需求必须这么设计的：解释器、
+
+方便工程师内部逻辑处理，自然而然选择最优解的：中介者
+
+还有我认为雷同的，状态模式和策略模式，在实际开发中，从实现和解决问题的场景来看我不认为它们有什么区别
+
+策略模式比较有意义，可惜被面向对象的多态概念覆盖了，我个人认为它们两者之间可以画等号
+
+观察者解决的是事件监听的问题
+
+责任链用在框架中，可以给外部提供扩展的接口
+
+生产消费解决的是消息的生产和消费速度不一致的问题，或者可以
 
 在设计业务的时候，结构型和行为型相比而言，前者讲思想，后者讲行为
 
@@ -459,13 +595,14 @@ Android Handler机制
 
 其中策略模式和责任链模式在实际开发中比较常用，通常用于在不改变源码的情况下服用和扩展框架的功能，比如使用策略模式更换图片加载库，或者使用责任链来拦截网络做请求验签
 
+行为型模式的数量看起来比较多，毕竟20多年过去了，以前的模式或不适用当前环境，或直接被融入语言，开发模式中，无需刻意按模板去实现
 
-行为型模式的数量看起来比较多，命令模式和解释器模式，稍有开发经验的工程师，为了代码的可读性，但随着语言特性和开发模式的进化，能够留下来在项目中真正落地的就不多了
+服务端工程师必备的Spring，用的就是抽象工厂和工厂模式，回调函数可以简单理解成观察者模式，servlet中的filter使用的是责任链模式，对于第三方的库一律使用代理模式，对于系统中的各个功能模块使用了装饰者模式来进行执行的权限控制和监控。
+
+命令模式和解释器模式，稍有开发经验的工程师，为了代码的可读性，但随着语言特性和开发模式的进化，能够留下来在项目中真正落地的就不多了
 
 ## 八、参考资料
 
-[Wilson712：理解【观察者模式】和【发布订阅】的区别](https://juejin.cn/post/6978728619782701087)
-
-[flyingcr：经典并发同步模式：生产者-消费者设计模式](https://zhuanlan.zhihu.com/p/73442055)
+[Wilson712：理解【观察者模式】和【发布订阅】的区别
 
 [jimuzz：从设计模式角度看OkHttp源码](https://www.cnblogs.com/jimuzz/p/14536105.html)

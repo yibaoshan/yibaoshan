@@ -84,7 +84,6 @@ public class Test {
 
         synchronized void queueMessage(Message msg) {
             messages.offer(msg);
-            System.out.println("消息队列数量：" + messages.size());
         }
 
         Message next() {
@@ -129,9 +128,8 @@ public class Test {
         static void loop() {
             Looper looper = getLooper();
             if (looper == null) throw new RuntimeException("please init looper");
-            MessageQueue queue = looper.mQueue;
             for (; ; ) {
-                Message msg = queue.next();
+                Message msg = looper.mQueue.next();
                 if (msg == null) return;
                 msg.target.dispatchMessage(msg);
             }
@@ -141,8 +139,8 @@ public class Test {
 
     private static class Handler {
 
-        private Looper mLooper;
-        private MessageQueue mQueue;
+        private final Looper mLooper;
+        private final MessageQueue mQueue;
         private Callback mCallback;
 
         public Handler() {

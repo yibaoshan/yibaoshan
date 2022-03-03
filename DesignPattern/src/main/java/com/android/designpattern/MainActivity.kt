@@ -7,10 +7,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.android.designpattern.structural.proxy.binder.client.BinderClientActivity
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,6 +24,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init() {
+        thread { Handler().post {
+            Toast.makeText(MainActivity@this,"",Toast.LENGTH_SHORT).show()
+        } }.start()
         findViewById<Button>(R.id.btn_launch_binder).setOnClickListener {
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent("IntentFilter_001"))
             startActivity(Intent(this, BinderClientActivity::class.java))
