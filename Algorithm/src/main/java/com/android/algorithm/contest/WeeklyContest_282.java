@@ -1,4 +1,4 @@
-package com.android.algorithm.leetcode;
+package com.android.algorithm.contest;
 
 import org.junit.Test;
 
