@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <FrameLayout
+            android:id="@+id/container"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:padding="20dp"
+            android:layout_height="0dp">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:text="Activity"
+                android:textSize="28sp"
+                android:layout_height="wrap_content" />
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_margin="20dp"
+                android:layout_height="wrap_content">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:text="From Fragment Text："
+                    android:layout_height="wrap_content" />
+
+            <TextView
+                    android:id="@+id/result_example1_activity_tv_content"
+                    android:layout_width="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_height="wrap_content">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:text="My Text："
+                    android:layout_height="wrap_content" />
+
+            <EditText
+                    android:id="@+id/result_example1_activity_tv_content_edt_to_fragment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            <Button
+                    android:layout_width="wrap_content"
+                    android:text="Send Random"
+                    android:onClick="onRandomClick"
+                    android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <Button
+                android:layout_width="match_parent"
+                android:text="Send To Fragment"
+                android:onClick="onSendToFragmentClick"
+                android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</LinearLayout>

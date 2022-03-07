@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <fragment
+            android:id="@+id/ResultExample2Fragment"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:name="com.android.jetpack.fragment.result.fragment.ResultExample2Fragment"
+            android:layout_height="0dp" />
+
+    <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="match_parent"
+            android:textSize="38sp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>
