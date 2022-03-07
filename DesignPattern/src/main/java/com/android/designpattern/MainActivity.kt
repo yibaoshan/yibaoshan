@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Message
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
@@ -23,26 +24,38 @@ class MainActivity : AppCompatActivity() {
         init()
     }
 
+    private val handler = Handler { msg ->
+        postNewMessage(msg)
+        true
+    }
+
+    private fun postNewMessage(msg: Message) {
+        Toast.makeText(this,msg.obj.toString(),Toast.LENGTH_SHORT).show()
+        val obtain = Message.obtain()
+        obtain.obj = msg.obj
+        handler.sendMessage(obtain)
+    }
+
     private fun init() {
-        thread { Handler().post {
-            Toast.makeText(MainActivity@this,"",Toast.LENGTH_SHORT).show()
-        } }.start()
+        val obtain = Message.obtain();
+        obtain.obj = "hello";
+        handler.sendMessage(obtain)
         findViewById<Button>(R.id.btn_launch_binder).setOnClickListener {
             LocalBroadcastManager.getInstance(this).sendBroadcast(Intent("IntentFilter_001"))
             startActivity(Intent(this, BinderClientActivity::class.java))
         }
         val intentFilter1 = IntentFilter("IntentFilter_001");
-        LocalBroadcastManager.getInstance(this).registerReceiver(object : BroadcastReceiver(){
+        LocalBroadcastManager.getInstance(this).registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 Log.e(TAG, "onReceive: 1")
                 Thread.sleep(3000)
             }
-        },intentFilter1)
-        LocalBroadcastManager.getInstance(this).registerReceiver(object : BroadcastReceiver(){
+        }, intentFilter1)
+        LocalBroadcastManager.getInstance(this).registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 Log.e(TAG, "onReceive: 2")
             }
-        },intentFilter1)
+        }, intentFilter1)
     }
 
 }
