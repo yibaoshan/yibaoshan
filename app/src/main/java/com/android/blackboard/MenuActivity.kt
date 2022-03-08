@@ -79,6 +79,9 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Java-容器-Queue.md", true)
         createButtonViewAddedToRootView("Java-容器-Map.md", true)
         createButtonViewAddedToRootView("Java-并发-基础理论.md")
+        createButtonViewAddedToRootView("Java-并发-线程基础.md")
+        createButtonViewAddedToRootView("Java-并发-Synchronized.md")
+        createButtonViewAddedToRootView("Java-并发-volatile.md")
         createButtonViewAddedToRootView("Java-并发编程.md")
         createButtonViewAddedToRootView("Java-JUC预览图.PNG", false, R.mipmap.java_concurrent_overview)
         createButtonViewAddedToRootView("Java-JUC-原子类.md")
@@ -137,6 +140,7 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun initVM() {
+        //逃逸分析别忘了
         createButtonViewAddedToRootView("JVM-内存区域.md")
         createButtonViewAddedToRootView("JVM-垃圾回收.md")
         createButtonViewAddedToRootView("JVM-类加载.md")
