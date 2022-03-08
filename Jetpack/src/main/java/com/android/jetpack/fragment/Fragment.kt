@@ -1,4 +1,4 @@
-package com.android.notebook.android.jetpack
+package com.android.jetpack.fragment
 
 class Fragment {
 
