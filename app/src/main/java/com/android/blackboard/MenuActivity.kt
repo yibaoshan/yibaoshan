@@ -67,11 +67,15 @@ class MenuActivity : AppCompatActivity() {
     }
 
     private fun initJava() {
-        createButtonViewAddedToRootView("Java-语言基础-面向对象三大特性.md")
-        createButtonViewAddedToRootView("Java-语言基础-四大引用类型.md")
-        createButtonViewAddedToRootView("Java-语言基础-数据类型-基础数据类型.md")
-        createButtonViewAddedToRootView("Java-语言基础-数据类型-Object类.md")
-        createButtonViewAddedToRootView("Java-语言基础-数据类型-String类.md")
+        createButtonViewAddedToRootView("Java-基础-面向对象三大特性.md")
+        createButtonViewAddedToRootView("Java-基础-四大引用类型.md")
+        createButtonViewAddedToRootView("Java-基础-基础数据类型.md")
+        createButtonViewAddedToRootView("Java-基础-Object类.md")
+        createButtonViewAddedToRootView("Java-基础-String类.md")
+        createButtonViewAddedToRootView("Java-基础-泛型(Generic).md")
+        createButtonViewAddedToRootView("Java-基础-注解(Annotation).md")
+        createButtonViewAddedToRootView("Java-基础-异常(Exception).md")
+        createButtonViewAddedToRootView("Java-基础-反射(Reflection).md")
         createButtonViewAddedToRootView("Java-容器-框架预览图.PNG", true, R.mipmap.java_collections_overview)
         createButtonViewAddedToRootView("Java-容器-集合框架简介.md", true)
         createButtonViewAddedToRootView("Java-容器-List.md", true)
@@ -89,9 +93,6 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Java-JUC-执行器.md")
         createButtonViewAddedToRootView("Java-JUC-锁框架.md")
         createButtonViewAddedToRootView("Java-JUC-集合框架.md")
-        createButtonViewAddedToRootView("Java-进阶-泛型.md")
-        createButtonViewAddedToRootView("Java-进阶-反射机制.md")
-        createButtonViewAddedToRootView("Java-进阶-异常处理.md")
         createButtonViewAddedToRootView("Java-其他-值传递.md")
     }
 
