@@ -142,9 +142,9 @@ class MenuActivity : AppCompatActivity() {
 
     private fun initVM() {
         //逃逸分析别忘了
+        createButtonViewAddedToRootView("JVM-类加载.md")
         createButtonViewAddedToRootView("JVM-内存区域.md")
         createButtonViewAddedToRootView("JVM-垃圾回收.md")
-        createButtonViewAddedToRootView("JVM-类加载.md")
     }
 
     private fun initOS() {
