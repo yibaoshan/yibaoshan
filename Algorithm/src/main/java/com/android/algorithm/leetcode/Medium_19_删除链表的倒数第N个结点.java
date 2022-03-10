@@ -33,14 +33,13 @@ public class Medium_19_删除链表的倒数第N个结点 {
 
     @Test
     public void main() {
-        ListNode head = new ListNode(1, new ListNode(2));
-        ListNode result = removeNthFromEnd(head, 2);
+        ListNode head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
+        ListNode result = removeNthFromEnd2(head, 4);
         while (result != null) {
             System.out.println(result.val);
             result = result.next;
         }
     }
-
 
 
     public ListNode removeNthFromEnd(ListNode head, int n) {
@@ -59,11 +58,36 @@ public class Medium_19_删除链表的倒数第N个结点 {
         return head;
     }
 
+    /**
+     * 思路：创建两个节点，假节点和目标节点
+     * 1. 假节点的next指向传进来的节点
+     * 2. 目标节点默认指向假节点
+     * 3. 开始遍历入参节点，并计数
+     * 4. 当计数值大于要求倒数的数字就就将目标节点向后移一位
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：39.4 MB, 在所有 Java 提交中击败了34.43%的用户
+     */
+    public ListNode removeNthFromEnd2(ListNode head, int n) {
+        if (n < 1 || head == null) return head;
+        ListNode dummy = new ListNode(0, head);
+        ListNode temp = dummy.next;
+        ListNode target = dummy;
+        int cnt = 1;
+        while (temp != null) {
+            if (cnt++ > n) target = target.next;
+            temp = temp.next;
+        }
+        target.next = target.next.next;
+        return dummy.next;
+    }
+
     public class ListNode {
         int val;
         ListNode next;
 
         ListNode() {
+
         }
 
         ListNode(int val) {

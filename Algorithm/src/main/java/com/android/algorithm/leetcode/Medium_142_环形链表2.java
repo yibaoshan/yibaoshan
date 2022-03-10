@@ -35,22 +35,27 @@ public class Medium_142_环形链表2 {
     }
 
     /**
-     * 快慢指针不通过
-     * 快慢指针只能判断两个指针相等即为有环，但是不知道哪个是起点
-     * 得加点逻辑
+     * 快慢指针通过
+     * 快指针每次两步，慢指针每次一步
+     * 快慢指针相遇的地方再燃头节点和相遇节点一起向下走，遇到的节点为入口
      */
     public ListNode detectCycle2(ListNode head) {
-        if (head == null) return null;
-        ListNode slow = head, fast = null;
-        if (slow.next != null) fast = slow.next;
-        while (slow != null) {
-            if (slow == fast) {
-                return slow;
-            }
+        ListNode slow = head;
+        ListNode fast = head;
+        while (fast != null && fast.next != null) {
             slow = slow.next;
-            if (fast != null && fast.next != null) fast = fast.next.next;
+            fast = fast.next.next;
+            if (slow == fast) {// 有环
+                ListNode index1 = fast;
+                ListNode index2 = head;
+                // 两个指针，从头结点和相遇结点，各走一步，直到相遇，相遇点即为环入口
+                while (index1 != index2) {
+                    index1 = index1.next;
+                    index2 = index2.next;
+                }
+                return index1;
+            }
         }
-
         return null;
     }
 

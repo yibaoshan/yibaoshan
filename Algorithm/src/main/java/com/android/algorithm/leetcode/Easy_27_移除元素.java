@@ -1,4 +1,4 @@
-package com.android.algorithm.programmercarl.array;
+package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 

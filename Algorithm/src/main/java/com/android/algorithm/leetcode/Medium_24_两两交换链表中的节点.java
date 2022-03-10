@@ -14,6 +14,7 @@ public class Medium_24_两两交换链表中的节点 {
     public void main() {
         ListNode head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
         head = swapPairs(head);
+        head = swapPairs2(head);
         while (head != null) {
             System.out.println(head.val);
             head = head.next;
@@ -40,6 +41,25 @@ public class Medium_24_两两交换链表中的节点 {
         } else node1.next = node2.next;
         node2.next = node1;
         return node2;
+    }
+
+    /**
+     * 思路：每次交互n1，n2，若n2后面有两个节点，先交换后面两个节点
+     * 执行结果：通过
+     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
+     * 内存消耗：39 MB, 在所有 Java 提交中击败了27.28%的用户
+     */
+    public ListNode swapPairs2(ListNode head) {
+        return swap2(head, head.next);
+    }
+
+    private ListNode swap2(ListNode n1, ListNode n2) {
+        if (n1 == null) return n2;
+        if (n2 == null) return n1;
+        if (n2.next != null && n2.next.next != null) n2.next = swap2(n2.next, n2.next.next);
+        n1.next = n2.next;
+        n2.next = n1;
+        return n2;
     }
 
     public class ListNode {
