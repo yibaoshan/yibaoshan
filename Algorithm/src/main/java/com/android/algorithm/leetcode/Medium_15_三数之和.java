@@ -2,8 +2,13 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class Medium_15_三数之和 {
@@ -28,15 +33,63 @@ public class Medium_15_三数之和 {
     @Test
     public void main() {
 //        int[] nums = new int[]{-1, 0, 1, 2, -1, -4};
-//        int[] nums = new int[]{0, 0, 0, 0};
-        int[] nums = new int[]{-2, 0, 0, 2, 2};
+//        int[] nums = new int[]{-2, 0, 1, 1, 2};
+//        int[] nums = new int[]{-1, 0, 1, 2, -1, -4, -2, -3, 3, 0, 4};
+//        int[] nums = new int[]{-2, 0, 0, 2, 2};
+        int[] nums = new int[]{0, 0, 0};
         List<List<Integer>> lists = threeSum(nums);
         for (int i = 0; i < lists.size(); i++) {
-            for (int j = 0; j < lists.get(i).size(); j++) {
-                System.out.print(lists.get(i).get(j) + " ");
-            }
-            System.out.println();
+            System.out.println(Arrays.toString(new List[]{lists.get(i)}));
         }
+        lists = threeSum4(nums);
+        for (int i = 0; i < lists.size(); i++) {
+            System.err.println(Arrays.toString(new List[]{lists.get(i)}));
+        }
+    }
+
+    /**
+     * 三数之和改成两数之和a+b+c=0 a+b=-c
+     * 超时，妈的不做了
+     */
+    public List<List<Integer>> threeSum4(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> res = new ArrayList<>();
+        HashSet<String> hashSet = new HashSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            List<int[]> list = find(nums, i, nums[i] * -1);
+            for (int j = 0; j < list.size(); j++) {
+                int[] ints = list.get(j);
+                if (ints != null) {
+                    List<Integer> once = new ArrayList<>();
+                    once.add(nums[i]);
+                    once.add(nums[ints[0]]);
+                    once.add(nums[ints[1]]);
+                    Collections.sort(once);
+                    if (!hashSet.contains(once.toString())) res.add(once);
+                    hashSet.add(once.toString());
+                }
+            }
+
+        }
+        return res;
+    }
+
+    private List<int[]> find(int[] nums, int cur, int val) {
+        List<int[]> res = new ArrayList<>();
+        HashMap<Integer, Integer> hashMap = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (i == cur) continue;
+            hashMap.put(val - nums[i], i);
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (i == cur) continue;
+            if (hashMap.containsKey(nums[i])) {
+                if (hashMap.get(nums[i]) != i) {
+                    res.add(new int[]{i, hashMap.get(nums[i])});
+                }
+            }
+        }
+        return res;
     }
 
     /**
@@ -80,6 +133,75 @@ public class Medium_15_三数之和 {
             }
         }
         return res;
+    }
+
+    private List<List<Integer>> res = new ArrayList<>();
+    private Deque<Integer> deque = new ArrayDeque<>();
+    private HashSet<String> hashSet = new HashSet<>();
+    private int sum = 0;
+
+    /**
+     * 两层遍历，超时不通过
+     */
+    public List<List<Integer>> threeSum2(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> res = new ArrayList<>();
+        HashSet<String> hashSet = new HashSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] > 0) break;
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                int once = Arrays.binarySearch(nums, -(nums[i] * 2));
+                if (once == i || once == i - 1 || i < 0) continue;
+                addToRes(nums, i, i, once, res, hashSet);
+                continue;
+            }
+            for (int j = nums.length - 1; j >= 0; j--) {
+                if (nums[j] < 0 || j <= i) break;
+                int once = Arrays.binarySearch(nums, -(nums[i] + nums[j]));
+                if (once < 0 || once == i || once == j) continue;
+                addToRes(nums, i, j, once, res, hashSet);
+            }
+        }
+        return res;
+    }
+
+    private void addToRes(int[] nums, int a, int b, int c, List<List<Integer>> res, HashSet<String> hashSet) {
+        List<Integer> list = new ArrayList<>();
+        list.add(nums[a]);
+        list.add(nums[b]);
+        list.add(nums[c]);
+        Collections.sort(list);
+        if (!hashSet.contains(list.toString())) res.add(list);
+        hashSet.add(list.toString());
+    }
+
+    /**
+     * 回溯超时不通过
+     */
+    public List<List<Integer>> threeSum3(int[] nums) {
+        Arrays.sort(nums);
+        backtrack(nums, 0);
+        return res;
+    }
+
+    private void backtrack(int[] nums, int start) {
+        if (deque.size() == 3) {
+            if (sum == 0) {
+                ArrayList<Integer> list = new ArrayList<>(deque);
+                if (!hashSet.contains(list.toString())) res.add(list);
+//                res.add(list);
+                hashSet.add(list.toString());
+            }
+            return;
+        }
+        for (int i = start; i < nums.length; i++) {
+            if (i > 0 && nums[i] == nums[i - 1] && nums[i] != 0) continue;
+            deque.addLast(nums[i]);
+            sum += nums[i];
+            backtrack(nums, i + 1);
+            sum -= nums[i];
+            deque.removeLast();
+        }
     }
 
 }

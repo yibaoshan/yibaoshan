@@ -5,7 +5,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +35,67 @@ public class WeeklyContest_283 {
     @Test
     public void test2() {
         int[] nums = new int[]{1, 4, 25, 10, 25};
+//        int[] nums = new int[]{53, 41, 90, 33, 84, 26, 50, 32, 63, 47, 66, 43, 29, 88, 71, 28, 83};
 //        int[] nums = new int[]{5, 6};
-        int k = 2;
+        int k = 6;
         System.out.println(minimalKSum(nums, k));
+        System.out.println(minimalKSum2(nums, k));
+    }
+
+    /**
+     * 题解答案
+     */
+    public long minimalKSum3(int[] nums, int k) {
+        Arrays.sort(nums);
+        long ans = 0, start = 1;
+        for (int i = 0; i < nums.length && k > 0; i++) {
+            // 存在未出现的数字
+            if (start < nums[i]) {
+                int cnt = Math.min((int) (nums[i] - start), k);
+                // 不存在的数据累计
+                ans += (2L * start + cnt - 1) * cnt / 2;
+                k -= cnt;
+            }
+            start = nums[i] + 1;
+        }
+        // 不存在的数据累计
+        if (k > 0) {
+            ans += (2L * start + k - 1) * k / 2;
+        }
+        return ans;
     }
 
     public long minimalKSum(int[] nums, int k) {
+        Arrays.sort(nums);
+        long res = 0L;
+        if (nums[0] > 1) {
+            res += sum(1, Math.min(nums[0] - 1, k));
+            k -= nums[0] - 1;
+            if (k <= 0) return res;
+        }
+        for (int i = 1; i < nums.length; i++) {
+            int diff = nums[i] - nums[i - 1];
+            if (diff > 1) {
+                int start = nums[i - 1] + 1;
+                int end = nums[i] - 1;
+                if (k < diff - 1) end = start + k - 1;
+                res += sum(start, end);
+                k -= diff - 1;
+                if (k <= 0) return res;
+            }
+        }
+        if (k > 0) {
+            int temp = nums[nums.length - 1] + 1;
+            res += sum(temp, temp + k - 1);
+        }
+        return res;
+    }
+
+    private long sum(int m, int n) {
+        return ((long) n * (n - 1) / 2 + n) - ((m - 1) * (m - 2) / 2L + m - 1);
+    }
+
+    public long minimalKSum2(int[] nums, int k) {
         Arrays.sort(nums);
         long res = 0L;
         if (nums[0] > 1) {
