@@ -83,6 +83,7 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Java-容器-Queue.md", true)
         createButtonViewAddedToRootView("Java-容器-Map.md", true)
         createButtonViewAddedToRootView("Java-并发-基础理论.md")
+        createButtonViewAddedToRootView("Java-并发-内存模型(JMM).md")
         createButtonViewAddedToRootView("Java-并发-线程基础.md")
         createButtonViewAddedToRootView("Java-并发-Synchronized.md")
         createButtonViewAddedToRootView("Java-并发-volatile.md")
@@ -144,7 +145,8 @@ class MenuActivity : AppCompatActivity() {
         //逃逸分析别忘了
         createButtonViewAddedToRootView("JVM-类加载.md")
         createButtonViewAddedToRootView("JVM-内存区域预览图.PNG", true, R.mipmap.jvm_memory_struct_overview)
-        createButtonViewAddedToRootView("JVM-内存区域.md")
+        createButtonViewAddedToRootView("JVM-内存结构-程序计数器(线程私有).md")
+        createButtonViewAddedToRootView("JVM-内存结构-虚拟机栈(线程私有).md")
         createButtonViewAddedToRootView("JVM-垃圾回收.md")
     }
 
@@ -156,8 +158,10 @@ class MenuActivity : AppCompatActivity() {
         val button = AppCompatButton(this)
         button.text = text
         if (deep) button.setTextColor(Color.BLUE)
-        if (resId > 0) button.setOnClickListener { ImageActivity.startContentActivity(this, text, resId) }
-        else button.setOnClickListener { ContentActivity.startActivity(this, text) }
+        if (resId > 0) {
+            button.setCompoundDrawablesWithIntrinsicBounds(resources.getDrawable(R.mipmap.ic_launcher), null, null, null)
+            button.setOnClickListener { ImageActivity.startContentActivity(this, text, resId) }
+        } else button.setOnClickListener { ContentActivity.startActivity(this, text) }
         weakReference.get()?.addView(button)
         return button
     }
