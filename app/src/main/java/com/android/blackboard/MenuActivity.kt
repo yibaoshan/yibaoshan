@@ -143,6 +143,7 @@ class MenuActivity : AppCompatActivity() {
     private fun initVM() {
         //逃逸分析别忘了
         createButtonViewAddedToRootView("JVM-类加载.md")
+        createButtonViewAddedToRootView("JVM-内存区域预览图.PNG", true, R.mipmap.jvm_memory_struct_overview)
         createButtonViewAddedToRootView("JVM-内存区域.md")
         createButtonViewAddedToRootView("JVM-垃圾回收.md")
     }
