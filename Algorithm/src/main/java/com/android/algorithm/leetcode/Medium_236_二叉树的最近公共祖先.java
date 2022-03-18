@@ -2,21 +2,49 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 public class Medium_236_二叉树的最近公共祖先 {
 
     @Test
     public void main() {
-//        TreeNode root = new TreeNode(3,
-//                new TreeNode(5, new TreeNode(6), new TreeNode(2, new TreeNode(7), new TreeNode(4)))
-//                , new TreeNode(1, new TreeNode(0), new TreeNode(8)));
-        TreeNode root = new TreeNode(1, new TreeNode(2, null, new TreeNode(4)), new TreeNode(3));
+        TreeNode root = new TreeNode(3,
+                new TreeNode(5, new TreeNode(6), new TreeNode(2, new TreeNode(7), new TreeNode(4)))
+                , new TreeNode(1, new TreeNode(0), new TreeNode(8)));
+//        TreeNode root = new TreeNode(1, new TreeNode(2, null, new TreeNode(4)), new TreeNode(3));
         TreeNode p = new TreeNode(4);
         TreeNode q = new TreeNode(3);
         System.out.println(lowestCommonAncestor(root, p, q).val);
+        System.out.println(lowestCommonAncestor2(root, p, q).val);
         ;
+    }
+
+    public TreeNode lowestCommonAncestor2(TreeNode root, TreeNode p, TreeNode q) {
+        midDFS(root, p, q);
+        if (pList == null || qList == null) return null;
+        TreeNode node = null;
+        for (int i = 0; i < Math.min(pList.size(), qList.size()); i++) {
+            if (pList.get(i).val != qList.get(i).val) return node;
+            node = pList.get(i);
+        }
+        return node;
+    }
+
+    private final Deque<TreeNode> deque = new ArrayDeque<>();
+    private List<TreeNode> pList;
+    private List<TreeNode> qList;
+
+    private void midDFS(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) return;
+        deque.addLast(root);
+        if (root.val == p.val) pList = new ArrayList<>(deque);
+        if (root.val == q.val) qList = new ArrayList<>(deque);
+        midDFS(root.left, p, q);
+        midDFS(root.right, p, q);
+        deque.removeLast();//回退到最近一个父节点
     }
 
     /**
