@@ -20,11 +20,26 @@ public class Medium_122_买卖股票的最佳时机2 {
 
     @Test
     public void main() {
-//        int[] prices = new int[]{1, 2, 3, 4, 5};
-        int[] prices = new int[]{7, 1, 5, 3, 6, 4};
+        int[] prices = new int[]{1, 2, 3, 4, 5};
+//        int[] prices = new int[]{7, 1, 5, 3, 6, 4};
         System.out.println(maxProfit(prices));
-        System.out.println(maxProfit2(prices));
+//        System.out.println(maxProfit2(prices));
+        System.out.println(maxProfit3(prices));
     }
+
+
+    public int maxProfit3(int[] prices) {
+        if (prices == null || prices.length < 2) return 0;
+        int[] dp = new int[prices.length];
+        int min = prices[0];
+        for (int i = 1; i < prices.length; i++) {
+            dp[i] = Math.max(prices[i] - min + dp[i - 1], dp[i - 1]);
+            min = Math.min(min, prices[i]);
+            if (prices[i] - min > 0) min = Integer.MAX_VALUE;
+        }
+        return dp[dp.length - 1];
+    }
+
 
     /**
      * 贪心，只记录正利润
