@@ -34,4 +34,8 @@ class MainActivity : AppCompatActivity() {
         MenuActivity.startActivity(this, TypeEnum.OS)
     }
 
+    fun onBookClick(view: View) {
+        MenuActivity.startActivity(this, TypeEnum.BOOK)
+    }
+
 }

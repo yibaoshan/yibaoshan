@@ -63,6 +63,9 @@ class MenuActivity : AppCompatActivity() {
             TypeEnum.OS.name == name -> {
                 initOS()
             }
+            TypeEnum.BOOK.name == name -> {
+                initBook()
+            }
         }
     }
 
@@ -141,6 +144,12 @@ class MenuActivity : AppCompatActivity() {
     private fun initNetwork() {
     }
 
+    /**
+     * 逃逸分析是编译器阶段
+     * dex文件生成
+     * dex和class区别
+     * jvm的操作数栈是用来执行字节码指令的，基于栈，art基于寄存器的指令集
+     * */
     private fun initVM() {
         //逃逸分析别忘了
         createButtonViewAddedToRootView("JVM-类加载.md")
@@ -152,6 +161,10 @@ class MenuActivity : AppCompatActivity() {
 
     private fun initOS() {
         createButtonViewAddedToRootView("Linux-线程&进程.md")
+    }
+
+    private fun initBook() {
+        createButtonViewAddedToRootView("Book-邓凡平-深入理解Android-ART虚拟机.md")
     }
 
     private fun createButtonViewAddedToRootView(text: String, deep: Boolean = false, resId: Int = -1): Button {

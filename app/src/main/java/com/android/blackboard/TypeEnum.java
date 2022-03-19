@@ -5,7 +5,8 @@ public enum TypeEnum {
     Android("android"),
     Network("network"),
     VM("vm"),
-    OS("os");
+    OS("os"),
+    BOOK("book");
 
     private String name;
 
