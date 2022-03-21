@@ -151,11 +151,13 @@ class MenuActivity : AppCompatActivity() {
      * jvm的操作数栈是用来执行字节码指令的，基于栈，art基于寄存器的指令集
      * */
     private fun initVM() {
-        //逃逸分析别忘了
         createButtonViewAddedToRootView("JVM-类加载.md")
         createButtonViewAddedToRootView("JVM-内存区域预览图.PNG", true, R.mipmap.jvm_memory_struct_overview)
         createButtonViewAddedToRootView("JVM-内存结构-程序计数器(线程私有).md")
         createButtonViewAddedToRootView("JVM-内存结构-虚拟机栈(线程私有).md")
+        createButtonViewAddedToRootView("JVM-内存结构-本地方法栈(线程私有).md")
+        createButtonViewAddedToRootView("JVM-内存结构-堆内存(公开).md")
+        createButtonViewAddedToRootView("JVM-内存结构-方法区(公开).md")
         createButtonViewAddedToRootView("JVM-垃圾回收.md")
     }
 
