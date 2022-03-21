@@ -153,12 +153,15 @@ class MenuActivity : AppCompatActivity() {
     private fun initVM() {
         createButtonViewAddedToRootView("JVM-类加载.md")
         createButtonViewAddedToRootView("JVM-内存区域预览图.PNG", true, R.mipmap.jvm_memory_struct_overview)
+        createButtonViewAddedToRootView("JVM-内存结构-概述.md")
         createButtonViewAddedToRootView("JVM-内存结构-程序计数器(线程私有).md")
         createButtonViewAddedToRootView("JVM-内存结构-虚拟机栈(线程私有).md")
         createButtonViewAddedToRootView("JVM-内存结构-本地方法栈(线程私有).md")
         createButtonViewAddedToRootView("JVM-内存结构-堆内存(公开).md")
         createButtonViewAddedToRootView("JVM-内存结构-方法区(公开).md")
-        createButtonViewAddedToRootView("JVM-垃圾回收.md")
+        createButtonViewAddedToRootView("JVM-垃圾回收-对象是否可回收.md")
+        createButtonViewAddedToRootView("JVM-垃圾回收-回收算法.md")
+        createButtonViewAddedToRootView("JVM-垃圾回收-垃圾收集器.md")
     }
 
     private fun initOS() {
