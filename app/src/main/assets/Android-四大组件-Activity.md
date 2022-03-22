@@ -180,14 +180,27 @@ Activity正常启动，只是不被压入栈中
 
 先个人理解一波
 
-1. 发起startActivity之后，传入context和class类名，内部解析context和class组成ComponentName
+从IPC角度分析，启动流程大致为：
+
+1. Launcher与AMS进行IPC，通知AMS启动App；
+2. AMS做启动Activity之前的准备工作，Intent信息、LauncherMode、ActivityStack等完成后，AMS与Launcher进行IPC，通知Launcher进入后台；
+3. AMS检测目标Activity所在App进程是否存在，通知Zygote进程fork新进程；
+4. 新进程入口处ActivityThread.main()；
+5. AMS通知App创建Application；
+6. AMS通知App创建Activity并回调相关生命周期
 
 ```
 Activity.startActivity()->Instrument.execStartActivity(rpc)
 ->ActivityTaskManagerService.startActivityAsUser(ActivityStarter.execute())
 ```
 
-### 四、常见问题
+### 四、通信方式
+
+广播、startActivityForResult、EventBus
+
+### 五、常见问题
 
 - 为什么Application启动Activity不加NEW_TASK会发生崩溃？
 - 旋转屏幕导致Activity重建问题的解决办法
+- 什么时候抛出have you declared this activity in your AndroidManifest.xml?
+答：未在清单文件注册，Instrument解析AMS返回结果抛出异常
