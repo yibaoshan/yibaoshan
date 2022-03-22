@@ -104,6 +104,7 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Android-四大组件-Activity.md")
         createButtonViewAddedToRootView("Android-四大组件-Service.md")
         createButtonViewAddedToRootView("Android-四大组件-BroadcastReceiver.md")
+        createButtonViewAddedToRootView("Android-四大组件-LocalBroadcastManager.md")
         createButtonViewAddedToRootView("Android-四大组件-ContentProvider.md")
         createButtonViewAddedToRootView("Android-系统组件-Context.md")
         createButtonViewAddedToRootView("Android-系统组件-Application.md")

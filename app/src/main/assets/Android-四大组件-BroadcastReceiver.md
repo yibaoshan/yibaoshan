@@ -1,7 +1,6 @@
 ## Overview
 1. 广播的基本使用
 2. Android广播原理浅析
-3. Android本地广播LocalBroadcastReceiver原理浅析
 
 ## 一、基本使用
 
