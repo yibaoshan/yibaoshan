@@ -81,6 +81,26 @@ public final class LocalBroadcastManager {
         };
     }
 
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //do something
+        }
+    };
+
+    private IntentFilter filter = new IntentFilter();
+
+    public void test(){
+        new Thread(() -> {
+            LocalBroadcastManager.getInstance(null).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    //执行UI操作
+                }
+            },new IntentFilter());
+        }).start();
+    }
+
     /**
      * 注册广播监听，发布/订阅模型中的订阅动作
      *
