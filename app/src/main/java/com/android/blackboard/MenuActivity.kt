@@ -13,7 +13,6 @@ import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import java.lang.ref.WeakReference
-import kotlin.concurrent.thread
 
 @ExperimentalStdlibApi
 class MenuActivity : AppCompatActivity() {
@@ -181,7 +180,7 @@ class MenuActivity : AppCompatActivity() {
         if (resId > 0) {
             button.setCompoundDrawablesWithIntrinsicBounds(resources.getDrawable(R.mipmap.ic_launcher), null, null, null)
             button.setOnClickListener { ImageActivity.startContentActivity(this, text, resId) }
-        } else button.setOnClickListener { thread { LocalBroadcastManager.getInstance(this@MenuActivity).sendBroadcastSync(Intent("hhh")) } }
+        } else button.setOnClickListener { ContentActivity.startActivity(this, text) }
         weakReference.get()?.addView(button)
         return button
     }
