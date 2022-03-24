@@ -1,27 +1,27 @@
 ## Overview
 1. **LocalBroadcastManager介绍**
-1. **LocalBroadcastManager源码解析**
-1. **LocalBroadcastManager总结**
+2. **LocalBroadcastManager源码解析**
+3. **LocalBroadcastManager总结**
 
 ## 一、LocalBroadcastManager介绍
 
 ### 1、LocalBroadcastManager是什么
 
-在Android中，`Broadcas`t是一种广泛运用的在应用之间传输信息的方式
+在Android中，`Broadcast`是一种广泛运用的在应用之间传输信息的方式
 
-`Broadcast`本身是**进程间通信**，我发送的消息别人可以监听，同时别人也可以不断的发送我监听的广播来攻击我的APP，应用的安全性无法保证
+`Broadcast`本身是**进程间通信**，发送的消息其他APP可以监听，同时其他应用也可以通过不断的发送广播来攻击你的APP，应用的安全性无法保证
 
 为了解决这个问题，`LocalBroadcastManager`就应运而生了
 
-`LocalBroadcastManager`是Android X库中提供的工具包，和`Broadcast`相比较，它的优点在于：
+`LocalBroadcastManager`是**Android X库**中提供的工具包，和`Broadcast`相比较，它的优点在于：
 
 > 1、无需进行进程间通信，效率更高
 >
 > 2、只在应用内传播，无需考虑其他应用在收发我的广播时带来的任何安全问题
 
-综上所述，如果只是想在应用内通信，那么可以选择本地广播作为应用的事件总线
+综上，如果只是想在应用内通信，那么可以选择**本地广播**作为应用的事件总线
 
-### 2、使用方式
+### 2、LocalBroadcastManager使用方式
 
 - LocalBroadcastManager对象的创建
 
@@ -45,11 +45,9 @@
 
 ## 二、LocalBroadcastManager源码解析
 
-`LocalBroadcastManager`是基于**发布/订阅模式**来设计的，`LocalBroadcastManager`本身是**发布订阅中心**，提供订阅、取消订阅、发布消息的功能
+`LocalBroadcastManager`是基于**发布/订阅模式**来设计的，`LocalBroadcastManager`本身是**发布订阅中心**，提供订阅、取消订阅、发布消息的功能，后续的文章中提到的**订阅者**即表示的是**广播接收器**，**消息事件**指的是**过滤器**的`Action`
 
-在后续的讲解过程中提到的**订阅者**即为**广播接收器**，**消息事件**指的是**过滤器**的`Action`
-
-在开始阅读`LocalBroadcastManager`源码之前，让我们先来认识一下`LocalBroadcastManager`的**成员属性**，理解各个**成员属性**的含义，对接下来源码的阅读会有非常大的帮助
+**在开始阅读`LocalBroadcastManager`源码之前，让我们先来认识一下`LocalBroadcastManager`的成员属性，理解各个成员属性的含义，对接下来源码的阅读会有非常大的帮助**
 
 ### 1、LocalBroadcastManager成员属性
 
@@ -58,9 +56,9 @@
 | 类型                                                  | 名称                        | 说明                      |
 | ----------------------------------------------------- | --------------------------- | ------------------------- |
 | Context                                               | mAppContext                 | Application的Context      |
-| HashMapBroadcastReceiver, ArrayList<ReceiverRecord\>> | mReceivers                  | 广播接收者/订阅者集合     |
+| HashMapBroadcastReceiver, ArrayList<ReceiverRecord>> | mReceivers                  | 广播接收者/订阅者集合     |
 | HashMap&lt;String, ArrayList<ReceiverRecord&gt;&gt;   | mActions                    | 订阅事件集合              |
-| ArrayList\<BroadcastRecord>                           | mPendingBroadcasts          | 待执行分发事件的集合      |
+| ArrayList<BroadcastRecord>                           | mPendingBroadcasts          | 待执行分发事件的集合      |
 | Handler                                               | mHandler                    | 使用MainLoop创建的Handler |
 | int                                                   | MSG_EXEC_PENDING_BROADCASTS | Message的标识             |
 
@@ -68,7 +66,7 @@
 
 ##### 1.1 **mReceivers**
 
-在上一节我们介绍了`LocalBroadcastManager`是基于**发布/订阅模式**设计的，**事件**发生时需要通知所有的**订阅者**，那么这里必然有一个保存所有**订阅者**的集合，在`LocalBroadcastManager`中这个集合就是`mReceivers`
+上一节我们介绍了`LocalBroadcastManager`是基于**发布/订阅模式**设计的，**事件**发生时需要通知所有的**订阅者**，那么这里必然有一个保存所有**订阅者**的集合，在`LocalBroadcastManager`中这个集合就是`mReceivers`
 
 到这里事情本该结束了，但当我们尝试发送一个**事件**时就会发现：一个**订阅者**可以订阅多个**事件**(`Action`)，不同的**订阅者**也可以订阅同一个**事件**(`Action`)。
 
@@ -76,12 +74,12 @@
 
 ```java
     public void sendBroadcast(Intent intent){
-      	//遍历订阅者集合
+       //遍历订阅者集合
         for(Receiver receiver :mReceivers){
-          	//遍历订阅者订阅的事件集合
+           //遍历订阅者订阅的事件集合
             for(Action action : receiver.actions){
-              	if(intent.action == action){
-                  	//do something
+               if(intent.action == action){
+                   //do something
                 }
             }
         }
@@ -95,8 +93,7 @@
 在`LocalBroadcastManager`中，`mActions`表示的就是**事件集合**；其中，**事件**`Action`作为集合的`key`，对应的`value`是订阅这个**事件**的**订阅者**们，这样，每次发送**事件**时，只需要去**事件集合**查找对应的**订阅者**们，通知它们即可，**订阅者**和**事件**(`Action`)的关系如下图：
 
 
-
-![image-20220323170247078](/Users/bob/Library/Application Support/typora-user-images/image-20220323170247078.png)
+![image_android_component_local_broadcast_manager_receiver_and_action_relation.jpg](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c2f4ea2c28064b83b2cc15802a3cea9a~tplv-k3u1fbpfcp-watermark.image?)
 
 #### 2. 内部类：ReceiverRecord
 
@@ -114,7 +111,7 @@
 | 类型                       | 名称      | 说明                       |
 | -------------------------- | --------- | -------------------------- |
 | Intent                     | intent    | 发送的广播                 |
-| ArrayList\<ReceiverRecord> | receivers | 已经匹配上的广播接收者集合 |
+| ArrayList<ReceiverRecord> | receivers | 已经匹配上的广播接收者集合 |
 
 `BroadcastRecord`中记录的是待分发的**订阅者**元素
 
@@ -150,7 +147,7 @@ private LocalBroadcastManager(Context context) {
 1. **保存Context，注意这里保存的是Application的上下文，接下来的getInstance方法介绍里也会提到这一点**
 2. **创建Handler**
 
-> 这里创建Handler的时候使用的是MainLooper，也就是说将来通过这个Handler提交的消息都会添加到主消息队列，然后再由MainLooper分发给当前Handler，那么在executePendingBroadcasts中派发消息的时候，里面的代码都是运行在Main线程了
+> 注意看创建`Handler`的时候使用的是`MainLooper`，也就是说将来通过这个`Handler`提交的消息都会添加到主消息队列，然后再由`MainLooper`分发给当前`Handler`，那么在`executePendingBroadcasts`中派发消息的时候，里面的代码都是运行在**Main线程**了
 
 `Handler`里面的逻辑也比较简单，接收到`Message`后调用`executePendingBroadcasts()`方法来**分发消息**，由于使用了`MainLooper`，所以在广播接收器`BroadcastReceiver`的`onReceive`函数中，是可以进行**UI操作**的，比如这样：
 
@@ -165,7 +162,7 @@ new Thread(() -> {
 }).start();
 ```
 
-如上，在子线程中注册了一个**广播接收器**，在里面做执行**UI**的操作是完全没问题的，因为`onReceive()`方法最终运行在Main线程
+示例代码中在子线程中注册了一个**广播接收器**，在里面做执行**UI**的操作是完全没问题的，因为`onReceive()`方法最终运行在Main线程
 
 #### 2. getInstance()：获取实例
 
@@ -173,7 +170,7 @@ new Thread(() -> {
 public static LocalBroadcastManager getInstance(@NonNull Context context) {
     synchronized (mLock) {
         if (mInstance == null) {
-          	//使用Application的上下文创建实例
+           //使用Application的上下文创建实例
             mInstance = new LocalBroadcastManager(context.getApplicationContext());
         }
         return mInstance;
@@ -183,7 +180,7 @@ public static LocalBroadcastManager getInstance(@NonNull Context context) {
 
 `getInstance()`方法只做一件事：**检查`mInstance`实例是否为空，为空的话创建一个新的对象赋值给`mInstance`**
 
-> 这里调用context的getApplicationContext()方法，获取的是Application的上下文，这样就不用担心传入生命周期短的组件造成内存泄漏的问题了
+> 这里调用`context`的g`etApplicationContext`()方法，获取的是`Application`的上下文，这样就不用担心传入生命周期短的组件造成内存泄漏的问题了
 
 **我们细看这段代码会发现，LocalBroadcastManager只要初始化过一次之后，再次传进来的`context`其实是没有用到的**
 
@@ -191,7 +188,7 @@ public static LocalBroadcastManager getInstance(@NonNull Context context) {
 
 答案是**当然可以**，**一旦创建`LocalBroadcastManager`实例后，我们可以在任意线程调用`getInstance()`且不传入`context`来获取实例发送广播啥的**
 
-> 如果你使用Kotlin语言开发，因为context被@NonNull注解修饰，直接传null的话编译器会不通过~
+> 如果你使用Kotlin语言开发，因为`context`被@NonNull注解修饰，直接传null的话编译器会不通过~
 >
 > 使用Java语言开发的同学可以试一试
 
@@ -225,14 +222,14 @@ public void registerReceiver(BroadcastReceiver receiver, IntentFilter filter) {
 }
 ```
 
-源码的关键步骤注释都已经标好了，总结一下`registerReceiver()`方法一共做了两件事：
+注册广播的关键步骤注释都已经标好了，总结一下在`registerReceiver()`方法中一共完成了两件事：
 
 1. **向订阅者集合添加一条数据，增加一个订阅者**
 2. **遍历订阅者要订阅的事件集合，把当前的订阅者绑定到订阅的事件上去**
 
-> 这里的订阅者指的是广播接收器(BroadcastReceiver)，事件集合指的是广播接收器的过滤器(IntentFilter)包含的actions
+> 这里的订阅者指的是广播接收器`(BroadcastReceiver`)，事件集合指的是广播接收器的过滤器(`IntentFilter`)包含的`actions`
 
-在日常开发中调用`registerReceiver()`方法注册广播时，有一点需要注意，我们回头看**注释**标注**point 1、point 2**的地方会发现，不管传入的**广播接收器**和**过滤器**是否已经存在**订阅者集合**中，在**point 1**的位置总会重新创建`ReceiverRecord`来描述**广播接收器**和**过滤器**
+在日常开发中调用`registerReceiver()`方法注册广播时，有一点需要注意，我们回头看**注释**标注`point 1`、`point 2`的地方会发现，不管传入的**广播接收器**和**过滤器**是否已经存在**订阅者集合**中，在`point 1`的位置总会重新创建`ReceiverRecord`来描述**广播接收器**和**过滤器**
 
 什么意思呢
 
@@ -360,13 +357,13 @@ public boolean sendBroadcast(@NonNull Intent intent) {
 
 发送广播的方法中就只做了一件事：**从订阅事件集合(`mActions`)中找到符合`intent`条件的订阅者们，并将它们放入待执行集合(`mPendingBroadcasts`)**
 
-> 注意哦，虽然方法名称叫做发送广播，但是其实里面并没有发送的动作，只是找出符合发送规则的订阅者们丢进待执行集合，等待Handler来执行
+> 注意哦，虽然方法名称叫做发送广播，但是其实里面并没有发送的动作，只是找出符合发送规则的订阅者们丢进待执行集合，等待`Handler`来执行
 
 这里有两个槽点要说一下：
 
-**一是point 1/2/3标注的broadcasting变量，压根就没用到，不知道存在的意义是什么**
+**一是`point 1/2/3`标注的`broadcasting`变量，压根就没用到，不知道存在的意义是什么**
 
-**二是point 4标注的防止重复发消息的设计，咱创建一个bool类型的变量来标识不行嘛，为啥要想不开去遍历消息队列一个个检查**
+**二是`point 4`标注的防止重复发消息的设计，咱创建一个bool类型的变量来标识不行嘛，为啥要想不开去遍历消息队列一个个检查**
 
 #### 6. sendBroadcastSync()：发送同步广播
 
@@ -390,7 +387,7 @@ public void sendBroadcastSync(@NonNull Intent intent) {
 
 **我们知道，当调用`sendBroadcast()`方法发送广播时，`executePendingBroadcasts()`方法最终是由`Handler`来调用的，也就是说不管广播接收器是在哪个线程注册的，都会切换到Main线程来执行`onReceive()`方法中的代码**
 
-**而当广播的发送者可以直接调用`executePendingBroadcasts()`分发消息时，性质就不一样了**
+**而当广播的发送者可以直接调用`executePendingBroadcasts()`分发消息时，性质就不一样了！！！**
 
 ```java
 public void test(){
@@ -455,7 +452,8 @@ void executePendingBroadcasts() {
 
 在本篇文章中经常把**广播接收器**称为**订阅者**，之所以这样称呼是因为`LocalBroadcastManager`的设计与**发布/订阅模式**太相似了，呐，你看**Android开发者官网**也是这样介绍的
 
-我是图片
+
+![image_android_component_local_broadcast_manager_android_developer.jpg](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a962816164794b70bf2a4a8380435eca~tplv-k3u1fbpfcp-watermark.image?)
 
 `LocalBroadcastManager`目前在开发者官网已经Google声明为**弃用状态**，猜测可能因为**任何组件**都可以使用**本地广播**来发送、注册与解除注册，甚至不需要在组件内使用，**任意线程**都可以获取**本地广播**的**实例**来操作
 
@@ -464,4 +462,3 @@ void executePendingBroadcasts() {
 不过不管是否弃用，`LocalBroadcastManager`内部的设计思想依旧值得学习
 
 全文完
-
