@@ -1,5 +1,3 @@
-### 
-
 Android Handler机制是每个Android开发者成长路上，如何体现Handler机制在Android OS中的重要性呢？
 
 Android系统2003年10月立项，2005年7月被Google收购
