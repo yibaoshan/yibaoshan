@@ -6,8 +6,6 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 市面上已经有许多讲解Handler机制的文章，各种角度的都有，其中不乏有不少深度好文；本文不讲解源码(主要是讲不过其他文章)，从Android Handler机制的设计思想开始讲起，由浅入深，带你一步步走进Handler内部的实现原理
 
-以下，enjoy：
-
 **我相信每个Android开发者都或多或少的了解过Handler机制，为了不浪费大家时间，在文章开始之前，我觉得有必要说明一下本文的目标受众群体**
 
 适合人群：
@@ -22,15 +20,75 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 >
 > 2、觉得源码过于枯燥，想要找一篇文章对照着看，本文可能不是很合适，因为文章中并不会涉及太多的源码
 
-### 1、Handler机制介绍
+以下，enjoy：
 
-在开始介绍Handler机制之前，我们先来聊一聊Handler的设计背景，它为了解决什么问题
+##### 二、Handler机制介绍
 
-聊一聊UI单线程
+### 1、什么是GUI
+
+在开始介绍Handler之前，我们先来聊聊什么是GUI
+
+我们知道，Android和iOS、Windows一样，是个有图形用户界面的操作系统(Graphical User InterfaceI)，所以，Android的视图控制也沿用了GUI框架惯用的单一线程模型
+
+你可能会问：**多线程工作效率更高，为什么不将GUI设计成多线程的呢？**
+
+这个问题可以参考Stack Overflow的一个答案：
+
+> Not in most cases, and that added complexity would do more harm than good the vast majority of the time. You also have to realize that the UI framework must deal with the underlying OS model as well. Sure, it could work around the model and abstract that away from the programmer, but it's simply not worth it in this case.
+>
+> The amount of bugs caused by multiple threads updating the UI ad hoc would far outweigh what would be for the most part meaningless performance gains (if there were even gains, threading comes with an associated overhead of its own due to locking and synchronization, you may actually just be making the performance worse a lot of the time).
+>
+> In this case it's better to use multiple threads explicitly and only when needed. Most of the time in a UI you want everything on one thread and you don't gain much if anything by using multiple threads. UI interactions are almost never a bottleneck.
+>
+> 原文地址：[Why are most UI frameworks single threaded?](https://stackoverflow.com/questions/5544447/why-are-most-ui-frameworks-single-threaded)
+>
+> 大概意思是，绝大多数情况下，UI交互从来都不是瓶颈所在
+>
+> 多线程操作一个UI，很容易导致，或者极其容易导致反向加锁和死锁问题
+>
+> 而且想要UI框架支持多线程，底层OS也必须有对应实现，系统设计的复杂性势必会增增高，弊大于益
+
+**综上，目前主流的带有用户界面(GUI)的操作系统，除了DOS外，几乎都是使用UI单线程模型的方案，Android也不例外**
+
+### 2、构成Android GUI的基石：View
+
+用户与Android应用的所有交互都是通过用户界面(UI)进行的，因此了解有关Android用户界面的基础知识非常重要，所以本小节我们将会介绍构成Android GUI框架的基石：Android View
+
+首先，我们来一起看一下Android View的定义：
+
+![image_android_component_handler_android_developer_about_view](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_android_developer_about_view.jpg)
+
+>  *来自：Android Developer官网(https://developer.android.com/reference/android/view/View)*
+
+在Android中，View类代表用户界面组件的基本构建模块，它是所有GUI组件，例如TextView、ImageView、Button 等的超类
+
+2.1小节中我们提到Android是单UI线程模型，也就是说我们对View的操作只能在UI线程中
+
+接下来才是重点，依旧在View介绍网页中，我们以‘UI Trhead’作为关键字搜索
+
+哔哔了半天，终于看到Handler的身影了
+
+打开[Android Developer](https://developer.android.com/reference/android/view/View#event-handling-and-threading)找到View视图，以‘UI Trhead’作为关键字搜索就会发现：
+
+### 2、什么是UI线程消息队列机制
+
+2.1小节中我们知道了大多数GUI框架都是单线程设计，Android也不例外
+
+GUI库都使用单线程消息队列机制来处理绘制界面、事件响应等消息，在这种设计中，每个待处理的任务都被封装成一个消息添加到消息队列中。消息队列是线程安全的（消息队列自己通过加锁等机制保证消息不会在多线程竞争中丢失），任何线程都可以添加消息到这个队列中，但是只有主线程（UI线程）从中取出消息，并执行消息的响应函数，这就保证了只有主线程才去执行这些操作。
+
+### 3、Android中的UI线程消息队列机制
+
+既然是GUI都是单线程设计，那么想要在子线程更新UI就必须要通知主线程
+
+**在Android系统中，Handler就是这么一套提供在任意线程都可以发消息给UI线程的线程间通信工具**
 
 二、生产者/消费者模式介绍
 
-想要理解Android Handler机制，就必须先理解什么是生产者/消费者模型
+上一节我们介绍了，目前主流的操作系统Android、iOS、Windows都是单线程消息队列机制，在Andorid中对应的这套机制就是Handler，所以想要理解Android Handler机制，就必须先理解什么是生产者/消费者模型
+
+保证消费者线程只有一个，且消费者线程是UI线程
+
+生产者消费者模型在[《从Android源码角度谈设计模式（三）：行为型模式》](https://juejin.cn/post/7072263857015619621#heading-16)这篇文章中已经详细介绍过了，我们这里再来简单复习一下
 
 三、基于生产者/消费者模式手写Handler
 
@@ -95,13 +153,24 @@ Handler机制在Android 1.6到Android 10进化一览表
   
 - **[Android 2.3(API 9)](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-2.3_r1/core/java/android/os)**
 
-  > **1、MessageQueue.next()方法中，空闲时等待方案从Object.wait()改为nativePollOnce()实现**
+  > 2.3比较大的变化是增加了native层的Handler机制
   >
-  > > 空闲时等待指的是，当消息队列和mIdleHandlers都为空时，当前APP就没啥事干了，Looper线程将进入等待唤醒状态
+  > **1、MessageQueue支持处理native层消息**
   >
-  > **2、MessageQueue.enqueueMessage()方法中，唤醒方案从Object.notify()改为nativeWake()实现**
+  > > MessageQueue通过mPtr变量保存NativeMessageQueue对象，从而使得MessageQueue成为Java层和Native层的枢纽，既能处理上层消息，也能处理native层消息
+  > >
+  > > 关于native层的Handler想要了解更多的同学看这里：
+  > >
+  > > - 袁辉辉老师的文章：[Android消息机制2-Handler(Native层)](http://gityuan.com/2015/12/27/handler-message-native/)
+  > > - native的MessageQueue源码：[android-2.3_r1/core/jni/android_os_MessageQueue](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-2.3_r1/core/jni/android_os_MessageQueue.cpp)
   >
-  > > 还有个小细节，2.3之前只要调用enqueueMessage()方法就会调用this.notify()唤醒线程，哪怕加入的这个消息是个延迟消息要求一万年后才执行，在2.3的enqueueMessage()方法中修复了这个问题
+  > **2、MessageQueue.next()方法中，空闲时等待方案从Object.wait()改为nativePollOnce()实现**
+  >
+  > > 由于加入native层Handler，队列空闲时不能只判断Java层的MessageQueue，MessageQueue将原先的this.wait()方法改成了调用native的nativePollOnce()方法，若大家都空闲，方法会阻塞到native的epoll_wait()方法中，等待唤醒
+  >
+  > **3、MessageQueue.enqueueMessage()方法中，唤醒方案从Object.notify()改为nativeWake()实现**
+  >
+  > > 参考上一小节，这里还有个小细节，2.3之前只要调用enqueueMessage()方法就会调用this.notify()唤醒线程，哪怕加入的这个消息是个延迟消息要求一万年后才执行，在2.3的enqueueMessage()方法中修复了这个问题
 
 - **[Android 4.0(API 14)](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-cts-4.0_r1)**
 
@@ -214,7 +283,7 @@ Handler机制在Android 1.6到Android 10进化一览表
   > > 2. messageDispatched(token, msg)：当消息被 Handler 处理时调用
   > > 3. dispatchingThrewException(token, msg, exception)：在处理消息时抛出异常时调用
 
-
+至此，历代Android更新的，每个方法都进行了标注，标题也加入了超链接，读者可以点击，一起卷起来
 
 代码太长了我知道你们也懒得看
 
