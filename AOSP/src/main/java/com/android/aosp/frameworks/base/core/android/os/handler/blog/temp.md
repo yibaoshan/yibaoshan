@@ -1,20 +1,22 @@
-Android组件：Handler机制
+Android组件：Handler机制(一)
 
-## 一、写在前面
+## Overview
 
 每个Android开发者都或多或少的了解过Handler机制，为了不浪费大家时间，在文章开始之前，我觉得有必要说明一下本文的目标受众
 
 适合人群：
 
-> 1、对Handler机制还不是很熟悉，想要了解Handler内部是如何运行的
+> 1、Android新手开发，对Handler机制还不是很熟悉，想要了解Handler内部是如何运行的
 >
-> 2、其他客户端开发，比如iOS、Windows开发等，想要了解在Android系统中是如何在非UI线程更新UI的
+> 2、其他客户端开发，比如iOS、Windows开发等，想要了解在Android系统中是如何在非UI线程更新界面的
 
 不适合人群：
 
-> 1、高级工程师，对Handler机制了解的很深入了，这篇文章纯属浪费时间
+> 1、中高级工程师，对Handler机制了解的很深入了，这篇文章纯属浪费时间
 >
 > 2、觉得源码过于枯燥，想要找一篇文章对照着看，本文可能不是很合适，因为文章中并不会涉及太多的源码
+
+## 一、前言
 
 Android Handler机制是每个Android开发者成长道路上一道绕不过去的坎，了解Handler机制对于解决开发中的遇到的卡顿检测、ANR监控，以及了解APP组件是如何运行的等问题有着非常大的帮助
 
@@ -22,126 +24,134 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 以下，enjoy：
 
-## 二、Handler开篇
+## 二、Handler介绍
 
-在Android开发者官网的View介绍中有这样一句话：
+在Android开发者官网对View的介绍有这样一句话：
 
 ![image_android_component_handler_android_developer_view_ui_thread](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_android_developer_view_ui_thread.jpg)
 
 *图片来源：[Android Developer](https://developer.android.com/reference/android/view/View)*
 
-**整个视图树是单线程的， 在任何视图上调用任何方法时，必须始终在 UI 线程上。**
+**整个视图树是单线程的， 在任何视图上调用任何方法时，必须始终在 UI 线程上。如果在其他线程上工作并希望从该线程更新视图的状态，则应该使用 Handler**
 
-**如果在其他线程上工作并希望从该线程更新视图的状态，则应该使用 Handler**
-
-不只是Android，在iOS开发者官网中UIKit介绍中同样可以有类似提示：
+不只是Android，在iOS开发者官网对UIKit介绍中同样有类似提示：
 
 ![image_android_component_handler_ios_developer_uikit_ui_thread](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_ios_developer_uikit_ui_thread.jpg)
 
 *图片来源：[Apple iOS Developer](https://developer.apple.com/documentation/uikit)*
 
-> 除非另有说明，否则只能从应用程序的主线程或主调度队列中使用 UIKit 类。 此限制特别适用于从 UIResponder 派生的类或涉及以任何方式操作应用程序用户界面的类。
+**除非另有说明，否则只能从应用程序的主线程或主调度队列中使用 UIKit 类。 此限制特别适用于从 UIResponder 派生的类或涉及以任何方式操作应用程序用户界面的类。**
 
-**为什么Android和iOS都要求在主线程(UI线程)上更新页面呢？**
+奇了怪了，Android和iOS作为一个有图形用户界面(Graphical User InterfaceI)的操作系统，为什么都要求在主线程(UI线程)操作页面？
 
-本章节主要围绕着Handler诞生背景这一话题展开，聊聊它为什么会被设计出来？以及其他平台有没有类似的方案等
+### 1、GUI为什么要设计成单线程？
 
-正文开始
+前Sun的副总裁Graham Hamilton在设计Java Swing时，曾经写过一篇文章专门谈这个问题：[Multithreaded toolkits: A failed dream?](https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream)
 
-### 1、为什么GUI要设计成单线程？
-
-
-
-在正式介绍Handler之前，我们先来思考一个问题：**为什么Android GUI要设计成单线程？**
-
-
-
-Andorid作为一个有图形用户界面(Graphical User InterfaceI)的操作系统，和iOS、Windows一样，Android的视图控制也沿用了GUI框架惯用的单一线程模型，即只能在UI线程更新界面
-
-
-
-> 来自：[Multithreaded toolkits: A failed dream?](https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream)，原网页已经404，想查看原文可以点击下面两个链接
+> 最近有人提出一个问题，“我们是否应该让 Swing 库真正实现多线程？” 我个人觉得不应该，下面阐述理由。
+>
+> **无法实现的梦想（Failed Dream）**
+>
+> 借用 Vernor Vinge 的术语，在计算机科学中，某些想法是“无法实现的梦想”。这种想法初步看来很好，人们隔一段时间就会重新冒出这种想法，并为此花费很多时间。通常在研究阶段，事情进展顺利，有一些让人感兴趣的成果，差不多可以应用到生产规模上了。只是总有些问题解决不了，解决了这边的问题，那边又有问题冒出来。
+>
+> 在我看来，多线程的 GUI 工具包，就是这种无法实现的梦想。在多线程环境中，任意一个线程都可以去更新按钮(Button)、文本字段(Text Field)等 GUI 状态，这似乎是理所当然、直截了当的做法。任意线程去更新 GUI 状态，无非是加一些锁，又有什么难的呢？实现过程中可能会有一些错误，但我们可以修复这些错误，对吧？可惜事实证明没有这样简单。
+>
+> 多线程的 GUI 有种不可思议的趋势，会不断发生死锁或者竞争条件。我第一次知道这趋势，是在 80 年代初期，从 Xerox PARC 的 Cedar GUI 库中工作的那些人中听来的。这批人都十分聪明，也真正了解多线程编程。他们的 GUI 代码时不时就有死锁问题，这件事本身就很有趣。单独这事不能说明什么，或者只是特殊情况。
+>
+> 只是这些年来不断重复这一模式。人们最开始采用多线程，慢慢地，他们转换到了事件队列模型。“最好让事件线程做 GUI 的工作。"
+>
+> ...略
+>
+> **为什么这么难**
+>
+> 我们使用抽象来编写代码，很自然地会在每个抽象层中单独上锁。于是很不幸地，我们就遇到经典的锁定顺序噩梦：有两种不同类型的活动，按照相反的顺序，试图获取锁。因而死锁不可避免。
+>
+> ...略
+>
+> 来自：[Multithreaded toolkits: A failed dream?](https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream)，原网页已经404，查看原文可以点击下面两个链接
 >
 > - [CSDN原文备份](https://blog.csdn.net/coderAndy/article/details/51761691)
-> - [中文翻译：多线程 GUI 工具包：无法实现的梦想？](https://zhuanlan.zhihu.com/p/44639688)
+> - [知乎翻译：多线程 GUI 工具包：无法实现的梦想？](https://zhuanlan.zhihu.com/p/44639688)
 
-#### 1.1 Android GUI的基石
+**简单来说，多线程操作一个UI，很容易导致，或者极其容易导致反向加锁和死锁问题**
 
-### 2、Andorid GUI
+我们通过用户级的代码去改变界面，如TextView.setText走的是个自顶向下的流程：
 
-，我们先来聊聊什么是GUI
+![image_android_component_handler_cnbolgs_from_top](D:\work\androidstudio\Blackboard\AOSP\src\main\java\com\android\aosp\frameworks\base\core\android\os\handler\blog\imgs\image_android_component_handler_cnbolgs_from_top.jpg)
 
-Android OS是个有图形用户界面
+*图片来源：[GUI为什么不设计为多线程](https://blog.csdn.net/liuqiaoyu080512/article/details/12895005)*
 
-你可能会问：**多线程工作效率更高，为什么不将GUI设计成多线程的呢？**
+而系统底层发起的如键盘事件、点击事件走的是个自底向上的流程：
 
-这个问题可以参考Stack Overflow的一个答案：
+![image_android_component_handler_cnbolgs_from_bottom](D:\work\androidstudio\Blackboard\AOSP\src\main\java\com\android\aosp\frameworks\base\core\android\os\handler\blog\imgs\image_android_component_handler_cnbolgs_from_bottom.jpg)
 
-> Not in most cases, and that added complexity would do more harm than good the vast majority of the time. You also have to realize that the UI framework must deal with the underlying OS model as well. Sure, it could work around the model and abstract that away from the programmer, but it's simply not worth it in this case.
->
-> The amount of bugs caused by multiple threads updating the UI ad hoc would far outweigh what would be for the most part meaningless performance gains (if there were even gains, threading comes with an associated overhead of its own due to locking and synchronization, you may actually just be making the performance worse a lot of the time).
->
-> In this case it's better to use multiple threads explicitly and only when needed. Most of the time in a UI you want everything on one thread and you don't gain much if anything by using multiple threads. UI interactions are almost never a bottleneck.
->
-> 原文地址：[Why are most UI frameworks single threaded?](https://stackoverflow.com/questions/5544447/why-are-most-ui-frameworks-single-threaded)
->
-> 大概意思是，绝大多数情况下，UI交互从来都不是瓶颈所在
->
-> 多线程操作一个UI，很容易导致，或者极其容易导致反向加锁和死锁问题
->
-> 而且想要UI框架支持多线程，底层OS也必须有对应实现，系统设计的复杂性势必会增增高，弊大于益
+*图片来源：[GUI为什么不设计为多线程](https://blog.csdn.net/liuqiaoyu080512/article/details/12895005)*
 
-**综上，目前主流的带有用户界面(GUI)的操作系统，除了DOS外，几乎都是使用UI单线程模型的方案，Android也不例外**
+这样就麻烦了，**因为为了避免死锁，每个流程都要走一样的加锁顺序，而GUI中的这两个流程却是完全相反的，如果每一层都有一个锁的话加锁就是个难以完成的任务了，而如果每一层都共用一个锁的话，那就跟单线程没区别了。**
 
-### 2、构成Android GUI的基石：View
+综上，目前主流的带有用户界面(GUI)的操作系统，除了DOS外，几乎都是使用UI单线程模型的方案，即**消息队列机制**
 
-用户与应用的所有交互都是通过用户界面(UI)进行的，因此了解有关Android用户界面的基础知识非常重要，本小节我们将会介绍构成Android GUI框架的基石：Android View
+### 2、什么是消息队列机制？
 
-我们来一起看一下Google开发者官网给Android View的定义：
+一提到消息队列，自然而然就会想到生产者-消费者模型；在[《从Android源码角度谈设计模式（三）：行为型模式》](https://juejin.cn/post/7072263857015619621#heading-19)一文中我们已经介绍过了生产者-消费者模式，还没有看过的同学可以先看完再回来，这里来简单回顾一下：
 
-![image_android_component_handler_android_developer_about_view](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_android_developer_about_view.jpg)
+在一个生产者-消费者模式中，通常会有三个角色
 
->  *来自：Android Developer官网(https://developer.android.com/reference/android/view/View)*
+- **消息队列(single)**
 
-**在Android中，View类代表用户界面组件的基本构建模块，它是所有GUI组件，例如TextView、ImageView、Button 等的超类**
+  > 负责保存消息，提供存取消息的功能
 
-在上一小节中我们提到Android GUI是单UI线程模型，也就是说我们对View的操作只能在UI线程中
+- **生产者(multiple)**
 
-接下来才是重点，依旧在View介绍网页中，我们以‘UI Trhead’作为关键字搜索
+  > 负责生产消息，塞到共享的消息队列中
 
-哔哔了半天，终于看到Handler的身影了
+- **消费者(multiple)**
 
-打开[Android Developer](https://developer.android.com/reference/android/view/View#event-handling-and-threading)找到View视图，以‘UI Trhead’作为关键字搜索就会发现：
+  > 负责从共享消息队列中取出消息，执行消息对应的任务
 
-### 2、什么是UI线程消息队列机制
+![image_uml_design_pattern_behavioral_producer_consumer_queue](D:\work\androidstudio\Blackboard\AOSP\src\main\java\com\android\aosp\frameworks\base\core\android\os\handler\blog\imgs\image_uml_design_pattern_behavioral_producer_consumer_queue.jpg)
+
+这三个角色中，因为生产者和消费者要从同一个消息队列取放消息，所以消息队列要求是唯一的，生产者和消费者的数量可以任意
+
+我们回到Android系统，GUI框架多数使用单线程设计，那么就要求所有的UI操作都只能发生在一个线程当中，即：
+
+**消费者线程只有一个，且消费者线程就是UI线程**
+
+到了这里，关于消息队列机制应该有个清晰的概念了，我们来总结一下：
+
+**Android、Swing、iOS等的GUI库都使用消息队列机制来处理绘制界面、事件响应等消息**
+
+**在这种设计中，每个待处理的任务都被封装成一个消息添加到消息队列里**
+
+**消息队列是线程安全的（消息队列自己通过加锁等机制保证消息不会在多线程竞争中丢失），任何线程都可以添加消息到这个队列中**
+
+**但是，只有主线程（UI线程）从中取出消息，并执行消息的响应函数，这就保证了只有主线程才去执行这些操作**
+
+小节完
+
+### 3、Android中的消息队列：Handler
+
+在前两小节中，我们分别介绍了GUI，主要是想尝试解释Handler的设计背景
+
+在Android系统中，Handler就是这么一套提供在任意线程都可以发消息给UI线程的线程间通信工具
+
+当然，除了发消息外，Android还为Handler增加了一些其他功能
+
+我们这里先浅谈一下Android Handler的设计：
+
+首先，Handler使用了
+
+Handler使用了Java并发中的ThreadLocal来保证消息队列在线程中的唯一性，
 
 2.1小节中我们知道了大多数GUI框架都是单线程设计，Android也不例外
 
 GUI库都使用单线程消息队列机制来处理绘制界面、事件响应等消息，在这种设计中，每个待处理的任务都被封装成一个消息添加到消息队列中。消息队列是线程安全的（消息队列自己通过加锁等机制保证消息不会在多线程竞争中丢失），任何线程都可以添加消息到这个队列中，但是只有主线程（UI线程）从中取出消息，并执行消息的响应函数，这就保证了只有主线程才去执行这些操作。
 
-### 3、Android中的UI线程消息队列机制
-
 既然是GUI都是单线程设计，那么想要在子线程更新UI就必须要通知主线程
 
-**在Android系统中，Handler就是这么一套提供在任意线程都可以发消息给UI线程的线程间通信工具**
+## 三、如何自己实现一套Handler机制？
 
-### 5、什么是Handler
-
-## 三、生产者/消费者模式介绍
-
-上一节我们介绍了，目前主流的操作系统Android、iOS、Windows都是单线程消息队列机制，在Andorid中对应的这套机制就是Handler，所以想要理解Android Handler机制，就必须先理解什么是生产者/消费者模型
-
-保证消费者线程只有一个，且消费者线程是UI线程
-
-生产者消费者模型在[《从Android源码角度谈设计模式（三）：行为型模式》](https://juejin.cn/post/7072263857015619621#heading-16)这篇文章中已经详细介绍过了，我们这里再来简单复习一下
-
-三、基于生产者/消费者模式手写Handler
-
-同学们注意，我要开始变形了
-
-## 四、如何自己实现一套Handler？
-
-### 1、基于Object
+### 1、基于Object.wait()/notifiy()
 
 ### 2、基于DelayQueue
 
