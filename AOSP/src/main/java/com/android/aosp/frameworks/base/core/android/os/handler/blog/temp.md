@@ -2,15 +2,7 @@ Android组件：Handler机制
 
 ## 一、写在前面
 
-Android Handler机制是每个Android开发者成长道路上一道绕不过去的坎，了解Handler机制对于解决开发中的遇到的卡顿检测、ANR监控，以及了解APP组件是如何运行的等问题有着非常大的帮助
-
-市面上已经有许多讲解Handler机制的文章，各种角度的都有，其中不乏有不少深度好文；本文不讲解源码(主要是讲不过其他文章)，从Android Handler机制的设计思想开始讲起，由浅入深，带你一步步走进Handler内部的实现原理
-
-以下，enjoy：
-
-## 二、Handler介绍
-
-每个Android开发者都或多或少的了解过Handler机制，为了不浪费大家时间，在文章开始之前，我觉得有必要说明一下本文的目标受众群体
+每个Android开发者都或多或少的了解过Handler机制，为了不浪费大家时间，在文章开始之前，我觉得有必要说明一下本文的目标受众
 
 适合人群：
 
@@ -24,13 +16,45 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 >
 > 2、觉得源码过于枯燥，想要找一篇文章对照着看，本文可能不是很合适，因为文章中并不会涉及太多的源码
 
+Android Handler机制是每个Android开发者成长道路上一道绕不过去的坎，了解Handler机制对于解决开发中的遇到的卡顿检测、ANR监控，以及了解APP组件是如何运行的等问题有着非常大的帮助
+
+市面上已经有许多讲解Handler机制的文章，各种角度的都有，其中不乏有不少深度好文；本文不讲解源码(主要是讲不过其他文章)，从Android Handler机制的设计思想开始讲起，由浅入深，带你一步步走进Handler内部的实现原理
+
+以下，enjoy：
+
+## 二、Handler开篇
+
+在Android开发者官网的View介绍中有这样一句话：
+
+![image_android_component_handler_android_developer_view_ui_thread](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_android_developer_view_ui_thread.jpg)
+
+*图片来源：[Android Developer](https://developer.android.com/reference/android/view/View)*
+
+**整个视图树是单线程的， 在任何视图上调用任何方法时，必须始终在 UI 线程上。**
+
+**如果在其他线程上工作并希望从该线程更新视图的状态，则应该使用 Handler**
+
+不只是Android，在iOS开发者官网中UIKit介绍中同样可以有类似提示：
+
+![image_android_component_handler_ios_developer_uikit_ui_thread](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_ios_developer_uikit_ui_thread.jpg)
+
+*图片来源：[Apple iOS Developer](https://developer.apple.com/documentation/uikit)*
+
+> 除非另有说明，否则只能从应用程序的主线程或主调度队列中使用 UIKit 类。 此限制特别适用于从 UIResponder 派生的类或涉及以任何方式操作应用程序用户界面的类。
+
+**为什么Android和iOS都要求在主线程(UI线程)上更新页面呢？**
+
 本章节主要围绕着Handler诞生背景这一话题展开，聊聊它为什么会被设计出来？以及其他平台有没有类似的方案等
 
 正文开始
 
-### 1、为什么Android GUI要设计成单线程
+### 1、为什么GUI要设计成单线程？
+
+
 
 在正式介绍Handler之前，我们先来思考一个问题：**为什么Android GUI要设计成单线程？**
+
+
 
 Andorid作为一个有图形用户界面(Graphical User InterfaceI)的操作系统，和iOS、Windows一样，Android的视图控制也沿用了GUI框架惯用的单一线程模型，即只能在UI线程更新界面
 
