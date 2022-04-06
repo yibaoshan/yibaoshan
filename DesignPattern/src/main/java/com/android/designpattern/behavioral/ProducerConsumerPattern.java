@@ -1,12 +1,17 @@
 package com.android.designpattern.behavioral;
 
+import org.junit.Test;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class ProducerConsumerPattern {
 
-    public static void main(String[] args) {
+    @Test
+    public void main() {
         ProducerThread producerThread = new ProducerThread();
         producerThread.start();//启动生产者线程
         ConsumerThread consumerThread1 = new ConsumerThread("消费者1号");
@@ -16,7 +21,7 @@ public class ProducerConsumerPattern {
         consumerThread2.start();
     }
 
-    static final Queue<String> messageQueue = new ArrayDeque<>();
+    final static BlockingQueue<String> messageQueue = new ArrayBlockingQueue<>(10);
 
     final static class ProducerThread extends Thread {
         @Override
@@ -26,10 +31,11 @@ public class ProducerConsumerPattern {
             while (true) {
                 String line = scanner.next();
                 if (line.equals("exit")) break;
-                synchronized (messageQueue) {
-                    messageQueue.add(line);
-                    messageQueue.notify();
-                }
+                messageQueue.add(line);
+//                synchronized (messageQueue) {
+//                    messageQueue.add(line);
+//                    messageQueue.notify();
+//                }
             }
         }
     }
@@ -46,11 +52,12 @@ public class ProducerConsumerPattern {
                 //消费者一直不停的从共享消息队列取消息
                 while (true) {
                     if (messageQueue.isEmpty()) {
-                        try {
-                            messageQueue.wait();// 没有消息则阻塞，等待唤醒
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            messageQueue.wait();// 没有消息则阻塞，等待唤醒
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+                        continue;
                     }
                     // 被唤醒后会执行该方法
                     execute(messageQueue.poll());

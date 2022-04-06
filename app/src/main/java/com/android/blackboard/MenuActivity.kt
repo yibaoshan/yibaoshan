@@ -110,6 +110,10 @@ class MenuActivity : AppCompatActivity() {
         createButtonViewAddedToRootView("Android-系统组件-Application.md")
         createButtonViewAddedToRootView("Android-通信-Handler机制.md")
         createButtonViewAddedToRootView("Android-通信-Binder机制.md")
+        //1. 窗口和图形系统 window and view manager system
+        //2. 显示合成系统 surface flinger
+        //3. 用户输入系统 inputmanager system
+        //4. 应用框架系统 activity manager system
         createButtonViewAddedToRootView("Android-View-动画.md")
         createButtonViewAddedToRootView("Android-JetPack-Fragment.md")
         createButtonViewAddedToRootView("Android-JetPack-RecyclerView.md")

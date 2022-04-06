@@ -9,20 +9,23 @@ public class MessageTest {
     @Test
     public void main() throws InterruptedException {
         Message eat = Message.obtain();
-        eat.setVal("let's go eat together");
-        sendMessage(eat);
+        eat.setVal("hahaha");
 
-        Thread.sleep(new Random().nextInt(5));
+        new Thread(() -> {
+            System.out.println(eat.getVal());
+            eat.recycle();
+        }).start();
 
-        Message drink = Message.obtain();
-        drink.setVal("let's go drink together");
-        sendMessage(drink);
-
-        Thread.sleep(new Random().nextInt(5));
-
-        Message play = Message.obtain();
-        play.setVal("let's go play together");
-        sendMessage(play);
+        new Thread(() -> {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("print");
+            System.out.println(eat.getVal());
+            eat.recycle();
+        }).start();
 
     }
 

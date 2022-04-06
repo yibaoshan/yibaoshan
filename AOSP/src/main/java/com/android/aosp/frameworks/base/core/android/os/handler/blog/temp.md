@@ -1,12 +1,16 @@
-Android组件：Handler机制浅析
+Android组件：Handler机制
 
-## 一、前言
+## 一、写在前面
 
-Android Handler机制是每个Android开发者成长道路上一道绕不过去的坎，了解Handler机制对于解决开发中的遇到的卡顿检测、ANR监控，以及APP是如何运行的等问题有着非常大的帮助
+Android Handler机制是每个Android开发者成长道路上一道绕不过去的坎，了解Handler机制对于解决开发中的遇到的卡顿检测、ANR监控，以及了解APP组件是如何运行的等问题有着非常大的帮助
 
 市面上已经有许多讲解Handler机制的文章，各种角度的都有，其中不乏有不少深度好文；本文不讲解源码(主要是讲不过其他文章)，从Android Handler机制的设计思想开始讲起，由浅入深，带你一步步走进Handler内部的实现原理
 
-**我相信每个Android开发者都或多或少的了解过Handler机制，为了不浪费大家时间，在文章开始之前，我觉得有必要说明一下本文的目标受众群体**
+以下，enjoy：
+
+## 二、Handler介绍
+
+每个Android开发者都或多或少的了解过Handler机制，为了不浪费大家时间，在文章开始之前，我觉得有必要说明一下本文的目标受众群体
 
 适合人群：
 
@@ -20,15 +24,30 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 >
 > 2、觉得源码过于枯燥，想要找一篇文章对照着看，本文可能不是很合适，因为文章中并不会涉及太多的源码
 
-以下，enjoy：
+本章节主要围绕着Handler诞生背景这一话题展开，聊聊它为什么会被设计出来？以及其他平台有没有类似的方案等
 
-##### 二、Handler机制介绍
+正文开始
 
-### 1、什么是GUI
+### 1、为什么Android GUI要设计成单线程
 
-在开始介绍Handler之前，我们先来聊聊什么是GUI
+在正式介绍Handler之前，我们先来思考一个问题：**为什么Android GUI要设计成单线程？**
 
-我们知道，Android和iOS、Windows一样，是个有图形用户界面的操作系统(Graphical User InterfaceI)，所以，Android的视图控制也沿用了GUI框架惯用的单一线程模型
+Andorid作为一个有图形用户界面(Graphical User InterfaceI)的操作系统，和iOS、Windows一样，Android的视图控制也沿用了GUI框架惯用的单一线程模型，即只能在UI线程更新界面
+
+
+
+> 来自：[Multithreaded toolkits: A failed dream?](https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream)，原网页已经404，想查看原文可以点击下面两个链接
+>
+> - [CSDN原文备份](https://blog.csdn.net/coderAndy/article/details/51761691)
+> - [中文翻译：多线程 GUI 工具包：无法实现的梦想？](https://zhuanlan.zhihu.com/p/44639688)
+
+#### 1.1 Android GUI的基石
+
+### 2、Andorid GUI
+
+，我们先来聊聊什么是GUI
+
+Android OS是个有图形用户界面
 
 你可能会问：**多线程工作效率更高，为什么不将GUI设计成多线程的呢？**
 
@@ -52,17 +71,17 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 ### 2、构成Android GUI的基石：View
 
-用户与Android应用的所有交互都是通过用户界面(UI)进行的，因此了解有关Android用户界面的基础知识非常重要，所以本小节我们将会介绍构成Android GUI框架的基石：Android View
+用户与应用的所有交互都是通过用户界面(UI)进行的，因此了解有关Android用户界面的基础知识非常重要，本小节我们将会介绍构成Android GUI框架的基石：Android View
 
-首先，我们来一起看一下Android View的定义：
+我们来一起看一下Google开发者官网给Android View的定义：
 
 ![image_android_component_handler_android_developer_about_view](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_android_developer_about_view.jpg)
 
 >  *来自：Android Developer官网(https://developer.android.com/reference/android/view/View)*
 
-在Android中，View类代表用户界面组件的基本构建模块，它是所有GUI组件，例如TextView、ImageView、Button 等的超类
+**在Android中，View类代表用户界面组件的基本构建模块，它是所有GUI组件，例如TextView、ImageView、Button 等的超类**
 
-2.1小节中我们提到Android是单UI线程模型，也就是说我们对View的操作只能在UI线程中
+在上一小节中我们提到Android GUI是单UI线程模型，也就是说我们对View的操作只能在UI线程中
 
 接下来才是重点，依旧在View介绍网页中，我们以‘UI Trhead’作为关键字搜索
 
@@ -82,7 +101,9 @@ GUI库都使用单线程消息队列机制来处理绘制界面、事件响应�
 
 **在Android系统中，Handler就是这么一套提供在任意线程都可以发消息给UI线程的线程间通信工具**
 
-二、生产者/消费者模式介绍
+### 5、什么是Handler
+
+## 三、生产者/消费者模式介绍
 
 上一节我们介绍了，目前主流的操作系统Android、iOS、Windows都是单线程消息队列机制，在Andorid中对应的这套机制就是Handler，所以想要理解Android Handler机制，就必须先理解什么是生产者/消费者模型
 
@@ -94,14 +115,24 @@ GUI库都使用单线程消息队列机制来处理绘制界面、事件响应�
 
 同学们注意，我要开始变形了
 
-四、Handler还提供了什么功能？
+## 四、如何自己实现一套Handler？
+
+### 1、基于Object
+
+### 2、基于DelayQueue
+
+### 3、基于Linux epoll
+
+ummm..
+
+## 五、Handler详解
 
 本章节聊一聊Handler机制除了实现生产者/消费者模式之外，还给我们提供了什么功能，其实也就是老生常谈的几样：
 
 - 异步消息与同步屏障
 - Handler Callback
 
-五、总结
+## 六、总结
 
 ThreadLocal是属于Java并发中的内容，Handler只是借用了ThreadLocal来保证MessageQueue在当前线程线程的唯一性，不用ThreadLocal也是可以的哈。
 
@@ -137,19 +168,32 @@ Handler机制在Android 1.6到Android 10进化一览表
 
   > 这也许是你能找到最老版本的Handler源码，此时Handler的完成度已经很高了，特点是：
   >
-  > **1、队列空闲时等待方案使用的是Java的Object.wait()/notfity()**
+  > **1、队列空闲时等待以及唤醒方案用的是Java的Object.wait()/notfity()**
   >
-  > > Android 1.6发布时间是09年9月，Java5的代码是09年11月份公开的，要是Android晚两个月发布，空闲时等待方案可能就能用上juc中的锁了
+  > > 调用MessageQueue的next方法获取消息，这时候检查队列有没有消息
+  > >
+  > > - 没有消息调用this.wait()无限期等待
+  > > - 有消息但消息未到期调用this.wait()传入到期时间
+  > >
+  > > 调用MessageQueue.enqueueMessage()添加消息，消息加入队列后会调用this.notifity()唤醒next()方法，这里有个bug是没有判断添加的消息要什么时候执行，延迟消息也会唤醒
   >
-  > **2、支持IdleHandler**
+  > **2、MessageQueue支持IdleHandler**
+  >
+  > > IdleHandler是MessageQueue的内部类，调用addIdleHandler(handler)方法将一个IdleHandler添加到mIdleHandlers集合中，消息队列空闲时才会执行
   >
   > **3、不支持异步消息和同步屏障消息**
   >
   > > 所有消息一视同仁，这也是早期Android设备体验不好的原因之一
   >
-  > **4、退出loop循环的方案是提交一个target为空的msg**
+  > **4、Handler支持Callback回调**
   >
-  > > 这里插一嘴，老的版本退出循环是调用Handler.quit()方法向MessageQueue插入一条target为null的消息，Looper.loop()方法中，若检测到msg.target=null则退出循环
+  > > 提到这个方法是因为它比较重要，先来看一下消息分发的先后顺序：
+  > >
+  > > *优先执行msg.callback(也就是runnable)，其次mCallback.handleMessage()，最后handleMessage()*
+  > >
+  > > *其中，调用mCallback.handleMessage()方法时会要求返回bool类型的值，这个值为true就不会向下分发给Handler的handleMessage()方法，为false会继续向下分发*
+  > >
+  > > 知道了分发逻辑之后我们就可以hook掉ActivityThread中的H类，传入callback拦截我们想要的信息，进而做组件化或监控方面的工作
   
 - **[Android 2.3(API 9)](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-2.3_r1/core/java/android/os)**
 
@@ -228,7 +272,7 @@ Handler机制在Android 1.6到Android 10进化一览表
   > >
   > > 
   > >
-  > > 注意，该方法不但被@hide修饰，在代码注释也向开发者告知这是个危险方法，不建议使用，因为runWithScissors()方法有两个严重缺陷：
+  > > **注意，该方法不但被@hide修饰，在代码注释也向开发者告知这是个危险方法，不建议使用，因为runWithScissors()方法有两个严重缺陷：**
   > >
   > > 1、无法取消已提交的任务，即使消息的发送线程已经死亡，主线程仍然会取出消息队列的任务执行，但这时候运行的程序是不符合我们的预期的
   > >
@@ -285,6 +329,8 @@ Handler机制在Android 1.6到Android 10进化一览表
 
 至此，历代Android更新的，每个方法都进行了标注，标题也加入了超链接，读者可以点击，一起卷起来
 
+难免会有疏漏，补充
+
 代码太长了我知道你们也懒得看
 
 - Message成员属性
@@ -318,11 +364,21 @@ Handler机制在Android 1.6到Android 10进化一览表
 | Runnable                     | callback                                                     |
 | Message                      | next                                                         |
 
+写好一篇文章比理解一个知识点难许多，Handler本身并不难，难的是如何文章是，写给不懂的人看的
 
+## 注意事项
 
+### 1、Handler
 
+### 2、Looper
 
+### 3、MessageQueue
 
+- 享元模式带来的问题
+
+  > 在设计模式二提到了，Java是值传递，所以当你把享元对象传递给异步线程后，当异步线程开始执行时，这个消息可能在回收池里，也可能在回收池取出来给其他人用了，总之，在异步线程中的消息不是原来的消息了
+
+### 4、Message
 
 
 
