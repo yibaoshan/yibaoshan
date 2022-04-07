@@ -283,40 +283,68 @@ Looper在消息队列机制中扮演消费者的角色，内部持有共享的�
 
 ## 四、Handler机制详解
 
-此小节设计之初的想法是要详细的剖析Handler机制的内部源码，在写完了二、三章节后转念一想，除了前文提到的同步屏障与异步消息、IdleHandler、Callback机制等没解释外，好像Handler机制已经讲的差不多了
+此小节设计之初的想法是要详细的剖析Handler机的内部源码，在写完了二、三章节后回头看才发现，除了同步屏障与异步消息、IdleHandler、Callback等没有讲以外，整个Handler机制好像已经讲的差不多了
 
-于是便索性换个目标，聊一聊Android Handler除了实现消息队列机制外，还给我们提供了什么功能，它们是如何实现的，以及在使用Handler过程中我们有哪些需要特别注意的地方
+于是便将本小节换个目标，聊一聊Android Handler除了实现消息队列机制外，还给我们提供了什么功能，它们是如何实现的，以及在使用Handler过程中我们有哪些需要特别注意的地方
 
-### 1、Handler的其他功能
+### 1、Handler除了收发消息之外的功能
 
-- 异步消息与同步屏障
-- Handler Callback
+#### **1.1 IdleHandler**
 
-### 其他功能？
+IdleHandler是在Handler机制诞生之初就存在的机制，其存在的意义在于，提交一个不重要的任务单独存放在MessageQueu中的mIdleHandlers变量中，当消息队列空闲时会执行此任务
 
-### 使用Handler的注意事项
+```java
+    /**
+     * Callback interface for discovering when a thread is going to block
+     * waiting for more messages.
+     */
+    public static interface IdleHandler {
+        /**
+         * Called when the message queue has run out of messages and will now
+         * wait for more.  Return true to keep your idle handler active, false
+         * to have it removed.  This may be called if there are still messages
+         * pending in the queue, but they are all scheduled to be dispatched
+         * after the current time.
+         */
+        boolean queueIdle();
+    }
+```
+
+**IdleHandler要求返回bool类型的值，返回false表示执行完该任务后会把它从集合中删除，返回true表示该任务可以重复执行**
+
+我们来看一下Android 1.6版本中对IdleHandler的处理逻辑：
+
+#### **1.2 异步消息与同步屏障**
+
+#### **1.3 Handler Callback机制**
+
+
+
+### 2、使用Handler的注意事项
+
+#### **2.1 内存泄漏**
+
+#### **2.2 享元模式的坑**
+
+在设计模式二提到了，Java是值传递，所以当你把享元对象传递给异步线程后，当异步线程开始执行时，这个消息可能在回收池里，也可能在回收池取出来给其他人用了，总之，在异步线程中的消息不是原来的消息了
+
+### 3、Handler有哪些妙用
+
+#### **3.1 永不崩溃的APP**
+
+#### **3.2 ANR监控**
+
+#### **3.3 组件化**
 
 内存泄漏
 
 享元模式的坑
 
-在设计模式二提到了，Java是值传递，所以当你把享元对象传递给异步线程后，当异步线程开始执行时，这个消息可能在回收池里，也可能在回收池取出来给其他人用了，总之，在异步线程中的消息不是原来的消息了
-
-### Handler有哪些妙用
+### 
 
 ## 五、总结
 
-本文将Handler机制拆成了三个部分
-
-**第一部分是介绍Handler诞生的背景，Android为什么要设计出Handler**
-
-**第二部分主要讲如何手写一套Handler机制，使用的是Java同步方法Object.wait()/notifiy()**
-
-**第三部分介绍的是Handler除了实现消息队列外，还提供了哪些功能？以及开发中使用Handler有哪些需要注意的地方**
-
-希望每个同学看完本篇文章都能够有所收获
-
-在文章的最后，我想总结一下Handler从Android 1.6 (API 3) 一直到 Android 12 (API 31)的演变过程：
+在文章的最后，我想先来来总结一下Handler从Android 1.6 (API 3) 一直到 Android 12 (API 31)的演变过程：
 
 - **[Android 1.6(API 4)](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-1.6_r1/core/java/android/os)**
 
@@ -380,7 +408,7 @@ Looper在消息队列机制中扮演消费者的角色，内部持有共享的�
 
   > 这个版本变化略微大一些，主要是增加了对异步消息和同步屏障消息的支持
   >
-  > **1、Message支持设置为异步消息**
+  > **1、Message支持设置为异步消息，@hide修饰**
   >
   > > 调用setAsynchronous(true)方法可以将Message设置为异步消息，判断是否为异步消息的标识保存在Message的成员变量flags中
   >
@@ -426,7 +454,7 @@ Looper在消息队列机制中扮演消费者的角色，内部持有共享的�
   > >
   > > 
   > >
-  > > **注意，该方法不但被@hide修饰，在代码注释也向开发者告知这是个危险方法，不建议使用，因为runWithScissors()方法有两个严重缺陷：**
+  > > **注意！！！该方法不但被@hide修饰，在代码注释也向开发者告知这是个危险方法，不建议使用，因为runWithScissors()方法有两个严重缺陷：**
   > >
   > > 1、无法取消已提交的任务，即使消息的发送线程已经死亡，主线程仍然会取出消息队列的任务执行，但这时候运行的程序是不符合我们的预期的
   > >
@@ -484,6 +512,16 @@ Looper在消息队列机制中扮演消费者的角色，内部持有共享的�
 
 
 至此，Handler历代更新的内容都已梳理完成，每个方法都进行了标注，标题中也加入了超链接方便读者点击查看；ps：个人整理难免会有疏漏，欢迎在留言区补充
+
+总结，本文将Handler机制拆成了三个部分
+
+**第一部分是介绍Handler诞生的背景，Android为什么要设计出Handler**
+
+**第二部分主要讲如何手写一套Handler机制，使用的是Java同步方法Object.wait()/notifiy()**
+
+**第三部分介绍的是Handler除了实现消息队列外，还提供了哪些功能？以及开发中使用Handler有哪些需要注意的地方**
+
+希望每位同学看完本篇文章都能够有所收获
 
 全文完
 
