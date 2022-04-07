@@ -2,7 +2,7 @@ Android组件：Handler机制(一)
 
 ## Overview
 
-每个Android开发者都或多或少的了解过Handler机制，为了不浪费大家时间，在文章开始之前，我觉得有必要说明一下本文的目标受众
+每个Android开发者都或多或少的了解过Android Handler机制，为了不浪费大家时间，在文章开始之前，我认为有必要说明一下本文的目标受众
 
 适合人群：
 
@@ -24,7 +24,7 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 以下，enjoy：
 
-## 二、Handler介绍
+## 二、Handler设计背景
 
 在Android开发者官网对View的介绍有这样一句话：
 
@@ -46,7 +46,7 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 ### 1、GUI为什么要设计成单线程？
 
-前Sun的副总裁Graham Hamilton在设计Java Swing时，曾经写过一篇文章专门谈这个问题：[Multithreaded toolkits: A failed dream?](https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream)
+关于GUI为什么要设计成单线程这个问题，前Sun的副总裁Graham Hamilton在设计Java Swing时，曾经写过一篇文章专门聊过：[Multithreaded toolkits: A failed dream?](https://community.oracle.com/hub/blogs/kgh/2004/10/19/multithreaded-toolkits-failed-dream)
 
 > 最近有人提出一个问题，“我们是否应该让 Swing 库真正实现多线程？” 我个人觉得不应该，下面阐述理由。
 >
@@ -77,13 +77,13 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 我们通过用户级的代码去改变界面，如TextView.setText走的是个自顶向下的流程：
 
-![image_android_component_handler_cnbolgs_from_top](D:\work\androidstudio\Blackboard\AOSP\src\main\java\com\android\aosp\frameworks\base\core\android\os\handler\blog\imgs\image_android_component_handler_cnbolgs_from_top.jpg)
+![image_android_component_handler_cnbolgs_from_top](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_cnbolgs_from_top.jpg)
 
 *图片来源：[GUI为什么不设计为多线程](https://blog.csdn.net/liuqiaoyu080512/article/details/12895005)*
 
 而系统底层发起的如键盘事件、点击事件走的是个自底向上的流程：
 
-![image_android_component_handler_cnbolgs_from_bottom](D:\work\androidstudio\Blackboard\AOSP\src\main\java\com\android\aosp\frameworks\base\core\android\os\handler\blog\imgs\image_android_component_handler_cnbolgs_from_bottom.jpg)
+![image_android_component_handler_cnbolgs_from_bottom](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_cnbolgs_from_bottom.jpg)
 
 *图片来源：[GUI为什么不设计为多线程](https://blog.csdn.net/liuqiaoyu080512/article/details/12895005)*
 
@@ -93,7 +93,7 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 ### 2、什么是消息队列机制？
 
-一提到消息队列，自然而然就会想到生产者-消费者模型；在[《从Android源码角度谈设计模式（三）：行为型模式》](https://juejin.cn/post/7072263857015619621#heading-19)一文中我们已经介绍过了生产者-消费者模式，还没有看过的同学可以先看完再回来，这里来简单回顾一下：
+提到消息队列，自然而然就会想到生产者-消费者模型；在[《从Android源码角度谈设计模式（三）：行为型模式》](https://juejin.cn/post/7072263857015619621#heading-16)一文中我们已经介绍过了生产者-消费者模式，还没有看过的同学可以先看完再回来，这里来简单回顾一下：
 
 在一个生产者-消费者模式中，通常会有三个角色
 
@@ -109,9 +109,9 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
   > 负责从共享消息队列中取出消息，执行消息对应的任务
 
-![image_uml_design_pattern_behavioral_producer_consumer_queue](D:\work\androidstudio\Blackboard\AOSP\src\main\java\com\android\aosp\frameworks\base\core\android\os\handler\blog\imgs\image_uml_design_pattern_behavioral_producer_consumer_queue.jpg)
+![image_uml_design_pattern_behavioral_producer_consumer_queue](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_uml_design_pattern_behavioral_producer_consumer_queue.jpg)
 
-这三个角色中，因为生产者和消费者要从同一个消息队列取放消息，所以消息队列要求是唯一的，生产者和消费者的数量可以任意
+这三个角色中，因为生产者和消费者要从同一个消息队列取放消息，所以消息队列的数量要求是唯一的，生产者和消费者的数量可以任意
 
 我们回到Android系统，GUI框架多数使用单线程设计，那么就要求所有的UI操作都只能发生在一个线程当中，即：
 
@@ -131,72 +131,192 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 ### 3、Android中的消息队列：Handler
 
-在前两小节中，我们分别介绍了GUI，主要是想尝试解释Handler的设计背景
+前两小节我们介绍了Android系统中为什么只能在UI线程更新界面的原因，最终发现不只是Android系统，其他大部分有GUI框架的操作系统都是采用单线程消息队列机制的设计。既然都是单线程设计，那么想要在子线程更新UI就必须要通知主线程
 
-在Android系统中，Handler就是这么一套提供在任意线程都可以发消息给UI线程的线程间通信工具
+**在Android系统中，Handler就是这么一套提供在任意线程都可以发消息给UI线程的线程间通信工具**
 
-当然，除了发消息外，Android还为Handler增加了一些其他功能
+![image_uml_design_pattern_behavioral_producer_consumer_handler](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_uml_design_pattern_behavioral_producer_consumer_handler.jpg)
 
-我们这里先浅谈一下Android Handler的设计：
+从图中可以看到，Handler相当于消息的生产者，每个Handler都持有共享MessageQueue的引用
 
-首先，Handler使用了
+**当调用Handler.sendMessage()方法发送消息时，Handler就会把消息保存到共享消息队列中**
 
-Handler使用了Java并发中的ThreadLocal来保证消息队列在线程中的唯一性，
+和普通消息队列机制不同的时，Android中的MessageQueue大小没有阈值上限，理论上可以一直发消息到队列，把内存撑爆~
 
-2.1小节中我们知道了大多数GUI框架都是单线程设计，Android也不例外
+**在Handler机制中，消息的消费者是Looper，严谨点是调用Looper.loop()所在的线程，因为Looper本质上只是封装对消息队列的操作，Looper.loop()方法负责取出共享消息队列里面的消息，然后交由Handler去执行**
 
-GUI库都使用单线程消息队列机制来处理绘制界面、事件响应等消息，在这种设计中，每个待处理的任务都被封装成一个消息添加到消息队列中。消息队列是线程安全的（消息队列自己通过加锁等机制保证消息不会在多线程竞争中丢失），任何线程都可以添加消息到这个队列中，但是只有主线程（UI线程）从中取出消息，并执行消息的响应函数，这就保证了只有主线程才去执行这些操作。
+这里又和普通消息队列机制不同的点时，通常消息的消费者会去执行消息的响应函数；但在Android Handler机制中，消费者本身并不执行消息任务，而是将消息取出后，再重新分发给消息的发送者执行，也就是Handler，所以我们平时才说
 
-既然是GUI都是单线程设计，那么想要在子线程更新UI就必须要通知主线程
+**在整个Handler的机制中，Handler首先是消息的生产者，其次才是消息的执行者**
+
+除了发消息外，Android还为Handler增加了一些其他功能，比如子线程提交同步任务、异步消息和同步屏障等等
+
+本小节的目的是了解Handler的设计背景，关于Handler其他功能这里就不展开介绍，在Handler系列的下一篇文章中会详细剖析Handler内部源码
+
+小结完
 
 ## 三、如何自己实现一套Handler机制？
 
-### 1、基于Object.wait()/notifiy()
+在上一章节中，我们介绍了Handler的设计背景，本章节将会尝试自己实现一套简单的Handler机制
 
-### 2、基于DelayQueue
+我们假设读者已经有一定的开发经验，并且使用过Handler，那么接下来就是枯燥的代码时间
 
-### 3、基于Linux epoll
+### 1、Handler成员介绍
 
-ummm..
+在开撸之前，按照惯例，我们先来介绍一下组成Handler机制的几位成员，以及它们常用的方法
 
-## 五、Handler详解
+#### **1.1 Handler类**
 
-本章节聊一聊Handler机制除了实现生产者/消费者模式之外，还给我们提供了什么功能，其实也就是老生常谈的几样：
+Handler类是应用程序开发的入口，在消息队列机制中，扮演着生产者的角色，同时还肩负着消息执行者的重担，常用的方法有：
+
+| 方法名称                     | 说明                                                         |
+| ---------------------------- | ------------------------------------------------------------ |
+| sendMessage()系列            | 发送普通消息、延迟消息，最终调用queue.enqueueMessage()方法将消息存入消息队列 |
+| post()系列                   | 提交普通/延迟Runnable，随后封装成Message，调用sendMessage()存入消息队列 |
+| dispatchMessage(Message msg) | 分发消息，优先执行msg.callback(也就是runnable)，其次mCallback.handleMessage()，最后handleMessage() |
+
+#### **1.2 Looper类**
+
+Looper在消息队列机制中扮演消费者的角色，内部持有共享的消息队列，其本质是封装对消息队列的操作，常用的方法只有两个：
+
+| 方法名称  | 说明                                                       |
+| --------- | ---------------------------------------------------------- |
+| prepare() | 创建消息队列                                               |
+| loop()    | 遍历消息队列，不停地从消息队列中取消息，消息队列为空则等待 |
+
+#### **1.3 MessageQueue类**
+
+实际的共享消息队列，提供保存和取出消息的功能，底层由链表实现，常用方法就一个：
+
+| 方法名称 | 说明                                                         |
+| -------- | ------------------------------------------------------------ |
+| next()   | 获取消息，三种情况 1. 有消息，且消息到期可以执行，返回消息 2. 有消息，消息未到期，进入限时等待状态 3. 没有消息，进入无限期等待状态，直到被唤醒 |
+
+#### **1.4 Message类**
+
+消息的承载类，使用享元模式设计，根据API不同缓冲池大小也不同，API 4时缓冲池大小为10，常用方法：
+
+| 方法名称     | 说明             |
+| ------------ | ---------------- |
+| obtain()系列 | 获取一个消息实例 |
+| recycle()    | 回收消息实例     |
+
+#### **1.5 小结**
+
+至此，Handler的几个主要成员类都介绍完了，有同学可能已经发现了，成员介绍中没有包含ThreadLocal类？
+
+我个人认为ThreadLocal是属于Java并发中的内容，Handler只是借用了ThreadLocal来保证MessageQueue在当前线程线程的唯一性，就算不适用ThreadLocal对整个Handler机制也没啥影响~
+
+本章节的目的是实现一套简单的Handler机制，所以Handler其他功能诸如异步消息、IdleHandler等不再介绍了，其实当对整个Handler机制了然于胸后，再回来看这些知识点就会觉得很简单了
+
+### 2、基于Object.wait()/notifiy()实现Handler机制
+
+3.1小节介绍了Handler的几个成员类，以及成员类中常用的方法，本章节将会用Java同步机制来实现Handler
+
+话不多说，直接开撸
+
+####  **2.1 手写消息队列机制**
+
+前面的章节我们已经了解过消息队列机制的概念，这里直接来看代码
+
+**在生产者线程中，我们写了个死循环一直发送消息，来模拟用户操作；每次发完消息后，唤醒可能在等待状态的消费者线程，然后将自己个儿置入限时等待状态**
+
+![image_android_component_handler_code_object_v1_producer](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v1_producer.png)
+
+**在消费者线程中，同样是死循环，不停的轮询消息队列，有消息就处理，没消息就将自己置入无限期等待的状态，直到被唤醒**
+
+![image_android_component_handler_code_object_v1_consumer](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v1_consumer.png)
+
+**消息队列使用的是Java集合工具包，来看最终的测试代码：**
+
+![image_android_component_handler_code_object_v1_test](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v1_test.png)
+
+**打印结果：**
+
+![image_android_component_handler_code_object_v1_result](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v1_result.png)
+
+两个boss张三和李四时不时发指令给下属，两个下属小明和小红在不停的轮询等待上司的指令，一个简单的消息队列机制就完成了；在不考虑延迟消息的情况下，加上测试代码，整个消息队列机制不到100行代码就搞定了，还是比较简单的
+
+
+
+#### **2.2 手写Handler机制**
+
+用Object.wait()/notifiy()来实现Handler机制很简单，只需要在上面的消息队列的基础上，稍微改动一下就能完成：
+
+**同学们注意，我要开始变形了！！！**
+
+**首先，我们把消费者线程中的逻辑挪到Looper当中，把轮询的任务放到loop()方法中；若取到了消息，模拟Android Handler机制，将消息分发给消息所属的生产者者(Handler)去执行**
+
+![image_android_component_handler_code_object_v2_looper](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v2_looper.png)
+
+**接着，将消费者线程中获取消息的逻辑抽离出来，放到MessageQueue的next()方法中**
+
+**和上面的消费者线程比较，这里加了一条逻辑：当发送的消息时延迟消息时，判断消息是否到期，到期返回给Looper去分发(这里偷懒使用了Java集合包中的优先级队列PriorityQueue，来保证时间最小的消息排在最前面)**
+
+![image_android_component_handler_code_object_v2_message_queue](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v2_message_queue.png)
+
+**然后，把生产者线程中直接将消息存入消息队列的操作的逻辑也抽出来，放到Handler的sendMessage()方法中**
+
+![image_android_component_handler_code_object_v2_handler](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v2_handler.png)
+
+**最后，看一眼Message类的设计，加了个Handle类型的成员变量target**
+
+![image_android_component_handler_code_object_v2_message](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v2_message.png)
+
+**好！大功告成，一起看看测试代码：**
+
+**在main()方法中创建了handler1和handler2，模拟用户在主线程申请Handler的场景；随后开启俩子线程，让子线程代码使用刚刚创建的Handler发送消息，这样，子线程使用该Handler发送的消息就会添加到主线程的消息队列，等待主线程的Looper去处理**
+
+![image_android_component_handler_code_object_v2_test](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v2_test.png)
+
+**打印结果：**
+
+![image_android_component_handler_code_object_v2_result](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/AOSP/src/main/java/com/android/aosp/frameworks/base/core/android/os/handler/blog/imgs/image_android_component_handler_code_object_v2_result.png)
+
+看，如果是普通任务，loop()里面就直接分发掉了，延迟任务因为使用的是PriorityQueue的缘故，会排到最后才放出来
+
+到这里一个简单的Handler机制就完成了，没看懂的同学请在评论区扣1
+
+关于此小节设计到的代码在这里，把代码转成图片是因为源码太长了我知道你们也懒得看~
+
+小节完
+
+## 四、Handler机制详解
+
+此小节设计之初的想法是要详细的剖析Handler机制的内部源码，在写完了二、三章节后转念一想，除了前文提到的同步屏障与异步消息、IdleHandler、Callback机制等没解释外，好像Handler机制已经讲的差不多了
+
+于是便索性换个目标，聊一聊Android Handler除了实现消息队列机制外，还给我们提供了什么功能，它们是如何实现的，以及在使用Handler过程中我们有哪些需要特别注意的地方
+
+### 1、Handler的其他功能
 
 - 异步消息与同步屏障
 - Handler Callback
 
-## 六、总结
+### 其他功能？
 
-ThreadLocal是属于Java并发中的内容，Handler只是借用了ThreadLocal来保证MessageQueue在当前线程线程的唯一性，不用ThreadLocal也是可以的哈。
+### 使用Handler的注意事项
 
-比如我在程序的入口ActivityThreadl声明一个静态final的MessageQueue，所有线程提交/取出消息都操作该消息队列就行了
+内存泄漏
 
-我们学习某个知识点，没必要把这个知识点涉及到所有的内容都了解一遍。拿Handler举例来说，我们只需要了解它是如何设计的，某个功能是自己实现的还是借用其他模块功能完成的，epoll机制是Linux，跟踪源码下去每个问题都想在当下解决，往往会浪费比较多的时间，最后落得只见树叶不见森林的结构才是真正得不偿失
+享元模式的坑
 
-本文将Handler机制拆成了两个部分，
+在设计模式二提到了，Java是值传递，所以当你把享元对象传递给异步线程后，当异步线程开始执行时，这个消息可能在回收池里，也可能在回收池取出来给其他人用了，总之，在异步线程中的消息不是原来的消息了
 
-第一部分是介绍Android是如何使用生产者消费者模型实现Handler机制的
+### Handler有哪些妙用
 
-第二部分介绍的是在Handler迭代的过程中，Android为Handler量身定做了哪些功能，或为了便于使用，或为了运行效率
+## 五、总结
 
+本文将Handler机制拆成了三个部分
 
+**第一部分是介绍Handler诞生的背景，Android为什么要设计出Handler**
 
-希望看完本篇文章后的你能对Handler有个初步的认识
+**第二部分主要讲如何手写一套Handler机制，使用的是Java同步方法Object.wait()/notifiy()**
 
-全文完
+**第三部分介绍的是Handler除了实现消息队列外，还提供了哪些功能？以及开发中使用Handler有哪些需要注意的地方**
 
-异步消息与同步屏障
+希望每个同学看完本篇文章都能够有所收获
 
-Handler Callback
-
-Android Handler机制是每个Android开发者成长路上，如何体现Handler机制在Android OS中的重要性呢？
-
-Android系统2003年10月立项，2005年7月被Google收购
-
-我们总结一下Handler从Android 1.6 (API 3) 一直到 Android 12 (API 31)的演变过程：
-
-Handler机制在Android 1.6到Android 10进化一览表
+在文章的最后，我想总结一下Handler从Android 1.6 (API 3) 一直到 Android 12 (API 31)的演变过程：
 
 - **[Android 1.6(API 4)](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-1.6_r1/core/java/android/os)**
 
@@ -361,58 +481,17 @@ Handler机制在Android 1.6到Android 10进化一览表
   > > 2. messageDispatched(token, msg)：当消息被 Handler 处理时调用
   > > 3. dispatchingThrewException(token, msg, exception)：在处理消息时抛出异常时调用
 
-至此，历代Android更新的，每个方法都进行了标注，标题也加入了超链接，读者可以点击，一起卷起来
 
-难免会有疏漏，补充
 
-代码太长了我知道你们也懒得看
+至此，Handler历代更新的内容都已梳理完成，每个方法都进行了标注，标题中也加入了超链接方便读者点击查看；ps：个人整理难免会有疏漏，欢迎在留言区补充
 
-- Message成员属性
+全文完
 
-| 类型    | 名称    | 说明                                                         |
-| ------- | ------- | ------------------------------------------------------------ |
-| int     | what    | 标识消息类型，搭配sendEmptyMessage()方法使用                 |
-| int     | arg1    | 如果只是想传递一些int类型的值使用                            |
-| int     | arg2    | 参考arg1                                                     |
-| Object  | obj     | 通常用于传递参数                                             |
-| long    | when    | 消息的到期执行时间，大于等于当前时间(开机时间)判定为可以执行 |
-| Handler | handler | 消息属于                                                     |
-| Object  | obj     | 通常用于它传递值                                             |
-| Bundle  | data    | 传递的数据                                                   |
 
-- Message成员方法
 
-| 方法&参数            | 说明     |
-| -------------------- | -------- |
-| Message obtain()系列 | 返回一个 |
-| Handler              | target   |
-| Runnable             | callback |
-| Message              | next     |
+## 六、参考资料
 
-- Handler成员方法
-
-| 方法&参数                    | 说明                                                         |
-| ---------------------------- | ------------------------------------------------------------ |
-| dispatchMessage(Message msg) | 分发消息，优先执行msg.callback(也就是runnable)，其次mCallback.handleMessage()，最后handleMessage() |
-| Handler                      | target                                                       |
-| Runnable                     | callback                                                     |
-| Message                      | next                                                         |
-
-写好一篇文章比理解一个知识点难许多，Handler本身并不难，难的是如何文章是，写给不懂的人看的
-
-## 注意事项
-
-### 1、Handler
-
-### 2、Looper
-
-### 3、MessageQueue
-
-- 享元模式带来的问题
-
-  > 在设计模式二提到了，Java是值传递，所以当你把享元对象传递给异步线程后，当异步线程开始执行时，这个消息可能在回收池里，也可能在回收池取出来给其他人用了，总之，在异步线程中的消息不是原来的消息了
-
-### 4、Message
+- CSDN-liuqiaoyu080512：[GUI为什么不设计为多线程](https://blog.csdn.net/liuqiaoyu080512/article/details/12895005)
 
 
 
