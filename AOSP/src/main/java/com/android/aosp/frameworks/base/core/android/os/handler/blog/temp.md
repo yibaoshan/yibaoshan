@@ -24,6 +24,8 @@ Android Handler机制是每个Android开发者成长道路上一道绕不过去�
 
 以下，enjoy：
 
+
+
 ## 二、Handler设计背景
 
 在Android开发者官网对View的介绍有这样一句话：
@@ -205,9 +207,11 @@ Looper在消息队列机制中扮演消费者的角色，内部持有共享的�
 
 至此，Handler的几个主要成员类都介绍完了，有同学可能已经发现了，成员介绍中没有包含ThreadLocal类？
 
-我个人认为ThreadLocal是属于Java并发中的内容，Handler只是借用了ThreadLocal来保证MessageQueue在当前线程线程的唯一性，就算不适用ThreadLocal对整个Handler机制也没啥影响~
+我个人认为ThreadLocal是属于Java并发模块的内容，Handler只是借用了ThreadLocal来保证MessageQueue在当前线程线程的唯一性，就算不适用ThreadLocal对整个Handler机制也没啥影响~
 
 本章节的目的是实现一套简单的Handler机制，所以Handler其他功能诸如异步消息、IdleHandler等不再介绍了，其实当对整个Handler机制了然于胸后，再回来看这些知识点就会觉得很简单了
+
+小节完
 
 ### 2、基于Object.wait()/notifiy()实现Handler机制
 
@@ -283,15 +287,17 @@ Looper在消息队列机制中扮演消费者的角色，内部持有共享的�
 
 ## 四、Handler机制详解
 
-此小节设计之初的想法是要详细的剖析Handler机的内部源码，在写完了二、三章节后回头看才发现，除了同步屏障与异步消息、IdleHandler、Callback等没有讲以外，整个Handler机制好像已经讲的差不多了
+此小节设计之初的想法是要详细的剖析Handler机的内部源码，在写完了二、三章节后回头看才发现
 
-于是便将本小节换个目标，聊一聊Android Handler除了实现消息队列机制外，还给我们提供了什么功能，它们是如何实现的，以及在使用Handler过程中我们有哪些需要特别注意的地方
+除了同步屏障与异步消息、IdleHandler、Callback等没有讲以外，整个Handler机制好像已经讲的差不多了-.-
 
-### 1、Handler除了收发消息之外的功能
+那便换个目标，聊一聊Android Handler除了实现消息队列机制外，还给我们提供了什么功能，它们是如何实现的，以及在使用Handler过程中我们有哪些需要特别注意的地方
+
+### 1、除了提交消息到队列，Handler还提供了哪些功能？
 
 #### **1.1 IdleHandler**
 
-IdleHandler是在Handler机制诞生之初就存在的机制，其存在的意义在于，提交一个不重要的任务单独存放在MessageQueu中的mIdleHandlers变量中，当消息队列空闲时会执行此任务
+IdleHandler是在Handler机制诞生之初就实现的机制，其存在的意义在于，提交一个不重要的任务单独存放在MessageQueu中的mIdleHandlers变量中，当消息队列空闲时会执行此任务
 
 ```java
     /**
@@ -314,6 +320,10 @@ IdleHandler是在Handler机制诞生之初就存在的机制，其存在的意�
 
 我们来看一下Android 1.6版本中对IdleHandler的处理逻辑：
 
+我在项目中有个小，当首页没有消息会有类似Switch主机游戏的一些引导动画
+
+ActivityThread.GcIdler
+
 #### **1.2 异步消息与同步屏障**
 
 #### **1.3 Handler Callback机制**
@@ -332,19 +342,110 @@ IdleHandler是在Handler机制诞生之初就存在的机制，其存在的意�
 
 #### **3.1 永不崩溃的APP**
 
+*阅读本小节需要对Handler、Looper等方法调用流程和Java的异常处理有一点点的了解~*
+
+利用Handler机制拦截异常前两年在网上还小火了一把，笔者刚知道Handler还可以这样用的时候很开心，不会因为未捕获异常导致APP崩溃了，我的绩效有救了~
+
+当然，说是永不崩溃确实言过其实了，因为它只能拦截Java层异常，native异常是没办法捕获的，来一起看一下如何操作
+
+使用方法其实很简单，我们在Application随便找个方法加入以下代码：
+
+```java
+new Handler(Looper.getMainLooper()).post(() -> {
+    while (true) {
+        try {
+            Looper.loop();
+        } catch (Exception e) {
+            //保存日志并上报..
+        }
+//      }catch (Throwable throwable){ }//想要连Error(如OOM)都一起拦截就用Throwable
+    }
+});
+```
+
+只需短短几行代码，就可以捕获Java层所有异常，怎么做到的？
+
+在之前我们先来复习一下Java异常处理机制，当一个异常发生时：
+
+1. 虚拟机会在当前出现异常的方法中，查找异常表，是否有合适的处理者来处理
+2. 如果当前方法异常表不为空，并且异常符合处理者的 from 和 to 节点，并且 type 也匹配，则虚拟机调用位于 target的调用者来处理。
+3. 如果上一条未找到合理的处理者，则继续查找异常表中的剩余条目
+4. 如果当前方法的异常表无法处理，则向上查找（弹栈处理）刚刚调用该方法的调用处，并重复上面的操作。
+5. 如果所有的栈帧被弹出，仍然没有处理，则抛给当前的 Thread，Thread 则会终止。
+6. 如果当前 Thread 为最后一个非守护线程，且未处理异常，则会导致虚拟机终止运行。
+
+```
+Exception table:
+       from    to  target type
+           0     3     6   Class java/lang/Exception
+```
+
+我们来做个实验，在创建Activity主动抛出一个异常看一下方法调用链：
+
+```java
+ java.lang.RuntimeException: 我崩溃了
+        at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3639)
+        at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3796)
+        at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:103)
+        at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
+        at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
+        at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2214)
+        at android.os.Handler.dispatchMessage(Handler.java:106)
+        at android.os.Looper.loopOnce(Looper.java:201)//point 2
+        at android.os.Looper.loop(Looper.java:288)//point 1
+        at android.app.ActivityThread.main(ActivityThread.java:7842)
+        at java.lang.reflect.Method.invoke(Native Method)
+        at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:548)
+        at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1003)
+     Caused by: java.lang.RuntimeException: 我崩溃了
+```
+
+
+
+，从下往上找，最下面几个，什么ZygoteInit、RuntimeInit这些系统的类听起来就没法操作
+
+直到Looper.loop()方法，
+
+哪怕我们再调用几次Looper.loop()
+
+```java
+//原先的方法调用链
+ZygoteInit.main()
+  -> RuntimeInit.MethodAndArgsCaller.run()
+  	-> ActivityThread.main()
+  		-> Looper.loop()
+  			-> MessageQueue.next()
+//再次调用Looper.loop()方法后，调用链变成：
+ZygoteInit.main()
+-> RuntimeInit.MethodAndArgsCaller.run()
+	-> Activity.main()
+		-> LooperThread.loop() { //因为是同一个线程内调用，相当于在Looper.loop方法上包了一层
+  		-> Looper.loop()
+				-> MessageQueue.next()
+		}
+```
+
+使用到的知识点，Looper.loop()方法，Handler Callback机制，Java异常处理
+
+解释一下如何操作
+
+**不建议在生产环境中使用！**
+
+我刚知道
+
+于是兴高采烈的发到生产环境，发版没几天就陆续收到反馈，页面白屏没数据、点击没反应等等
+
+因为若某个生产数据的功能无法正常使用后，接下来依赖该数据的页面会产生一系列的问题，会让项目产生更多的不可控因素
+
 #### **3.2 ANR监控**
+
+早期微信的方案
 
 #### **3.3 组件化**
 
-内存泄漏
-
-享元模式的坑
-
-### 
-
 ## 五、总结
 
-在文章的最后，我想先来来总结一下Handler从Android 1.6 (API 3) 一直到 Android 12 (API 31)的演变过程：
+在文章的最后，我想先来总结一下Handler的发展历史，下面的表格介绍了Handler从Android 1.6 (API 3) 一直到 Android 12 (API 31)的演变过程：
 
 - **[Android 1.6(API 4)](https://android.googlesource.com/platform/frameworks/base/+/refs/tags/android-1.6_r1/core/java/android/os)**
 
@@ -511,9 +612,11 @@ IdleHandler是在Handler机制诞生之初就存在的机制，其存在的意�
 
 
 
-至此，Handler历代更新的内容都已梳理完成，每个方法都进行了标注，标题中也加入了超链接方便读者点击查看；ps：个人整理难免会有疏漏，欢迎在留言区补充
+至此，Handler历代更新的内容都已梳理完成，每个方法都进行了标注，标题中也加入了链接，有阅读源码需求的同学可以点击查看
 
-总结，本文将Handler机制拆成了三个部分
+ps：个人整理难免会有疏漏，欢迎在留言区补充
+
+全文总结：本文将Handler机制拆成了三个部分
 
 **第一部分是介绍Handler诞生的背景，Android为什么要设计出Handler**
 
@@ -521,7 +624,7 @@ IdleHandler是在Handler机制诞生之初就存在的机制，其存在的意�
 
 **第三部分介绍的是Handler除了实现消息队列外，还提供了哪些功能？以及开发中使用Handler有哪些需要注意的地方**
 
-希望每位同学看完本篇文章都能够有所收获
+希望每位同学在看完本篇文章后都能够有所收获
 
 全文完
 
