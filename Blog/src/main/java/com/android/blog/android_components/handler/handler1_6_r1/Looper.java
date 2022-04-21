@@ -3,9 +3,6 @@ package com.android.blog.android_components.handler.handler1_6_r1;
 import android.util.Config;
 import android.util.Printer;
 
-import com.android.aosp.frameworks.base.core.android.os.handler.handler1_6_r1.Handler;
-import com.android.aosp.frameworks.base.core.android.os.handler.handler1_6_r1.Message;
-import com.android.aosp.frameworks.base.core.android.os.handler.handler1_6_r1.MessageQueue;
 
 /**
  * Class used to run a message loop for a thread.  Threads by default do

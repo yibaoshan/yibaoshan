@@ -4,9 +4,6 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.Printer;
 
-import com.android.aosp.frameworks.base.core.android.os.handler.handler1_6_r1.Message;
-import com.android.aosp.frameworks.base.core.android.os.handler.handler1_6_r1.MessageQueue;
-
 import java.lang.reflect.Modifier;
 /**
  * A Handler allows you to send and process {@link Message} and Runnable
