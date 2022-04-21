@@ -1,6 +1,8 @@
 package com.android.blog.android_view.demo
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.android.blog.R
 
@@ -11,7 +13,30 @@ class FPSTestActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_fps_test)
+        when (intent.action) {
+            "view" -> setContentView(R.layout.activity_fps_test_view)
+            "surface" -> setContentView(R.layout.activity_fps_test_surface)
+            "texture" -> setContentView(R.layout.activity_fps_test_texture)
+            else -> setContentView(R.layout.activity_fps_test)
+        }
+    }
+
+    fun onViewClick(view: View) {
+        val intent = Intent(this, FPSTestActivity::class.java)
+        intent.action = "view"
+        startActivity(intent)
+    }
+
+    fun onSurfaceClick(view: View) {
+        val intent = Intent(this, FPSTestActivity::class.java)
+        intent.action = "surface"
+        startActivity(intent)
+    }
+
+    fun onTextureClick(view: View) {
+        val intent = Intent(this, FPSTestActivity::class.java)
+        intent.action = "texture"
+        startActivity(intent)
     }
 
 }

@@ -14,32 +14,47 @@ import android.view.animation.LinearInterpolator;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.util.Random;
+
 /**
  * Created by yibs.space on 2022/4/21
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class MyView extends View {
 
+    private final ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 2);
+
     public MyView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public MyView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, -1);
     }
 
     public MyView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
         init();
     }
 
     private void init() {
-        start();
+        valueAnimator.setInterpolator(new LinearInterpolator());
+        valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        valueAnimator.addUpdateListener(animation -> {
+            sleep();
+            Log.e("TAG", "start: " + animation.toString());
+            postInvalidate();
+        });
+    }
+
+    private void sleep() {
+        if (new Random().nextInt(100) % 3 == 0) {
+            try {
+                Thread.sleep(new Random().nextInt(100));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private boolean changed = true;
@@ -52,14 +67,16 @@ public class MyView extends View {
         changed = !changed;
     }
 
-    private void start() {
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 2);
-        valueAnimator.setInterpolator(new LinearInterpolator());
-        valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        valueAnimator.addUpdateListener(animation -> {
-            Log.e("TAG", "start: " + animation.toString());
-            postInvalidate();
-        });
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
         valueAnimator.start();
     }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        valueAnimator.end();
+    }
+
 }

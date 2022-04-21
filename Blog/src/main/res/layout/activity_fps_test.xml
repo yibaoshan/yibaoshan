@@ -7,8 +7,22 @@
         android:layout_height="match_parent"
         tools:ignore="MissingDefaultResource">
 
-    <com.android.blog.android_view.demo.MyView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+    <Button
+        android:layout_width="match_parent"
+        android:text="View"
+        android:onClick="onViewClick"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:text="SurfaceView"
+        android:onClick="onSurfaceClick"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:text="TextureView"
+        android:onClick="onTextureClick"
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

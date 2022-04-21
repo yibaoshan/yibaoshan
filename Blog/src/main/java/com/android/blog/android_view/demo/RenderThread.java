@@ -113,13 +113,18 @@ public class RenderThread extends Thread {
         // 一帧完成之后，调用eglSwapBuffers(EGLDisplay dpy, EGLContext ctx)来显示
         // 这一句不能少啊，少了就什么都没有
         mEgl.eglSwapBuffers(mEglDisplay, mEglSurface);
-        if (new Random().nextInt(100) % 3 == 0 ) {
+        sleep();
+        Log.e("TAG", "drawFrame: " + changed);
+    }
+
+    private void sleep() {
+        if (new Random().nextInt(100) % 3 == 0) {
             try {
                 Thread.sleep(new Random().nextInt(100));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        Log.e("TAG", "drawFrame: "+changed );
     }
+
 }
