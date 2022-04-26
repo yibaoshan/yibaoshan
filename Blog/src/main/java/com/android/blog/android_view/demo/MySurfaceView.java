@@ -70,7 +70,7 @@ public class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback
                 if (changed) mCanvas.drawColor(Color.RED);
                 else mCanvas.drawColor(Color.BLUE);
                 changed = !changed;
-                sleep();
+//                sleep();
                 Log.e("TAG", "draw: " );
             } catch (Exception e) {
                 e.printStackTrace();

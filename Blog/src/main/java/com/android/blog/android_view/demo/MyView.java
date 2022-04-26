@@ -41,9 +41,9 @@ public class MyView extends View {
         valueAnimator.setInterpolator(new LinearInterpolator());
         valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         valueAnimator.addUpdateListener(animation -> {
-            sleep();
+//            sleep();
             Log.e("TAG", "start: " + animation.toString());
-            postInvalidate();
+            invalidate();
         });
     }
 

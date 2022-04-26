@@ -103,17 +103,17 @@ public class RenderThread extends Thread {
     private void drawFrame() {
         //将背景设置为灰色
         if (changed) {
-            GLES20.glClearColor(255f, 180f, 0f, 1.0f);
+            GLES20.glClearColor(255f, 0f, 0f, 1.0f);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         } else {
-            GLES20.glClearColor(255f, 180f, 100f, 1.0f);
+            GLES20.glClearColor(0f, 0f, 255f, 1.0f);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         }
         changed = !changed;
         // 一帧完成之后，调用eglSwapBuffers(EGLDisplay dpy, EGLContext ctx)来显示
         // 这一句不能少啊，少了就什么都没有
         mEgl.eglSwapBuffers(mEglDisplay, mEglSurface);
-        sleep();
+//        sleep();
         Log.e("TAG", "drawFrame: " + changed);
     }
 
