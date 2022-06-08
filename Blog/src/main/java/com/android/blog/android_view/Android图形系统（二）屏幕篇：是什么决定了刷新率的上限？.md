@@ -28,62 +28,126 @@ Android图形系统（二）屏幕篇：是什么决定了刷新率的上限？
 
 我是概览图
 
-# 一、开篇
+### 一、显示器的鼻祖：CRT
 
-在Android图形系列的第一篇文章中，我们了解了LCD液晶屏和OLED屏幕
+在LCD液晶屏和OLED屏还没普及之前，我们使用的显示器大多都是CRT显示器，俗称“大屁股”显示器
 
-手机屏幕发展至今，市场上在售手机的屏幕类型基本可以分为两种：**LCD屏和OLED屏**
+小时候上微机课用的电脑显示器、家里的电视机包括游戏厅里面的街机使用的都是CRT显示器
 
-其实不只是手机屏幕，**电脑**和**电视**屏幕面板基本也就这两种
-
-早在LCD屏和OLED屏诞生之前，我们使用的显示器大多都是CRT显示器
-
-![image_android_view_v2_crt_overview](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_crt_overview.gif)
+![image_android_view_v2_crt_overview](image_android_view_v2_crt_overview.gif)
 
 *图片来源：https://gfycat.com/courageousunhealthyirishdraughthorse-computing-recycling-backlit-cathode*
 
-如图所示，这种带着大屁股电脑就是**CRT显示器**，小时候家里的**大屁股彩电**、街机厅里面的**街机**也都是CRT显示器的一种
+CRT显示器全称是：Cathode Ray Tube（阴极射线管），在《计算机图形学基础（第3版）》一书中详细介绍了它的工作原理：
 
-屏幕刷新中的**“逐行刷新”**技术是来源于**CRT显示器**，为了后续的剧情能够正常发展，在正文开始前我们需要先来了解一下这个快被遗忘的老家伙
+> 图2.2给出了CRT的基本工作原理，由电子枪发射出的电子束(阴极射线)通过聚焦系统和偏转系统,射向涂覆有荧光层的屏幕上的指定位置
+>
+> ![image_android_view_v2_crt_dismantle_22](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_crt_dismantle_22.jpg)
+>
+> 在电子束轰击的每个位置，荧光层都会产生一个小亮点；由于荧光层发射的光会很快衰减，因此必须采用某种方法来保持屏幕图像
+>
+> 一种办法是将图形信息作为电荷分布存储在CRT上，这种电荷分布用来保持荧光粉处于激活状态
+>
+> 但现在使用较多的维持荧光粉亮度的办法是快速控制电子束反复重画图像，这类显示器称为刷新式CRT(refreshCRT)
+>
+> CRT电子枪的主要元件是受热激发的金属阴极和控制栅极(参见图2.3)通过给称为灯丝的线圈通申来加热阴极，引起受热的电子“沸腾出”阴极表面
+>
+> ![image_android_view_v2_crt_dismantle_23](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_crt_dismantle_23.jpg)
+>
+> 在CRT封装内的真空里，带负电荷的自由电子在较高的正电压的作用下加速冲向荧光屏
+>
+> 该加速电压可由CRT封装内靠近荧光屏处充以正电荷的金属涂层生成，或者采用加速阳极(参见图2.3)。有时，电子枪结构中把加速阳极和聚焦系统放在同一部件中
+>
+> 电子束的偏转受电场或磁场控制，CRT现在通常配备一个装在CRT封装外部的磁性偏转线圈，如图2.2所示
+>
+> 使用两对线圈，将它们成对地安装在CRT封装的颈部，一对安装在颈部的顶部和底部，另一对设置在颈部两侧。每对线圈产生的磁场造成横向偏转力，该力正交于磁场方向，也垂直于电子束的行进方向。一对线圈实现水平偏转，另一对则实现垂直偏转。调节通过线圈的电流可得到适当的偏转量
+>
+> ![image_android_view_v2_crt_dismantle](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_crt_dismantle.jpg)
+>
+> 在采用静电偏转时，则在CRT封装内安装两对平行极板，一对为水平放置，控制垂直偏转；另一对垂直放置，控制水平偏转(参见图2.4)
 
-### **显示器的鼻祖：CRT**
+简单来说，CRT显示器之所以能够显示图像，是靠电子枪发射的电子束激发点亮的荧光粉实现的
 
-**CRT显示器**学名为**“阴极射线显像管”**，是一种使用阴极射线管（Cathode Ray Tube）的显示器，主要有五部分组成：**电子枪**、偏**转线圈**、**荫罩**、**高压石墨电极**和**荧光粉涂层**
+#### 1、逐行扫描技术
 
-![image_android_view_v2_crt_dismantle](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_crt_dismantle.jpg)
+由于荧光粉被点亮后很快会熄灭，所以想要在屏幕上呈现一幅完整的图像，电子枪就必须从上到下不停循环地激发这些点
+
+这个从上到下扫描的过程，被称为“逐行扫描”技术
+
+CRT显示器在诞生之初使用的就是“逐行扫描”技术，这是它的工作原理决定的
+
+![image_android_view_v2_slow_crt](/image_android_view_v2_slow_crt.gif)
+
+> 动图截取自《[How a TV Works in Slow Motion](https://www.youtube.com/watch?v=3BJU2drrtCM)》视频片段，他们是YouTube上的一个专门拍摄慢动作视频团队
+>
+> 我在原视频的基础上又放慢了播放速度，这样我们可以更加直观的观察到“逐行扫描”的过程
+
+从图中我们可以看到，CRT显示器的扫描线是按照从左到右、从上到下的顺序一行行的扫描刷新的
+
+而且只有扫描线到达的地方的才是发光的，所以“逐行扫描”的间隔一定要足够短，再利用人眼的“视觉暂留”现象，才能在屏幕上呈现一幅完整的图像
+
+##### 屏幕刷新率的诞生
+
+电子束“逐行扫描”的过程是需要时间的，这就诞生出刷新率的概念
+
+**对于CRT显示器来说，一秒钟内电子束能够扫描出一幅完整画面的速度，就是屏幕的刷新率**
+
+刷新率越高，人眼越不容易发觉屏幕闪烁
+
+结合图2.2和图2.4，在CRT显示器的结构中，电子枪的位置是固定的，电子束的发射方向是由“水平/垂直偏转板”或者“磁偏转线圈”（根据偏转方案不同）来控制的，因此我们可以得出：
+
+- 使用静电偏转方案时，水平偏转板、垂直偏转板的移动速度，决定了CRT显示器刷新率的上限
+- 使用磁性偏转方案时，扫描电路提供的锯齿波电流，决定了CRT显示器刷新率的上限
+
+#### 2、隔行扫描技术
+
+在CRT电视机普及之后，人们想把电影也搬到广播节目当中，当时的电影还是使用“胶片放映机”来播放的
+
+但由于广播传输带宽的限制，无法一次性传输一帧完整画面的数据，于是人们就想了个办法：
+
+将一幅画面的数据按照奇偶数拆成两场，其中奇数行称为上场，偶数行称为下场，分成两次传输
+
+电视机每次接收到的数据之后，先显示奇数行，再显示偶数行，如图：
+
+![image_android_view_v2_crt_scan](/imgs/second/image_android_view_v2_crt_scan.gif)
+
+**这里可能有同学要问了：为什么不将两次传输的数据在本地合成出一帧完整数据，再用“逐行扫描”技术来刷新屏幕呢？**
+
+答案很简单，由于早期模拟电路没有存储单元，很难实现图像信息的存储，所以电视机接受到广播信号后直接就显示了
+
+##### 1080p和1080i有什么区别？
+
+隔行扫描是旧时代的产物，是市场妥协的方案，仅仅只是为了解决传输带宽不足而诞生的
+
+现在的显示器已经不使用“隔行扫描”的技术了，但配套的拍摄端支持的格式还是向前兼容的，相机可以拍摄“隔行扫描”的视频，剪辑软件也可以输出“隔行扫描”的视频，也就是我们平时所说的1080p和1080i
+
+p是progressive，指的是使用“逐行扫描”技术的视频
+
+ i是interlace，指的是使用“隔行扫描”技术的视频
+
+了解这一点对摄影爱好者可能会有所帮助，无论是在前期拍摄还是在后期导出视频，一定要选择p结尾的格式
+
+否则，你的视频将会出现画面模糊、横纹和残影等现象
+
+### 二、屏幕驱动方式
+
+LCD液晶屏和OLED屏摆脱了电子枪的束缚，通过电路板单独控制每个像素的颜色，并且由于显示原理发生了变化，LCD/OLED像素点的颜色可以维持较长的时间不衰减
+
+#### 1、无源驱动
+
+#### 2、有源驱动
+
+#### 3、手机屏幕能超频吗？
+
+
+
+### 三、结语
+
+CRT的优势不拖影
 
 *图片来源：[《计算机图形学基础（第3版）》](https://www.amazon.cn/dp/B07R4LNRR6)*
 
-> [多扫描线彩色crt显像管及多扫描线高清crt图像显示装置：](https://patents.google.com/patent/CN1877782A/zh)
->
-> **CRT(Cathode Ray Tube)阴极射线显像管**是一种采用多扫描线彩色CRT显像管实现高清晰度图像显示的装置的应用技术，以及一种多扫描线彩色CRT显像管多组电子束扫描矫正的调整方法
->
-> 通过对图像信号进行数字技术处理，以及多扫描线彩色**CRT显像管**的采用，使**CRT显像管**能够实现大屏幕、高亮度、高对比度、高清晰度等性能，以适应HDTV高清晰度数字电视机以及高清晰度图像显示器的技术要求
->
-> 一般的**CRT显示器**，如：**CRT电视机**和**CRT电脑显示器**，目前使用的**CRT显像管**都是属于单扫描线CRT显像管
->
-> **CRT显像管**是靠电子枪发射电子束轰击荧光粉而发光的，荧光粉发光响应速度快，色彩鲜艳，对比度高，这些优点是其它显示器难以比得及的
->
-> 但**CRT显像管**显示器与其它平板显示器相比，也有缺点：**显示器的屏幕越大，屏幕发光亮度和对比度就越低**，因此，目前一般**CRT显像管**显示器的最大屏幕尺寸很难做到32寸以上
-
-**简单来说，CRT屏幕之所以能够显示图像，是靠电子枪发射的电子束来点亮的荧光粉实现的**
-
-我们知道了CRT的显示原理，加上在图形系列的第一篇文章中介绍的**LCD液晶屏**和**OLED屏**，我们就有三种不同类型的显示器屏幕了
-
-**CRT**的显示原理刚刚解释过了，另外两种我们一起来回顾一下：
-
-> - **LCD是液晶面板，通过控制液晶层电压就可以改变像素颜色**
-> - **OLED是自发光二极管，控制单个二极管的电流就可以改变像素颜色**
-
-关于CRT屏幕的补充到这就结束了，接下来开始今天的正文：**显示器屏幕是如何刷新的？**
-
-## **二、屏幕刷新原理**
-
-上一小节我们知道了CRT是由电子束轰击点亮荧光粉来显示图形的，而荧光粉的特性就是被点亮后很快就会熄灭了，所以电子枪需要一刻不停的扫描
-
-**那CRT屏幕刷新原理就显而易见了：电子枪快速扫描**
-
-### **1、CRT刷新机制：快速扫描**
+**1、CRT刷新机制：快速扫描**
 
 电子枪使用的扫描方式有很多，比如直线式扫描，圆形扫描，螺旋扫描等等，我们今天要介绍的是直线式扫描中的“逐行扫描”和“隔行扫描”
 
@@ -97,7 +161,7 @@ Android图形系统（二）屏幕篇：是什么决定了刷新率的上限？
 
 > 隔行扫描是在逐行扫描的基础上修改的，扫描的顺序依旧是从左到右、从上到下，只是把原来一行行向下扫描改成了隔一行扫描一行
 
-![image_android_view_v2_crt_scan](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_crt_scan.gif)
+
 
 如图所示，隔行扫描第一次会先扫描奇数行，第二次会扫描偶数行，两次扫描结束后才是一幅完整的图形
 
@@ -117,9 +181,7 @@ Android图形系统（二）屏幕篇：是什么决定了刷新率的上限？
 >
 > 再后来，DVD被发明出来，相当于电视机播放的是本地视频，广播传输的带宽不再是瓶颈，所以后来的CRT电视机逐行和隔行都支持，我们小的时候看的大屁股电视，只要带有DVD接口的都是可以兼容两种不同的扫描方式的
 
-
-
-### **2、LCD/OLED：大人 时代变了**
+**2、LCD/OLED：大人 时代变了**
 
 时间来到了1968年，第一块LCD液晶屏横空出世了
 
@@ -169,9 +231,7 @@ Android图形系统（二）屏幕篇：是什么决定了刷新率的上限？
 
   > OLED的显示原理虽然比LCD液晶屏要先进一些，但是在刷新方式上和LCD基本上相同，都是**有源驱动**的方式，所以直接参考LCD液晶屏刷新原理就可以了
 
-
-
-### 3、如何才能看到屏幕刷新的过程？
+**3、如何才能看到屏幕刷新的过程？**
 
 讲了这么多，可不可以观察到屏幕刷新的过程呢？感受一下显示器是如何点亮一个个像素点的？
 
@@ -181,9 +241,9 @@ YouTube上有个专门拍摄慢动作的团队：[The Slow Mo Guys](https://www.
 
 他们在2018年发布一个叫《[How a TV Works in Slow Motion - The Slow Mo Guys](https://www.youtube.com/watch?v=3BJU2drrtCM)》的视频，视频内容就是介绍不同屏幕类型的电视在高速摄像机里是什么样子的，我截几张图大家感受一下：
 
-![image_android_view_v2_slow_crt](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_slow_crt.gif)
 
-**CRT的逐行刷新，从动图里就能很明显的看到扫描枪的扫描线按照从左到右，从上到下的顺序扫描更新**
+
+****
 
 ![image_android_view_v2_slow_lcd_tv](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/second/image_android_view_v2_slow_lcd_tv.gif)
 
