@@ -4,6 +4,8 @@
 
 Canvas能不能画3D图形？
 
+开机画面一共显示几次？
+
 Android使用的图形框架
 
 > 原子显示框架ADF：Atomic Display Framework
@@ -32,13 +34,37 @@ Andorid图形框架发展史
 
 合成机制、显示机制
 
+### 概述
+
 #### BufferQueue和Gralloc
 
 - Gralloc 
 
-  > ​    Android系统在硬件抽象层中提供了一个Gralloc模块，封装了对帧缓冲区的所有访问操作。用户空间的应用程序在使用帧缓冲区之间，首先要加载Gralloc模块，并且获得一个gralloc设备和一个fb设备。有了gralloc设备之后，用户空间中的应用程序就可以申请分配一块图形缓冲区，并且将这块图形缓冲区映射到应用程序的地址空间来，以便可以向里面写入要绘制的画面的内容。最后，用户空间中的应用程序就通过fb设备来将已经准备好了的图形缓冲区渲染到帧缓冲区中去，即将图形缓冲区的内容绘制到显示屏中去。相应地，当用户空间中的应用程序不再需要使用一块图形缓冲区的时候，就可以通过gralloc设备来释放它，并且将它从地址空间中解除映射。
+  > Android系统在硬件抽象层中提供了一个Gralloc模块，封装了对帧缓冲区的所有访问操作。用户空间的应用程序在使用帧缓冲区之间，首先要加载Gralloc模块，并且获得一个gralloc设备和一个fb设备。有了gralloc设备之后，用户空间中的应用程序就可以申请分配一块图形缓冲区，并且将这块图形缓冲区映射到应用程序的地址空间来，以便可以向里面写入要绘制的画面的内容。最后，用户空间中的应用程序就通过fb设备来将已经准备好了的图形缓冲区渲染到帧缓冲区中去，即将图形缓冲区的内容绘制到显示屏中去。相应地，当用户空间中的应用程序不再需要使用一块图形缓冲区的时候，就可以通过gralloc设备来释放它，并且将它从地址空间中解除映射。
 
-#### Skia库
+#### Surface和SufaceHolder
+
+#### SurfaceFlinger和WindowManager
+
+- SurfaceFlinger
+
+  > SurfaceFlinger中需要显示的图层（layer）将通过DisplayDevice对象传递到OpenGLES中进行合成，合成之后的图像再通过HWComposer对象传递到Framebuffer中显示。DisplayDevice对象中的成员变量mVisibleLayersSortedByZ保存了所有需要显示在本显示设备中显示的Layer对象，同时DisplayDevice对象也保存了和显示设备相关的显示方向、显示区域坐标等信息。
+  >
+  > > ​    DisplayDevice是显示设备的抽象，定义了3中类型的显示设备。引用枚举类位于frameworks/native/services/surfaceflinger/DisplayDevice.h中，定义枚举位于hardware/libhardware/include/hardware/Hwcomposer_defs.h中：
+  > >
+  > > - DISPLAY_PRIMARY：主显示设备，通常是LCD屏
+  > > - DISPLAY_EXTERNAL：扩展显示设备。通过HDMI输出的显示信号
+  > > - DISPLAY_VIRTUAL：虚拟显示设备，通过WIFI输出信号
+
+#### 硬件混合渲染器HAL（HWC）
+
+### 渲染引擎
+
+#### Skia库：Canvas 2D绘制
+
+#### OpenGL ES/Vulkan：3D渲染
+
+#### Mediaserver：视频解码器
 
 Android 2D API，代码在/external/skia中，canvas调用的API底层就是由skia库来实现
 
