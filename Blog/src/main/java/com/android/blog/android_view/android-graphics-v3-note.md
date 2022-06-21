@@ -6,6 +6,14 @@ Canvas能不能画3D图形？
 
 开机画面一共显示几次？
 
+#### 疑问区
+
+> - Android绝大多数SOC都是高通吧，那显卡驱动不也是高通写的吗
+
+#### 知识区
+
+> - GPU厂家，除了骁龙使用自家的Adreno系列之外，华为的麒麟、三星的Exynos、联发科的天玑使用的都是ARM亲儿子，mali
+
 Android使用的图形框架
 
 > 原子显示框架ADF：Atomic Display Framework
@@ -14,9 +22,15 @@ Andorid图形框架发展史
 
 > Vulkan驱动
 
+OpenGL ES代码在frameworks/native/opengl
+
+Vulkan代码在frameworks/native/vulkan
+
+SurfaceFlinger代码在framework/native/services/surfaceflinger
+
 大致流程
 
-> Android系统提供了三种绘图方式，分别是：canvas、OpenGL ES和Vulkan
+> Android系统提供了三种绘图方式，分别是：Canvas、OpenGL ES和Vulkan
 >
 > 无论使用哪种，最终内容都会被渲染到surface上，然后交给surfaceflinger管理
 >
@@ -35,6 +49,14 @@ Andorid图形框架发展史
 合成机制、显示机制
 
 ### 概述
+
+#### 操作系统
+
+Android系统是由三个部分组成，看gityuan的吧，这部分不用写了
+
+曾经被问过一个问题，Activity和AndroidX包中的AppCompatActivity的类加载器是同一个吗？
+
+我说是，然后面试官就让我回家等通知..
 
 #### BufferQueue和Gralloc
 
