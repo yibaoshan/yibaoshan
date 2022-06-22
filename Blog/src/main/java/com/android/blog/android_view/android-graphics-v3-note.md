@@ -1,23 +1,36 @@
 
 
-标题：什么是低级别组件？
-
-Canvas能不能画3D图形？
-
-开机画面一共显示几次？
+标题：为什么关机了还能显示充电画面？
 
 #### 前言
 
 > - 前面讲了画面撕裂的原因，framebuffer可以理解为屏幕每个像素点的值，包含颜色，深度等信息
+> - 本章的重点是关心view是如何转变为屏幕像素点数据的？
 > - 屏幕显示的元素很多，我们自己写的APP一个页面都有好几层视图，这几层是如何变成一副图像信息的呢？这一帧像素矩阵信息是怎么来的呢？
+> - 众所周知，Google为了改进Android流畅度，在Android 4.1版本发布了project buffer黄油计划，希望Android系统能够像黄油一样丝滑
+> - 在黄油计划中，Android的绘制被分成了三步，绘制、合成、显示，增加了，对应的vsync被分成了两份，一部分，今天我们来聊一聊
+> - 发展到2022年，Android图形系统更加复杂，为了减少GPU的压力，设计了HWC的HAL抽象层进行合成，绘制端也加入了UI Renderer
+> - 至此，文章的标题就有答案了，同理工厂模式也是直接
+> - 图形系统真他妈复杂，全文完
+
+#### 难点
+
+> - Android图形系统框架一直在改进，由fb改为drm，加入了hwc，所以市面上也没有相关书籍可以从上到下的学习view的绘制流程
 
 #### 疑问区
 
-> - Android绝大多数SOC都是高通吧，那显卡驱动不也是高通写的吗
 > - HWC到底是什么？GPU吗？HWC的KMS又是什么？
+> - view和canvas之间的关系，view是一张画布，对应的是surface吗？
+> - 一个Window上有好多个view吧，Window对应的是啥
+> - Java Window和Native surface和Native layer的对应关系？
+> - buffer是什么？是像素点数据吗？
+> - 三重缓存和vsync和framebuffer对应Android里面的啥
+> - 猜想：view不调用失效invalided方法，那么该view就不用重新绘制，调用合成就好了，举例来说，假设你的APP，为了性能考虑，当页面不可见时所有的动画都应该取消，不然一直调用
+> - 自定义view中，谁来调用onDraw()方法ss
 
 #### 知识区
 
+> - View使用skia，打开硬件加速使用hwui，也就是GPU
 > - GPU厂家，除了骁龙使用自家的Adreno系列之外，华为的麒麟、三星的Exynos、联发科的天玑使用的都是ARM亲儿子：mali
 > - PC中Linux系统在2012年就已经全部使用DRM框架了
 > - PC端的显卡 = 移动端GPU+ Display Processor + Video Processor
