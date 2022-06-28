@@ -2,6 +2,8 @@
 
 标题：为什么关机了还能显示充电画面？
 
+标题：View和ViewGroup，图像容器
+
 #### 前言
 
 > - 前面讲了画面撕裂的原因，framebuffer可以理解为屏幕每个像素点的值，包含颜色，深度等信息
@@ -12,6 +14,16 @@
 > - 发展到2022年，Android图形系统更加复杂，为了减少GPU的压力，设计了HWC的HAL抽象层进行合成，绘制端也加入了UI Renderer
 > - 至此，文章的标题就有答案了，同理工厂模式也是直接
 > - 图形系统真他妈复杂，全文完
+> - 标题，Android  黄油计划
+>   - 为了改进Android系统的流畅度，Google在Android 4.1版本发布了Android project butter黄有计划，希望Android系统能够像黄油一样丝滑
+>   - 在黄油计划中新增了渲染线程，
+>   - 发展到今天，Google为了减缓GPU压力加入hwc等，具体可以看官网以及高通的开发文档
+> - 结语：对于没有接触过framework开发的同学来说，理解hwc等概念还是有难度的，在文章的结尾，我们来聊一聊Android的hal层，理清hal的概念，对于我们理解Android系统架构有很大的帮助，这一切在知道hal是干嘛的之后就清晰了，不考虑硬件厂商驱动的情况下，Android图形系统是由sf作为中介，framebuffer作为媒介，通过binder传输，最终输出到显存由显示器驱动更新到屏幕
+> - 注1：Android 7.0以上和图像引擎（高通a系列，armmali系列等）均已支持vulkan协议，本文未包含Vulkan相关内容
+
+#### 资料
+
+> - 《深入理解Android内核设计思想-林学森》
 
 #### 难点
 
@@ -28,6 +40,11 @@
 > - 猜想：view不调用失效invalided方法，那么该view就不用重新绘制，调用合成就好了，举例来说，假设你的APP，为了性能考虑，当页面不可见时所有的动画都应该取消，不然一直调用
 > - 自定义view中，谁来调用onDraw()方法ss
 
+#### blog区
+
+> - 加入了
+> - 加入了Hardware Composer负责合成
+
 #### 知识区
 
 > - View使用skia，打开硬件加速使用hwui，也就是GPU
@@ -35,6 +52,7 @@
 > - PC中Linux系统在2012年就已经全部使用DRM框架了
 > - PC端的显卡 = 移动端GPU+ Display Processor + Video Processor
 > - Android的显示流程分为三个部分，绘制、合成、显示
+> - surfacefingler是Android gui的核心，但对于OpenGL来说，sf可以看做应用
 
 Android使用的图形框架
 
