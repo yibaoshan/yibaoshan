@@ -2,7 +2,11 @@
 
 标题：为什么关机了还能显示充电画面？
 
+SurfaceFlinger图形系统
+
 标题：View和ViewGroup，图像容器
+
+
 
 #### 前言
 
@@ -20,10 +24,6 @@
 >   - 发展到今天，Google为了减缓GPU压力加入hwc等，具体可以看官网以及高通的开发文档
 > - 结语：对于没有接触过framework开发的同学来说，理解hwc等概念还是有难度的，在文章的结尾，我们来聊一聊Android的hal层，理清hal的概念，对于我们理解Android系统架构有很大的帮助，这一切在知道hal是干嘛的之后就清晰了，不考虑硬件厂商驱动的情况下，Android图形系统是由sf作为中介，framebuffer作为媒介，通过binder传输，最终输出到显存由显示器驱动更新到屏幕
 > - 注1：Android 7.0以上和图像引擎（高通a系列，armmali系列等）均已支持vulkan协议，本文未包含Vulkan相关内容
-
-#### 资料
-
-> - 《深入理解Android内核设计思想-林学森》
 
 #### 难点
 
@@ -53,6 +53,17 @@
 > - PC端的显卡 = 移动端GPU+ Display Processor + Video Processor
 > - Android的显示流程分为三个部分，绘制、合成、显示
 > - surfacefingler是Android gui的核心，但对于OpenGL来说，sf可以看做应用
+> - 抛开Java层不谈，在系统级别是由surfaceflinger和其内部的bufferqueue组成，他们都是c++程序
+> - 底层应用我们可以来分析bootanimation，它的内部是借助surfaceflinger来完成的
+
+#### 深入理解Android内核设计思想
+
+> - 疑惑：
+>   - 每个应用程序可以有几个bufferqueue，他们的关系是一对一还是多对一/一对多
+>   - 应用程序绘制UI所需的内存控件时由谁来分配的
+> - Surface对应一个本地窗口
+> - bufferqueue是一个服务中心，生产者（应用程序/surface）需要使用一块buffer时，首先会去向中介bufferqueue发起dequeue申请，完成写入后调用queue接口将图形数据入列
+> - 前面已经学习了bufferqueue的内部原理，那么应用程序又是如何与之配合的呢？解决这个疑惑的关键是了解应用程序是如何执行绘图流程的，这也是本节内容的重点
 
 Android使用的图形框架
 
@@ -149,3 +160,8 @@ Android 2D API，代码在/external/skia中，canvas调用的API底层就是由s
 - 低级别组件之surfaceflinger
 
 - Choreographer
+
+#### 资料
+
+- 《深入理解Android内核设计思想-林学森》
+- [Android-SurfaceFlinger图形系统](https://github.com/jeanboydev/Android-ReadTheFuckingSourceCode/blob/master/article/android/framework/Android-SurfaceFlinger%E5%9B%BE%E5%BD%A2%E7%B3%BB%E7%BB%9F.md)
