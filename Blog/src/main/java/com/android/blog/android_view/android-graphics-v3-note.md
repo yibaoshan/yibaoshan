@@ -6,7 +6,16 @@ SurfaceFlinger图形系统
 
 标题：View和ViewGroup，图像容器
 
+- 底层组件支持
 
+  > surface canvas
+  >
+  > - ANativeWindow支持GLES和Vulkan协议
+
+- 高级别组件支持
+
+  > - GLSurfaceView拥有GL环境的surface
+  > - SurfaceView继承自View，并提供了一个独立的绘图层Surface，这个Surface在WMS中有自己对应的WindowState，在SF中也会有自己的Layer。你可以完全控制SurfaceView，比如说设定它的大小，所以SurfaceView可以嵌入到View结构树中，需要注意的是，但在Server端（WMS和SF）中，它的Surface与宿主窗口是分离的。这样的好处是对这个Surface的渲染可以放到单独线程去做，渲染时可以有自己的GL context。这对于一些游戏、视频等性能相关的应用非常有益，因为它不会影响主线程对事件的响应。但它也有缺点，因为这个Surface不在View hierachy中，它的显示也不受View的属性控制，所以不能进行Transition，Rotation，Scale等变换，也不能放在其它ViewGroup中，也不能进行Alpha透明度运算
 
 #### 前言
 
@@ -25,7 +34,13 @@ SurfaceFlinger图形系统
 >   - 发展到今天，Google为了减缓GPU压力加入hwc等，具体可以看官网以及高通的开发文档
 > - 结语：对于没有接触过framework开发的同学来说，理解hwc等概念还是有难度的，在文章的结尾，我们来聊一聊Android的hal层，理清hal的概念，对于我们理解Android系统架构有很大的帮助，这一切在知道hal是干嘛的之后就清晰了，不考虑硬件厂商驱动的情况下，Android图形系统是由sf作为中介，framebuffer作为媒介，通过binder传输，最终输出到显存由显示器驱动更新到屏幕
 > - 注1：Android 7.0以上和图像引擎（高通a系列，armmali系列等）均已支持vulkan协议，本文未包含Vulkan相关内容
-> - Andorid图形系统有surfaceflinger、wms等组成，内部命名也比较混乱，想要在短期内完全理清有些困难，本文也只是从下至上分析Android支持哪些绘图方式，以及他们是如何实现的，任何一节都可以单独，比如开发者选项中过度绘制的原理
+> - Andorid图形系统有surfaceflinger、wms等组成，内部命名也比较混乱，想要在短期内完全理清有些困难，本文也只是从下至上分析Android支持哪些绘图方式，以及他们是如何实现的
+>
+>   > 任何一节都可以单独，比如开发者选项中过度绘制的原理
+>   >
+>   > 为什么关机了还能显示充电画面？
+>   >
+>   > 为什么flutter可以跨平台
 
 #### 难点
 
@@ -42,6 +57,7 @@ SurfaceFlinger图形系统
 > - 三重缓存和vsync和framebuffer对应Android里面的啥
 > - 猜想：view不调用失效invalided方法，那么该view就不用重新绘制，调用合成就好了，举例来说，假设你的APP，为了性能考虑，当页面不可见时所有的动画都应该取消，不然一直调用
 > - 自定义view中，谁来调用onDraw()方法ss
+> - frameData是画面数据
 
 #### blog区
 
@@ -168,3 +184,5 @@ Android 2D API，代码在/external/skia中，canvas调用的API底层就是由s
 
 - 《深入理解Android内核设计思想-林学森》
 - [Android-SurfaceFlinger图形系统](https://github.com/jeanboydev/Android-ReadTheFuckingSourceCode/blob/master/article/android/framework/Android-SurfaceFlinger%E5%9B%BE%E5%BD%A2%E7%B3%BB%E7%BB%9F.md)
+- [针对移动端TBDR架构GPU特性的渲染优化](https://blog.csdn.net/leonwei/article/details/79298381)
+- [深刻理解现代移动GPU](https://blog.csdn.net/qq_41028985/article/details/120828912)
