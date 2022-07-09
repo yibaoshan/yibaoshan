@@ -6,6 +6,22 @@ SurfaceFlinger图形系统
 
 标题：View和ViewGroup，图像容器
 
+#### 疑问区
+
+> - Window和surface对应关系，最小表示单位是framebuffer吗？一个framebuffer对应的是什么？每个surface都有两个fb吗？
+> - framebuffer是一堆数据吧，从哪来，到哪去
+> - ，framebuffer的生成过程
+> - 绘图方式、格栅化、合成
+> - HWC到底是什么？GPU吗？HWC的KMS又是什么？
+> - view和canvas之间的关系，view是一张画布，对应的是surface吗？
+> - 一个Window上有好多个view吧，Window对应的是啥
+> - Java Window和Native surface和Native layer的对应关系？
+> - buffer是什么？是像素点数据吗？
+> - 三重缓存和vsync和framebuffer对应Android里面的啥
+> - 猜想：view不调用失效invalided方法，那么该view就不用重新绘制，调用合成就好了，举例来说，假设你的APP，为了性能考虑，当页面不可见时所有的动画都应该取消，不然一直调用
+> - 自定义view中，谁来调用onDraw()方法ss
+> - frameData是画面数据
+
 - 底层组件支持
 
   > surface canvas
@@ -19,21 +35,33 @@ SurfaceFlinger图形系统
 
 #### 前言
 
-> - 前两篇文章我们了解了屏幕实际上是由一个个像素点组成
+> - 之前的两篇文章中分别介绍了屏幕的显示原理和屏幕的刷新原理，前两篇文章我们了解了屏幕实际上是由一个个像素点组成，本篇文章关注的是framebuffer的产生
+>
 > - 前面讲了画面撕裂的原因，framebuffer可以理解为屏幕每个像素点的值，包含颜色，深度等信息
+>
 > - 本章的重点是关心view是如何转变为屏幕像素点数据的？
+>
 > - 屏幕显示的元素很多，我们自己写的APP一个页面都有好几层视图，这几层是如何变成一副图像信息的呢？这一帧像素矩阵信息是怎么来的呢？
+>
 > - 众所周知，Google为了改进Android流畅度，在Android 4.1版本发布了project buffer黄油计划，希望Android系统能够像黄油一样丝滑
+>
 > - 在黄油计划中，Android的绘制被分成了三步，绘制、合成、显示，增加了，对应的vsync被分成了两份，一部分，今天我们来聊一聊
+>
 > - 发展到2022年，Android图形系统更加复杂，为了减少GPU的压力，设计了HWC的HAL抽象层进行合成，绘制端也加入了UI Renderer
+>
 > - 至此，文章的标题就有答案了，同理工厂模式也是直接
+>
 > - 图形系统真他妈复杂，全文完
+>
 > - 标题，Android  黄油计划
 >   - 为了改进Android系统的流畅度，Google在Android 4.1版本发布了Android project butter黄有计划，希望Android系统能够像黄油一样丝滑
 >   - 在黄油计划中新增了渲染线程，
 >   - 发展到今天，Google为了减缓GPU压力加入hwc等，具体可以看官网以及高通的开发文档
+>   
 > - 结语：对于没有接触过framework开发的同学来说，理解hwc等概念还是有难度的，在文章的结尾，我们来聊一聊Android的hal层，理清hal的概念，对于我们理解Android系统架构有很大的帮助，这一切在知道hal是干嘛的之后就清晰了，不考虑硬件厂商驱动的情况下，Android图形系统是由sf作为中介，framebuffer作为媒介，通过binder传输，最终输出到显存由显示器驱动更新到屏幕
+>
 > - 注1：Android 7.0以上和图像引擎（高通a系列，armmali系列等）均已支持vulkan协议，本文未包含Vulkan相关内容
+>
 > - Andorid图形系统有surfaceflinger、wms等组成，内部命名也比较混乱，想要在短期内完全理清有些困难，本文也只是从下至上分析Android支持哪些绘图方式，以及他们是如何实现的
 >
 >   > 任何一节都可以单独，比如开发者选项中过度绘制的原理
@@ -41,23 +69,14 @@ SurfaceFlinger图形系统
 >   > 为什么关机了还能显示充电画面？
 >   >
 >   > 为什么flutter可以跨平台
+>   
+> - 结语
+>
+>   > 本文只是从框架设计的角度聊聊Android系统的图形架构
 
 #### 难点
 
 > - Android图形系统框架一直在改进，由fb改为drm，加入了hwc，所以市面上也没有相关书籍可以从上到下的学习view的绘制流程
-
-#### 疑问区
-
-> - 绘图方式、格栅化、合成
-> - HWC到底是什么？GPU吗？HWC的KMS又是什么？
-> - view和canvas之间的关系，view是一张画布，对应的是surface吗？
-> - 一个Window上有好多个view吧，Window对应的是啥
-> - Java Window和Native surface和Native layer的对应关系？
-> - buffer是什么？是像素点数据吗？
-> - 三重缓存和vsync和framebuffer对应Android里面的啥
-> - 猜想：view不调用失效invalided方法，那么该view就不用重新绘制，调用合成就好了，举例来说，假设你的APP，为了性能考虑，当页面不可见时所有的动画都应该取消，不然一直调用
-> - 自定义view中，谁来调用onDraw()方法ss
-> - frameData是画面数据
 
 #### blog区
 
@@ -179,6 +198,51 @@ Android 2D API，代码在/external/skia中，canvas调用的API底层就是由s
 - 低级别组件之surfaceflinger
 
 - Choreographer
+
+Android GUI系统 SurfaceFlinger
+
+- 文案
+
+  > 在学习图形体系过程中，对系统中出现的dispaly/gralloc等等一系列陌生的模块感到混乱而无序，鉴于此，我们先从框架设计的角度来观察它们之间错综复杂的关系
+  >
+  > 程序设计就是这样，越到上层越复杂，因为需要支撑不同的业务
+  >
+  > Android提供了两种方式，一种是OpenGL ES，另一种是View
+
+- 想法
+
+  > 使用c写一个画面，修改开机画面文字
+
+- OpenGL ES与EGL
+
+  > SurfaceFlinger虽然是GUI系统的核心，但从OpenGL ES的角度来讲，SurfaceFlinger只能算是一个应用程序
+  >
+  > OpenGL ES是协议，开发商可以选择由软件实现（CPU）或者硬件实现（GPU），OpenGL在启动时会去读取egl.cfg这个配置文件，根据配置文件决定加载哪个so
+
+- Android终端显示设备的化身，gralloc与Framebuffer
+
+  > 所有的使用者需要借助gralloc来打开设备
+  >
+  > fb0表示“主屏幕”
+  >
+  > gpu0表示gralloc设备，负责图形缓冲区的分配和释放
+
+- Android中的本地窗口
+
+  > 本地窗口是OpenGL能否兼容多种系统的关键，在Android系统中，至少需要两种本地窗口
+  >
+  > - 对于管理者surfaceflinger来说，需要直接或间接的持有本地窗口，这个窗口就是FramebufferNativeWindow
+  > - 对于应用程序来说，本地窗口是surface
+  >
+  > 在一个系统设备中只会有一个帧缓冲区
+
+- 角色汇总
+
+  - HAL层
+
+    > HWComposer，有两个composer，一个用于合成layer，一个用于发送vsync信号
+    >
+    > Gralloc，单一职责，用于分配图像所需的内存
 
 #### 资料
 
