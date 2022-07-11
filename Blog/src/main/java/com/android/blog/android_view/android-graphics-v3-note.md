@@ -65,6 +65,12 @@
   > Skia依赖的第三方库众多，包括字体解析库freeType,图片编解码库libjpeg-turbo、libpng、libgifocode、libwebp和pdf文档处理库fpdfemb等。Skia支持多种软硬件平台，既支持ARM和x86指令集，也支持OpenGL、Metal和Vulkan低级图形接口。
   >
   > https://skia.googlesource.com/skia/
+  
+- SurfaceFlinger
+
+  > Fence同步机制，APP进程、surfaceflinger进程、hwc、GPU驱动，四个方面的同步机制
+  >
+  > APP通过OpenGL指令把图形绘制到graphicbuffer对象之后，surfaceflinger会调用GPU或者hwc进行合成，完成完成再去送显
 
 
 
