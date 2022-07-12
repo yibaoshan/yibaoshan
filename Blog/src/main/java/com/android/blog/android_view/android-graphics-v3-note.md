@@ -1,5 +1,10 @@
 #### 名词解释
 
+- 疑问区❓
+
+  > - BufferQueue在哪个进程？
+  > - 创建一个activity或者surfaceview会申请一个graphicbuffer吗？
+  
 - GPU
 
   > GPU的职责是根据一个三维场景中的顶点、纹理等信息，转换成一张二维图像
@@ -46,6 +51,8 @@
   > - [EGL](https://www.khronos.org/registry/EGL/)
   >
   >   > [api地址](https://www.khronos.org/registry/EGL/sdk/docs/man/html/)
+  >   >
+  >   > eglCreateClientImage对象是CPU和GPU共享内存对象
   >
   > - 在Android中使用ES的方式
   >
@@ -65,12 +72,58 @@
   > Skia依赖的第三方库众多，包括字体解析库freeType,图片编解码库libjpeg-turbo、libpng、libgifocode、libwebp和pdf文档处理库fpdfemb等。Skia支持多种软硬件平台，既支持ARM和x86指令集，也支持OpenGL、Metal和Vulkan低级图形接口。
   >
   > https://skia.googlesource.com/skia/
-  
+
 - SurfaceFlinger
 
   > Fence同步机制，APP进程、surfaceflinger进程、hwc、GPU驱动，四个方面的同步机制
   >
-  > APP通过OpenGL指令把图形绘制到graphicbuffer对象之后，surfaceflinger会调用GPU或者hwc进行合成，完成完成再去送显
+  > 在文章开始之前，有必要提醒了解什么是生产者消费者模式
+  >
+  > 了解几个概念，生产者消费者，绘制渲染合成送显
+  >
+  > 摒弃几个概念，hal，hwc，GPU
+  >
+  > 本篇文章将会从屏幕的角度展开，
+  >
+  > 文章中隐藏了大量的代码细节，在绘制过程中任何一个环节都可以单独写一篇文章来介绍
+  >
+  > 为后续的源码阅读提供支撑
+  >
+  > 以架构设计来看
+  >
+  > 以服务进程来看
+  >
+  > - 绘制图层
+  >
+  >   > APP通过OpenGL指令把图形结果绘制到graphicbuffer对象
+  >   >
+  >   > layer最终绘制
+  >
+  > - 合成图层
+  >
+  >   > surfaceflinger会调用GPU或者hwc进行合成
+  >   >
+  >   > framebuffersurface最终合成
+  >
+  > - 送显
+  >
+  >   > 交由framebuffer或者drm
+
+- Fence同步机制
+
+- Android显示框架演变
+
+  > FB框架->[ADF](https://lwn.net/Articles/565422/)->DRM
+  >
+  > | **SurfaceView**      | **Java**                                                     | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/)/[android](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/)/[view](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/)/[SurfaceView.java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/SurfaceView.java)** |
+  > | -------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  > | **JNI**              | **无**                                                       |                                                              |
+  > | **SurfaceControl**   | **Java**                                                     | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/)/[android](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/)/[view](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/)/[SurfaceControl.java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/SurfaceControl.java)** |
+  > | **JNI**              | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[jni](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/)/[android_view_SurfaceControl.cpp](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/android_view_SurfaceControl.cpp)** |                                                              |
+  > | **Surface**          | **Java**                                                     | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/)/[android](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/)/[view](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/)/[Surface.java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/Surface.java)** |
+  > | **JNI**              | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[jni](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/)/[android_view_Surface.cpp](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/android_view_Surface.cpp)** |                                                              |
+  > | **BLASTBufferQueue** | **Java**                                                     | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[graphics](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/)/[java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/)/[android](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/android/)/[graphics](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/android/graphics/)/[BLASTBufferQueue.java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/android/graphics/BLASTBufferQueue.java)** |
+  > | **JNI**              | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[jni](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/)/[android_graphics_BLASTBufferQueue.cpp](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/android_graphics_BLASTBufferQueue.cpp)** |                                                              |
 
 
 
