@@ -4,6 +4,9 @@
 
   > - BufferQueue在哪个进程？
   > - 创建一个activity或者surfaceview会申请一个graphicbuffer吗？
+  > - 既然graphicbuffer贯穿全文，sf和GPU都可以用，那么native从哪一层开始创建/拥有了它，surface还是layer
+  > - HWC1和HWC2区别
+  > - APP通过Choreographer感知vsync信号，进而去更新Render List，那么和渲染线程里面渲染动作是同一个vsync周期吗？
   
 - GPU
 
@@ -40,6 +43,18 @@
   >   > - 光栅化其实是一种将几何图元变为二维图像的过程。该过程包含了两部分的工作。第一部分工作：决定窗口坐标中的哪些整型栅格区域被基本图元占用；第二部分工作：分配一个颜色值和一个深度值到各个区域。光栅化过程产生的是片元
   >   > - 3d 坐标如何转换成 2D的屏幕坐标
 
+- HWC（Hardware Composer）
+
+  > Google的提供的协议标准，对手机SOC来说，通常指的是DPU（Display Processing Unit）
+  >
+  > 如果SOC没有DPU，那么就调用GPU来合成
+  >
+  > 如果连GPU也没有，那也不要紧，libGLES_android库可以支持上层调用OpenGL ES的函数，不过执行者是CPU而已
+  >
+  > 如果连CPU也没有，那..那系统也启动不了
+  >
+  > 
+  
 - OpenGL ES
 
   > 规定GPU实现标准协议，掌握了OpenGL ES的语法
@@ -111,9 +126,51 @@
 
 - Fence同步机制
 
+  > **这就需要一种不仅是跨进程的，也是跨硬件的同步机制: Fence 机制**
+
+- **Graphic Buffer**
+
+  > 硬件共享内存，由Gralloc分配，由bufferqueue管理
+  >
+  > 在板子上，CPU和GPU和DPU属于不同的硬件，graphic buffer这块内存被这几个硬件共享，这样就能减少复制，提高效率
+  >
+  > - **Server端**：**Allocate**
+  >
+  >   > 分配Buffer，由 SurfaceFlinger负责（也可以用单独的服务，这个可以配置，后面默认就用SF）；**只有两个接口：alloc与free**
+  >   >
+  >   > 为了减小SF的负载，Android S开始强制**Client端分配buffer，**而linux上早已如此处理。
+  >
+  > - **Client端**：**Mapper**
+  >
+  >   > GraphicBufferMapper ：应用使用Buffer，由GPU填东西了；**接口主要为：importBuffer（之前是registerBuffer），lock**，导入当前进程地址空间。
+  >
+  > - **BufferQueue**
+  >
+  >   > **BufferQueue对App端的接口为IGraphicBufferProducer，实现类为Surface**，对SurfaceFlinger端的接口为IGraphicBufferConsumer，实现类为SurfaceFlingerConsumer（最新版本改名了，但不影响讨论）。
+  >   >
+  >   > BufferQueue中对每一个GraphiBuffer都有BufferState标记着它的状态，
+  >   >
+  >   > > 比如new Surface是不会真正分配的，只有在**dequeuBuffer的时候才会请求分配，此时会调用**new GraphicBuffer则会真正分配。
+  >   > > 在状态分配时，对于Client端有dequeueBuffer(请求), queueBuffer（绘制结束，发送至服务端） ；
+
 - Android显示框架演变
 
   > FB框架->[ADF](https://lwn.net/Articles/565422/)->DRM
+  >
+  > linux给userspace提供的屏幕操作的接口，通过这组接口来向屏幕来提交我们所绘制的画面
+  >
+  > Android的display架构中是谁在使用这组api呢？
+  >
+  > - DRM
+  >
+  >   > DRM是linux内核的一个子系统，它提供一组API，用户空间程序可以通过它发送画面数据到GPU或者专用图形处理硬件（如高通的MDP）
+  >   >
+  >   > drm 是一个管理 GPU 的显示框架
+  >   > 在内核级别提供内存管理，中断处理， DMA控制
+  >
+  > - ADF
+  >
+  >   > ADF(Atomic Display Framework)是Google新推出的一个关于Display驱动的框架
   >
   > | **SurfaceView**      | **Java**                                                     | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/)/[android](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/)/[view](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/)/[SurfaceView.java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/java/android/view/SurfaceView.java)** |
   > | -------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -125,9 +182,129 @@
   > | **BLASTBufferQueue** | **Java**                                                     | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[graphics](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/)/[java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/)/[android](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/android/)/[graphics](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/android/graphics/)/[BLASTBufferQueue.java](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/graphics/java/android/graphics/BLASTBufferQueue.java)** |
   > | **JNI**              | **/[frameworks](http://aospxref.com/android-12.0.0_r3/xref/frameworks/)/[base](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/)/[core](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/)/[jni](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/)/[android_graphics_BLASTBufferQueue.cpp](http://aospxref.com/android-12.0.0_r3/xref/frameworks/base/core/jni/android_graphics_BLASTBufferQueue.cpp)** |                                                              |
 
+- 沧浪之水-**概念**
 
+  > **在这里各种Surface，Window，View、Layer实在是太乱了，下面就区分一下这些概念**
+  >
+  > Window -> DecorView-> ViewRootImpl -> WindowState -> Surface -> Layer 是一一对应的。
+  > 一般的Activity包括的多个View会组成View hierachy的树形结构，只有最顶层的DecorView，也就是根结点视图，才是对WMS可见的，即有对应的Window和WindowState。
+  >
+  > 一个应用程序窗口分别位于应用程序进程和WMS服务中的**两个Surface对象**有什么区别呢？
+  > 虽然它们都是用来操作位于SurfaceFlinger服务中的同一个Layer对象的，不过，它们的操作方式却不一样。具体来说，就是位于应用程序进程这一侧的Surface对象负责绘制应用程序窗口的UI，即往应用程序窗口的图形缓冲区填充UI数据，而位于WMS服务这一侧的Surface对象负责设置应用程序窗口的属性，例如位置、大小等属性。
+  > 这两种不同的操作方式分别是通过C++层的Surface对象和SurfaceControl对象来完成的，因此，位于应用程序进程和WMS服务中的两个Surface对象的用法是有区别的。之所以会有这样的区别，是因为**绘制应用程序窗口是独立的，由应用程序进程来完即可，而设置应用程序窗口的属性却需要全局考虑，即需要由WMS服务来统筹安排**。
 
+- 沧浪之水-绘制（**客户端，对应于DRM**）
 
+  > 
+  >
+  > 绘制完成之后，Android应用程序进程再调用前面获得的Canvas的成员函数unlockAndPost请求显示在屏幕中，其本质上是向SurfaceFlinger服务queue一个Graphic Buffer，以便SurfaceFlinger服务可以对Graphic Buffer的内容进行合成，以及显示到屏幕上去
+  >
+  > - **软件绘制**
+  >
+  >   > 软件绘制流程比较简单
+  >   >
+  >   > 在Android应用程序进程这一侧，每一个窗口都关联有一个Surface。每当窗口需要绘制UI时，就会调用其关联的Surface的成员函数lock获得一个Canvas，其本质上是向SurfaceFlinger服务dequeue一个Graphic Buffer。
+  >   > Canvas封装了由Skia提供的2D UI绘制接口，并且都是在前面获得的Graphic Buffer上面进行绘制的，这个Canvas的底层是一个bitmap，也就是说，绘制都发生在这个Bitmap上。绘制完成之后，Android应用程序进程再调用前面获得的Canvas的成员函数unlockAndPost请求显示在屏幕中，其本质上是向SurfaceFlinger服务queue一个Graphic Buffer，以便SurfaceFlinger服务可以对Graphic Buffer的内容进行合成，以及显示到屏幕上去。
+  >
+  > - **硬件绘制**
+  >
+  >   > 硬件加速渲染和软件渲染一样，在开始渲染之前，都是要先向SurfaceFlinger服务dequeue一个Graphic Buffer。不过对硬件加速渲染来说，这个Graphic Buffer会被封装成一个ANativeWindow，并且传递给Open GL进行硬件加速渲染环境初始化。
+  >   > 在Android系统中，ANativeWindow和Surface可以是认为等价的，只不过是ANativeWindow常用于Native层中，而Surface常用于Java层中。 Open GL获得了一个ANativeWindow，并且进行了硬件加速渲染环境初始化工作之后，Android应用程序就可以调用Open GL提供的API进行UI绘制了，绘制出来内容就保存在前面获得的Graphic Buffer中。
+  >   > 当绘制完毕，Android应用程序再调用libegl库（一般由第三方提供）的eglSwapBuffer接口请求将绘制好的UI显示到屏幕中，其本质上与软件渲染过程是一样的。
+  >
+  > - **MainThread和RenderThread的分离**
+  >
+  >   > 在Android 5.0之前，Android应用程序的Main Thread不仅负责用户输入，同时也是一个OpenGL线程，也负责渲染UI。通过引进Render Thread，我们就可以将UI渲染工作从Main Thread释放出来，交由Render Thread来处理，从而也使得Main Thread可以更专注高效地处理用户输入，这样使得在提高UI绘制效率的同时，也使得UI具有更高的响应性。
+  >   >
+  >   > 
+  >   >
+  >   > 对于上层应用而言，UI thread仍然是Main Thread，它并不清楚Render Thread的存在，而**对于SurfaceView，UI thread不是Main Thread，而是重新启用了一个新的线程**。
+  >
+  > - **Render Node**
+  >
+  >   > Android 5之后，在Android应用程序窗口中，每一个View都抽象为一个[Render Node](https://developer.android.com/reference/android/graphics/RenderNode)
+  >   >
+  >   > 如果一个View设置有Background，这个Background也被抽象为一个Render Node
+  >   >
+  >   > app在onDraw方法中是创建displayList
+  >   >
+  >   > 
+  >   >
+  >   > 每一个Render Node都关联有一个Display List Renderer。这里又涉及到另外一个概念——**Display List**。Display List是一个绘制命令缓冲区。也就是说，当View的成员函数onDraw被调用时，我们调用通过参数传递进来的Canvas的drawXXX成员函数绘制图形时，我们实际上只是将对应的绘制命令以及参数保存在一个Display List中。接下来再通过Display List Renderer执行这个Display List的命令，这个过程称为Display List Replay。
+  >   > 引进Display List的概念有什么好处呢？主要是两个好处。
+  >   > 第一个好处是在下一帧绘制中，如果一个View的内容不需要更新，那么就不用重建它的Display List，也就是不需要调用它的onDraw成员函数。
+  >   > 第二个好处是在下一帧中，如果一个View仅仅是一些简单的属性发生变化，例如位置和Alpha值发生变化，那么也无需要重建它的Display List，只需要在上一次建立的Display List中修改一下对应的属性就可以了，这也意味着不需要调用它的onDraw成员函数。这两个好处使用在绘制应用程序窗口的一帧时，省去很多应用程序代码的执行，也就是大大地节省了CPU的执行时间。
+  >   >
+  >   > 
+  >   >
+  >   > 注意，只有使用硬件加速渲染的View，才会关联有Render Node，也就才会使用到Display List。对于使用了软件方式来渲染的View，具体的做法是创建一个新的Canvas，这个Canvas的底层是一个Bitmap，也就是说，绘制都发生在这个Bitmap上。绘制完成之后，这个Bitmap再被记录在其Parent View的Display List中。而当Parent View的Display List的命令被执行时，记录在里面的Bitmap再通过Open GL命令来绘制。
+
+- 沧浪之水-合成（**服务端，对应于KMS**）
+
+  > FB框架到DRM框架是整个框架的改变，对于上层用户来说，’/dev/fb0’是找不到了，但在drm框架下兼容FB接口还是非常简单的，主要看OEM厂商的意愿了。
+  >
+  > *还需要兼容这些接口吗？那就看谁在使用FB/ADF/DRM的接口呢？*
+  >
+  > **其一，Android启动后，hwcomposer就是唯一的使用者；**
+  >
+  > **其二，Android启动前，大约有下面3个情况：**
+  >
+  > - ***Recovery——显示调用比较简单，可以通过这个了解drm的基本显示流程；***
+  > - ***关机充电；***
+  > - ***开机从kernel到android的启动前这段时间；基本不会主动绘制（通常是一个logo，由bootloader传过来），这是在kernel完成的***
+  >
+  > **可以看出来使用这些接口都是系统完成的，由谷歌自己完成了升级，第三方是没有权限调这样的接口的，兼容是没必要了。**
+
+- 努比亚团队
+
+  > 在Android系统上应用要绘制一个画面，首先要向SurfaceFlinger申请一个画布，这个画布所使用的buffer是SurfaceFlinger通过allocator service（vendor.qti.hardware.display.allocator-service）来分配出来的，allocator service是通过ION从kernel开辟出来的一块共享内存，这里申请的都是每个图层所拥有独立buffer, 这个buffer会共享到HWC Service里，由SurfaceFlinger来作为中枢控制这块buffer的所有权，其所有权会随状态不同在App, SurfaceFlinger, HWC Service间来回流转。【有误】
+  >
+  > - App到SurfaceFlinger
+  >
+  >   > 应用首先通过Surface的接口向SurfaceFlinger申请一块buffer,  需要留意的是Surface刚创建时是不会有buffer被alloc出来的，只有应用第一次要绘制画面时dequeueBuffer会让SurfaceFlinger去alloc buffer, 在应用侧会通过importBuffer把这块内存映射到应用的进程空间来
+  >   >
+  >   > 
+  >   >
+  >   > 之后App通过dequeueBuffer拿到画布， 通过queueBuffer来提交绘制好的数据
+  >   >
+  >   > 
+  >   >
+  >   > HWC Service负责将SurfaceFlinger送来的图层做合成，形成最终的画面，然后通过drm的接口更新到屏幕上去（注意：在DRM一章中给出的使用DRM的例子子demo的是通过page flip方式提交数据的，但hwc service使用的是另一api atomic commit的方式提交数据的，drm本身并不只有一种方式提交画面）
+  >
+  > - SurfaceFlinger到HWC Service
+  >
+  >   > HWC Service的代码位置在 hardware/qcom/display, HWC Service使用libdrm提交帧数据的地方我们可以在systrace上观察到：
+  >
+  > - HWC Service到kernel
+  >
+  >   > hwc service通过drmModeAtomicCommit接口向kernel提交合成数据：
+  >   >
+  >   > drmModeAtomicCommit通过ioctl调用到kernel：
+  >   >
+  >   > kernel/msm-5.4/techpack/display/msm/msm_atomic.c
+  >
+  > 在本章中我们了解了APP绘画的画布是由SurfaceFlinger提供的，而画布是一块共享内存，APP向SurfaceFlinger申请到画布，是将共享内存的地址映射到自身进程空间。 App负责在画布上作画，画完的作品提交给SurfaceFlinger， 这个提交操作并不是把内存复制一份给SurfaceFlinger，而是把共享内存的控制权交还给SurfaceFlinger，  SurfaceFlinger把拿来的多个应用的共享内存再送给HWC Service去合成，   HWC Service把合成的数据交给DRM去输出完成app画面显示到屏幕上的过程。为了更有效地利用时间这样的共享内存不止一份，可能有两份或三份，即常说的double buffering, triple buffering.
+  >
+  > 那么我们就需要设计一个机制可以管理buffer的控制权，这个就是BufferQueue.
+  >
+  > - BufferQueue
+  >
+  >   > 在BufferQueue的设计中，一个buffer的状态有以下几种：
+  >   >
+  >   > **FREE** ：表示该buffer可以给到应用程序，由应用程序来绘画
+  >   >  **DEQUEUED**:表示该buffer的控制权已经给到应用程序侧，这个状态下应用程序可以在上面绘画了
+  >   >  **QUEUED**: 表示该buffer已经由应用程序绘画完成，buffer的控制权已经回到SurfaceFlinger手上了
+  >   >  **ACQUIRED**:表示该buffer已经交由HWC Service去合成了，这时控制权已给到HWC Service了
+  >
+  > - 画布的申请
+  >
+  >   > 在Android系统中每个Activity都有一个独立的画布（在应用侧称为Surface,在SurfaceFlinger侧称为Layer）， 无论这个Activity安排了多么复杂的view结构，它们最终都是被画在了所属Activity的这块画布上，当然也有一个例外，SurfaceView是有自已独立的画布的，但此处我们先只讨论Activity画布的建立过程。
+  >
+  > - 绘制的流程
+  >
+  >   > 首先App每次开始绘画都是收到一个vsync信号才会开始绘图（这里暂不讨论SurfaceView自主上帧的情况），应用是通过Choreographer来感知vsync信号, 在ViewRootImpl里向Choreographer注册一个callback, 每当有vsync信号来时会执行mTraversalRunnable:
+  >   >
+  >   > 
 
 
 
@@ -165,6 +342,17 @@ SurfaceFlinger图形系统
 
 标题：View和ViewGroup，图像容器
 
+#### **概念**
+
+> **在这里各种Surface，Window，View、Layer实在是太乱了，下面就区分一下这些概念**
+>
+> Window -> DecorView-> ViewRootImpl -> WindowState -> Surface -> Layer 是一一对应的。
+> 一般的Activity包括的多个View会组成View hierachy的树形结构，只有最顶层的DecorView，也就是根结点视图，才是对WMS可见的，即有对应的Window和WindowState。
+>
+> 一个应用程序窗口分别位于应用程序进程和WMS服务中的**两个Surface对象**有什么区别呢？
+> 虽然它们都是用来操作位于SurfaceFlinger服务中的同一个Layer对象的，不过，它们的操作方式却不一样。具体来说，就是位于应用程序进程这一侧的Surface对象负责绘制应用程序窗口的UI，即往应用程序窗口的图形缓冲区填充UI数据，而位于WMS服务这一侧的Surface对象负责设置应用程序窗口的属性，例如位置、大小等属性。
+> 这两种不同的操作方式分别是通过C++层的Surface对象和SurfaceControl对象来完成的，因此，位于应用程序进程和WMS服务中的两个Surface对象的用法是有区别的。之所以会有这样的区别，是因为**绘制应用程序窗口是独立的，由应用程序进程来完即可，而设置应用程序窗口的属性却需要全局考虑，即需要由WMS服务来统筹安排**。
+
 #### 疑问区
 
 > - Window和surface对应关系，最小表示单位是framebuffer吗？一个framebuffer对应的是什么？每个surface都有两个fb吗？
@@ -194,6 +382,12 @@ SurfaceFlinger图形系统
 
 #### 前言
 
+> - 理解Android图形系统并不是一件轻松的事情，Google发布的是Android版本，内核部分拉取的是上游Linux最新的LTS版本，对其做裁剪和增加新功能，下游是以高通为首的芯片供应商，Google定义的HWC都是高通在实现，接着往下才是手机厂商，高通就把google的aosp的代码同步回去，经过修改（硬件抽象层、系统框架、通讯层），形成自己的版本，也就是msm-aosp，手机厂商拿到的通常是msm-aosp，所以我们在学习的时候就很痛苦，你不但要看Google的AOSP，还要看下游供应商是如何实现的，要看如何实现的还得去查高通display框架设计，不同的版本可能还会有变化，就很痛苦
+>
+> - Android显示框架几经演变，从Linux FB框架到自研的ADF框架，再到现在的Linux DRM/KMS框架，HWC也从1.0进化到2.0版本
+>
+> - 我写文章的目的首先是自己了解，接着才是，本着文章的是让读懂的原则
+>
 > - 之前的两篇文章中分别介绍了屏幕的显示原理和屏幕的刷新原理，前两篇文章我们了解了屏幕实际上是由一个个像素点组成，本篇文章关注的是framebuffer的产生
 >
 > - 前面讲了画面撕裂的原因，framebuffer可以理解为屏幕每个像素点的值，包含颜色，深度等信息
@@ -216,7 +410,7 @@ SurfaceFlinger图形系统
 >   - 为了改进Android系统的流畅度，Google在Android 4.1版本发布了Android project butter黄有计划，希望Android系统能够像黄油一样丝滑
 >   - 在黄油计划中新增了渲染线程，
 >   - 发展到今天，Google为了减缓GPU压力加入hwc等，具体可以看官网以及高通的开发文档
->   
+>
 > - 结语：对于没有接触过framework开发的同学来说，理解hwc等概念还是有难度的，在文章的结尾，我们来聊一聊Android的hal层，理清hal的概念，对于我们理解Android系统架构有很大的帮助，这一切在知道hal是干嘛的之后就清晰了，不考虑硬件厂商驱动的情况下，Android图形系统是由sf作为中介，framebuffer作为媒介，通过binder传输，最终输出到显存由显示器驱动更新到屏幕
 >
 > - 注1：Android 7.0以上和图像引擎（高通a系列，armmali系列等）均已支持vulkan协议，本文未包含Vulkan相关内容
@@ -228,7 +422,7 @@ SurfaceFlinger图形系统
 >   > 为什么关机了还能显示充电画面？
 >   >
 >   > 为什么flutter可以跨平台
->   
+>
 > - 结语
 >
 >   > 本文只是从框架设计的角度聊聊Android系统的图形架构
