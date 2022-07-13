@@ -1,12 +1,40 @@
-#### 名词解释
+#### 疑问区❓
 
-- 疑问区❓
+- BufferQueue在哪个进程？貌似是一个单独的service，但是否是单独进程还需确认
+- 创建一个activity或者surfaceview会申请一个graphicbuffer吗？graphicbuffer
+- 既然graphicbuffer贯穿全文，sf和GPU都可以用，那么native从哪一层开始创建/拥有了它，surface还是layer
+- HWC1和HWC2区别
+- APP通过Choreographer感知vsync信号，进而去更新Render List，那么和渲染线程里面渲染动作是同一个vsync周期吗？
 
-  > - BufferQueue在哪个进程？
-  > - 创建一个activity或者surfaceview会申请一个graphicbuffer吗？
-  > - 既然graphicbuffer贯穿全文，sf和GPU都可以用，那么native从哪一层开始创建/拥有了它，surface还是layer
-  > - HWC1和HWC2区别
-  > - APP通过Choreographer感知vsync信号，进而去更新Render List，那么和渲染线程里面渲染动作是同一个vsync周期吗？
+- 每日更新
+
+  > 图形显示流程大致分为三个阶段，bufferqueue和graphicbuffer
+  >
+  > - 绘制/渲染阶段
+  >
+  >   > 此阶段由上层应用，比如OpenGL/Vulkan/Skia等引擎绘制到graphicbuffer
+  >   >
+  >   > 对应应该是从wms获取一个Surface
+  >
+  > - 合成阶段
+  >
+  >   > 此阶段由surfaceflinger调用OpenGL或者HWC来合成layer
+  >   >
+  >   > 此阶段对应数据应该是layer
+  >
+  > - 送显阶段
+  >
+  >   > 此阶段调用Android的显示框架
+  >   >
+  >   > Android显示框架进化过程，从Framebuffer架构进化到Google自己设计的ADF框架
+  >   >
+  >   > 再从ADF框架进化到DRM框架
+  >
+  > 通过gralloc管理图形内存
+  >
+  > 剩下还有fence同步机制和传递数据的bufferqueue
+  >
+  > 
   
 - GPU
 
