@@ -6,6 +6,10 @@
 - HWC1和HWC2区别
 - APP通过Choreographer感知vsync信号，进而去更新Render List，那么和渲染线程里面渲染动作是同一个vsync周期吗？
 
+- 每个app进程都会持有Window对象，Window对象又等同于surface等同于layer，那么，每一层layer都有一个graphicbuffer吗？
+
+  > 答：都有好几个graphicbuffer，从surface.cpp源码可以发现surface持有bufferqueue对象
+
 - 每日更新
 
   > 图形显示流程大致分为三个阶段，bufferqueue和graphicbuffer
@@ -33,9 +37,9 @@
   > 通过gralloc管理图形内存
   >
   > 剩下还有fence同步机制和传递数据的bufferqueue
-  >
-  > 
-  
+
+  > 当你创建了View或者将XML添加到Activity时，
+
 - GPU
 
   > GPU的职责是根据一个三维场景中的顶点、纹理等信息，转换成一张二维图像
@@ -82,7 +86,7 @@
   > 如果连CPU也没有，那..那系统也启动不了
   >
   > 
-  
+
 - OpenGL ES
 
   > 规定GPU实现标准协议，掌握了OpenGL ES的语法
