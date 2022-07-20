@@ -1,3 +1,47 @@
+#### Overview
+
+##### 一、前言
+
+- 开场白
+- 认识硬件，工业级瑞芯微芯片介绍
+- 引出fence同步机制、gralloc内存机制、hwc机制、OpenGL和GPU的关系机制
+  - OpenGL ES是协议，在Android中具体实现为EGL，在向下的硬件实现是GPU，你调用的所有OpenGL指令都将有CPU发送给GPU执行
+  - hwc是统称，具体有两个实现，一个是屏幕驱动，用来给将驱动产生的vsync同步给hwc，另一个就是2D图形引擎，用来合成layer
+
+##### 二、VSync，系统的总指挥
+
+- 开场白，一口气讲完了硬件和系统服务，接下来我们来看看内存是如何流转的
+- 本章目标是介绍当vsync信号到来时，每一层级都做了些什么？
+  - 首先，介绍vsync信号的来源，在sf初始化时注册了回调，以及如何通知到Choreographer
+    - 在Android12以前，有个类叫做DispSync，他是用来分发和控制没层级vsync信号到达时间，为什么要这么做呢？这样可以缓解，让厂商根据自己的硬件能力自行决定这个值设置为多少，你的GPU强一些，那就把渲染的间隔拉长一些，留给渲染的时间短一些
+    - EventThread又是干嘛的
+  - 接着，介绍各个层接接受到信号的反应
+  - 应用阶段
+    - view体系是如何更新的，这个应该是viewrootimpl和Choreographer，渲染线程应该在这聊吧
+    - window/surface体系是如何更新的？
+  - 渲染阶段
+    - view体系应该是在这个阶段执行的渲染线程命令，调用硬件加速从而调用OpenGL也就是GPU
+    - window/surface是否在这更新的？
+  - 合成
+    - sf做的事情，将layer的graphicbuffer状态为可用的丢给hwc，告诉hwc干活了
+- 介绍一下view和activity和window的关系
+  - 假设没有system_server这个进程，也就是wms、ams所在的进程，单单依靠sf其实已经可以在用户空间完成绘制以及送显了
+  - Android官网介绍图形系统时把sf和wms并排，其实是要依靠ams一起完成工作的
+  - 不把activity当组件，看做是视图的话，对应的就是viewrootimpl，window
+  - surfaceview其实是一个没有view体系的一块surface，在sf一层中对应的layer
+  - view体系是Google提供给开发者的一套工具，内部使用canvas，其内部是对skia的再封装
+
+##### 番外篇
+
+- 我们知道硬件是一直产生vsync信号的，那么当进入桌面缺什么都不动时？操作系统会傻傻的每次vsync来临时都去渲染吗？显然不会，那是怎么做到的呢？requestNextVsync()，不调用这个方法，就不会去渲染了。上面的流程是针对APP的，那sf呢？调用messageQueue::invalidate()
+- 当activity被覆盖时，后面的视图还会渲染吗？答案是不会，为什么呢？因为组件在执行stop周期的时候通知wms，当前的viewrootimpl的状态发生改变，不会接受vsync信号或者不处理，这也是为什么当启动一个透明主题的activity时，旧的页面只会执行pause周期，而不会去调用onstop方法的原因
+
+##### 三、结语
+
+- 开场白，忽略了某些模块以及具体实现细节，比如DRM/KMS是Linux主线显示框架，我们可以思考一个疑问，手机关机了为什么还能显示充电画面？这个问题的答案用DRM/KMS可以解释
+- 总结部分，总的来说，依靠vsync信号驱动，像一个环一样操作bufferqueue，在这当中每一层出现了耗时过长，都会使APP发生卡顿
+  - 当创建了Activity或者surface时，wms对应会创建window，在sf中对应创建layer
+
 #### 一、Hardware
 
 ##### 1、GPU
@@ -43,7 +87,9 @@ sf的主要两个作用，一是接收/分发vsync信号
 
 ##### 5、BufferQueue
 
-Android 4.1开始加入的机制
+Android 4.1开始加入的机制，同期加入的还有Choreographer，用来分发vsync信号
+
+至于vsync信号，则是在黄油计划之前就存在的时间，目前收录的Android源码最早可以追溯到1.6版本，可以去源码中搜索EventHub.cpp
 
 - **BufferQueueCore**
 
@@ -100,9 +146,19 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
 
 > 统计在一秒内该 App 往屏幕刷了多少帧，而在 Android 的世界里，每一帧显示到屏幕的标志是： present fence signal 了，因此计算 App 的 fps 就可以转换为：**一秒内 App 的 Layer 有多少个有效 present fence signal 了（这里有效 present fence 是指，在本次 VSYNC-sf 中该 Layer 有更新的 present fence）**
 
+##### from Android Devloper Blog
+
+1. 应用更新绘图命令列表
+2. 应用向GPU发出绘制质量
+3. GPU开始绘制
+4. sf服务将绘制的buffer开始合成，合成完成后交给HAL显示
+5. 屏幕显示
+
 ##### Porcess Overview from bob
 
 1. 当我们在activity调用setContentView绑定xml时，经过跨进程通信后最终会向wms申请到一个window
+
+每个window内部都有一个bufferqueue队列，接收到vsync信号时
 
 #### 四、Roast for Google
 
@@ -111,6 +167,14 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
 - 忽略activity、service等组件的概念，在图形系统中，对应用户进程来说，Android系统提供的就只有window，activity是一个window，dialog也是一个window，surface同样是一个window
 - 注1：bufferqueue在Android12已被更新
 - 注2：dispsync在Android12已被删除
+
+#### 五、Note
+
+- DispSync是如何将事件分发给Choreographer的？EventThread是干嘛的
+- 每个周期都做些了啥？每个渲染队列是执行在哪个vsync周期？
+- sf调用hwc合成完成后谁去送显？以及，合成完成后保存到哪里？
+- surface和window，理论上window属于Java层归wms管理，surface是那一层的，native的吧，应该是对应关系吧
+- view体系由Choreographer来指引，最终有viewrootimpl来执行draw系列，那么window/surface是如何监听vsync信号并且调用绘制的呢？
 
 
 
