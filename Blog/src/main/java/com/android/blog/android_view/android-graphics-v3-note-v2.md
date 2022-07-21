@@ -1,5 +1,7 @@
 #### Overview
 
+Android图形系统（三）系统篇：从渲染到合成
+
 ##### 一、前言
 
 - 开场白
@@ -10,7 +12,11 @@
 
 ##### 二、VSync，系统的总指挥
 
+###### 开场白
+
 - 开场白，一口气讲完了硬件和系统服务，接下来我们来看看内存是如何流转的
+- 介绍vsync信号到来时，sf一层做了什么，surface做了什么，由于surface是Java层的window，所以dialog和surfaceview也都是这时候进行渲染绘制的。
+- 在此基础上，通过Choreographer将信号同步给view体系
 - 本章目标是介绍当vsync信号到来时，每一层级都做了些什么？
   - 首先，介绍vsync信号的来源，在sf初始化时注册了回调，以及如何通知到Choreographer
     - 在Android12以前，有个类叫做DispSync，他是用来分发和控制没层级vsync信号到达时间，为什么要这么做呢？这样可以缓解，让厂商根据自己的硬件能力自行决定这个值设置为多少，你的GPU强一些，那就把渲染的间隔拉长一些，留给渲染的时间短一些
@@ -31,9 +37,14 @@
   - surfaceview其实是一个没有view体系的一块surface，在sf一层中对应的layer
   - view体系是Google提供给开发者的一套工具，内部使用canvas，其内部是对skia的再封装
 
-##### 番外篇
+###### view和activity和surface的关系
+
+Android为每个activity创建viewrootimpl
+
+###### 番外篇-如何暂停接收vsync信号？
 
 - 我们知道硬件是一直产生vsync信号的，那么当进入桌面缺什么都不动时？操作系统会傻傻的每次vsync来临时都去渲染吗？显然不会，那是怎么做到的呢？requestNextVsync()，不调用这个方法，就不会去渲染了。上面的流程是针对APP的，那sf呢？调用messageQueue::invalidate()
+- 思考一个问题，打开APP后放置不动，系统还会走渲染流程吗？
 - 当activity被覆盖时，后面的视图还会渲染吗？答案是不会，为什么呢？因为组件在执行stop周期的时候通知wms，当前的viewrootimpl的状态发生改变，不会接受vsync信号或者不处理，这也是为什么当启动一个透明主题的activity时，旧的页面只会执行pause周期，而不会去调用onstop方法的原因
 
 ##### 三、结语
@@ -131,6 +142,16 @@ Android 4.1开始加入的机制，同期加入的还有Choreographer，用来�
 
 ##### View
 
+- **SurfaceTexture**
+
+  > SurfaceTexture看起来内部维护了一套bufferqueue，内部依旧持有Surface对象
+  >
+  > 通常的视图绘制到surface知乎就入队交给sf合成，而SurfaceTexture是入队自己管理了，可以去安排特效或者上屏
+  >
+  > 看起来surface接受到图形并调用post入列之后，SurfaceTexture会接收到onFrameAvaliable()回调，接着可以选择做其他操作
+  >
+  > 依旧可以在宿主内再进行其他操作，最终可以选择塞到sf中合成送显？
+
 view体系是Google提供给开发者的一套工具，内部使用canvas，其内部是对skia的再封装
 
 简单了看了一下flutter完全摒弃了view体系，使用skia的api来绘制内容，但在Android上依旧没有摆脱ams、pms构建的组件体系
@@ -157,24 +178,45 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
 ##### Porcess Overview from bob
 
 1. 当我们在activity调用setContentView绑定xml时，经过跨进程通信后最终会向wms申请到一个window
+1. 在应用接受到vsync时，调用dequeueBuffer()方法获取状态为FREE的buffer，一旦获取成功，buffer状态改变为DEQUEUED，表示被出列正在被生产者使用。绘制完成后调用queueBuffer()方法塞入队列，此时buffer状态为quque，表示该Buffer被生产者填充了数据，并且入队到BufferQueue了
+1. 下一次vsync信号到来时，sf调用acquireBuffer()方法查找可合成的buffer调用hwc去合成，此时buffer状态为ACQUIRED，表示该Buffer被消费者获取了，该Buffer的所有权属于消费者
+1. sf调用hwc模块合成，合成完成后hwc会完成送显
 
 每个window内部都有一个bufferqueue队列，接收到vsync信号时
 
 #### 四、Roast for Google
 
 - 学习最大的难点之一在于，Android使用Linux内核，并在此基础上进行裁剪和添加功能，所以得去Android上游看看Linux的LTS主线版本，又因为Google提供了HAL层，所以驱动基本上都是下游实现。在消费级市场中高通无疑是最大的下游厂商，因为SOC是高通提供的，内核部分高通同样关注上游Linux主线版本，形成自己的内核caf。接着实现HAL层的接口，再接着给高通的下游厂商，也就是国内的小米OV等手机厂商，手机。以上流程就会导致，你想了解Android某个功能依赖Linux哪个API实现的你就得关注Linux的版本，要想知道某个硬件实现具体是什么东西，比如HWC是什么，就得关注高通一类的下游厂商的代码实现，接着才是Google的aosp源码，aosp和msm-aosp都得看
+
 - 本文的目标是希望能够从头到尾的介绍一下整个显示流程，在执行的过程中发现话题过于庞大，从结果来看完成的不是很好，但个人在这个过程中还是有不少收获。人总是会进步的，相信过几年回头看自己写的文章时，大部分知识点我都已经理解了，那时
+
 - 忽略activity、service等组件的概念，在图形系统中，对应用户进程来说，Android系统提供的就只有window，activity是一个window，dialog也是一个window，surface同样是一个window
+
 - 注1：bufferqueue在Android12已被更新
+
 - 注2：dispsync在Android12已被删除
+
+- 忽略的内容
+
+  > - GPU之所以能够识别graphicbuffer因为父类是ANativeWindow
+  > - GraphicBuffer的包装类是BufferSlot，状态则用BufferState
+  > - BufferQueue具体实现是BufferBufferCore类
+  > - BufferQueue生产者消费者接口以及具体实现
 
 #### 五、Note
 
 - DispSync是如何将事件分发给Choreographer的？EventThread是干嘛的
+- sf是去每个layer里面找queue还是只有一个queue，layer共用
 - 每个周期都做些了啥？每个渲染队列是执行在哪个vsync周期？
 - sf调用hwc合成完成后谁去送显？以及，合成完成后保存到哪里？
 - surface和window，理论上window属于Java层归wms管理，surface是那一层的，native的吧，应该是对应关系吧
 - view体系由Choreographer来指引，最终有viewrootimpl来执行draw系列，那么window/surface是如何监听vsync信号并且调用绘制的呢？
+- 博主
+  - 王小二、高爷、何小龙、sim、
+  - 官网
+  - [Android显示系列 - 努比亚团队](https://www.jianshu.com/c/3a4d92743e88)
+  - [Systrace系列 - 高爷](https://www.androidperformance.com/2019/05/28/Android-Systrace-About) 
+
 
 
 
