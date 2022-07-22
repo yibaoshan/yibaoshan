@@ -9,6 +9,7 @@ Android图形系统（三）系统篇：从渲染到合成
 - 引出fence同步机制、gralloc内存机制、hwc机制、OpenGL和GPU的关系机制
   - OpenGL ES是协议，在Android中具体实现为EGL，在向下的硬件实现是GPU，你调用的所有OpenGL指令都将有CPU发送给GPU执行
   - hwc是统称，具体有两个实现，一个是屏幕驱动，用来给将驱动产生的vsync同步给hwc，另一个就是2D图形引擎，用来合成layer
+  - 硬件加速，Android 4.0以后应用程序2D UI绘制支持硬件加速，5.0以后主线程和渲染线程分离Render Thread，整个调用关系如下图，开启以后走GPU，也就是OpenGL，关闭以后走CPU
 
 ##### 二、VSync，系统的总指挥
 
@@ -102,6 +103,14 @@ Android 4.1开始加入的机制，同期加入的还有Choreographer，用来�
 
 至于vsync信号，则是在黄油计划之前就存在的时间，目前收录的Android源码最早可以追溯到1.6版本，可以去源码中搜索EventHub.cpp
 
+黄油计划添加了哪些，draw with vsync
+
+- 新增了Choreographer用于给APP同步vsync信号，Choreographer 的引入，主要是配合 Vsync ，给上层 App 的渲染提供一个稳定的 Message 处理的时机
+- handler机制新增了同步屏障以支持优先处理vsync信号
+- libgui新增了bufferqueue
+
+
+
 - **BufferQueueCore**
 
   > BufferQueueCore 的结构比较简单，它的最主要的功能就是管理 Graphic Buffer 申请/释放/状态维护，所以它的所有内容都是围绕这个核心功能，其中最核心的结构就是 `mSlots` 和 `mQueue`
@@ -175,7 +184,51 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
 4. sf服务将绘制的buffer开始合成，合成完成后交给HAL显示
 5. 屏幕显示
 
+##### from 博客园
+
+Android系统的UI从绘制到显示到屏幕是分两步进行的：
+
+第一步是在Android应用程序进程这一侧进行的；
+
+第二步是在SurfaceFlinger进程这一侧进行的。
+
+前一步将UI绘制到一个图形缓冲区中，并且将该图形缓冲区交给后一步进行合成以及显示在屏幕中。
+
+其中，后一步的UI合成一直都是以硬件加速方式完成的。
+
+##### from 高爷
+
+1. 每一帧处理的流程：接收到 Vsync 信号回调-> UI Thread –> RenderThread –> SurfaceFlinger(图中未显示)
+2. UI Thread 和 RenderThread 就可以完成 App 一帧的渲染，渲染完的 Buffer 抛给 SurfaceFlinger 去合成，然后我们就可以在屏幕上看到这一帧了
+3. 可以看到桌面滑动的每一帧耗时都很短（Ui Thread 耗时 + RenderThread 耗时），但是由于 Vsync 的存在，每一帧都会等到 Vsync 才会去做处理
+
 ##### Porcess Overview from bob
+
+前置条件
+
+- Activity被创建后，Android会为APP进程创建两条线程
+  - 主线程，ActivityThread，可以称为主线程，也可以称为UI线程。主线程运行这Handler机制，我们所有的触摸事件绘制命令等都是由handler处理
+  - 渲染线程，RenderThread
+
+请求vsync时机
+
+- 在APP端
+  -  invalidate 和 requestLayout最终都会调用到viewrootimpl.scheduleTraversals()方法，在此方法中会调用requestNextVsync()
+  - 其他的诸如动画之类的也会触发请求vsync信号
+
+Choreographer的作用
+
+- 当收到 Vsync 信号时，去调用使用者通过 postCallback 设置的回调函数。比如**CALLBACK_TRAVERSAL**
+
+硬件加速
+
+- 关闭硬件加速
+  - 在ui线程中调用lockAsync获取buffer
+  - 调用libSkia.so向buffer绘制渲染
+  - 绘制完成调用unlock
+  - 调用queueBuffer入队列，交给sf
+- 开启硬件加速
+  - 参考关闭的流程，绘制的过程交给renderThread执行，ui线程可以处理其他message
 
 1. 当我们在activity调用setContentView绑定xml时，经过跨进程通信后最终会向wms申请到一个window
 1. 在应用接受到vsync时，调用dequeueBuffer()方法获取状态为FREE的buffer，一旦获取成功，buffer状态改变为DEQUEUED，表示被出列正在被生产者使用。绘制完成后调用queueBuffer()方法塞入队列，此时buffer状态为quque，表示该Buffer被生产者填充了数据，并且入队到BufferQueue了
@@ -202,12 +255,36 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
   > - GraphicBuffer的包装类是BufferSlot，状态则用BufferState
   > - BufferQueue具体实现是BufferBufferCore类
   > - BufferQueue生产者消费者接口以及具体实现
+  >
+  > APP忽略回调
+  >
+  > - 来自animation的回调
+  > - 来自input的回调处理
 
 #### 五、Note
 
+- 创建一个activity之后，ams、wms、sf这些系统做了些什么
+  - 创建activity之前，zygote进程
+  - AMS为activity创建ViewRootImpl
+  - WMS为ViewRootImpl创建Window/Surface
+  - SF为Surface创建Layer
+
+- vsync到来时，每一层都做了些什么
+  - APP
+    - 主线程处于 Sleep 状态，等待 Vsync 信号；我们知道主线程是消息驱动的，也就是handler机制，有消息就处理没消息就睡觉
+    - sf向messageQueue添加同步屏障，通知vsync信号？
+    - Vsync 信号到来，主线程被唤醒，Choreographer 回调 FrameDisplayEventReceiver.onVsync 开始一帧的绘制
+    - 处理 App 这一帧的 Input/Animation/Traversal 事件(如果有的话)
+    - 主线程与渲染线程同步渲染数据，同步结束后，主线程结束一帧的绘制，可以继续处理下一个 Message(如果有的话，IdleHandler 如果不为空，这时候也会触发处理)，或者进入 Sleep 状态等待下一个 Vsync
+    - 渲染线程首先需要从 BufferQueue 里面取一个 Buffer(dequeueBuffer) , 进行数据处理之后，调用 OpenGL 相关的函数，真正地进行渲染操作，然后将这个渲染好的 Buffer 还给 BufferQueue (queueBuffer) ,
+    - SurfaceFlinger 在 Vsync-SF 到了之后，将所有准备好的 Buffer 取出进行合成(这个流程在讲 SurfaceFlinger 的时候会提到)
+    - 调用skia或者OpenGL渲染画面
+  - SurfaceFlinger 
+    - 当 VSYNC 信号到达时，SurfaceFlinger 会遍历它的层列表，以寻找新的缓冲区。如果找到新的缓冲区，它会获取该缓冲区；否则，它会继续使用以前获取的缓冲区。SurfaceFlinger 必须始终显示内容，因此它会保留一个缓冲区。如果在某个层上没有提交缓冲区，则该层会被忽略。
+    - SurfaceFlinger 在收集可见层的所有缓冲区之后，便会询问 Hardware Composer 应如何进行合成。
+    - 调用hwc合成画面，合成完成后也由hwc去送显
 - DispSync是如何将事件分发给Choreographer的？EventThread是干嘛的
 - sf是去每个layer里面找queue还是只有一个queue，layer共用
-- 每个周期都做些了啥？每个渲染队列是执行在哪个vsync周期？
 - sf调用hwc合成完成后谁去送显？以及，合成完成后保存到哪里？
 - surface和window，理论上window属于Java层归wms管理，surface是那一层的，native的吧，应该是对应关系吧
 - view体系由Choreographer来指引，最终有viewrootimpl来执行draw系列，那么window/surface是如何监听vsync信号并且调用绘制的呢？
@@ -216,7 +293,6 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
   - 官网
   - [Android显示系列 - 努比亚团队](https://www.jianshu.com/c/3a4d92743e88)
   - [Systrace系列 - 高爷](https://www.androidperformance.com/2019/05/28/Android-Systrace-About) 
-
 
 
 
