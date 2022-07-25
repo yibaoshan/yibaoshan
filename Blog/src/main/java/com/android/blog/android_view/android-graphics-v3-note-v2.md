@@ -101,6 +101,20 @@ vsync信号早在1.6版本就已经存在，去源码搜索eventhub.cpp可以看
 
 源码地址：http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
 
+**1、注册回调**
+
+**2、接收回调**
+
+- doComposition()
+
+  > 执行正式的合成操作，合成完成以后将各个buffer置为free状态
+  >
+  > hwc present是什么？
+
+- postComposition
+
+  > 处理时间
+
 来看handleMessageRefresh()方法做了些什么：
 
 `void SurfaceFlinger::handleMessageRefresh() {`
@@ -143,8 +157,24 @@ sf的主要两个作用，一是接收/分发vsync信号
 > Android 12删除了该类
 >
 > DispSync负责接受hw-vsync，接着发送sw-vsync
+>
+> - #### DispSyncSource
+>
+>   > DispSync的核心类
+>
+> - #### EventThread
+>
+>   > APP的EventThread
+>   >
+>   > sf的EventThread
 
-##### Layer
+##### Layer/Surface
+
+内部封装了一系列操作队列的方法，比如：
+
+- dequeueBuffer获取buffer
+- queueBuffer归队
+- 
 
 核心是bufferqueue，内部持有fq队列
 
@@ -402,7 +432,6 @@ Choreographer的作用
 - 文章
   - [深入理解Flutter的图形图像绘制原理 - OPPO数智技术](https://segmentfault.com/a/1190000038827450)
   - [Android性能优化：定性和定位Android图形性能问题 - 飞起来_飞过来](https://juejin.cn/post/7096288511053004830)
-
 
 
 
