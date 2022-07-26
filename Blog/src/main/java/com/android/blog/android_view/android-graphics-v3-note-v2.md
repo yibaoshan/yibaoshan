@@ -89,6 +89,8 @@ Android 4.0加入的同步机制
 
 ##### HWC
 
+hwcomposition和hwcomposer
+
 两层含义，当表示为vsync时，是用来监听回调屏幕驱动的垂直同步信号
 
 表示为合成时，就是2D引擎，合成方式为DEVICE，否则为GPU合成
@@ -170,6 +172,30 @@ sf的主要两个作用，一是接收/分发vsync信号
 
 ##### Layer/Surface
 
+```c++
+void Layer::onFirstRef() {
+    // Creates a custom BufferQueue for SurfaceFlingerConsumer to use
+      sp<IGraphicBufferProducer> producer;
+      sp<IGraphicBufferConsumer> consumer;
+      BufferQueue::createBufferQueue(&producer, &consumer);
+      mProducer = new MonitoredProducer(producer, mFlinger);
+      mSurfaceFlingerConsumer = new SurfaceFlingerConsumer(consumer, mTextureName,
+              this);
+      mSurfaceFlingerConsumer->setConsumerUsageBits(getEffectiveUsage(0));
+      mSurfaceFlingerConsumer->setContentsChangedListener(this);
+      mSurfaceFlingerConsumer->setName(mName);
+  
+  #ifdef TARGET_DISABLE_TRIPLE_BUFFERING
+  #warning "disabling triple buffering"
+  #else
+      mProducer->setMaxDequeuedBufferCount(2);
+  #endif
+  
+      const sp<const DisplayDevice> hw(mFlinger->getDefaultDisplayDevice());
+      updateTransformHint(hw);
+  }
+```
+
 内部封装了一系列操作队列的方法，比如：
 
 - dequeueBuffer获取buffer
@@ -230,7 +256,13 @@ Android 4.1开始加入的机制，同期加入的还有Choreographer，用来�
   >
   > 添加的目的是将对buffer的操作全部交由app进程，sf只负责合成，不再负责管理buffer
 
-##### View
+##### View/ViewRootImpl
+
+```
+drawSoftware
+```
+
+放到第四篇：应用篇，闲聊View体系
 
 - **SurfaceTexture**
 
@@ -246,6 +278,69 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
 
 简单了看了一下flutter完全摒弃了view体系，使用skia的api来绘制内容，但在Android上依旧没有摆脱ams、pms构建的组件体系
 
+##### SurfaceView/TextureView
+
+SurfaceView具有独立的绘图Surface,但它仍然属于View树中的子节点，它依附在宿主窗口上，所以它自身的view也是需要绘制到宿主窗口的Surface上的
+
+```java
+//SurfaceView.java
+@Override
+public void draw(Canvas canvas) {
+    if (mWindowType != WindowManager.LayoutParams.TYPE_APPLICATION_PANEL) {
+        // draw() is not called when SKIP_DRAW is set
+        if ((mPrivateFlags & PFLAG_SKIP_DRAW) == 0) {
+            // punch a whole in the view-hierarchy below us
+            canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        }
+    }
+    super.draw(canvas);
+}
+
+@Override
+protected void dispatchDraw(Canvas canvas) {
+    if (mWindowType != WindowManager.LayoutParams.TYPE_APPLICATION_PANEL) {
+        // if SKIP_DRAW is cleared, draw() has already punched a hole
+        if ((mPrivateFlags & PFLAG_SKIP_DRAW) == PFLAG_SKIP_DRAW) {
+            // punch a whole in the view-hierarchy below us
+            canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        }
+    }
+    super.dispatchDraw(canvas);
+}
+```
+
+draw和dispatchDraw方法的参数canvas代表的是宿主窗口的绘图表面的画布
+
+除了在宿主窗口上绘制ui，SurfaceView可以在自身的绘图表面上绘制内容，一般的绘制流程如下：
+
+```java
+SurfaceView sv = (SurfaceView )findViewById(R.id.surface_view);    
+SurfaceHolder sh = sv.getHolder();  
+Cavas canvas = sh.lockCanvas()  
+ 
+//Draw something on canvas 
+......  
+ 
+sh.unlockCanvasAndPost(canvas);
+```
+
+获取canvas进行绘图，比如相机啥的可以直接绘制到bitmap上显示，2D的
+
+在Activity resume的阶段会调用每个view的onAttachedToWindow方法
+
+- onAttachedToWindow，两件事，监听生命周期和滑动事件
+
+  > - 调用getViewRootImpl().addWindowStoppedCallback(this);添加Activity的onStop()监听，如果window已经被覆盖了，那么页面也就没有更新的必要了
+  > - 调用observer.addOnScrollChangedListener(mScrollChangedListener);添加滑动事件的监听
+  > - 调用updateSurface()更新surface，此方法创建了surface
+
+- 更新方式
+
+  > - lockCanvas，当要更新页面时，调用lockCanvas获取canvas对象，实际上在sf端是获取了一个可用buffer
+  > - unlockCanvasAndPost，将buffer入列
+
+总结SurfaceView，渲染自己管，合成依旧是sf，依附的组件归ams管理
+
 ##### 硬件加速
 
 - 关闭硬件加速
@@ -255,6 +350,10 @@ view体系是Google提供给开发者的一套工具，内部使用canvas，其�
   - 调用queueBuffer入队列，交给sf
 - 开启硬件加速
   - 参考关闭的流程，绘制的过程交给renderThread执行，ui线程可以处理其他message
+
+##### server之wms
+
+应用程序负责修改绘制窗口中的内容，而WindowManager负责窗口的生命周期、几何属性、坐标变换信息、用户输入焦点、动画等功能。他还管理着窗口状态的变化，如窗口位置、大小、透明度以及Z-order（前后遮盖顺序）等一系列的逻辑判断。这些WindowManager功能由一系列接口或类构成，包括ViewManager、WindowManager、WindowManagerImpl、WindowManagerService等。
 
 #### 三、Note About Process
 
@@ -415,6 +514,8 @@ Choreographer的作用
 - sf调用hwc合成完成后谁去送显？release方法时谁调用的以及，合成完成后保存到哪里？
 - surface和window，理论上window属于Java层归wms管理，surface是那一层的，native的吧，应该是对应关系吧
 - view体系由Choreographer来指引，最终有viewrootimpl来执行draw系列，那么window/surface是如何监听vsync信号并且调用绘制的呢？
+- surfaceview如何停止绘制？
+- view体系中surface是如何创建的
 - 书籍
   - [《深入理解Android内核设计思想》- 林学森](https://book.douban.com/subject/25921329/)
   
