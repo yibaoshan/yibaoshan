@@ -1,10 +1,20 @@
-Android图形系统（三）系统篇：闲聊SurfaceFlinger
+### Waiting
 
-### Overview
+> - Surface/Layer相关
+>
+>   > 1. 通过surface获取到的buffer，会在调用layer::setBuffer同步到Layer，那么这个Layer是保存在哪的？
 
-可能要求读者对于Android系统的启动，系统中常年运行着进程，进程中的各大服务
+Android图形系统（三）系统篇：闲聊View显示流程
+
+在之前的两篇文章中我们分别学习了屏幕的显示原理和屏幕的刷新原理，本篇文章我们来一起学习Android系统的图形架构设计，从认识硬件开始，从头到尾的整个显示流程
+
+我们会从认识硬件开始，深入了解
 
 ### 一、开篇
+
+基于硬件
+
+消费级的海思/联发科/骁龙的用户手册都要花钱买，我们就找个工业级的，简单认识一下硬件
 
 本篇文章大部分源码都来自7.0版本，选择7.0的原因很简单，因为它包含了4.1黄油计划和5.0的RenderThread又没有高版本的复杂逻辑，非常适合我们简单了解图形系统的设计
 
@@ -27,6 +37,16 @@ Android图形系统（三）系统篇：闲聊SurfaceFlinger
 GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此对象上进行，包括同步给GPU以及HWC
 
 在流转的过程中，GraphicBuffer不但要跨进程传递，还涉及到跨硬件，因此，GraphicBuffer中也会保存fence的状态
+
+拥有了libui库以后，我们就可以通过操作系统来调用屏幕驱动，从而直接去显示画面
+
+现在大多数开发板都实现了FB框架，所以我们可以打开fb0设备进行写入，感兴趣的可以点击[这里](https://www.youtube.com/watch?v=BUPPyR6VasI)查看视频
+
+Google在2018年发布的Pixel 3首次使用了DRM/KMS框架，
+
+我自己的pixel用的是DRM框架，我尝试了一下没有成功，懒得折腾了
+
+关于DRM可以查看何小龙的视频
 
 ##### 2、libgui.so
 
@@ -79,32 +99,90 @@ layer有两个，一个是hwui包下的，通常我们说的layer值得是sf包�
 
 #### Vsync到来前的准备工作
 
+我们假设内核和驱动部分都已经启动好了
+
 ##### 1、创建surface_flinger进程
 
 http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/
 
-Loop()
-
 ```c++
+
+frameworks/native/services/surfaceflinger/Client.cpp
+// protected by mLock
+DefaultKeyedVector< wp<IBinder>, wp<Layer> > mLayers;//保存客户端的layer
+
 frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
 //sf的初始化方法
 void SurfaceFlinger::init() {
+  // initialize EGL for the default display
+  mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  eglInitialize(mEGLDisplay, NULL, NULL);
+  // start the EventThread
+sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+        vsyncPhaseOffsetNs, true, "app");
+mEventThread = new EventThread(vsyncSrc, *this);
+sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+        sfVsyncPhaseOffsetNs, true, "sf");
+mSFEventThread = new EventThread(sfVsyncSrc, *this);
+mEventQueue.setEventThread(mSFEventThread);
   //初始化hwc函数
   run();
 }
 
 void SurfaceFlinger::run() {
     do {
-        waitForEvent();//等待事件发生
+        waitForEvent();//睡觉，等待事件发生
     } while (true);
 }
+
+//APP进程发起连接
+sp<ISurfaceComposerClient> SurfaceFlinger::createConnection()
+{
+    sp<ISurfaceComposerClient> bclient;
+    sp<Client> client(new Client(this));
+    status_t err = client->initCheck();
+    if (err == NO_ERROR) {
+        bclient = client;
+    }
+    return bclient;
+}
+
+//介绍消息并处理
+void SurfaceFlinger::onMessageReceived(int32_t what, int64_t vsyncId, nsecs_t expectedVSyncTime) {
+    switch (what) {
+        case MessageQueue::INVALIDATE: {
+            onMessageInvalidate(vsyncId, expectedVSyncTime);
+            break;
+        }
+    }
+}
+
+frameworks/native/services/surfaceflinger/EventThread.cpp
+void EventThread::enableVSyncLocked() {
+     if (!mUseSoftwareVSync) {
+         // never enable h/w VSYNC when screen is off
+         if (!mVsyncEnabled) {
+             mVsyncEnabled = true;
+             mVSyncSource->setCallback((this));
+             mVSyncSource->setVSyncEnabled(true);
+         }
+     }
+     mDebugVsyncEnabled = true;
+     sendVsyncHintOnLocked();
+ }
 ```
 
-总的来说，sf进程一共做了三件事
+总的来说，sf进程在图形处理相关方面一共做了三件事
 
 1. 注册vsync信号回调，如果硬件不支持，启用VSyncThread线程模拟
 2. 启动vsync信号线程（如果硬件支持的话）
-3. 初始化HWComposer对象
+3. 初始化HWComposer对象，并且注册HWC回调
+4. 提供链接方法，等待APP端跨进程调用
+5. 睡觉，等待消息
+
+关于第4点要着重强调一遍，APP进程申请Surface成功后，经过一系列的方法调用，最终会在sf进程中创建对应的Layer，这个Layer会保存在mLayers中
+
+注意，每个版本的surfaceflinger代码都在变，对不上的话可以检查源码版本
 
 ##### 2、创建system_server进程
 
@@ -169,7 +247,7 @@ surface.java封装了对gui的操作，jni类在android_view_Surface.cpp中
 
 Looper.loop()进入睡眠等待唤醒
 
-
+sf准备好接收vsync信号
 
 #### Vsync生产与处理
 
@@ -185,7 +263,12 @@ sf在初始化时注册了hwc的回调，hwc是由屏幕驱动来定时调用的
 
 接下来，APP进程和系统进程都一同等待着Vsync信号的到来
 
+Drawing with VSync
+
 ##### 1、第一帧，APP进程绘制与渲染
+
+- 创建Surface，创建BufferQueue，SF对应创建Layer，每一个Surface创建成功后，经过一系列的方法调用，最终会被同步到sf进程，并创建Layer，就将会被把书翻到第一章第二节的，surface
+- 
 
 前面我们提到了eventthread，
 
@@ -224,7 +307,35 @@ Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
 答案显然是否定的
 
+sf和app都需要调用requestNextVsync方法请求下一次同步信号
+
+vsync信号由DispSyncSource和EventThread来分发
+
+比如录屏软件就会调用获取当前的buffer
+
+sf的两个回调：
+
+**MessageQueue::invalidate**
+
+当layer有变化时，messagequeue会收到invalidate的消息
+
+在invalidate回调中，sf回去请求请求一次vsync callback回调
+
+没有layer请求，就永远不会有vsync回调
+
+而invalidate回调，可能是app进程画面有更新，要去合成
+
+也可能画面没更新，虚拟屏幕或者录屏软件在发消息
+
+**MessageQueue::vsyncCallback**
+
+走合成流程
+
 ### 三、结语
+
+再次强调一遍，文章中源码版本是7.0
+
+了解了GraphicBuffer的流转过程，也就明白了Android系统的显示流程
 
 总结一下，SurfaceFlinger是Android图形系统的核心进程，在整个图形系统中起承上启下的作用
 
@@ -240,8 +351,24 @@ Android启动时会创建两大进程，其中常见的ams和wms运行在server�
 
 以大部分应用开发来举例：
 
-本文从进程的角度分析了Android的显示流程，文章中省略了许多重要的知识点，比如：
+为了避免引入过多的角色导致阅读体验不佳，尽可能用最简单的来解释，我在各个层级中删减掉许多辅助类/文件，如果对于大致不是很熟悉的情况下去跟源码中可能会感到困惑
 
+但这样的做法会给想要阅读源码的小伙伴感到困惑，造成不小的麻烦
+
+本文从进程的角度分析了Android的显示流程，文章中省略了许多重要的知识点，方法的调用链，比如：
+
+> - 合并到SurfaceFlinger.cpp
+> - 合并到gui/Surface.cpp
+>
+>   > GraphicBuffer这块内存需要在几个不同的硬件中流转，被不同的硬件识别并使用需要实现不同的协议
+>   >
+>   > ANativeWindow简单来说是公共协议OpenGL ES的具体实现类
+>   >
+>   > Surface继承自ANativeWindow，这样Surface中的GraphicBuffer这块内存就能被GPU所识别并使用
+> - SurfaceControl用于管理Surface的创建与sf进程的链接
+> - 合并EventThread到sf中
+> - 合并SurfaceControl.cpp到Surface.cpp中
+> - 合并DisplayEventReceiver.cpp到Surface.cpp
 > - HWC、EGL等系统关键模块初始化的时机以及创建过程
 > - GraphicBuffer的流转中包含了Fence的状态
 > - BufferQueue的核心在BufferQueueCore类中，也无法直接操作BufferQueue，GraphicBuffer被封装为Solt
