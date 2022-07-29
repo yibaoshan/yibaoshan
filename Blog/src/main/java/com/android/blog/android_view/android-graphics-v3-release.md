@@ -1,18 +1,10 @@
-### Waiting
-
-> - Surface/Layer相关
->
->   > 
-
 Android图形系统（三）系统篇：闲聊View显示流程
 
 对于应用开发工程师来说，虽然我们不需要写操作系统代码，但是了解View最终是如何显示到屏幕上还是非常有必要的
 
 本篇是Android图形系列的第三篇文章，在之前的两篇文章中我们分别学习了屏幕的“显示原理”和屏幕的“刷新原理”，今天我们来一起学习Android系统的图形架构设计，聊一聊输送到屏幕的画面数据是如何诞生的
 
-本文的目标是希望读者朋友能从宏观上构建一个Android图形子系统的清晰框架与认知
-
-因此，文中不会包含太多的方法调用链以及代码逻辑，非Android开发工程师也可以放心食用
+本文的目标是希望读者朋友能从宏观上构建一个Android图形子系统的清晰框架与认知，因此，文中不会包含太多的方法调用链以及代码逻辑，非Android开发工程师也可以放心食用
 
 以下，enjoy：
 
@@ -22,13 +14,31 @@ Android图形系统（三）系统篇：闲聊View显示流程
 
 Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Framework框架层几个部分组成，整个系统非常庞大，各个模块之间错综复杂，让人无从下手
 
+但想要从上到下打通整个显示流程，这几个模块绕不开的话题
+
 不过，再复杂的系统设计，也离不开硬件的支持
 
-今天，让我们化繁为简，从最基础的硬件组成开始学习，自下而上，看看Android图形子系统是如何一步步建立起来的
+今天，让我们化繁为简，从最基础的硬件组成开始，自下而上，看看Android图形子系统是如何一步步建立起来的
 
-#### Android设备由哪些硬件组成？
+#### 硬件组成和HAL
 
-这里需要重点关注的是GPU
+我是图片
+
+这是一张小米11的拆解图
+
+从左到右分别是屏幕、后盖、主板（上）、电池（下）、石墨贴和边框，我们重点来看主板设计
+
+我是主板图片
+
+小米11使用了高通骁龙888处理器，
+
+因为是开发板，所以板子上没有屏幕和摄像头，预留了MIPI/HDMI/DP等图像输出接口
+
+抛开USB、type-c、tf卡槽、MIPI、HDMI、DP等I/O接口，开发板主要是由组成是，
+
+这里需要重点关注的是GPU模块
+
+了解主板上，我们的指令是哪个芯片在执行
 
 我们常常听到的OpenGL ES就是由GPU驱动来实现，包括Android 7.0宣布支持Vulkan协议，同样也是由GPU驱动实现
 
@@ -40,13 +50,13 @@ Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Fra
 
 也可以说，OpenGL ES一定程度上指导了电路板的设计
 
-#### 什么是Android HAL层？
+#### Hardware Abstraction Layer
 
 ##### 1、HWC
 
 瑞芯微开发板关于HWC部分实现点[[这里]](https://gitlab.com/TeeFirefly/firenow-oreo-rk3399/-/tree/master/hardware/rockchip/hwcomposer)
 
-
+通常情况下，HWC是由display controler实现，回到骁龙888的GPU部分
 
 #### Framework层库支持
 
@@ -158,17 +168,37 @@ layer有两个，一个是hwui包下的，通常我们说的layer值得是sf包�
 - surfaceflinger进程：Layer和DispSync
 - SystemServer进程：ams、wms等常用服务
 
-### 二、系统启动流程
+### 二、系统准备阶段
+
+HAL、libui.so、libgui.so这三为接下来的奠定了坚实的基础
+
+接下来我们会进入到系统开机的流程分析，主要是sf进程和sys进程
+
+在阅读的过程中，调用的方法运行在，是CPU还是GPU还是hwc
 
 #### 启动surface_flinger进程
+
+接下来我们先来看一下图形系统相关的第一个进程，surface_flinger进程
+
+http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/
+
+不必等到zygote进程启动
+
+surface_flinger进程
 
 ##### 1、创建HWComposer对象
 
 #### 启动system_server进程
 
+system_server中运行着ams等常见服务，这些服务都是由java代码实现的，需要一个jvm的运行环境，因此，server进程必须要等到zygote进程启动以后fork，再由zygote进程fork而来
+
 #### 启动app进程
 
-### 三、Vsync：系统的总指挥
+### 三、Vsync处理阶段
+
+接下来将会进入到，又臭又长，我这里会尽量精简
+
+友情提醒，在分析调用链的过程中，时刻谨记当前的方法运行在哪个进程，发送的指令是哪个芯片执行的，这对我们理解图形系统有着非常大的帮助
 
 #### 第一次Vsync：View的绘制与渲染
 
@@ -181,8 +211,6 @@ layer有两个，一个是hwui包下的，通常我们说的layer值得是sf包�
 我们假设内核和驱动部分都已经启动好了
 
 ##### 1、创建surface_flinger进程
-
-
 
 http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/
 
