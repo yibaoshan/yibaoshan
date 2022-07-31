@@ -168,33 +168,49 @@ layer有两个，一个是hwui包下的，通常我们说的layer值得是sf包�
 - surfaceflinger进程：Layer和DispSync
 - SystemServer进程：ams、wms等常用服务
 
-### 二、系统准备阶段
+Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[libgui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)库，厂商提供了[hwcomposer.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_hwcomposer/)和[gralloc.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_gralloc/)以及GPU的[libEGL.so](https://source.android.com/devices/graphics/implement-opengl-es?hl=zh-cn)库，这五个库为Android的图形系统打下了坚实的基础，几乎所有的图形显示都得依靠他们哥几个才能完成
 
-HAL、libui.so、libgui.so这三为接下来的奠定了坚实的基础
+介绍完Android设备的硬件组成和图形库设计，接下来我们开始分析系统的启动流程，一起来看看系统在开机的过程中都做了哪些工作
 
-接下来我们会进入到系统开机的流程分析，主要是sf进程和sys进程
+### 二、系统启动
 
-在阅读的过程中，调用的方法运行在，是CPU还是GPU还是hwc
+在系统启动的一系列进程中，和图形相关的进程主要有两个：[surface_flinger进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/)（以下简称sf进程）和[system_server进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)
+
+sf进程负责接受来自APP进程的图形数据，并调用hwc进行合成与最终的送显，从模块关系来看，sf进程在系统中起到一个承上启下的作用
+
+system_server进程负责管理有哪些APP进程可以进行绘图操作以及图层的优先级，依靠[AMS（ActivityManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java)和[WMS（WindowManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java)两个服务来实现
 
 #### 启动surface_flinger进程
 
-接下来我们先来看一下图形系统相关的第一个进程，surface_flinger进程
+我们先来看sf进程，Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起：
 
-http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/
+```c++
+//初始化消息队列，用于接收处理
+void SurfaceFlinger::onFirstRef()
+{
+    MessageQueue->init(this);
+}
 
-不必等到zygote进程启动
-
-surface_flinger进程
+void MessageQueue::init(const sp<SurfaceFlinger>& flinger)
+{
+    mFlinger = flinger;
+    mLooper = new Looper(true);
+    mHandler = new Handler(*this);
+}
+```
 
 ##### 1、创建HWComposer对象
 
 #### 启动system_server进程
 
+> - AMS负责组件（主要是Activity）的启动、切换、调度工作，简单来说就是管理组件是否有绘制权限，如果应用被切换到后台，就没必要绘制图形了
+> - PMS负责为APP分配图层，并确定每个图层的深度，除此以外，PMS还负责分发触摸信号、垂直同步信号等工作
+
 system_server中运行着ams等常见服务，这些服务都是由java代码实现的，需要一个jvm的运行环境，因此，server进程必须要等到zygote进程启动以后fork，再由zygote进程fork而来
 
 #### 启动app进程
 
-### 三、Vsync处理阶段
+### 三、Vsync：系统的指挥官
 
 接下来将会进入到，又臭又长，我这里会尽量精简
 
