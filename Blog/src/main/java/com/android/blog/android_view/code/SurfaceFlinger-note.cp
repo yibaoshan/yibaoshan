@@ -1,27 +1,9 @@
 
-EGLAPI const char* eglQueryStringImplementationANDROID(EGLDisplay dpy, EGLint name);
-
-namespace android {
-
-const String16 sHardwareTest("android.permission.HARDWARE_TEST");
-const String16 sAccessSurfaceFlinger("android.permission.ACCESS_SURFACE_FLINGER");
-const String16 sReadFramebuffer("android.permission.READ_FRAME_BUFFER");
-const String16 sDump("android.permission.DUMP");
-
-// ---------------------------------------------------------------------------
-
-//初始化队列
+//利用RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
 void SurfaceFlinger::onFirstRef()
 {
     mLooper = new Looper(true);
     mHandler = new Handler(*this);
-}
-
-SurfaceFlinger::~SurfaceFlinger()
-{
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    eglTerminate(display);
 }
 
 //暴露给用户进程，每当用户进程成功创建surface以后，调用该方法发起连接并将刚刚的surface地址同步给sf管理
@@ -30,62 +12,24 @@ sp<ISurfaceComposerClient> SurfaceFlinger::createConnection()
     return new Client(this);
 }
 
-sp<IBinder> SurfaceFlinger::createDisplay(const String8& displayName,
-        bool secure)
-{
-    sp<BBinder> token = new DisplayToken(this);
-    return token;
-}
-
-void SurfaceFlinger::destroyDisplay(const sp<IBinder>& display) {
-    mCurrentState.displays.removeItemsAt(idx);
-}
-
-sp<IGraphicBufferAlloc> SurfaceFlinger::createGraphicBufferAlloc()
-{
-    sp<GraphicBufferAlloc> gba(new GraphicBufferAlloc());
-    return gba;
-}
-
-void SurfaceFlinger::deleteTextureAsync(uint32_t texture) {
-    class MessageDestroyGLTexture : public MessageBase {
-        RenderEngine& engine;
-        uint32_t texture;
-    public:
-        MessageDestroyGLTexture(RenderEngine& engine, uint32_t texture)
-            : engine(engine), texture(texture) {
-        }
-        virtual bool handler() {
-            engine.deleteTextures(1, &texture);
-            return true;
-        }
-    };
-    postMessageAsync(new MessageDestroyGLTexture(getRenderEngine(), texture));
-}
-
+//初始化
 void SurfaceFlinger::init() {
 
-    { // Autolock scope
-
+    {
         // initialize EGL for the default display
         mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         eglInitialize(mEGLDisplay, NULL, NULL);
 
         // start the EventThread
+        //启动事件分发线程，提供给APP进程注册事件回调
         sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 vsyncPhaseOffsetNs, true, "app");
         mEventThread = new EventThread(vsyncSrc, *this);
+        //又启动一个事件分发线程，并将自己注册到hwc中，用于sf进程监听vsync信号
         sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 sfVsyncPhaseOffsetNs, true, "sf");
         mSFEventThread = new EventThread(sfVsyncSrc, *this);
         mEventQueue.setEventThread(mSFEventThread);
-
-        // set SFEventThread to SCHED_FIFO to minimize jitter
-        struct sched_param param = {0};
-        param.sched_priority = 2;
-        if (sched_setscheduler(mSFEventThread->getTid(), SCHED_FIFO, &param) != 0) {
-            ALOGE("Couldn't set SCHED_FIFO for SFEventThread");
-        }
 
         // Get a RenderEngine for the given display / config (can't fail)
         mRenderEngine = RenderEngine::create(mEGLDisplay,
@@ -95,7 +39,9 @@ void SurfaceFlinger::init() {
     // Drop the state lock while we initialize the hardware composer. We drop
     // the lock because on creation, it will call back into SurfaceFlinger to
     // initialize the primary display.
+    //初始化HWC对象，加载hwcomposer.so的动作在HWComposer的初始化函数中
     mHwc = new HWComposer(this);
+    //将自己注册到hwc的回调函数中，其内部分别调用registerHotplugCallback、registerRefreshCallback、registerVsyncCallback三个回调方法
     mHwc->setEventHandler(static_cast<HWComposer::EventHandler*>(this));
 
     // retrieve the EGL context that was selected/created
@@ -124,36 +70,24 @@ sp<IDisplayEventConnection> SurfaceFlinger::createDisplayEventConnection() {
 
 // ----------------------------------------------------------------------------
 
+//等待消息唤醒
 void SurfaceFlinger::waitForEvent() {
     do {
-            IPCThreadState::self()->flushCommands();
-            int32_t ret = mLooper->pollOnce(-1);
-            switch (ret) {
-                case Looper::POLL_WAKE:
-                case Looper::POLL_CALLBACK:
-                    continue;
-                case Looper::POLL_ERROR:
-                    ALOGE("Looper::POLL_ERROR");
-                    continue;
-                case Looper::POLL_TIMEOUT:
-                    // timeout (should not happen)
-                    continue;
-                default:
-                    // should not happen
-                    ALOGE("Looper::pollOnce() returned unknown status %d", ret);
-                    continue;
-            }
+          mLooper->pollOnce(-1);
         } while (true);
 }
 
+//请求下一次vsync
 void SurfaceFlinger::signalTransaction() {
     mEvents->requestNextVsync();
 }
 
+//请求下一次vsync
 void SurfaceFlinger::signalLayerUpdate() {
     mEvents->requestNextVsync();
 }
 
+//发送刷新信号给sf进程
 void SurfaceFlinger::signalRefresh() {
     if ((android_atomic_or(eventMaskRefresh, &mEventMask) & eventMaskRefresh) == 0) {
         mQueue.mLooper->sendMessage(this, Message(MessageQueue::REFRESH));
@@ -166,54 +100,7 @@ void SurfaceFlinger::run() {
     } while (true);
 }
 
-void SurfaceFlinger::enableHardwareVsync() {
-    Mutex::Autolock _l(mHWVsyncLock);
-    if (!mPrimaryHWVsyncEnabled && mHWVsyncAvailable) {
-        mPrimaryDispSync.beginResync();
-        //eventControl(HWC_DISPLAY_PRIMARY, SurfaceFlinger::EVENT_VSYNC, true);
-        mEventControlThread->setVsyncEnabled(true);
-        mPrimaryHWVsyncEnabled = true;
-    }
-}
-
-void SurfaceFlinger::resyncToHardwareVsync(bool makeAvailable) {
-    Mutex::Autolock _l(mHWVsyncLock);
-
-    if (makeAvailable) {
-        mHWVsyncAvailable = true;
-    } else if (!mHWVsyncAvailable) {
-        // Hardware vsync is not currently available, so abort the resync
-        // attempt for now
-        return;
-    }
-
-    const auto& activeConfig = mHwc->getActiveConfig(HWC_DISPLAY_PRIMARY);
-    const nsecs_t period = activeConfig->getVsyncPeriod();
-
-    mPrimaryDispSync.reset();
-    mPrimaryDispSync.setPeriod(period);
-
-    if (!mPrimaryHWVsyncEnabled) {
-        mPrimaryDispSync.beginResync();
-        //eventControl(HWC_DISPLAY_PRIMARY, SurfaceFlinger::EVENT_VSYNC, true);
-        mEventControlThread->setVsyncEnabled(true);
-        mPrimaryHWVsyncEnabled = true;
-    }
-}
-
-void SurfaceFlinger::disableHardwareVsync(bool makeUnavailable) {
-    Mutex::Autolock _l(mHWVsyncLock);
-    if (mPrimaryHWVsyncEnabled) {
-        //eventControl(HWC_DISPLAY_PRIMARY, SurfaceFlinger::EVENT_VSYNC, false);
-        mEventControlThread->setVsyncEnabled(false);
-        mPrimaryDispSync.endResync();
-        mPrimaryHWVsyncEnabled = false;
-    }
-    if (makeUnavailable) {
-        mHWVsyncAvailable = false;
-    }
-}
-
+//HWC的vsync回调，sf这里同步给了DispSync线程，接受并处理vsync信号
 void SurfaceFlinger::onVSyncReceived(int32_t type, nsecs_t timestamp) {
     bool needsHwVsync = false;
 
@@ -236,27 +123,14 @@ void SurfaceFlinger::setVsyncEnabled(int disp, int enabled) {
             enabled ? HWC2::Vsync::Enable : HWC2::Vsync::Disable);
 }
 
+//sf进程处理handler机制消息，
 void SurfaceFlinger::onMessageReceived(int32_t what) {
     switch (what) {
         case MessageQueue::INVALIDATE: {
-            bool frameMissed = !mHadClientComposition &&
-                    mPreviousPresentFence != Fence::NO_FENCE &&
-                    mPreviousPresentFence->getSignalTime() == INT64_MAX;
-            ATRACE_INT("FrameMissed", static_cast<int>(frameMissed));
-            if (mPropagateBackpressure && frameMissed) {
-                signalLayerUpdate();
-                break;
-            }
-
-            bool refreshNeeded = handleMessageTransaction();
-            refreshNeeded |= handleMessageInvalidate();
-            refreshNeeded |= mRepaintEverything;
-            if (refreshNeeded) {
-                // Signal a refresh if a transaction modified the window state,
-                // a new buffer was latched, or if HWC has requested a full
-                // repaint
-                signalRefresh();
-            }
+            // Signal a refresh if a transaction modified the window state,
+            // a new buffer was latched, or if HWC has requested a full
+            // repaint
+            signalRefresh();
             break;
         }
         case MessageQueue::REFRESH: {
@@ -280,16 +154,51 @@ bool SurfaceFlinger::handleMessageInvalidate() {
     return handlePageFlip();
 }
 
+//合成五部曲
+
+/*
+     |—> preComposition
+     |—> rebuildLayerStacks
+     |—> setUpHWComposer
+          |—> HWComposer::createWorkList <== hwc="" structures="" are="" allocated="" |—=""> Layer::setGeometry()
+          |—  set per frame data
+          |—  HWComposer::prepare
+               |—> hwc prepare
+     |—> doComposition
+          |---- skip composition on external display if condition meets
+          |—> doDisplayComposition
+          |    |—> doComposeSurfaces
+          |     |—> DisplayDevice::swapBuffers
+          |          |—> eglSwapBuffers
+          |          |—> FramebufferSurface::advanceFrame
+          |—> DisplayDevice::flip(…)     <== just="" update="" statistics="" count="" |--=""> Call DisplayDevice::compositionComplete(), notify each display
+               |--> DisplaySurface::compositionComplete()
+                    |--> FramebufferSurface::compositionComplete()
+                         |--> HWComposer::fbCompositionComplete()
+                              |--> NoOP if HWC >= 1.1
+                              |--> used only in framebuffer device case.
+          |—> postFrameBuffer
+               |—> HWComposer::commit
+                    |—> hwc set
+                    |—> update retireFenceFd of hwc_display_contents_1
+               |—> DisplayDevice::onSwapBuffersCompleted
+                    |—> FramebufferSurface::onFrameComitted
+               |—> Layer::onLayerDisplayed
+               |—   update some statistics
+     |—> postComposition
+*/
 void SurfaceFlinger::handleMessageRefresh() {
-    ATRACE_CALL();
 
-    nsecs_t refreshStartTime = systemTime(SYSTEM_TIME_MONOTONIC);
-
+    //如果图层有更新则执行 invalidate 过程
     preComposition();
+    //重建每个显示屏的所有可见的 Layer 列表
     rebuildLayerStacks();
+    //更新 HWComposer 的 Layer
     setUpHWComposer();
+    //合成所有 Layer 的图像
     doDebugFlashRegions();
     doComposition();
+    //回调每个 layer 的 onPostComposition 方法
     postComposition(refreshStartTime);
 
     mPreviousPresentFence = mHwc->getRetireFence(HWC_DISPLAY_PRIMARY);
@@ -352,10 +261,9 @@ void SurfaceFlinger::doDebugFlashRegions()
     }
 }
 
+//合成五部曲之一：
 void SurfaceFlinger::preComposition()
 {
-    ATRACE_CALL();
-    ALOGV("preComposition");
 
     bool needExtraInvalidate = false;
     const LayerVector& layers(mDrawingState.layersSortedByZ);

@@ -178,19 +178,126 @@ Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/framewo
 
 sf进程负责接受来自APP进程的图形数据，并调用hwc进行合成与最终的送显，从模块关系来看，sf进程在系统中起到一个承上启下的作用
 
-system_server进程负责管理有哪些APP进程可以进行绘图操作以及图层的优先级，依靠[AMS（ActivityManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java)和[WMS（WindowManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java)两个服务来实现
+system_server进程负责管理有哪些APP进程可以进行绘图操作以及各个图层的优先级，依靠[AMS（ActivityManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java)和[WMS（WindowManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java)两个服务来实现
 
 #### 启动surface_flinger进程
 
-我们先来看sf进程，Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起：
+我们先来看sf进程，Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起
+
+sf的入口函数：
 
 ```c++
-//初始化消息队列，用于接收处理
+/frameworks/native/services/surfaceflinger/main_surfaceflinger.cpp
+  
+int main(int, char**) {
+
+    // instantiate surfaceflinger
+    sp<SurfaceFlinger> flinger = new SurfaceFlinger();
+
+    // initialize before clients can connect
+    flinger->init();
+
+    // publish surface flinger
+    sp<IServiceManager> sm(defaultServiceManager());
+    sm->addService(String16(SurfaceFlinger::getServiceName()), flinger, false);
+
+    // publish GpuService
+    sp<GpuService> gpuservice = new GpuService();
+    sm->addService(String16(GpuService::SERVICE_NAME), gpuservice, false);
+
+    // run surface flinger in this thread
+    flinger->run();
+
+    return 0;
+}
+```
+
+main函数的主要作用是创建SurfaceFlinger对象并初始化，要完成的工作都在SurfaceFlinger对象中的初始化函数中：
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+  
+//利用RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
 void SurfaceFlinger::onFirstRef()
 {
-    MessageQueue->init(this);
+    mEventQueue.init(this);
 }
 
+//初始化
+void SurfaceFlinger::init() {
+    {
+        // initialize EGL for the default display
+      	//初始化OpenGL 图形库相关配置
+        mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        eglInitialize(mEGLDisplay, NULL, NULL);
+
+        // start the EventThread
+        //启动事件分发线程，提供给APP进程注册事件回调
+        sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+                vsyncPhaseOffsetNs, true, "app");
+        mEventThread = new EventThread(vsyncSrc, *this);
+        //又启动一个事件分发线程，并将自己注册到hwc中，用于sf进程监听vsync信号
+        sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+                sfVsyncPhaseOffsetNs, true, "sf");
+        mSFEventThread = new EventThread(sfVsyncSrc, *this);
+        mEventQueue.setEventThread(mSFEventThread);
+
+        // Get a RenderEngine for the given display / config (can't fail)
+        mRenderEngine = RenderEngine::create(mEGLDisplay,
+                HAL_PIXEL_FORMAT_RGBA_8888);
+    }
+
+    // Drop the state lock while we initialize the hardware composer. We drop
+    // the lock because on creation, it will call back into SurfaceFlinger to
+    // initialize the primary display.
+    //初始化HWC对象，加载hwcomposer.so的动作在HWComposer的初始化函数中
+    mHwc = new HWComposer(this);
+    //将自己注册到hwc的回调函数中，其内部分别调用registerHotplugCallback、registerRefreshCallback、registerVsyncCallback三个回调方法
+    mHwc->setEventHandler(static_cast<HWComposer::EventHandler*>(this));
+
+    // retrieve the EGL context that was selected/created
+    mEGLContext = mRenderEngine->getEGLContext();
+
+    // make the GLContext current so that we can create textures when creating
+    // Layers (which may happens before we render something)
+    getDefaultDisplayDevice()->makeCurrent(mEGLDisplay, mEGLContext);
+
+    mEventControlThread = new EventControlThread(this);
+    mEventControlThread->run("EventControl", PRIORITY_URGENT_DISPLAY);
+
+    // set initial conditions (e.g. unblank default device)
+    initializeDisplays();
+
+}
+
+void SurfaceFlinger::run() {
+    do {
+        waitForEvent();
+    } while (true);
+}
+
+//等待消息唤醒
+void SurfaceFlinger::waitForEvent() {
+    do {
+        IPCThreadState::self()->flushCommands();
+        int32_t ret = mLooper->pollOnce(-1);
+        } while (true);
+}
+```
+
+初始化函数稍微有点长，我们一步步拆开来看
+
+##### 1、初始化Handler机制
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+//利用RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
+void SurfaceFlinger::onFirstRef()
+{
+    mEventQueue.init(this);
+}
+
+/frameworks/native/services/surfaceflinger/MessageQueue.cpp
 void MessageQueue::init(const sp<SurfaceFlinger>& flinger)
 {
     mFlinger = flinger;
@@ -199,22 +306,203 @@ void MessageQueue::init(const sp<SurfaceFlinger>& flinger)
 }
 ```
 
-##### 1、创建HWComposer对象
+在SurfaceFlinger中，利用了RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
+
+Android是消息驱动的操作系统，APP的UI线程的设计如此，native的系统进程也是如此
+
+在sf进程中，Handler主要处理两件事：提供给APP进程发送“我要刷新”的消息以及提供给vsync线程发送“开始合成工作”的消息
+
+##### 2、初始化EGL环境
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+void SurfaceFlinger::init() {
+    {
+        // initialize EGL for the default display
+        mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        eglInitialize(mEGLDisplay, NULL, NULL);
+      	...
+        // Get a RenderEngine for the given display / config (can't fail)
+        mRenderEngine = RenderEngine::create(mEGLDisplay,
+                HAL_PIXEL_FORMAT_RGBA_8888);
+    }
+
+    // retrieve the EGL context that was selected/created
+    mEGLContext = mRenderEngine->getEGLContext();
+
+}
+```
+
+初始化工作的第二步是配置EGL环境，eglGetDisplay()方法最终会调用到位于/frameworks/native/opengl/libs/EGL/Loader.cpp的load_driver()方法来加载libEGL.so
+
+[EGL](https://www.khronos.org/registry/EGL/)是OpenGL ES在每一部Android设备中的具体实现，这一步执行完成以后用户空间就可以调用egl进行绘图，接着调用eglSwapBuffers()方法将其送到屏幕显示
+
+##### 3、启动事件分发线程
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+void SurfaceFlinger::init() {
+    {
+      	...
+        // start the EventThread
+        //启动事件分发线程，提供给APP进程注册事件回调
+        sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+                vsyncPhaseOffsetNs, true, "app");
+        mEventThread = new EventThread(vsyncSrc, *this);
+        //又启动一个事件分发线程，并将自己注册到hwc中，用于sf进程监听vsync信号
+        sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+                sfVsyncPhaseOffsetNs, true, "sf");
+        mSFEventThread = new EventThread(sfVsyncSrc, *this);
+        mEventQueue.setEventThread(mSFEventThread);
+
+    }
+
+    mEventControlThread = new EventControlThread(this);
+    mEventControlThread->run("EventControl", PRIORITY_URGENT_DISPLAY);
+
+}
+```
+
+在Android图形系统中，Vsync信号不管是硬件产生还是软件模拟，都是交由DispSync来管理
+
+##### 4、初始化HWComposer
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+void SurfaceFlinger::init() {
+  	...
+    // Drop the state lock while we initialize the hardware composer. We drop
+    // the lock because on creation, it will call back into SurfaceFlinger to
+    // initialize the primary display.
+    //初始化HWC对象，加载hwcomposer.so的动作在HWComposer的初始化函数中
+    mHwc = new HWComposer(this);
+    //将自己注册到hwc的回调函数中，其内部分别调用registerHotplugCallback、registerRefreshCallback、registerVsyncCallback三个回调方法
+    mHwc->setEventHandler(static_cast<HWComposer::EventHandler*>(this));
+}
+```
+
+mHwc可以说是sf进程中的核心人物了，不管是接受硬件的vsync信号，还是完成图层合成工作以及最终的送显
+
+##### 5、进入睡眠 等待唤醒
+
+```c++
+/frameworks/native/services/surfaceflinger/main_surfaceflinger.cpp
+int main(int, char**) {
+  	...
+    // run surface flinger in this thread
+    flinger->run();
+    return 0;
+}  
+
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp  
+void SurfaceFlinger::run() {
+    do {
+        waitForEvent();
+    } while (true);
+}
+
+//等待消息唤醒
+void SurfaceFlinger::waitForEvent() {
+    do {
+        IPCThreadState::self()->flushCommands();
+        int32_t ret = mLooper->pollOnce(-1);
+        } while (true);
+}
+```
+
+在完成所有初始化工作后，sf进程进入睡眠状态，等待唤醒
+
+整个调用流程可以简化为
+
+我是图片
 
 #### 启动system_server进程
+
+[system_server](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)进程中运行着AMS、WMS等常见服务，这些服务都是由java代码实现的，需要一个jvm的运行环境
+
+因此，system_server进程必须要等到zygote进程创建DVM/ART虚拟机以后，再由zygote进程fork而来：
+
+```java
+/frameworks/base/services/java/com/android/server/SystemServer.java
+  
+/**
+ * The main entry point from zygote.
+ */
+public static void main(String[] args) {
+    new SystemServer().run();
+}
+
+private void run() {
+  	...
+    Looper.prepareMainLooper();
+  	startBootstrapServices();
+		startOtherServices();
+  	// Loop forever.
+    Looper.loop();
+}  
+
+//启动AMS
+private void startBootstrapServices() {
+  	// Activity manager runs the show.
+ 	 mActivityManagerService = mSystemServiceManager.startService().getService();
+}  
+
+//启动WMS
+private void startOtherServices() {
+  	WindowManagerService.main();//ps：同样是系统服务，待遇差距为什么这么大？我wms差哪了？不服.jpg
+}  
+
+```
+
+zygote进程是如何启动并最终拉起system_server进程这里不展开，我们重点关注SystemServer的run函数
+
+##### 1、初始化ActivityManagerService
+
+##### 2、初始化WindowManagerService
+
+##### 3、进入睡眠 等待唤醒
+
+详细的启动流程这里不展开，我们着重关注system_server进程中的AMS和WMS这两个服务
+
+
 
 > - AMS负责组件（主要是Activity）的启动、切换、调度工作，简单来说就是管理组件是否有绘制权限，如果应用被切换到后台，就没必要绘制图形了
 > - PMS负责为APP分配图层，并确定每个图层的深度，除此以外，PMS还负责分发触摸信号、垂直同步信号等工作
 
-system_server中运行着ams等常见服务，这些服务都是由java代码实现的，需要一个jvm的运行环境，因此，server进程必须要等到zygote进程启动以后fork，再由zygote进程fork而来
+
 
 #### 启动app进程
 
+```java
+//等待消息唤醒
+void SurfaceFlinger::waitForEvent() {
+    do {
+          mLooper->pollOnce(-1);
+        } while (true);
+}
+```
+
+##### 1、加载视图
+
+##### 2、请求vsync信号
+
+##### 3、睡觉
+
 ### 三、Vsync：系统的指挥官
 
-接下来将会进入到，又臭又长，我这里会尽量精简
+好了，万事俱备，只欠东风
 
-友情提醒，在分析调用链的过程中，时刻谨记当前的方法运行在哪个进程，发送的指令是哪个芯片执行的，这对我们理解图形系统有着非常大的帮助
+#### APP进程
+
+##### 1、发送同步消息屏障
+
+##### 2、draw
+
+##### 3、取消同步消息屏障
+
+#### SF进程
+
+
 
 #### 第一次Vsync：View的绘制与渲染
 
@@ -410,7 +698,7 @@ Drawing with VSync
 
 
 
-##### 2、第二帧，SF合成
+##### 2、第二帧，SF进程，合成五部曲
 
 ##### 3、第三帧，DRM/KMS显示
 
@@ -456,9 +744,26 @@ sf的两个回调：
 
 走合成流程
 
-### 三、结语
+##### 6、Activity/Window/View/SurfaceView/Surface/Layer/GraphicBuffer/BufferQueue之间的关系
+
+先说结论
+
+只有当Activity/Window可见，并且有绘图的需求时，才会去申请Surface
+
+### 四、结语
+
+创建APP进程并加载xml文件
+
+1. wms为activity创建viewrootimpl
+2. viewrootimpl持有surface，
+
+时序图就不给大家画了，画了也记不住，每个版本还都不一样
+
+友情提醒，在分析调用链的过程中，时刻谨记当前的方法运行在哪个进程，发送的指令是哪个芯片执行的，这对我们理解图形系统有着非常大的帮助
 
 再次强调一遍，文章中源码版本是7.0
+
+隐藏了非常多的细节
 
 了解了GraphicBuffer的流转过程，也就明白了Android系统的显示流程
 
