@@ -14,9 +14,9 @@ Android图形系统（三）系统篇：闲聊View显示流程
 
 Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Framework框架层几个部分组成，整个系统非常庞大，各个模块之间错综复杂，让人无从下手
 
-但想要从上到下打通整个显示流程，这几个模块绕不开的话题
+中间掺杂着handler、binder等通信机制更让人头疼
 
-不过，再复杂的系统设计，也离不开硬件的支持
+不过，再复杂的软件设计，也离不开硬件的支持
 
 今天，让我们化繁为简，从最基础的硬件组成开始，自下而上，看看Android图形子系统是如何一步步建立起来的
 
@@ -110,7 +110,7 @@ Andorid设备基于硬件，驱动层
 
 ###### 1.2 Gralloc机制
 
-######1.3 GraphicBuffer
+###### 1.3 GraphicBuffer
 
 GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此对象上进行，包括同步给GPU以及HWC
 
@@ -144,23 +144,6 @@ Surface中持有BufferQueue的引用，并且封装了出列、入列等一系�
 
 
 
-##### 3、SurfaceFlinger进程
-
-###### 3.1 Layer
-
-Layer通过GraphicBuffer的包装类BufferItem持有GraphicBuffer的队列
-
-layer有两个，一个是hwui包下的，通常我们说的layer值得是sf包下的
-
-日常吐槽Google工程师命名及其混乱
-
-##### 4、什么是硬件加速？
-
-总结如图，开启硬件加速对于APP来说导致的
-
-1. 开启RenderThread，将会在systrace中体现
-2. 由于厂商策略不同，GPU硬件可能并没能呈现预期效果
-
 认识硬件设计和层级设计非常重要，建议读者在阅读本文时同时打开以下网页对比着看，在阅读过程中不知道回过头看看在系统设计的哪一层
 
 - libui.so：Fence、Gralloc、GraphicBuffer
@@ -168,11 +151,13 @@ layer有两个，一个是hwui包下的，通常我们说的layer值得是sf包�
 - surfaceflinger进程：Layer和DispSync
 - SystemServer进程：ams、wms等常用服务
 
-Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[libgui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)库，厂商提供了[hwcomposer.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_hwcomposer/)和[gralloc.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_gralloc/)以及GPU的[libEGL.so](https://source.android.com/devices/graphics/implement-opengl-es?hl=zh-cn)库，这五个库为Android的图形系统打下了坚实的基础，几乎所有的图形显示都得依靠他们哥几个才能完成
-
-介绍完Android设备的硬件组成和图形库设计，接下来我们开始分析系统的启动流程，一起来看看系统在开机的过程中都做了哪些工作
+Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[libgui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)库，厂商提供了[hwcomposer.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_hwcomposer/)和[gralloc.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_gralloc/)以及GPU的[libEGL.so](https://source.android.com/devices/graphics/implement-opengl-es?hl=zh-cn)库，这几个库为Android的图形系统打下了坚实的基础，几乎所有的图形显示都得依靠他们哥几个才能完成
 
 ### 二、系统启动
+
+介绍完Android设备的硬件组成和图形库设计，接下来我们开始分析系统的启动流程，看看系统在开机的过程中都做了哪些工作
+
+#### 启动surface_flinger进程
 
 在系统启动的一系列进程中，和图形相关的进程主要有两个：[surface_flinger进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/)（以下简称sf进程）和[system_server进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)
 
@@ -180,7 +165,7 @@ sf进程负责接受来自APP进程的图形数据，并调用hwc进行合成与
 
 system_server进程负责管理有哪些APP进程可以进行绘图操作以及各个图层的优先级，依靠[AMS（ActivityManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java)和[WMS（WindowManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java)两个服务来实现
 
-#### 启动surface_flinger进程
+#### 
 
 我们先来看sf进程，Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起
 
@@ -416,6 +401,18 @@ void SurfaceFlinger::waitForEvent() {
 
 我是图片
 
+> 之前写的，总的来说，sf进程在图形处理相关方面一共做了三件事
+>
+> 1. 注册vsync信号回调，如果硬件不支持，启用VSyncThread线程模拟
+> 2. 启动vsync信号线程（如果硬件支持的话）
+> 3. 初始化HWComposer对象，并且注册HWC回调
+> 4. 提供链接方法，等待APP端跨进程调用
+> 5. 睡觉，等待消息
+>
+> 关于第4点要着重强调一遍，APP进程申请Surface成功后，经过一系列的方法调用，最终会在sf进程中创建对应的Layer，这个Layer会保存在mLayers中
+>
+> 注意，每个版本的surfaceflinger代码都在变，对不上的话可以检查源码版本
+
 #### 启动system_server进程
 
 [system_server](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)进程中运行着AMS、WMS等常见服务，这些服务都是由java代码实现的，需要一个jvm的运行环境
@@ -474,214 +471,96 @@ zygote进程是如何启动并最终拉起system_server进程这里不展开，�
 #### 启动app进程
 
 ```java
-//等待消息唤醒
-void SurfaceFlinger::waitForEvent() {
-    do {
-          mLooper->pollOnce(-1);
-        } while (true);
+\frameworks\base\core\java\android\view\WindowManagerGlobal.java
+  
+public void addView() {
+  ...
+  root = new ViewRootImpl()
+}
+
+\frameworks\base\core\java\android\view\ViewRootImpl.java
+  
+public ViewRootImpl(){
+  mChoreographer = Choreographer.getInstance();
+  public final Surface mSurface = new Surface();
 }
 ```
 
-##### 1、加载视图
+##### 1、创建ViewRootImpl
 
-##### 2、请求vsync信号
+##### 2、创建Choreographer
 
-##### 3、睡觉
+最重要的是创建了DisplayEventReceiver对象，它让choreographer拥有了感知vsync信号的能力
+
+```c++
+\frameworks\native\libs\gui\DisplayEventReceiver.cpp
+
+DisplayEventReceiver::DisplayEventReceiver(ISurfaceComposer::VsyncSource vsyncSource) {
+    sp<ISurfaceComposer> sf(ComposerService::getComposerService());
+    if (sf != NULL) {
+        mEventConnection = sf->createDisplayEventConnection(vsyncSource);
+        if (mEventConnection != NULL) {
+            mDataChannel = std::make_unique<gui::BitTube>();
+            mEventConnection->stealReceiveChannel(mDataChannel.get());
+        }
+    }
+}
+```
+
+DisplayEventReceiver对应的cpp文件中，创建了与sf进程的链接，并将该链接注册到
+
+##### 3、请求vsync信号
+
+invalidate 和 requestLayout最终都会调用到viewrootimpl.scheduleTraversals()方法，在此方法中会调用requestNextVsync()
+
+##### 4、进入睡眠 等待唤醒
+
+> 之前写的，从zygote进程中fork出APP进程后，WindowManagerGlobal
+>
+> Activity的创建过程的调用链有点长，这里先忽略掉，在AMS和WMS的通力合作下创建出Activity实例对象
+>
+> 这个实例在AMS保存为ActivityRecord对象，在WMS中保存为WindowState对象
+>
+> ViewRootImpl中持有两个非常重要的对象：Choreographer和Surface
+>
+> Choreographer中也有一个非常重要的对象：DisplayEventReceiver
+>
+> DisplayEventReceiver完成对gui.so中的DisplayEventReceiver封装，
+>
+> 还记得DisplayEventReceiver吗？
+>
+> 这就是为什么Choreographer也能接收到vsync信号的关键
+>
+> ```c++
+> frameworks/native/libs/gui/DisplayEventReceiver.cpp
+> DisplayEventReceiver::DisplayEventReceiver() {
+>     sp<ISurfaceComposer> sf(ComposerService::getComposerService());
+>     if (sf != NULL) {
+>         mEventConnection = sf->createDisplayEventConnection();
+>         if (mEventConnection != NULL) {
+>             mDataChannel = mEventConnection->getDataChannel();
+>         }
+>     }
+> }
+> ```
+>
+> ViewRootImpl本身由WMS管理，一个Activity对应一个ViewRootImpl
+>
+> 从这里我们也可以两位
+>
+> AMS负责管理组件状态，WMS负责管理视图状态
+>
+> 我们这里一笔带过，简单来说是通过AMS创建了
 
 ### 三、Vsync：系统的指挥官
 
-好了，万事俱备，只欠东风
-
-#### APP进程
-
-##### 1、发送同步消息屏障
-
-##### 2、draw
-
-##### 3、取消同步消息屏障
-
-#### SF进程
-
-
-
-#### 第一次Vsync：View的绘制与渲染
-
-在vsync发生之前，系统早已经做好了准备
-
-本章我们一起来看一看，HAL层面的驱动实现我们先不管
-
-#### Vsync到来前的准备工作
-
-我们假设内核和驱动部分都已经启动好了
-
-##### 1、创建surface_flinger进程
-
-http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/
-
-```c++
-
-frameworks/native/services/surfaceflinger/Client.cpp
-// protected by mLock
-DefaultKeyedVector< wp<IBinder>, wp<Layer> > mLayers;//保存客户端的layer
-
-frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
-//sf的初始化方法
-void SurfaceFlinger::init() {
-  // initialize EGL for the default display
-  mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  eglInitialize(mEGLDisplay, NULL, NULL);
-  // start the EventThread
-sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
-        vsyncPhaseOffsetNs, true, "app");
-mEventThread = new EventThread(vsyncSrc, *this);
-sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
-        sfVsyncPhaseOffsetNs, true, "sf");
-mSFEventThread = new EventThread(sfVsyncSrc, *this);
-mEventQueue.setEventThread(mSFEventThread);
-  //初始化hwc函数
-  run();
-}
-
-void SurfaceFlinger::run() {
-    do {
-        waitForEvent();//睡觉，等待事件发生
-    } while (true);
-}
-
-//APP进程发起连接
-sp<ISurfaceComposerClient> SurfaceFlinger::createConnection()
-{
-    sp<ISurfaceComposerClient> bclient;
-    sp<Client> client(new Client(this));
-    status_t err = client->initCheck();
-    if (err == NO_ERROR) {
-        bclient = client;
-    }
-    return bclient;
-}
-
-//介绍消息并处理
-void SurfaceFlinger::onMessageReceived(int32_t what, int64_t vsyncId, nsecs_t expectedVSyncTime) {
-    switch (what) {
-        case MessageQueue::INVALIDATE: {
-            onMessageInvalidate(vsyncId, expectedVSyncTime);
-            break;
-        }
-    }
-}
-
-frameworks/native/services/surfaceflinger/EventThread.cpp
-void EventThread::enableVSyncLocked() {
-     if (!mUseSoftwareVSync) {
-         // never enable h/w VSYNC when screen is off
-         if (!mVsyncEnabled) {
-             mVsyncEnabled = true;
-             mVSyncSource->setCallback((this));
-             mVSyncSource->setVSyncEnabled(true);
-         }
-     }
-     mDebugVsyncEnabled = true;
-     sendVsyncHintOnLocked();
- }
-```
-
-总的来说，sf进程在图形处理相关方面一共做了三件事
-
-1. 注册vsync信号回调，如果硬件不支持，启用VSyncThread线程模拟
-2. 启动vsync信号线程（如果硬件支持的话）
-3. 初始化HWComposer对象，并且注册HWC回调
-4. 提供链接方法，等待APP端跨进程调用
-5. 睡觉，等待消息
-
-关于第4点要着重强调一遍，APP进程申请Surface成功后，经过一系列的方法调用，最终会在sf进程中创建对应的Layer，这个Layer会保存在mLayers中
-
-注意，每个版本的surfaceflinger代码都在变，对不上的话可以检查源码版本
-
-##### 2、创建system_server进程
-
-Loop()
-
-##### 3、创建APP进程
-
-从zygote进程中fork出APP进程后，WindowManagerGlobal
-
-Activity的创建过程的调用链有点长，这里先忽略掉，在AMS和WMS的通力合作下创建出Activity实例对象
-
-这个实例在AMS保存为ActivityRecord对象，在WMS中保存为WindowState对象
-
-ViewRootImpl中持有两个非常重要的对象：Choreographer和Surface
-
-Choreographer中也有一个非常重要的对象：DisplayEventReceiver
-
-DisplayEventReceiver完成对gui.so中的DisplayEventReceiver封装，
-
-还记得DisplayEventReceiver吗？
-
-这就是为什么Choreographer也能接收到vsync信号的关键
-
-```c++
-frameworks/native/libs/gui/DisplayEventReceiver.cpp
-DisplayEventReceiver::DisplayEventReceiver() {
-    sp<ISurfaceComposer> sf(ComposerService::getComposerService());
-    if (sf != NULL) {
-        mEventConnection = sf->createDisplayEventConnection();
-        if (mEventConnection != NULL) {
-            mDataChannel = mEventConnection->getDataChannel();
-        }
-    }
-}
-```
-
-ViewRootImpl本身由WMS管理，一个Activity对应一个ViewRootImpl
-
-从这里我们也可以两位
-
-AMS负责管理组件状态，WMS负责管理视图状态
-
-我们这里一笔带过，简单来说是通过AMS创建了
-
-###### 3.1 AMS创建Activity对象
-
-###### 3.2 WMS创建Window对象
-
-###### Choreographer回调注册
-
-###### ViewRootImpl
-
-在ViewRootImpl中会创建mSurface对象，这个对象对应的类是Surface.java
-
-surface.java封装了对gui的操作，jni类在android_view_Surface.cpp中
-
-呼~
-
-到这里，一个surface对象终于创建完成
-
-###### ActivityThread
-
-Looper.loop()进入睡眠等待唤醒
-
-sf准备好接收vsync信号
-
-#### Vsync生产与处理
-
-sf在初始化时注册了hwc的回调，hwc是由屏幕驱动来定时调用的，由~~DispSync~~来分发
-
-很多分析文章都提到了DispSync，所以我们简单介绍一下：
-
-> 是什么
-
-假设hwc信号直接到达sf，再有sf分发给各个
-
-至此，APP进程创建完成，系统服务也时刻准备着
-
-接下来，APP进程和系统进程都一同等待着Vsync信号的到来
+好了，万事俱备，只欠东风，APP进程和SF进程都一同等待着Vsync信号的到来
 
 Drawing with VSync
 
-##### 1、第一帧，APP进程绘制与渲染
+#### APP进程
 
-- 创建Surface，创建BufferQueue，SF对应创建Layer，每一个Surface创建成功后，经过一系列的方法调用，最终会被同步到sf进程，并创建Layer，就将会被把书翻到第一章第二节的，surface
-- 
+创建Surface，创建BufferQueue，SF对应创建Layer，每一个Surface创建成功后，经过一系列的方法调用，最终会被同步到sf进程，并创建Layer，就将会被把书翻到第一章第二节的，surface
 
 前面我们提到了eventthread，
 
@@ -698,11 +577,9 @@ Drawing with VSync
 
 
 
-##### 2、第二帧，SF进程，合成五部曲
+##### 1、发送同步消息屏障
 
-##### 3、第三帧，DRM/KMS显示
-
-##### 4、新同学的加入：RenderThread
+##### 2、draw
 
 Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
@@ -714,7 +591,15 @@ Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
 二是留给UI线程更多的时间来处理messagequeue中的消息，
 
-##### 5、如何暂停接收Vsync信号？
+##### 3、取消同步消息屏障
+
+#### SF进程
+
+#### 小结
+
+好了，我们来梳理显示流程
+
+##### 提问：如何暂停接收Vsync信号？
 
 我们打开APP后没有进行任何操作，APP还会执行渲染流程吗？
 
@@ -744,13 +629,22 @@ sf的两个回调：
 
 走合成流程
 
-##### 6、Activity/Window/View/SurfaceView/Surface/Layer/GraphicBuffer/BufferQueue之间的关系
+##### 提问：View区别
 
-先说结论
+##### 提问：flutter为什么能显示？
 
-只有当Activity/Window可见，并且有绘图的需求时，才会去申请Surface
+
 
 ### 四、结语
+
+总结一下View的显示流程，分三步走：
+
+- 第一步，系统启动阶段
+  1. 启动sf进程，初始化hwc、egl环境等，启动vsync线程并注册回调
+  2. 启动zygote进程，初始化jvm环境加载常用jni，最后拉起system进程启动常用的ams、wms服务等
+  3. 启动launch，加载
+- 第二部，请求vsync信号阶段
+  1. 通过chro讲触摸事件同步给APP进程，如果
 
 创建APP进程并加载xml文件
 
@@ -821,7 +715,7 @@ Android图形子系列横跨硬件驱动、Linux内核、Framework框架三层�
 
 这就导致想要理清它们之间的关系变成一件比较困难的事情，好在已经有各位前辈铺好了路
 
-希望本文能够抛砖引玉，为好学的你提供一点点帮助
+希望本文能够抛砖引玉，为屏幕前的读者朋友提供一点点帮助
 
 全文完
 
@@ -830,7 +724,7 @@ Android图形子系列横跨硬件驱动、Linux内核、Framework框架三层�
 - [《深入理解Android内核设计思想》- 林学森](https://book.douban.com/subject/25921329/)
 - [《Weishu's Notes》- 田维术（太极/两仪作者）](https://weishu.me/)
 - [《Android显示系列》- 努比亚团队](https://www.jianshu.com/c/3a4d92743e88)
-- [《Systrace系列》- 高爷（性能优化专家）](https://www.androidperformance.com/2019/05/28/Android-Systrace-About) 
+- [《Systrace系列》- 高爷](https://www.androidperformance.com/2019/05/28/Android-Systrace-About) 
 - [《Android 12 BlastBufferQueue系列》- 大天使之剑](https://www.jianshu.com/u/124e5f361305)
 - [《DRM与BufferQueue系列》- 何小龙](https://blog.csdn.net/hexiaolong2009?type=blog)
 - [《Android图形显示系列》- 夕阳叹](https://blog.csdn.net/jxt1234and2010/category_2826805.html)
