@@ -153,6 +153,8 @@ Surface中持有BufferQueue的引用，并且封装了出列、入列等一系�
 
 Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[libgui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)库，厂商提供了[hwcomposer.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_hwcomposer/)和[gralloc.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_gralloc/)以及GPU的[libEGL.so](https://source.android.com/devices/graphics/implement-opengl-es?hl=zh-cn)库，这几个库为Android的图形系统打下了坚实的基础，几乎所有的图形显示都得依靠他们哥几个才能完成
 
+有了这几个库支持，Android系统才能
+
 ### 二、Vsync发生前：系统启动
 
 介绍完Android设备的硬件组成和图形库设计，接下来我们开始分析系统的启动流程，看看系统在开机的过程中都做了哪些工作
@@ -506,11 +508,11 @@ APP的启动过程这里同样不展开，对于Activity启动流程不熟悉的
 2. 调用ViewRootImpl.requestLayout()方法请求Vsync信号
 3. 主线程Looper.loop()进入休眠，等待Vsync到来
 
-##### 1、setContentView解析
+##### 1、setContentView加载视图
 
-在Android开发中设置视图不外乎于两种方式：xml文件和Java编码
+Android开发中设置视图不外乎于两种方式：xml文件和Java编码
 
-不管使用xml还是view对象，都需要调用setContentView()将视图绑定到Activity当中：
+不管是使用xml还是View对象，都需要调用setContentView()方法将视图绑定到Activity当中：
 
 ```java
 \frameworks\base\core\java\android\app\Activity.java
@@ -542,22 +544,13 @@ public void setView(View view) {
 }
 ```
 
-如代码所示，经过一系列的方法调用后，最终会执行ViewRootImpl.setView()方法，将DecorView保存到ViewRootImpl的成员变量mView中
+如代码所示，经过一系列的方法调用后，最终会执行ViewRootImpl.setView()方法，将DecorView保存到ViewRootImpl的成员变量mView中；同时，setView()方法会将视图同步给WMS，在WMS中对应创建了一个WindowState对象
 
-在添加视图的过程中，会创建ViewRootImpl实例对象
-
-ViewRootImpl实现了ViewParent接口，作为View树的根部，View的测量、布局、绘制以及输入事件的派发处理都由ViewRootImpl触发
-
-另一方面，它是WindowManagerGlobal工作的实际实现者，因此它还需要负责与WMS交互通信以调整窗口的位置大小，以及对来自WMS的事件（如窗口尺寸改变等）作出相应的处理
-
-除此之外，ViewRootImpl还包含Choreographer对象，它是组成ViewRootImpl的几个关键角色之一
-
-**创建Choreographer：**
+除此以外，ViewRootImpl还包含Choreographer对象，它是ViewRootImpl几个关键成员变量之一：
 
 ```java
 \frameworks\base\core\java\android\view\ViewRootImpl.java
   
-public final Surface mSurface = new Surface();
 public ViewRootImpl(){
   //获取Choreographer单例对象
   mChoreographer = Choreographer.getInstance();
@@ -573,22 +566,29 @@ private Choreographer(Looper looper) {
 }  
 ```
 
-在Choreographer的构造函数中创建了DisplayEventReceiver对象，它让Choreographer拥有了感知Vsync信号的能力
+ViewRootImpl在构造函数中获取了Choreographer实例对象，紧接着在Choreographer的构造函数中又创建了FrameDisplayEventReceiver对象
+
+FrameDisplayEventReceiver对应的实现是开篇中提到的libgui.so中DisplayEventReciver对象，到这里我们就不向下继续追踪，以免引入过多的角色导致文章的阅读体验下降
+
+总之，FrameDisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力
+
+ViewRootImpl另一个需要关注的成员变量是mSurface，它是View能显示的基础
+
+```java
+\frameworks\base\core\java\android\view\ViewRootImpl.java
+  
+public final Surface mSurface = new Surface();
+```
 
 总结一下在setContentView阶段发生的事情：
 
 - 创建ViewRootImpl对象并将DecorView绑定到mView成员变量中
 - 创建Choreographer对象并注册一系列回调方法
-- 请求
-
-当一个Activity创建完成后：
-
-- ams拥有了activityrecord对象（未包含）
-- wms拥有了windowstate对象
-- ViewRootImpl拥有了decorview（根view）
-- ViewRootImpl拥有了Choreographer
+- 创建了Surface对象交给ViewRootImpl成员变量mSurface
 
 ##### 2、请求vsync信号
+
+在ViewRootImpl首次加载视图的时候，需要注意一个细节
 
 在ViewRootImpl.setView()方法中，
 
