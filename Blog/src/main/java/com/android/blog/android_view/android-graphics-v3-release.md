@@ -153,7 +153,7 @@ Surface中持有BufferQueue的引用，并且封装了出列、入列等一系�
 
 Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[libgui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)库，厂商提供了[hwcomposer.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_hwcomposer/)和[gralloc.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_gralloc/)以及GPU的[libEGL.so](https://source.android.com/devices/graphics/implement-opengl-es?hl=zh-cn)库，这几个库为Android的图形系统打下了坚实的基础，几乎所有的图形显示都得依靠他们哥几个才能完成
 
-### 二、系统启动
+### 二、Vsync发生前：系统启动
 
 介绍完Android设备的硬件组成和图形库设计，接下来我们开始分析系统的启动流程，看看系统在开机的过程中都做了哪些工作
 
@@ -455,7 +455,35 @@ zygote进程是如何启动并最终拉起system_server进程这里不展开，�
 
 ##### 1、初始化ActivityManagerService
 
+AMS是Android系统最为核心的服务之一，其职责包括四大核心组件与进程的管理
+
+
+
+从服务的名称也可以看出来，主要是管理Activity
+
+所有的页面都是以Activity作为页面的承载，四大组件是Android系统为应用开发者提供
+
+提供给上层业务开发，也就是为应用开发提供接口
+
+在图形系统中AMS有什么作用呢？管理页面是否可见，举个例子：
+
+当Activity完全不可见时，页面有个无限循环动画在执行，操作系统会绘制它吗？
+
+这也是为什么当我们启动一个透明态的Activity时，原本的Activity只会执行onPause()而不执行onStop()回调方法的原因
+
 ##### 2、初始化WindowManagerService
+
+理论上，可以不通过AMS实现页面展示
+
+在本小节中聊聊WMS在图形系统当中的作用
+
+activity、dialog、toast等等
+
+我们可以跳过AMS直接向WMS添加一个View，这个View能够
+
+思考一个问题，在activity中显示一个dialog弹窗，虽然启动dialog需要activity的上下文，这个弹窗显然并不归activity管理
+
+用户点击返回键时，接收事件的肯定是最上层的弹窗，接着dismiss()
 
 ##### 3、进入睡眠 等待唤醒
 
@@ -470,48 +498,114 @@ zygote进程是如何启动并最终拉起system_server进程这里不展开，�
 
 #### 启动app进程
 
+APP的启动过程这里同样不展开，对于Activity启动流程不熟悉的同学可以去网上搜索文章看完再回来（不必拘泥于细节，了解大致流程即可）
+
+在APP创建完成以后，会启动AndroidManifest中配置的默认Activity，拉起Activity过程中，一共完成了三件事：
+
+1. 调用setContentView加载视图，创建ViewRootImpl
+2. 调用ViewRootImpl.requestLayout()方法请求Vsync信号
+3. 主线程Looper.loop()进入休眠，等待Vsync到来
+
+##### 1、setContentView解析
+
+在Android开发中设置视图不外乎于两种方式：xml文件和Java编码
+
+不管使用xml还是view对象，都需要调用setContentView()将视图绑定到Activity当中：
+
 ```java
+\frameworks\base\core\java\android\app\Activity.java
+
+public void setContentView(View view) {
+    getWindow().setContentView(view);
+}
+
+\frameworks\base\core\java\com\android\internal\policy\PhoneWindow.java
+@Override
+public void setContentView(View view) {
+  ...
+}
+
 \frameworks\base\core\java\android\view\WindowManagerGlobal.java
-  
+
 public void addView() {
   ...
-  root = new ViewRootImpl()
+  root = new ViewRootImpl()//创建了关键的viewrootimpl
+  root.setView();
 }
 
+frameworks\base\core\java\android\view\ViewRootImpl.java
+
+public void setView(View view) {
+    mView = view;//将DecorView保存到ViewRootImpl的成员变量mView中
+    requestLayout();//请求vsync信号
+  	res = mWindowSession.addToDisplay();//背后又是老长一串调用链，就不展开跟了，大致流程是在wms服务中创建了WindowState对象
+}
+```
+
+如代码所示，经过一系列的方法调用后，最终会执行ViewRootImpl.setView()方法，将DecorView保存到ViewRootImpl的成员变量mView中
+
+在添加视图的过程中，会创建ViewRootImpl实例对象
+
+ViewRootImpl实现了ViewParent接口，作为View树的根部，View的测量、布局、绘制以及输入事件的派发处理都由ViewRootImpl触发
+
+另一方面，它是WindowManagerGlobal工作的实际实现者，因此它还需要负责与WMS交互通信以调整窗口的位置大小，以及对来自WMS的事件（如窗口尺寸改变等）作出相应的处理
+
+除此之外，ViewRootImpl还包含Choreographer对象，它是组成ViewRootImpl的几个关键角色之一
+
+**创建Choreographer：**
+
+```java
 \frameworks\base\core\java\android\view\ViewRootImpl.java
   
+public final Surface mSurface = new Surface();
 public ViewRootImpl(){
+  //获取Choreographer单例对象
   mChoreographer = Choreographer.getInstance();
-  public final Surface mSurface = new Surface();
 }
+
+/frameworks/base/core/java/android/view/Choreographer.java
+  
+private Choreographer(Looper looper) {
+  mHandler = new FrameHandler(looper);
+  //初始化之后通过jni调用到DisplayEventDispatcher初始化，接着创建libgui.so中DisplayEventReciver对象
+  //再往下的代码就不跟了，感兴趣的同学可以自己去看，大致流程是创建了一个与sf进程的连接并注册到EventThread线程中，从而获得vsync感知能力
+  mDisplayEventReceiver =  new FrameDisplayEventReceiver(looper);
+}  
 ```
 
-##### 1、创建ViewRootImpl
+在Choreographer的构造函数中创建了DisplayEventReceiver对象，它让Choreographer拥有了感知Vsync信号的能力
 
-##### 2、创建Choreographer
+总结一下在setContentView阶段发生的事情：
 
-最重要的是创建了DisplayEventReceiver对象，它让choreographer拥有了感知vsync信号的能力
+- 创建ViewRootImpl对象并将DecorView绑定到mView成员变量中
+- 创建Choreographer对象并注册一系列回调方法
+- 请求
 
-```c++
-\frameworks\native\libs\gui\DisplayEventReceiver.cpp
+当一个Activity创建完成后：
 
-DisplayEventReceiver::DisplayEventReceiver(ISurfaceComposer::VsyncSource vsyncSource) {
-    sp<ISurfaceComposer> sf(ComposerService::getComposerService());
-    if (sf != NULL) {
-        mEventConnection = sf->createDisplayEventConnection(vsyncSource);
-        if (mEventConnection != NULL) {
-            mDataChannel = std::make_unique<gui::BitTube>();
-            mEventConnection->stealReceiveChannel(mDataChannel.get());
-        }
-    }
-}
+- ams拥有了activityrecord对象（未包含）
+- wms拥有了windowstate对象
+- ViewRootImpl拥有了decorview（根view）
+- ViewRootImpl拥有了Choreographer
+
+##### 2、请求vsync信号
+
+在ViewRootImpl.setView()方法中，
+
+```java
+View.invalidate()/requestLayout()
+	->
 ```
-
-DisplayEventReceiver对应的cpp文件中，创建了与sf进程的链接，并将该链接注册到
-
-##### 3、请求vsync信号
 
 invalidate 和 requestLayout最终都会调用到viewrootimpl.scheduleTraversals()方法，在此方法中会调用requestNextVsync()
+
+ViewRootImpl#performTraversals
+
+scheduleTraversals() 
+
+
+
+
 
 ##### 4、进入睡眠 等待唤醒
 
@@ -552,7 +646,7 @@ invalidate 和 requestLayout最终都会调用到viewrootimpl.scheduleTraversals
 >
 > 我们这里一笔带过，简单来说是通过AMS创建了
 
-### 三、Vsync：系统的指挥官
+### 三、Vsync发生后：系统的指挥官
 
 好了，万事俱备，只欠东风，APP进程和SF进程都一同等待着Vsync信号的到来
 
@@ -595,11 +689,13 @@ Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
 #### SF进程
 
-#### 小结
 
-好了，我们来梳理显示流程
 
-##### 提问：如何暂停接收Vsync信号？
+至此，整个vsync周期发生的都已经完成，我们来梳理显示流程
+
+下面几个问题是我个人在学习图形系统中比较疑惑的点，在此分享希望能够帮助到其他人
+
+如何暂停接收Vsync信号？
 
 我们打开APP后没有进行任何操作，APP还会执行渲染流程吗？
 
@@ -629,13 +725,25 @@ sf的两个回调：
 
 走合成流程
 
-##### 提问：View区别
-
-##### 提问：flutter为什么能显示？
-
 
 
 ### 四、结语
+
+AMS/WMS在图形系统中的作用
+
+WMS管理的窗口类型可以分为三种，应用窗口、子窗口（需要父窗口）和系统窗口
+
+我们的应用属于应用窗口，Dialog则是子窗口，Toast属于系统窗口
+
+创建更新删除工作，还管理者每一个Window的深度Z-Order
+
+Activity/Dialog/Toast/Window之间的区别？
+
+Surface/Layer/GraphicBuffer/ButterQueue之间的联系？
+
+**SurfaceView和普通View的区别**
+
+
 
 总结一下View的显示流程，分三步走：
 
@@ -722,6 +830,7 @@ Android图形子系列横跨硬件驱动、Linux内核、Framework框架三层�
 ### 五、参考资料
 
 - [《深入理解Android内核设计思想》- 林学森](https://book.douban.com/subject/25921329/)
+- [《深入理解Android 卷III》- 张大伟](https://book.douban.com/subject/26598458/)
 - [《Weishu's Notes》- 田维术（太极/两仪作者）](https://weishu.me/)
 - [《Android显示系列》- 努比亚团队](https://www.jianshu.com/c/3a4d92743e88)
 - [《Systrace系列》- 高爷](https://www.androidperformance.com/2019/05/28/Android-Systrace-About) 
