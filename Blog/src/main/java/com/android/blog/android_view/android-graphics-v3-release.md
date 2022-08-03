@@ -2,15 +2,15 @@ Android图形系统（三）系统篇：闲聊View显示流程
 
 对于应用开发工程师来说，虽然我们不需要写操作系统代码，但是了解View最终是如何显示到屏幕上还是非常有必要的
 
-本篇是Android图形系列的第三篇文章，在之前的两篇文章中我们分别学习了屏幕的“显示原理”和屏幕的“刷新原理”，今天我们来一起学习Android系统的图形架构设计，聊一聊输送到屏幕的画面数据是如何诞生的
+本篇是Android图形系列的第三篇文章，在之前的两篇文章中分别介绍了屏幕的“显示原理”和屏幕的“刷新原理”，今天我们来一起学习Android系统的图形架构设计，聊一聊输送到屏幕的画面数据是如何诞生的
 
-本文的目标是希望读者朋友能从宏观上构建一个Android图形子系统的清晰框架与认知，因此，文中不会包含太多的方法调用链以及代码逻辑，非Android开发工程师也可以放心食用
+本文的目标是希望读者朋友能从宏观上建立一个Android图形子系统的清晰框架，因此，文中不会包含太多的方法调用链以及代码逻辑，非Android开发工程师也可以放心食用
 
 以下，enjoy：
 
 我是概览图
 
-tips：全文基于[Android 7.1.2](http://www.aospxref.com/android-7.1.2_r39/xref/)版本，有些内容可能已经过时
+> tips：全文基于[Android 7.1.2](http://www.aospxref.com/android-7.1.2_r39/xref/)版本，有些内容可能已经过时
 
 ### 一、开篇
 
@@ -36,21 +36,11 @@ Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Fra
 
 小米11使用了高通骁龙888处理器，
 
-因为是开发板，所以板子上没有屏幕和摄像头，预留了MIPI/HDMI/DP等图像输出接口
-
-抛开USB、type-c、tf卡槽、MIPI、HDMI、DP等I/O接口，开发板主要是由组成是，
-
 这里需要重点关注的是GPU模块
 
 了解主板上，我们的指令是哪个芯片在执行
 
 我们常常听到的OpenGL ES就是由GPU驱动来实现，包括Android 7.0宣布支持Vulkan协议，同样也是由GPU驱动实现
-
-我们可以去RK3889的用户手册
-
-图片来源：datasheet
-
-瑞芯微这块开发板使用的是Arm的亲儿子mali，同时支持OpenGL 12Vulkan
 
 也可以说，OpenGL ES一定程度上指导了电路板的设计
 
@@ -174,25 +164,23 @@ Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/framewo
 
 低级别组件库作为Android图形系统基石，共同组建了
 
+接下来我们开始分析系统各个关键进程的启动流程，看看系统在开机到App请求Vsync信号之间都做了哪些工作
+
 ### 二、请求Vsync信号
 
-介绍完Android设备的硬件组成和低级别组件库设计，接下来我们开始分析系统各个关键进程的启动流程，看看系统开机到启动Launcher之间都做了哪些工作
+介绍完Android设备的硬件组成和低级别组件库设计，接下来我们开始分析系统各个关键进程的启动流程，看看系统在开机到App请求Vsync信号之间都做了哪些工作
 
-> ps：本节内容要求读者了解Android系统启动和Activity启动的大致流程（了解的程度即可）
-
-#### 启动surface_flinger进程
-
-在系统启动的一系列进程中，和图形相关的进程主要有两个：[surface_flinger进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/)（以下简称sf进程）和[system_server进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)
+在系统启动的一系列进程中，和图形相关的进程有两个：[surface_flinger进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/)（以下简称sf进程）和[system_server进程](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)
 
 sf进程负责接受来自APP进程的图形数据，并调用hwc进行合成与最终的送显，从模块关系来看，sf进程在系统中起到一个承上启下的作用
 
-system_server进程负责管理有哪些APP进程可以进行绘图操作以及各个图层的优先级，依靠[AMS（ActivityManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java)和[WMS（WindowManagerService）](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java)两个服务来实现
+system_server进程负责管理有哪些APP进程可以进行绘图操作以及各个图层的优先级，依靠[ActivityManagerService](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java)和[WindowManagerService](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java)两个服务来实现
 
-#### 
+#### 启动surface_flinger进程
 
-我们先来看sf进程，Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起
+先来看sf进程，Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起
 
-sf的入口函数：
+main_surfaceflinger的入口函数：
 
 ```c++
 /frameworks/native/services/surfaceflinger/main_surfaceflinger.cpp
@@ -220,7 +208,7 @@ int main(int, char**) {
 }
 ```
 
-main函数的主要作用是创建SurfaceFlinger对象并初始化，要完成的工作都在SurfaceFlinger对象中的初始化函数中：
+main()函数的主要作用是创建SurfaceFlinger对象并初始化，要完成的工作都在SurfaceFlinger对象中的init()函数中：
 
 ```c++
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
@@ -293,9 +281,9 @@ void SurfaceFlinger::waitForEvent() {
 }
 ```
 
-初始化函数稍微有点长，我们一步步拆开来看
+SurfaceFlinger初始化流程稍微有点长，我们一步步拆开来看
 
-##### 1、初始化Handler机制
+##### 1、初始化消息队列
 
 ```c++
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
@@ -318,7 +306,7 @@ void MessageQueue::init(const sp<SurfaceFlinger>& flinger)
 
 Android是消息驱动的操作系统，APP的UI线程的设计如此，native的系统进程也是如此
 
-在sf进程中，Handler主要处理两件事：提供给APP进程发送“我要刷新”的消息以及提供给vsync线程发送“开始合成工作”的消息
+在sf进程中，消息队列主要处理两件事：提供给APP进程发送“我要刷新”的消息以及接受来自HWC的Vsync信号开始执行合成工作
 
 ##### 2、初始化EGL环境
 
@@ -521,7 +509,11 @@ activity、dialog、toast等等
 
 #### 启动app进程
 
-APP进程和system_server进程一样，都是从zygote进程fork而来，我们直接快进到ActivityThread初始化以后
+APP进程和system_server进程一样，都是从zygote进程fork而来
+
+创建过程中的IPC通信，最终会回调到Activity的onCreate()方法
+
+我们直接快进到setContentView以后，初始化以后
 
 onCreate中解析xml文件
 
@@ -537,7 +529,7 @@ APP的启动过程这里同样不展开，对于Activity启动流程不熟悉的
 2. 调用ViewRootImpl.requestLayout()方法请求Vsync信号
 3. 主线程Looper.loop()进入休眠，等待Vsync到来
 
-##### 1、setContentView加载视图
+##### 1、创建ViewRootImpl
 
 Android开发中设置视图不外乎于两种方式：xml文件和Java编码
 
@@ -618,6 +610,8 @@ public final Surface mSurface = new Surface();
 ##### 2、请求vsync信号
 
 在ViewRootImpl首次加载视图的时候，需要注意一个细节
+
+ViewRootImpl.requestLayout()
 
 在ViewRootImpl.setView()方法中，
 
