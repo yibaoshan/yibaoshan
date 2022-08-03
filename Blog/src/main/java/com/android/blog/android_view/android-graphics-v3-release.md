@@ -10,11 +10,15 @@ Android图形系统（三）系统篇：闲聊View显示流程
 
 我是概览图
 
+tips：全文基于[Android 7.1.2](http://www.aospxref.com/android-7.1.2_r39/xref/)版本，有些内容可能已经过时
+
 ### 一、开篇
 
-Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Framework框架层几个部分组成，整个系统非常庞大，各个模块之间错综复杂，让人无从下手
+Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Framework框架层几个部分组成，整个系统非常庞大，模块之间错综复杂，让人无从下手
 
-中间掺杂着handler、binder等通信机制更让人头疼
+对于刚开始接触图形系统的同学来说（比如我），面对OpenGLES、SurfaceFlinger、BufferQueue、Gralloc等一系列陌生的模块会感到混乱而无序
+
+理清这些模块之间的关系以及各自的作用还是有一定难度的
 
 不过，再复杂的软件设计，也离不开硬件的支持
 
@@ -50,69 +54,76 @@ Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Fra
 
 也可以说，OpenGL ES一定程度上指导了电路板的设计
 
-#### Hardware Abstraction Layer
+##### 1、OpenGL ES/EGL
 
-##### 1、HWC
+骁龙888的GPU部分使用了，OpenGL ES是一个通用的函数库，iPhone的GPU驱动和ARM平台的GPU驱动都基于标准实现
+
+在Android平台下，OpenGL ES对应的是EGL，也就是GPU厂商提供的libEGL.so库
+
+libEGL.so库将会在系统启动时被加载，以提供给其他进程使用
+
+##### 2、HWComposer
+
+HWC目前已经发展到2.0版本，Android 7.0以后可以选择使用HWC1.0还是2.0
+
+了解HWC存在的原因是减轻GPU的负担，接任GPU的合成工作即可
+
+DPU：Display Processor Unit
+
+说人话的调用流程：操作系统->HAL->硬件驱动
+
+和OpenGL ES一样，系统在开机时会加载hwc库，如果没有，那么将调用GPU完成合成工作
+
+Hwc.so
+
+gralloc.so
+
+也可以使用malloc来申请内存
+
+##### 3、Gralloc
+
+Android中各子系统通常不会直接基于Linux驱动来实现，而是由HAL层间接引用底层架构，在显示系统中也同样如此——它借助于HAL层来操作帧缓冲区，而完成这一中介任务的就是Gralloc
+
+手机不像PC，独立显卡有独立显存，Graphic Buffer都是在RAM上分配的
+
+gralloc担负着图形缓冲区的分配与释放，所以它提供了两个最重要的实现即alloc和free。这里我们先不深入分析了，只要知道gralloc所提供的功能就可以了
+
+调用hw_get_module()加载gralloc.so
+
+#### 低级别组件库
+
+硬件部分聊完了我们再来看看对应的软件部分
 
 瑞芯微开发板关于HWC部分实现点[[这里]](https://gitlab.com/TeeFirefly/firenow-oreo-rk3399/-/tree/master/hardware/rockchip/hwcomposer)
 
-通常情况下，HWC是由display controler实现，回到骁龙888的GPU部分
-
-#### Framework层库支持
-
-消费级的联发科/骁龙的用户手册都要花钱买，我们就找个工业级的，演示一下
-
-我们知道Android的HAL，在图形系统中，另一个技术名词也会经常被体积：OpenGL ES
-
-#### 什么是HAL？
-
-实现HAL和OpenGL ES/Vulkan协议，是嵌入式驱动工程师需要完成的工作
-
-CPU内存可以组建出一台计算机，
-
-Android图形子系统，
-
-从HAL入手，看看是什么支撑起Android图形系统
-
-尽量的
-
-本篇文章我们将尝试把图形系统化繁为简，
-
-当我们打开Android开发者
-
-
-
-HAL和OpenGL ES一样，指导驱动层的设计，驱动又建立在硬件之上，在一定程度上也可以说是指导硬件的电路设计
-
-电路怎么设计我不管，驱动怎么写我也不管
-
-Andorid设备基于硬件，驱动层
-
-在文章的开头我们先来聊一聊一块普通的开发板/手机主板上都有哪些
-
-2D图形是3D图形的子集
-
-
-
-本篇文章大部分源码都来自7.0版本，选择7.0的原因很简单，因为它包含了4.1黄油计划和5.0的RenderThread又没有高版本的复杂逻辑，非常适合我们简单了解图形系统的设计
-
-#### 硬件介绍
-
-##### 1、GPU
-
-##### 2、DPU
-
-#### Android层级设计
-
 ##### 1、libui.so
 
-###### 1.1 Fence机制
-
-###### 1.2 Gralloc机制
-
-###### 1.3 GraphicBuffer
+###### 1.1 GraphicBuffer
 
 GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此对象上进行，包括同步给GPU以及HWC
+
+从View的创建到最后显示到屏幕，从内存的角度来看，无非是GraphicBuffer的流转过程
+
+另外，GraphicBuffer中包含了Gralloc成员，GraphicBuffer对象的创建与销毁都由gralloc.so负责
+
+###### 1.2 Fence
+
+Fence赋予了GraphicBuffer两种状态
+
+可以简单的把Fence机制理解为一把锁，每个需要使用GraphicBuffer的角色，在使用前都要检查这把锁是否signaled了才能进行安全的操作，否则就要等待
+
+- active状态，该GraphicBuffer正在被占用
+- signaled状态，表明不再控制buffer，
+
+Fence的实际实现不在libui库里面，只是被作为GraphicBuffer的附属随着GraphicBuffer在生产者和消费间传输，所以libui库里面有Fence.cpp文件
+
+GraphicBuffer需要在CPU、GPU、HWC三个硬件来回
+
+简单来说，Fence机制将图形内存的状态同步给应用程序
+
+Graphic Buffer会被GPU、CPU、DPU三个不同的硬件访问
+
+如果多个硬件设备能访问同一个Buffer，就需要一个共享机制
 
 在流转的过程中，GraphicBuffer不但要跨进程传递，还涉及到跨硬件，因此，GraphicBuffer中也会保存fence的状态
 
@@ -125,6 +136,8 @@ Google在2018年发布的Pixel 3首次使用了DRM/KMS框架，
 我自己的pixel用的是DRM框架，我尝试了一下没有成功，懒得折腾了
 
 关于DRM可以查看何小龙的视频
+
+libui还有其他几个成员，最重要的成员就是graphicbuffer，gralloc和fence都是为它服务的，当然还有其他几个成员，我们可以在libui.so的编译文件中查看
 
 ##### 2、libgui.so
 
@@ -142,7 +155,11 @@ Surface中持有BufferQueue的引用，并且封装了出列、入列等一系�
 
 ###### 2.3 DisplayEventReceiver
 
+DisplayEventReceiver成员看起来有点面生，但提到Choreographer我相信大部分读者应该都认识
 
+简单来说，DisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力
+
+关于Choreographer的原理分析点击[这里](https://lishuaiqi.top/2018/07/15/Choreographer-1-choreographerAnalysize/)
 
 认识硬件设计和层级设计非常重要，建议读者在阅读本文时同时打开以下网页对比着看，在阅读过程中不知道回过头看看在系统设计的哪一层
 
@@ -153,11 +170,15 @@ Surface中持有BufferQueue的引用，并且封装了出列、入列等一系�
 
 Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[libgui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)库，厂商提供了[hwcomposer.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_hwcomposer/)和[gralloc.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_gralloc/)以及GPU的[libEGL.so](https://source.android.com/devices/graphics/implement-opengl-es?hl=zh-cn)库，这几个库为Android的图形系统打下了坚实的基础，几乎所有的图形显示都得依靠他们哥几个才能完成
 
-有了这几个库支持，Android系统才能
+本章节的目的是认识硬件以及低级别组件库，了解它们在系统中的作用，具体的实现原理
 
-### 二、Vsync发生前：系统启动
+低级别组件库作为Android图形系统基石，共同组建了
 
-介绍完Android设备的硬件组成和图形库设计，接下来我们开始分析系统的启动流程，看看系统在开机的过程中都做了哪些工作
+### 二、请求Vsync信号
+
+介绍完Android设备的硬件组成和低级别组件库设计，接下来我们开始分析系统各个关键进程的启动流程，看看系统开机到启动Launcher之间都做了哪些工作
+
+> ps：本节内容要求读者了解Android系统启动和Activity启动的大致流程（了解的程度即可）
 
 #### 启动surface_flinger进程
 
@@ -500,6 +521,14 @@ activity、dialog、toast等等
 
 #### 启动app进程
 
+APP进程和system_server进程一样，都是从zygote进程fork而来，我们直接快进到ActivityThread初始化以后
+
+onCreate中解析xml文件
+
+关注onCreate以后发生的事情
+
+onResume中可见，显然
+
 APP的启动过程这里同样不展开，对于Activity启动流程不熟悉的同学可以去网上搜索文章看完再回来（不必拘泥于细节，了解大致流程即可）
 
 在APP创建完成以后，会启动AndroidManifest中配置的默认Activity，拉起Activity过程中，一共完成了三件事：
@@ -605,7 +634,7 @@ scheduleTraversals()
 
 
 
-
+当queue buffer到BufferQueue时终于会触发layer的onFrameAvailable()函数，而该函数会触发一次surfaceflinger的vsync事件。
 
 ##### 4、进入睡眠 等待唤醒
 
@@ -646,7 +675,7 @@ scheduleTraversals()
 >
 > 我们这里一笔带过，简单来说是通过AMS创建了
 
-### 三、Vsync发生后：系统的指挥官
+### 三、接收Vsync信号
 
 好了，万事俱备，只欠东风，APP进程和SF进程都一同等待着Vsync信号的到来
 
@@ -669,11 +698,29 @@ Drawing with VSync
 >
 > ​		->drawSoftware()	
 
+unlockCanvasAndPost()`or `eglSwapBuffers()（取决于开发者使用2D绘图API或者3D绘图API）
 
+最后，如果使用2D绘图API，调用unlockCanvasAndPost()方法将graphicbuffer入列
+
+如果使用3D绘图API，调用eglSwapBuffers()方法入列
+
+对于大部分应用开发工程师来说，最终调用的都是unlockCanvasAndPost()方法
 
 ##### 1、发送同步消息屏障
 
-##### 2、draw
+为了避免屏幕发生撕裂，vsync信号早在1.6版本就已经存在，去源码搜索eventhub.cpp可以看到
+
+Google在Android 4.1发布的黄油计划之所以广为人知，是因为vsync同步给了APP进程，通过代码逻辑将渲染、合成、送显
+
+渲染合成显示各占一个buffer，这也是Triple buffering的由来
+
+除此以外，为了配合chro，handler机制加入了异步消息和同步屏障
+
+Google在Android 5.0加入了renderthread，更进一步优化了图形，ui线程负责onlayout/onmeausre，在ondraw阶段记录下渲染命令，接着同步给RenderThread
+
+
+
+##### 2、执行绘制工作
 
 Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
@@ -687,9 +734,43 @@ Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
 ##### 3、取消同步消息屏障
 
-#### SF进程
+##### 4、特殊情况：SurfaceView
 
+在游戏开发或其他需要展示3D图形时，多数情况是使用SurfaceView来绘制
 
+SurfaceView和普通View最大的区别是拥有“自主上帧”的权利，什么意思呢？
+
+我们都知道SurfaceView拥有单独的一块Surface，
+
+在有绘图需求时，我们可以调用lockCanvas()/eglCreateWindowSurface()获取一块surface
+
+绘制完成以后，调用unlockCanvasAndPost()/eglSwapBuffers()将graphicbuffer入列，提交给sf进程，等待下一次vsync信号到来
+
+我们可以选择使用Canvas在这块单独的Surface进行绘制，
+
+使用他们的好处是可以，什么意思呢
+
+2D场景使用canvas，3D场景使用egl
+
+自行调用eglSwapBuffers进行入列
+
+比如王者荣耀早期最高只有30帧，也就是说王者荣耀每一帧画面绘制时间需要2个vsync周期，之后才会提交给sf进行合成
+
+同理，适用于glsurfaceview拥有自己的surface的视图组件
+
+注意，无论如何，因为sf进程接受vsync的指导的原因，APP的输出帧率永远小于等于屏幕的刷新率，APP进程提交的画面总是在下一次vsync信号到来时才能被输送到屏幕显示
+
+#### SurfaceFlinger进程
+
+mLayers对象保存着所有的图层，APP进程中申请的graphicbuffer也是驻留在SurfaceFlinger这边的进程中
+
+##### 1、invalidate
+
+#####2、vsyncCallback
+
+##### 3、闲聊DispSync设计
+
+offset的设计理念是，用户能够更早的看到画面，绘制工作和合成工作将在一个vsync周期内完成
 
 至此，整个vsync周期发生的都已经完成，我们来梳理显示流程
 
@@ -729,6 +810,20 @@ sf的两个回调：
 
 ### 四、结语
 
+最后两张图总结本文的内容，一张是静态图，展示Android图形架构的设计
+
+另一张是动态读，表示每次vsync到来时，不同进程的处理方式，以及最重要的，graphicbuffer的流程过程
+
+从显示流程来看，每个层级关注的事情是不一样的
+
+对于低级别组件库来说，提供给上层使用，不涉及任何逻辑，同样也不关心vsync信号
+
+对于sf进程来说，关心的是GraphicBuffer的流转过程，在vsync的指导下，控制者graphicbuffer的消费与释放，更关注我应该什么时候去合成图层
+
+对于system进程来说，服务于开发者，关注的是surface的创建与使用，由于surface封装了graphicbuffer出列/入列的方法，所以本质上也是system进程在管理队列的生产
+
+对于app进程来说，关注的是如何实现蓝湖上的ui
+
 AMS/WMS在图形系统中的作用
 
 WMS管理的窗口类型可以分为三种，应用窗口、子窗口（需要父窗口）和系统窗口
@@ -740,8 +835,6 @@ WMS管理的窗口类型可以分为三种，应用窗口、子窗口（需要�
 Activity/Dialog/Toast/Window之间的区别？
 
 Surface/Layer/GraphicBuffer/ButterQueue之间的联系？
-
-**SurfaceView和普通View的区别**
 
 
 
@@ -785,7 +878,7 @@ Android启动时会创建两大进程，其中常见的ams和wms运行在server�
 
 从主要角色延伸出来
 
-为了过于臃肿，文章删减了许多辅助角色
+为了不让文章过于臃肿，文章删减了许多辅助角色
 
 本文更多的是以进程的视角，以分层的架构来解释Android图形子系统的全貌，为此删减了许多辅助角色
 
