@@ -14,29 +14,41 @@ Android图形系统（三）系统篇：闲聊View显示流程
 
 ### 一、开篇
 
-Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Framework框架层几个部分组成，整个系统非常庞大，模块之间错综复杂，让人无从下手
+Android图形系统由Linux操作系统层、HAL硬件驱动层、Android Framework框架层几个部分组成，整个系统非常庞大，模块之间错综复杂，让人无从下手
 
-对于刚开始接触图形系统的同学来说（比如我），面对OpenGLES、SurfaceFlinger、BufferQueue、Gralloc等一系列陌生的模块会感到混乱而无序
-
-理清这些模块之间的关系以及各自的作用还是有一定难度的
+对于刚开始接触图形系统的同学来说（比如我），理解每个模块的功能以及他们之间庞杂的依赖关系还是有不少难度的
 
 不过，再复杂的软件设计，也离不开硬件的支持
 
-今天，让我们化繁为简，从最基础的硬件组成开始，自下而上，看看Android图形子系统是如何一步步建立起来的
+今天，我们从认识Android设备的硬件开始，自下而上，看看庞大的图形系统是如何一步步建立起来的
 
-#### 硬件组成和HAL
+#### 硬件组成
 
-我是图片
+![f](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_mi10_dismantle.png)
+
+*图片来源：https://www.ednchina.com/technews/12082_3.html*
 
 这是一张小米11的拆解图
 
-从左到右分别是屏幕、后盖、主板（上）、电池（下）、石墨贴和边框，我们重点来看主板设计
+从左到右分别是屏幕、相机模组、主板IC以及手机，我们重点来看主板设计
 
-我是主板图片
+![android_graphic_v3_mi10_mainboard](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_mi10_mainboard.png)
 
-小米11使用了高通骁龙888处理器，
+*图片来源：https://www.laoyaoba.com/n/780219*
 
-这里需要重点关注的是GPU模块
+小米11处理器使用的是来自高通的骁龙888，内存使用的是一块来自镁光的LPDDR5 8GB芯片（图1/2，处理器和内存使用堆叠封装，从上往下看它俩是叠在一起的）
+
+剩下按序号分别是：海力士128GB闪存芯片、高通的射频收发芯片、高通WiFi6/BT芯片、两颗高通的快充芯片、伏达的无线充电芯片
+
+在板子上的一堆芯片中，只有图1/2的“骁龙888”和“内存芯片”跟图形系统有关系
+
+而在骁龙888封装的几个芯片中，Adreno 660（GPU模组）又是重中之重
+
+![android_graphic_v3_adreno660](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_adreno660.jpeg)
+
+*图片来源：https://www.dpreview.com/news/2969199244/qualcomm-snapdragon-888-soc*
+
+Adreno 660 GPU模组中封装了GPU图形处理芯片、Video视频编解码芯片、Display显示芯片
 
 了解主板上，我们的指令是哪个芯片在执行
 
@@ -44,7 +56,7 @@ Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Fra
 
 也可以说，OpenGL ES一定程度上指导了电路板的设计
 
-##### 1、OpenGL ES/EGL
+##### 1、GPU与OpenGL ES的关系
 
 骁龙888的GPU部分使用了，OpenGL ES是一个通用的函数库，iPhone的GPU驱动和ARM平台的GPU驱动都基于标准实现
 
@@ -52,7 +64,7 @@ Android图形子系统由Linux操作系统层、HAL硬件驱动层、Android Fra
 
 libEGL.so库将会在系统启动时被加载，以提供给其他进程使用
 
-##### 2、HWComposer
+##### 2、显示芯片与HWComposer的关系
 
 HWC目前已经发展到2.0版本，Android 7.0以后可以选择使用HWC1.0还是2.0
 
@@ -71,6 +83,8 @@ gralloc.so
 也可以使用malloc来申请内存
 
 ##### 3、Gralloc
+
+Gralloc原本是属于HAL层
 
 Android中各子系统通常不会直接基于Linux驱动来实现，而是由HAL层间接引用底层架构，在显示系统中也同样如此——它借助于HAL层来操作帧缓冲区，而完成这一中介任务的就是Gralloc
 
@@ -128,6 +142,8 @@ Google在2018年发布的Pixel 3首次使用了DRM/KMS框架，
 关于DRM可以查看何小龙的视频
 
 libui还有其他几个成员，最重要的成员就是graphicbuffer，gralloc和fence都是为它服务的，当然还有其他几个成员，我们可以在libui.so的编译文件中查看
+
+###### 1.3 Gralloc
 
 ##### 2、libgui.so
 
@@ -509,6 +525,14 @@ activity、dialog、toast等等
 
 #### 启动app进程
 
+代码已经非常精简了，乱不乱，我觉得很乱
+
+没办法越接近上层业务设计就越复杂
+
+> 创建流程
+>
+> 启动Activity
+
 APP进程和system_server进程一样，都是从zygote进程fork而来
 
 创建过程中的IPC通信，最终会回调到Activity的onCreate()方法
@@ -668,6 +692,8 @@ scheduleTraversals()
 > AMS负责管理组件状态，WMS负责管理视图状态
 >
 > 我们这里一笔带过，简单来说是通过AMS创建了
+
+AMS创建了Record
 
 ### 三、接收Vsync信号
 
