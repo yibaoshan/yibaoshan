@@ -527,6 +527,12 @@ activity、dialog、toast等等
 
 代码已经非常精简了，乱不乱，我觉得很乱
 
+接下来上一道硬菜，从ActivityThread.main()到Activity.onCreate()的过程
+
+虽然删减了许多但代码非常长，建议跳过，接下来会分片段分析
+
+有(*在*)时(*摸*)间(*鱼*)的朋友可以通篇阅读，几乎每个方法我都写了注释
+
 没办法越接近上层业务设计就越复杂
 
 > 创建流程
@@ -631,7 +637,7 @@ public final Surface mSurface = new Surface();
 - 创建Choreographer对象并注册一系列回调方法
 - 创建了Surface对象交给ViewRootImpl成员变量mSurface
 
-##### 2、请求vsync信号
+##### 2、请求Vsync信号
 
 在ViewRootImpl首次加载视图的时候，需要注意一个细节
 
@@ -829,6 +835,18 @@ sf的两个回调：
 
 
 ### 四、结语
+
+并通过EventThread将vsync信号公开给其他进程使用
+
+在一次次的vsync信号驱使下
+
+APP进程和sf进程日复日重复自己的工作，
+
+以sf进程为界限将图形系统一分为二
+
+sf以上，关注的是surface的创建、深度管理等，此时的surface是一块画布
+
+sf以下，关注的是graphicbuffer的流转，此时的surface
 
 最后两张图总结本文的内容，一张是静态图，展示Android图形架构的设计
 
