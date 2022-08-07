@@ -17,6 +17,20 @@ SurfaceFlinger {
 
 /*
 
+图形系统需要分为两个部分来看，静态和动态
+
+静态部分，由厂家的GPU驱动和Google提供的hal、hwc、库等组成，作为整个图形系统存在的基石，为整个图形系统提供支撑
+动态部分同样由两部分组成：
+后台部门：由sf进程控制着内存的流动方向，APP进程向sf申请一块内存，绘制完成后还给sf进程，在整个流转过程中，system_server进程中的wms负责对View的操作进行封装，ams甚至可有可无
+前台部分：由system_server进程管理，主要是ams、wms作为业务支撑部门，提供了多种添加视图的方式，toast、dialog等，wms封装了对view的操作，ams
+
+文章的结构是先介绍了静态部分，动态部分以vsync到来前各个进程做了哪些准备和vsync到来后各个进程各自完成了哪些工作
+正是因为有各个进程的互相配合，才能给
+
+Activity对象的创建
+视图对象的创建
+ViewRootImpl的创建
+
 在第一个阶段，ActivityThread.main()
 ActivityThread，入口函数中初始化handler机制
 ApplicationThread，ams传话筒
@@ -29,6 +43,20 @@ WindowManager，wms的代理对象
 根据不同主题，为DecorView设置不同的子View（无论使用哪种主题视图，其中必然包含名为content的FrameLayout）
 将开发者的布局文件添加到子View名为content的FrameLayout当中
 为PhoneWindow设置DecorView
+
+在第三个阶段，创建ViewRootImpl
+1. Choreographer让它能够感知事件
+2. 保存DecorView让它能够在事件来临时控制视图
+3. Surface让它拥有绘图的能力
+通过addToDisplay()方法推送到wms
+
+App进程的Vsync信号由DisplayEventReceiver触发
+大致的调用流程是
+DisplayEventReceiver::sendEvents(native)
+    DisplayEventDispatcher::handleEvent(native)
+        DisplayEventReceiver.dispatchVsync(java)
+            Choreographer.doFrame(java)
+                ViewRootImpl.doTraversal(java)
 
 **/
 
@@ -103,7 +131,7 @@ class Activity {
 
     View mDecor;//用户设置的跟视图，通常会在ActivityThread中被赋值
     Window mWindow;//Activity首次被创建调用attach()方法时同步创建，创建动作在Activity
-    WindowManager  mWindowManager;
+    WindowManager  mWindowManager;//在attach方法中被创建
 
     //1. 创建PhoneWindow保存到变量mWindow，此时的Window还没有View视图
     //2. 获取wms代理对象，塞到刚刚创建的window对象当中，同时保存到本地mWindowManager变量
@@ -233,17 +261,30 @@ class WindowManagerGlobal {
 		ViewRootImpl root = new ViewRootImpl(decorView);
 		mViews.add(decorView);
 		mRoots.add(root);
+		// do this last because it fires off messages to start doing things
+		root.setView(view);
 	}
 
 }
 
-//对应一个Activity
+//对应一个Activity，关于视图的事件触发都在此
+//1. Choreographer让它能够感知事件
+//2. 保存DecorView让它能够在事件来临时控制视图
+//3. Surface让它拥有绘图的能力
 class ViewRootImpl {
 
+    Choreographer mChoreographer;//构造函数中被创建
     View mView;//保存DecorView
 
     final Surface mSurface = new Surface();
 
+    public ViewRootImpl(){
+        //可以感知vsync的原因可以追溯到libgui库中的DisplayEventReceiver类
+        mChoreographer = Choreographer.getInstance();
+    }
+
+    //1. 请求vsync信号，等待vsync来临后绘图
+    //2. 创建binder代理对象传递给wms，此后wms将通过此代理对象来通知APP进程应该做什么事
     void setView(View decorView){
         mView = decorView;//将DecorView保存到ViewRootImpl的成员变量mView中
         requestLayout();//请求vsync信号
@@ -252,7 +293,6 @@ class ViewRootImpl {
     }
 
     void requestLayout() {
-        checkThread();
         scheduleTraversals();
     }
 
@@ -270,7 +310,6 @@ class ViewRootImpl {
             mTraversalScheduled = false;
             mHandler.getLooper().getQueue().removeSyncBarrier(mTraversalBarrier);//移除同步屏障
             performTraversals();//View的绘制起点
-
         }
     }
 
@@ -291,6 +330,14 @@ class ViewRootImpl {
 
     void performDraw(){
         mView.draw();
+    }
+
+    //创建surface
+    //viewrootimpl持有的surface是Java对象，并没有在native创建对应的surface
+    //不过这一些对于APP进程来说是无感的，APP->WMS->SF->WMS->APP，在这个过程中APP
+    //在此方法中，调用wms为其创建native层的surface对象，在surface创建的过程中，会通知sf进程，sf进程为surface创建对应的layer
+    //surface中包含bufferqueue，所以sf进程除了为surface创建layer，还会为surface创建队列监听，当有新的视图变化，sf进程将会收到onFrameAvaliable()回调
+    int relayoutWindow(){
     }
 
 }

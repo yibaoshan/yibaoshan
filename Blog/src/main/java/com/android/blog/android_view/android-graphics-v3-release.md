@@ -623,7 +623,7 @@ FrameDisplayEventReceiver对应的实现是开篇中提到的libgui.so中Display
 
 总之，FrameDisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力
 
-ViewRootImpl另一个需要关注的成员变量是mSurface，它是View能显示的基础
+ViewRootImpl另一个需要关注的成员变量是mSurface，它是View能显示一切的基础
 
 ```java
 \frameworks\base\core\java\android\view\ViewRootImpl.java
