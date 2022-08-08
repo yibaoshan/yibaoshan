@@ -298,6 +298,7 @@ class ViewRootImpl {
 
     //请求vsync，等待刷新
     void scheduleTraversals() {
+        //发送同步屏障消息的意义在于，保证vsync信号到来时，第一时间执行ViewRootImpl.doTraversal()方法
         mTraversalBarrier = mHandler.getLooper().getQueue().postSyncBarrier();//创建一个同步屏障（详见Android消息机制）
         mChoreographer.postCallback(Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);//发送一条异步消息，mTraversalRunnable是处理这条消息的回调
         notifyRendererOfFramePending();
@@ -309,13 +310,16 @@ class ViewRootImpl {
         if (mTraversalScheduled) {
             mTraversalScheduled = false;
             mHandler.getLooper().getQueue().removeSyncBarrier(mTraversalBarrier);//移除同步屏障
+            //由于同步屏障消息被移除，所以view的绘制工作和主线程的消息处理是一起在执行的
             performTraversals();//View的绘制起点
         }
     }
 
-    //源码超级长
+    //绘图三部曲
     void performTraversals(){
-        performMeasure();
+        relayoutWindow();//向sf正式申请surface，在进入绘图之前为APP进程准备好一块surface内存
+        mAttachInfo.mHardwareRenderer.initialize(mSurface);
+        performMeasure();//Ask host how big it wants to be
         performLayout();
         performDraw();
     }
@@ -330,13 +334,19 @@ class ViewRootImpl {
 
     void performDraw(){
         mView.draw();
+        mAttachInfo.mHardwareRenderer.draw(mView, mAttachInfo, this);
+        ThreadedRenderer->draw()
+            ->updateViewTreeDisplayList()
+            ->View.
     }
 
     //创建surface
     //viewrootimpl持有的surface是Java对象，并没有在native创建对应的surface
     //不过这一些对于APP进程来说是无感的，APP->WMS->SF->WMS->APP，在这个过程中APP
-    //在此方法中，调用wms为其创建native层的surface对象，在surface创建的过程中，会通知sf进程，sf进程为surface创建对应的layer
+    //在此方法中，调用wms为其创建native层的surface对象，在surface创建的过程中，会通知sf进程，sf进程为surface创建对应的layer，创建layer的过程中，又会初始化BufferQueue对象
     //surface中包含bufferqueue，所以sf进程除了为surface创建layer，还会为surface创建队列监听，当有新的视图变化，sf进程将会收到onFrameAvaliable()回调
+    //该方法调用链稍微有点长，不在此展开讨论，大致流程是这样：
+    //APP进程告知
     int relayoutWindow(){
     }
 
