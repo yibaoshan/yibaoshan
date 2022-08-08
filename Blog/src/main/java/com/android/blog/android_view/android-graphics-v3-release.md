@@ -1,3 +1,14 @@
+Overview
+
+> - 开篇，说明图形系统的学习难点，引出硬件驱动
+>   - 介绍小米11的拆截图，引出GPU模块
+>   - 介绍OpenGL ES和GPU
+>     - 高通888使用的是，除高通外，GPU模块还有arm自家亲儿子，海思麒麟系列、联发科天玑系列、三星猎户座等CPU模块基本上都是用的mali
+>     - 目前OpenGL ES已经从1.0版本升到了3.1版本，每个es版本对Android系统的要求也不同，详情可以点击[这里](https://developer.android.com/guide/topics/graphics/opengl?hl=zh-cn)查看
+>     - GPU是干嘛的，做图形运算，还能做合成工作，说白了就是做渲染和合成工作
+>     - 实现了哪些功能，支持什么协议，比如es1.0 2.0 Vulkan
+>     - 库加载的流程，如果OEM厂商未提供，Google应该怎么处理
+
 Android图形系统（三）系统篇：当我们点击“微信”这个应用后，它是怎么在屏幕上显示出来的？
 
 对于应用开发工程师来说，虽然我们不需要写操作系统代码，但是了解View最终是如何显示到屏幕上还是非常有必要的
@@ -56,7 +67,7 @@ Android图形系统由厂商驱动层、Linux操作系统层、HAL硬件抽象�
 
 今天，我们从认识Android设备的各个硬件以及厂商和Google提供的开发库开始，自下而上，看看庞大的图形系统是如何一步步建立起来的
 
-#### 硬件和HAL（厂商）
+#### 1、什么是厂商驱动
 
 ![f](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_mi10_dismantle.png)
 
@@ -64,7 +75,7 @@ Android图形系统由厂商驱动层、Linux操作系统层、HAL硬件抽象�
 
 这是一张小米11的拆解图
 
-从左到右分别是屏幕、相机模组、主板IC以及手机，我们重点来看主板设计
+从左到右分别是屏幕、相机模组、主板IC以及手机外壳，重点来看主板设计
 
 ![android_graphic_v3_mi10_mainboard](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_mi10_mainboard.png)
 
@@ -72,7 +83,7 @@ Android图形系统由厂商驱动层、Linux操作系统层、HAL硬件抽象�
 
 小米11处理器使用的是来自高通的骁龙888，内存使用的是一块来自镁光的LPDDR5 8GB芯片（图1/2，处理器和内存使用堆叠封装，从上往下看它俩是叠在一起的）
 
-剩下按序号分别是：海力士128GB闪存芯片、高通的射频收发芯片、高通WiFi6/BT芯片、两颗高通的快充芯片、伏达的无线充电芯片
+剩下按序号分别是：海力士128GB闪存芯片、高通的射频收发芯片、高通WiFi6/BT芯片、两颗高通的快充芯片、伏达的无线充电芯片等
 
 在板子上的一堆芯片中，只有图1/2的“骁龙888”和“内存芯片”跟图形系统有关系
 
@@ -90,7 +101,7 @@ Adreno 660 GPU模组中封装了GPU图形处理芯片、Video视频编解码芯�
 
 也可以说，OpenGL ES一定程度上指导了电路板的设计
 
-##### 1、GPU与OpenGL ES的关系
+##### GPU和OpenGL ES
 
 骁龙888的GPU部分使用了，OpenGL ES是一个通用的函数库，iPhone的GPU驱动和ARM平台的GPU驱动都基于标准实现
 
@@ -100,15 +111,31 @@ Adreno 660 GPU模组中封装了GPU图形处理芯片、Video视频编解码芯�
 
 libEGL.so库将会在系统启动时被加载，以提供给其他进程使用
 
-##### 2、显示芯片与HWComposer的关系
+##### 显示芯片和HWC
+
+厂商驱动除了要实现行业规范标准外，还需要实现Google的定的协议，比如HAL层
+
+保护厂商利益
+
+大致的过程是这样：
+
+> sf进程：6层图像一起显示，你行不行？不行我换别人了
+>
+> hwc：前4个我还行，多2个实在吃不消啊，这俩您看怎么办
+>
+> sf进程：five，GPU别睡了来活了
+
+Dump图层就可以看到哪些是GPU合成那些事hwc合成的
+
+sf合成时每次都会问hwc模块：给你5个layer一起显示你行不行？不行
+
+
 
 紧接着，sf来决定
 
 hwc是Google在加入的合成机制，目的是为了分担GPU的压力，hwc需要支持4个以及其他条件
 
 这个YouTube的视频，现在看
-
-###### 2.1 什么是合成
 
 能不能先告诉我什么是合成？？？
 
@@ -134,27 +161,15 @@ gralloc.so
 
 也可以使用malloc来申请内存
 
-##### 3、Gralloc
-
-Gralloc原本是属于HAL层
-
-Android中各子系统通常不会直接基于Linux驱动来实现，而是由HAL层间接引用底层架构，在显示系统中也同样如此——它借助于HAL层来操作帧缓冲区，而完成这一中介任务的就是Gralloc
-
-手机不像PC，独立显卡有独立显存，Graphic Buffer都是在RAM上分配的
-
-gralloc担负着图形缓冲区的分配与释放，所以它提供了两个最重要的实现即alloc和free。这里我们先不深入分析了，只要知道gralloc所提供的功能就可以了
-
-调用hw_get_module()加载gralloc.so
-
-#### 低级别组件库（Google）
+#### 2、什么是Google组件库
 
 硬件部分聊完了我们再来看看对应的软件部分
 
 瑞芯微开发板关于HWC部分实现点[[这里]](https://gitlab.com/TeeFirefly/firenow-oreo-rk3399/-/tree/master/hardware/rockchip/hwcomposer)
 
-##### 1、libui.so
+##### Google组件库：libui
 
-###### 1.1 GraphicBuffer
+###### 1. GraphicBuffer
 
 GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此对象上进行，包括同步给GPU以及HWC
 
@@ -162,7 +177,7 @@ GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此�
 
 另外，GraphicBuffer中包含了Gralloc成员，GraphicBuffer对象的创建与销毁都由gralloc.so负责
 
-###### 1.2 Fence
+###### 2. Fence
 
 Fence赋予了GraphicBuffer两种状态
 
@@ -195,7 +210,7 @@ Google在2018年发布的Pixel 3首次使用了DRM/KMS框架，
 
 libui还有其他几个成员，最重要的成员就是graphicbuffer，gralloc和fence都是为它服务的，当然还有其他几个成员，我们可以在libui.so的编译文件中查看
 
-###### 1.3 Gralloc
+###### 3. Gralloc
 
 移动设备内部空间寸土寸金，显然不大可能跟PC一样给GPU单独配个显存，移动端的图形内存和运行内存一样在同一块内存芯片中
 
@@ -203,9 +218,19 @@ libui还有其他几个成员，最重要的成员就是graphicbuffer，gralloc�
 
 当然，Gralloc作为尊贵的HAL层，本应该在系统初始化时被加载，放在libui库里面，和硬件的关系确实不是很大
 
-##### 2、libgui.so
+Gralloc原本是属于HAL层
 
-###### 2.1 BufferQueue
+Android中各子系统通常不会直接基于Linux驱动来实现，而是由HAL层间接引用底层架构，在显示系统中也同样如此——它借助于HAL层来操作帧缓冲区，而完成这一中介任务的就是Gralloc
+
+手机不像PC，独立显卡有独立显存，Graphic Buffer都是在RAM上分配的
+
+gralloc担负着图形缓冲区的分配与释放，所以它提供了两个最重要的实现即alloc和free。这里我们先不深入分析了，只要知道gralloc所提供的功能就可以了
+
+调用hw_get_module()加载gralloc.so
+
+##### Google组件库：libgui
+
+###### 1. BufferQueue
 
 从名字就可以看出来，GraphicBuffer是一个GraphicBuffer队列
 
@@ -220,11 +245,11 @@ BufferQueue有三种工作模式，绝大多数情况下都在默认情况下，
 - **DEQUEUED：**入列状态，表示已经绘图已经完成
 - **ACQUIRED：**
 
-###### 2.2 Surface
+###### 2. Surface
 
 Surface中持有BufferQueue的引用，并且封装了出列、入列等一系列的操作
 
-###### 2.3 DisplayEventReceiver
+###### 3. DisplayEventReceiver
 
 DisplayEventReceiver本来不想加入到文章中，写到后面发现这哥们不介绍的话没法向下进行了
 
