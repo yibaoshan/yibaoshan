@@ -77,7 +77,7 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 今天，我们从认识Android设备的硬件开始，自下而上，看看庞大的图形系统是如何一步步建立起来的
 
-#### 1、OEM硬件驱动
+#### 1、硬件驱动
 
 再复杂的系统设计，也离不开硬件的支持，在文章的开头，我们先来了解一下，Android设备里支撑应用程序绘图的硬件有哪些？
 
@@ -149,13 +149,51 @@ OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的�
 
 ##### 图形合成驱动
 
-虽然GPU也可以用来做合成工作，但是在绝大多数的移动设备中，完成合成工作的都是DPU
+聊完了图形的渲染，下一步就到图像的合成阶段
+
+虽然GPU也可以用来做合成工作，但现阶段绝大多数的移动设备中，执行合成任务的都是DPU
 
 ###### 1. 什么是DPU
 
-DPU全称是，前身是模块
+DPU的全称是Display Processor Unit，通常被封装在GPU模块当中，比如ARM Mali [DP系列](https://en.wikipedia.org/wiki/Mali_(GPU)#Mali_display_processors)，主要的功能是将图像输出到屏幕
+
+评价一块DPU的性能优劣可以从它能够支持的最大分辨率、最大帧率、最多支持的几个屏幕以及最大支持的合成图层数量这几个方面来判断
+
+图片来源：https://community.arm.com/cn/f/discussions/6104/arm-mali-gpu
+
+**分辨率、帧率这些参数很容易理解，合成图层数量是什么意思？**
+
+图片来源：https://blog.zhoujinjian.cn/posts/20210810
+
+这是一张launcher桌面的截屏，它是由壁纸、顶部的状态栏、桌面应用列表、底部导航栏这4个图层组成
+
+壁纸：
+
+图片来源：https://blog.zhoujinjian.cn/posts/20210810
+
+顶部状态栏：
+
+图片来源：https://blog.zhoujinjian.cn/posts/20210810
+
+桌面应用列表：
+
+图片来源：https://blog.zhoujinjian.cn/posts/20210810
+
+底部导航栏：
+
+图片来源：https://blog.zhoujinjian.cn/posts/20210810
+
+GPU将每个图层渲染完成以后，理论上可以直接送到屏幕上显示了
+
+但是，除了全屏播放视频的场景外，多数情况下屏幕上都不止一个图层
+
+一旦图层与图层之间叠在一起了（比如例子中的状态栏、应用列表和导航栏都是叠在壁纸图层的上面）
+
+**重叠部分的像素颜色就需要重新计算**
 
 ###### 2. 什么是HWC
+
+dump
 
 Android中各子系统通常不会直接基于Linux驱动来实现，而是由HAL层间接引用底层架构，在显示系统中也同样如此
 
@@ -227,17 +265,18 @@ gralloc.so
 
 也可以使用malloc来申请内存
 
+本章节的重点是了解渲染和合成是怎么一回事以及渲染/合成使用的硬件设备是什么，它俩之间的区别大体上可以这样分：
 
-
-渲染，关注的是单个图层的内容，在当前图层的坐标系中，每个坐标点应该显示什么颜色
-
-合成，关注的是多个图层的内容，
+- 渲染，关注的是单个图层的内容，在当前图层的坐标系中，每个坐标点应该显示什么颜色
+- 合成，关注的是多个图层的内容，参考ps的合并图层功能
 
 在Android平台下，OpenGL ES对应的是EGL，也就是GPU厂商提供的libEGL.so库
 
 libEGL.so库将会在系统启动时被加载，以提供给其他进程使用
 
 #### 2、Google组件库
+
+楼上的硬件驱动通常都由OEM厂商提供，也就是高通公司卖SOC的时候会将so一起提供给小米
 
 聊完了厂商的硬件驱动，接下来我们一起聊聊Google为图形系统准备了哪些软件组件库
 
@@ -294,7 +333,19 @@ BufferQueue
 
 BufferQueue使用生产者/消费者模型，还有
 
-为了避免引入过多的角色导致文章的阅读体验下降，在看源码的过程中能分清谁是谁就已经很不错了，后续的surface等都是如此，只保留主干
+**简单描述一下状态转换过程：**
+
+> 1、首先生产者dequeue过来一块Buffer，此时该buffer的状态为DEQUEUED，所有者为PRODUCER，生产者可以填充数据了。在没有dequeue操作时，buffer的状态为free,所有者为BUFFERQUEUE。
+>
+> 2、生产者填充完数据后,进行queue操作，此时buffer的状态由DEQUEUED->QUEUED的转变，buffer所有者也变成了BufferQueue了。
+>
+> 3、上面已经通知消费者去拿buffer了，这个时候消费者就进行acquire操作将buffer拿过来，此时buffer的状态由QUEUED->ACQUIRED转变，buffer的拥有者由BufferQueue变成Consumer。
+>
+> 4、当消费者已经消费了这块buffer(已经合成，已经编码等)，就进行release操作释放buffer,将buffer归还给BufferQueue,buffer状态由ACQUIRED变成FREE.buffer拥有者由Consumer变成BufferQueue.
+
+本章节了解BufferQueue完成了对GraphicBuffer的封装，同时赋予了Buffer五种状态，对于BufferQueue的关键类和生产者消费者模型了解即可
+
+> *为了避免引入过多的角色导致文章的阅读体验不佳，在后续的章节中，我会将BufferQueueCore以及生产消费者统称为BufferQueue，包括后续会出现的Surface、EventThread都是如此，只保留主干*
 
 BufferQueue有三种工作模式，绝大多数情况下都在默认情况下，BufferQueue在类同步模式下运行，了解即可
 
@@ -483,6 +534,10 @@ void MessageQueue::init(const sp<SurfaceFlinger>& flinger)
 
 在SurfaceFlinger中，利用了RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
 
+sf进程在Android图形系统中，作为图层的消费者（不考虑截屏/录屏），负责调用hwc进行图层合成
+
+这里的消息队列负责处理两件事：
+
 Android是消息驱动的操作系统，APP的UI线程的设计如此，native的系统进程也是如此
 
 在sf进程中，消息队列主要处理两件事：提供给APP进程发送“我要刷新”的消息以及接受来自HWC的Vsync信号开始执行合成工作
@@ -538,7 +593,35 @@ void SurfaceFlinger::init() {
 }
 ```
 
-在Android图形系统中，Vsync信号不管是硬件产生还是软件模拟，都是交由DispSync来管理
+###### 1. 如何暂停接收vsync信号？
+
+理解这两个线程的作用非常重要，我们来思考一个问题：当页面没有发生任何变化时，APP进程会走渲染流程吗？同理，sf进程会走合成流程吗？
+
+答案是不会，为什么？
+
+APP进程由渲染需求或者sf进程由合成需求才会打开接收vsync信号的开关
+
+###### 2. 理解DispSync模型
+
+在Android图形系统中，Vsync信号不管是硬件产生还是软件模拟，最终都交由DispSync来管理
+
+本章节了解hardware的信号经由DispSync转发后才会到达sf进程和app进程即可，想要完全理解DispSync模型，建议阅读这几篇文章
+
+[《Analyze AOSP vsync model》](https://utzcoz.github.io/2020/05/02/Analyze-AOSP-vsync-model.html)
+
+[《DispSync解析》](http://echuang54.blogspot.com/2015/01/dispsync.html)
+
+[《Android DispSync 详解》](https://simowce.github.io/all-about-dispsync/)
+
+[《Android R Vsync相关梳理》](https://wizzie.top/Blog/2021/04/14/2021/210414_android_VsyncStudy)
+
+[《Android SurfaceFlinger SW Vsync模型》](https://www.jianshu.com/p/d3e4b1805c92)
+
+vsyncPhaseOffsetNs和sfVsyncPhaseOffsetNs
+
+DispSync管理着vsync信号的出口，不管是
+
+DispSync训练完成以后，
 
 ##### 初始化HWComposer
 
@@ -676,6 +759,8 @@ activity、dialog、toast等等
 用户点击返回键时，接收事件的肯定是最上层的弹窗，接着dismiss()
 
 ##### 进入睡眠 等待唤醒
+
+进入循环，保证system_server进程不退出
 
 详细的启动流程这里不展开，我们着重关注system_server进程中的AMS和WMS这两个服务
 
@@ -1128,6 +1213,10 @@ Android启动时会创建两大进程，其中常见的ams和wms运行在server�
 Android图形子系统横跨硬件驱动、Linux内核、Framework框架三层，虽然每个模块设计的比较合理，命名比较混乱，但命名真的是过于混乱，以至于稍不留意就迷失在源码当中
 
 这就导致想要理清它们之间的关系变成一件比较困难的事情，好在已经有各位前辈铺好了路
+
+Android图形子系统是最复杂的子系统，没有之一
+
+内容
 
 站在前人的肩膀上，结合着自己的理解，聊一聊对View的显示流程，不当之处多多指正
 

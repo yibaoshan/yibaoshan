@@ -35,6 +35,16 @@ class MessageQueue {
     }
 }
 
+/frameworks/native/services/surfaceflinger/Layer.cpp
+class Layer {
+
+    //当Surface发生变化以后，最终会调用onFrameAvailable()方法通知sf，让sf请求下一次vsync
+    //这里需要注意，vsync信号是EventThread来分发的，APP和sf各自管理自己是否需要请求下一次vsync信号
+    void Layer::onFrameAvailable() {
+        mFlinger->signalLayerUpdate();
+    }
+}
+
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
 class SurfaceFlinger {
 
@@ -45,6 +55,16 @@ class SurfaceFlinger {
         case MessageQueue::REFRESH: {
             handleMessageRefresh();
         }
+    }
+
+    //请求下一次vsync
+    void SurfaceFlinger::signalTransaction() {
+        mEvents->requestNextVsync();
+    }
+
+    //请求下一次vsync
+    void SurfaceFlinger::signalLayerUpdate() {
+        mEvents->requestNextVsync();
     }
 
     //合成五部曲
@@ -97,15 +117,15 @@ class SurfaceFlinger {
         }
     }
 
-    //第二步：
+    //第三步：更新HWComposer对象中图层对象列表以及图层属性
     void SurfaceFlinger::setUpHWComposer(){
     }
 
-    //第二步：
+    //第四步：
     void SurfaceFlinger::doDebugFlashRegions(){
     }
 
-    //第二步：
+    //第五步：
     void SurfaceFlinger::doComposition(){
         const bool repaintEverything = android_atomic_and(0, &mRepaintEverything);
         //遍历所有的DisplayDevice然后调用doDisplayComposition函数
@@ -135,8 +155,9 @@ class SurfaceFlinger {
         postFramebuffer();
     }
 
-    //第二步：
+    //第五步：
     void SurfaceFlinger::postComposition(){
+        //更新DispSync机制，详情参见
     }
 
 }

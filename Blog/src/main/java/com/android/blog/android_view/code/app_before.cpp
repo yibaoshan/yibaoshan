@@ -58,6 +58,24 @@ DisplayEventReceiver::sendEvents(native)
             Choreographer.doFrame(java)
                 ViewRootImpl.doTraversal(java)
 
+
+sf进程和app进程的vsync各自管理
+
+假设一个全屏的APP，那么它们的节奏是这样
+
+app-请求
+APP页面元素一旦发生变化，调用invalidate()方法请求下一次Vsync信号，此时sf什么都不做
+
+app-vsync & sf-请求
+app-vsync信号到来后，APP进程执行绘图三部曲，sf收到onFrameAvailable()，此时sf进程在请求vsync
+
+sf-vsync
+sf-vsync信号到来，sf进程执行合成五部曲，接着将layer交给hwc
+
+hw-vsync
+原始硬件的vsync一直在发生，接不接受取决于业务方的需求
+hw-vsync信号到来，PageFlip，framebuffer发生切换，展示给用户
+
 **/
 
 /frameworks/base/core/java/android/app/ActivityThread.java
