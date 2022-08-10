@@ -1,60 +1,3 @@
-#### Overview
-
-> - 开篇，说明图形系统的学习难点，引出硬件驱动
->   - 介绍小米11的拆截图，引出GPU模块
->   
->   - 介绍OpenGL ES和GPU
->     - 骁龙888的GPU部分使用了，OpenGL ES是一个通用的函数库，iPhone的GPU驱动和ARM平台的GPU驱动都基于标准实现
->     
->       在Android平台下，OpenGL ES对应的是EGL，也就是GPU厂商提供的libEGL.platform.so库，
->     
->       此外，GPU还实现了合成的功能
->     
->       libEGL.so库将会在系统启动时被加载，以提供给其他进程使用，如果你的手机没有GPU硬件，Google也会提供由CPU实现的libEGL.default.so库
->     
->     - 高通888使用的是，除高通外，GPU模块还有arm自家亲儿子，海思麒麟系列、联发科天玑系列、三星猎户座等CPU模块基本上都是用的mali
->     
->     - [Adreno 660](https://chiptechie.com/mobile-gpu/qualcomm-adreno-660/)驱动程序实现了OpenGL ES/Vulkan协议，支持 OpenGL ES 3.2、OpenCL 2.0 和 Vulkan 1.1，甚至还支持微软家的DirectX，理论上安装ARM版本的Windows系统后，可以调用GPU进行图形加速
->     
->     - 理解渲染
->     
->     - 一个图像的显示必须要经过渲染、合成、送显三个阶段，GPU负责的是第一个部分：渲染
->     
->     - 目前OpenGL ES已经从1.0版本升到了3.1版本，每个es版本对Android系统的要求也不同，详情可以点击[这里](https://developer.android.com/guide/topics/graphics/opengl?hl=zh-cn)查看
->     
->     - GPU是干嘛的，做图形运算，还能做合成工作，说白了就是做渲染和合成工作
->     
->     - 通常把一个渲染流程分3个阶段
->     
->       - 应用阶段，我没做过3D开发，以2D图形来举例，应用阶段CPU要做的就是准备数据，要做什么，坐标点，
->       - 比如，在一块10*10的图层上，从0,0到10.10画一条宽度为1的对角线，颜色要从白色到黑色渐变，在画一条从0,10，到10,0画一条对角线，颜色为纯蓝色，对应应用程序的layout，measure阶段，要做什么，好了，这块图层上就这两条指令，交给GPU执行
->       - 几何阶段
->       - 光栅化阶段
->     
->     - 我没有任何图形学经验，对于几何和光栅化两个阶段具体做了哪些事情理解的不是很透彻
->     
->     - 凭借朴素的情感猜测，无论是2D图形还是3D图形，经过渲染
->     
->     - 渲染，关注的是单个图层的内容，对应在当前的图层坐标系中，每个坐标点应该显示什么颜色，以2D举例，从0，0到10,10拉一条宽度为1的直线，渲染工作就是拉什么颜色的
->     
->     - 渲染工作完成以后，将会得到图层宽高大小的二维数组，数组中的每个元素代表这个图层每个坐标点的颜色信息、深度信息等等，GPU是如何做到的？我不清楚
->     
->     - 实现了哪些功能，支持什么协议，比如es1.0 2.0 Vulkan
->     
->     - 库加载的流程，如果OEM厂商未提供，Google应该怎么处理
->     
->   - hwc和显示芯片
->   
->     - 渲染工作完成以后
->     - 合成，关注的是多个图层的内容，将多个图层合并成一个图层，屏幕最终是要显示每个像素点颜色的，在整个屏幕中，每个图层应该如何显示，以及最终屏幕的每个像素点应该显示什么颜色，图层与图层覆盖了怎么处理等等
->     - 自动计算图层重叠部分的像素颜色变化，按照Google的要求
->     - 一个View的显示流程必须要经过渲染、合成、送显三个步骤才能展示给用户，渲染和合成的硬件介绍完了
->     - 一个图层底色是黑色，新加入一个半透明的白色图层，dpu可以自己计算对应坐标像素应该更新成什么颜色，无需调用GPU重新计算
->     - 送显部分是由FB框架或者DRM框架完成，感兴趣的同学可以点击这里学习，送显对应硬件是屏幕，这部分内容在之前两篇文章中已经介绍过了，不再赘述
->     - 至此，渲染、合成、送显三个阶段所需的硬件部分已经介绍完成，他们都是由各个厂商提供，比如soc厂商提供GPU驱动程序，各大手机厂商提供hwc驱动程序，这些驱动以so的方式最终会被Android系统加载并使用
->   
->   - Google之libui库
-
 Android图形系统（三）系统篇：当我们点击“微信”这个应用后，它是怎么在屏幕上显示出来的？
 
 对于应用开发工程师来说，虽然我们不需要写操作系统代码，但是了解View最终是如何显示到屏幕上还是非常有必要的
@@ -73,13 +16,13 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 这是一个非常复杂的问题，它的背后包含了由厂商驱动、Linux操作系统、HAL硬件抽象层和Android Framework框架层共同组建的一套非常庞大的Android图形子系统
 
-想要给出这个问题的答案，就必须对Android图形子系统背后的运行流程有所了解
+想要给出这个问题的答案，需要对Android图形子系统背后的运行流程有所了解
 
-今天，我们从认识Android设备的硬件开始，自下而上，看看庞大的图形系统是如何一步步建立起来的
+今天，我们从认识Android设备的硬件开始，自下而上，一起来看看庞大的图形系统是如何一步步建立起来的
 
 #### 1、硬件驱动
 
-再复杂的系统设计，也离不开硬件的支持，在文章的开头，我们先来了解一下，Android设备里支撑应用程序绘图的硬件有哪些？
+再复杂的系统设计，也离不开硬件的支持，在文章的开头，我们先来了解一下，Android设备里支撑应用程序绘图的硬件有哪些
 
 ![f](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_mi10_dismantle.png)
 
@@ -153,132 +96,118 @@ OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的�
 
 虽然GPU也可以用来做合成工作，但现阶段绝大多数的移动设备中，执行合成任务的都是DPU
 
-###### 1. 什么是DPU
+###### 1. 什么是合成
 
-DPU的全称是Display Processor Unit，通常被封装在GPU模块当中，比如ARM Mali [DP系列](https://en.wikipedia.org/wiki/Mali_(GPU)#Mali_display_processors)，主要的功能是将图像输出到屏幕
+在介绍DPU之前，我们需要先来了解什么是合成？
 
-评价一块DPU的性能优劣可以从它能够支持的最大分辨率、最大帧率、最多支持的几个屏幕以及最大支持的合成图层数量这几个方面来判断
+![android_graphic_v3_hwc_finally](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_finally.png)
 
-图片来源：https://community.arm.com/cn/f/discussions/6104/arm-mali-gpu
+*图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
-**分辨率、帧率这些参数很容易理解，合成图层数量是什么意思？**
+这是一张launcher桌面的截屏，它是由“壁纸”、“顶部的状态栏”、“桌面的应用列表”以及“底部导航栏”这4个图层组成
 
-图片来源：https://blog.zhoujinjian.cn/posts/20210810
+壁纸图层：
 
-这是一张launcher桌面的截屏，它是由壁纸、顶部的状态栏、桌面应用列表、底部导航栏这4个图层组成
+![android_graphic_v3_hwc_wallpaper](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_wallpaper.png)
 
-壁纸：
+*图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
-图片来源：https://blog.zhoujinjian.cn/posts/20210810
+顶部状态栏图层（很小的一个横条）：
 
-顶部状态栏：
+![android_graphic_v3_hwc_statusbar](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_statusbar.png)
 
-图片来源：https://blog.zhoujinjian.cn/posts/20210810
+*图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
 桌面应用列表：
 
-图片来源：https://blog.zhoujinjian.cn/posts/20210810
+![android_graphic_v3_hwc_launcher](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_launcher.png)
+
+*图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
 底部导航栏：
 
-图片来源：https://blog.zhoujinjian.cn/posts/20210810
+![android_graphic_v3_hwc_navigationbar](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_navigationbar.png)
 
-GPU将每个图层渲染完成以后，理论上可以直接送到屏幕上显示了
+*图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
-但是，除了全屏播放视频的场景外，多数情况下屏幕上都不止一个图层
+在上一小节我们了解了GPU的职责是“图层渲染”，上面这4个图层就是GPU渲染出来的成果
 
-一旦图层与图层之间叠在一起了（比如例子中的状态栏、应用列表和导航栏都是叠在壁纸图层的上面）
+**每个图层渲染完成以后，理论上可以直接送到屏幕上去显示了**
+
+**但是，除了全屏播放视频的场景外，大多数情况下屏幕上都不止一个图层**
+
+**一旦图层与图层之间发生重叠（比如launcher的状态栏、应用列表和导航栏这3个图层都是叠加在壁纸图层的上面）**
 
 **重叠部分的像素颜色就需要重新计算**
 
-###### 2. 什么是HWC
+**将多个图层合并成一个图层的过程，被称为“合成”**
 
-dump
+###### 2. 什么是DPU
+
+合成的工作本质上还是渲染，所以这原先其实是GPU的活
+
+但是，图层合成的过程中是不需要3D渲染的，早在“图层渲染”那一步GPU就完成了所有的3D渲染工作
+
+这样的话为合成流程单独配置一颗2D渲染引擎就OK了，目前承担这一责任的就是DPU了
+
+DPU的全称是Display Processor Unit，通常被封装在GPU模块当中
+
+其最主要的功能是将GPU渲染完成的图层合并输出到屏幕，对于图层重叠的部分，DPU会自动计算出“脏矩形”并更新像素颜色变化
+
+如下图，Arm Mali-DP550这款DPU最多能够支持7层的合成任务
+
+![android_graphic_v3_mali_dp550](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_mali_dp550.jpg)
+
+*图片来源：https://community.arm.com/cn/f/discussions/6104/arm-mali-gpu*
+
+###### 3. 什么是HWC
+
+当然，合成的工作也可以不放在DPU中，厂商可以选择在板子上加一块2D渲染芯片，专门用来执行合成任务
+
+[Hardware Composer](https://source.android.com/devices/graphics/hwc)就是专门用来定义合成工作的接口对象，它是[Android Hardware Abstraction Layer（HAL）](https://source.android.com/devices/architecture/hal-types?hl=zh-cn)硬件抽象层的成员之一
+
+HWC不在乎厂商使用的是DPU还是其他的2D渲染芯片，厂商只需要实现HWC的接口定义即可
+
+我们来看Google官网对于HWC的定义：
+
+![android_graphic_v3_developer_hwc](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_developer_hwc.png)
+
+*图片来源：https://source.android.com/devices/graphics/hwc*
+
+“每个字都认识就是不知道在说什么”系列，把这段话分为4段翻译一下：
+
+1. 用DPU做合成比GPU要高效
+
+2. 第二点比较重要，里面包含了hwc的执行逻辑，大致流程是这样：
+
+   > sf进程：有6个渲染好的图层过来了，我全部塞给你，你自个儿处理完去送显？
+   >
+   > hwc：不行，我最多只能处理4个图层，我把其中最简单的3个图层标记为GPU合成了，你把这3个合并成一个图层再给我吧
+   >
+   > sf进程：调用GPU完成另外3个图层的合成工作，并将合并后的图层交给hwc
+
+3. 理论上如果屏幕内容没有发生变化，sf不应该走合成流程，第三点我不是很理解想要表达什么意思
+
+4. 超出hwc能力的图层会调用GPU合成，如果应用的图层太多会对性能产生影响，比如APP弹窗过多，每个Dialog都算一个图层
 
 Android中各子系统通常不会直接基于Linux驱动来实现，而是由HAL层间接引用底层架构，在显示系统中也同样如此
 
-所以厂商驱动除了要实现行业协议（OpenGL ES/Vulkan）之外，还需要实现Google定义的HAL硬件抽象层
+好了，hwc的部分到这里先告一段落，我们来总结一下“硬件驱动”小节的内容
 
-它借助于HAL层来操作帧缓冲区，而完成这一中介任务的就是Gralloc
-
-Hardware Composer (HWC)就是HAL成员之一：
-
-> 硬件混合渲染器 (HWC) HAL 用于合成从 SurfaceFlinger 接收的图层，从而减少 OpenGL ES (GLES) 和 GPU 执行的合成量。
->
-> HWC 可以抽象出叠加层和 2D 位块传送器等对象来合成 Surface，并与专门的窗口合成硬件进行通信以合成窗口。使用 HWC 来合成窗口，而不是让 SurfaceFlinger 与 GPU 进行合成。大多数 GPU 都未针对合成进行过优化，当 GPU 合成来自 SurfaceFlinger 的图层时，应用就无法使用 GPU 进行自我渲染。
->
-> HWC 实现应该支持：
->
-> - 至少 4 个叠加层：
->   - 状态栏
->   - 系统栏
->   - 应用
->   - 壁纸/背景
-> - 大于屏幕的图层（例如壁纸）
-> - 同时预乘的每像素 Alpha 混合和每平面 Alpha 混合
-> - 受保护视频播放的硬件路径
-> - RGBA 打包顺序、YUV 格式以及平铺、重排和步幅属性
-
-保护厂商利益
-
-大致的过程是这样：
-
-> sf进程：6层图像一起显示，你行不行？不行我换别人了
->
-> hwc：前4个我还行，多2个实在吃不消啊，这俩您看怎么办
->
-> sf进程：five，GPU别睡了来活了
-
-Dump图层就可以看到哪些是GPU合成那些事hwc合成的
-
-sf合成时每次都会问hwc模块：给你5个layer一起显示你行不行？不行
-
-
-
-紧接着，sf来决定
-
-hwc是Google在加入的合成机制，目的是为了分担GPU的压力，hwc需要支持4个以及其他条件
-
-这个YouTube的视频，现在看
-
-能不能先告诉我什么是合成？？？
-
-超出HWC能力范围的layer，会被标记为client合成方式，然后sf会让GPU对这些layer进行合成，我们的Android虚拟机就都是client合成
-
-GPU合成是什么意思呢？想象一下PS中的合并图层，就能理解了
-
-应用程序交给sf进程一层视频、一层工具栏，sf也不必去合成，直接把这些layers交给hwc，hwc就可以在自己能力范围内做好合成，再把合成好的结果拿去显示。也就是说合成由显示模块硬件完成。目前主流的SOC平台显示模块都支持多层显示。
-
-HWC目前已经发展到2.0版本，Android 7.0以后可以选择使用HWC1.0还是2.0
-
-了解HWC存在的原因是减轻GPU的负担，接任GPU的合成工作即可
-
-DPU：Display Processor Unit
-
-说人话的调用流程：操作系统->HAL->硬件驱动
-
-和OpenGL ES一样，系统在开机时会加载hwc库，如果没有，那么将调用GPU完成合成工作
-
-Hwc.so
-
-gralloc.so
-
-也可以使用malloc来申请内存
-
-本章节的重点是了解渲染和合成是怎么一回事以及渲染/合成使用的硬件设备是什么，它俩之间的区别大体上可以这样分：
+本章节的重点是了解什么是渲染和合成以及渲染/合成使用的硬件设备是什么，渲染和合成之间的区别：
 
 - 渲染，关注的是单个图层的内容，在当前图层的坐标系中，每个坐标点应该显示什么颜色
-- 合成，关注的是多个图层的内容，参考ps的合并图层功能
+- 合成，关注的是多个图层的内容，将多个图层重新计算后得到一个图层，参考ps的合并图层功能
 
-在Android平台下，OpenGL ES对应的是EGL，也就是GPU厂商提供的libEGL.so库
+另外，渲染和合成对应的GPU和HWC驱动都由OEM厂商提供，也就是高通、ARM这些SOC厂商
 
-libEGL.so库将会在系统启动时被加载，以提供给其他进程使用
+如果你的设备中没有GPU和DPU也没关系，Google为所有的驱动都提供了默认实现，也就是CPU模拟，这也是为什么虚拟机能运行的原因
+
+至此，渲染、合成、送显三个阶段所需的硬件部分已经介绍完成，接下来我们一起看看Google为图形系统准备了哪些软件组件库
 
 #### 2、Google组件库
 
-楼上的硬件驱动通常都由OEM厂商提供，也就是高通公司卖SOC的时候会将so一起提供给小米
-
-聊完了厂商的硬件驱动，接下来我们一起聊聊Google为图形系统准备了哪些软件组件库
+聊完了厂商的硬件驱动，接下来我们一起聊聊
 
 瑞芯微开发板关于HWC部分实现点[[这里]](https://gitlab.com/TeeFirefly/firenow-oreo-rk3399/-/tree/master/hardware/rockchip/hwcomposer)
 
