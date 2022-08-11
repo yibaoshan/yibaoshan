@@ -46,7 +46,7 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 图片来源：https://www.dpreview.com/news/2969199244/qualcomm-snapdragon-888-soc
 
-对于本章内容来说，Adreno 660 GPU是我们需要关心的重点，因为它封装了图形系统中经常要使用到的两块芯片：GPU（Graphics Processing Unit）和DPU（Display Processing Unit）
+其中，Adreno 660 GPU是我们需要关心的重点，因为它封装了图形系统中经常要使用到的两块芯片：GPU（Graphics Processing Unit）和DPU（Display Processing Unit）
 
 ![android_graphic_v3_adreno660](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_adreno660.jpeg)
 
@@ -54,15 +54,19 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 ##### 图形渲染驱动
 
-###### 1. 什么是GPU
+###### 1. 什么是渲染
 
-GPU全称是GraphicProcessing Unit，最大的作用就是进行各种绘制计算机图形所需的运算，包括顶点设置、光影、像素操作等
+渲染是计算机图形学中的最重要的研究课题之一，也是图形系统中必不可少的一部分
 
-一幅图像的显示必须要经过渲染、合成、送显这三个阶段，GPU负责的是渲染阶段
+一幅图像的显示必须要经过渲染、合成、送显这三个阶段
+
+其工作原理非常复杂，我们通过一个例子来感受什么是渲染：
+
+我们知道，那么什么是渲染？
 
 举个例子来解释GPU的渲染工作：
 
-我向系统申请了一块10*10大小的图层，单位是像素，接着想在图层上画点东西
+我向系统申请了一块10*10大小的图层内存，单位是像素，接着想在图层上画点东西
 
 > 1. **把图层染成绿的**
 > 2. **从左上（0,0）到右下（10,10）画一条宽度为1颜色为红色的直线**
@@ -76,9 +80,17 @@ GPU渲染工作完成后，我就能得到10*10大小的二维数组（还是原
 
 *图片来源：自己画的*
 
+在一块固定大小的图层中，执行一系列的绘图指令，执行完成以后我能将这块内存交给屏幕去显示，这个就叫做渲染
+
+图像渲染是一个非常复杂的话题
+
+渲染和绘制是同一个意思，对应单词都是Render
+
 具体的渲染过程和实现原理可以看[《渲染管线的三大阶段》](https://zhuanlan.zhihu.com/p/101908082)这篇文章，本小节我们主要理解GPU的渲染工作是做什么的
 
-###### 2. 什么是OpenGL ES
+###### 2. 什么是GPU
+
+OpenGL ES
 
 OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的开发规范，类似的协议还有Vulkan、DirectX
 
@@ -90,6 +102,16 @@ OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的�
 
 更多关于GPU和OpenGL ES的介绍请点击[[这里]](https://cloud.tencent.com/developer/article/1756011)
 
+###### 3. 什么是硬件加速
+
+Android硬件加速的一些问题和错误：https://blog.csdn.net/icyfox_bupt/article/details/18732001
+
+对于应用开发者是无感的
+
+早些年对硬件加速都是又爱又恨的，好的方面是开启硬件加速后页面的确会流畅许多，坏的方面是在某些机型上页面显示可能会有些问题
+
+游戏开发，普通的View或者自定义控件都是使用Canvas来完成绘图工作，
+
 ##### 图形合成驱动
 
 聊完了图形的渲染，下一步就到图像的合成阶段
@@ -98,7 +120,7 @@ OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的�
 
 ###### 1. 什么是合成
 
-在介绍DPU之前，我们需要先来了解什么是合成？
+在介绍DPU之前，我们需要先来了解什么是合成
 
 ![android_graphic_v3_hwc_finally](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_finally.png)
 
@@ -146,7 +168,7 @@ OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的�
 
 合成的工作本质上还是渲染，所以这原先其实是GPU的活
 
-但是，图层合成的过程中是不需要3D渲染的，早在“图层渲染”那一步GPU就完成了所有的3D渲染工作
+但是，图层合成的过程中是不需要3D渲染的，因为早在“图层渲染”那一步GPU就完成了所有的3D渲染工作
 
 这样的话为合成流程单独配置一颗2D渲染引擎就OK了，目前承担这一责任的就是DPU了
 
@@ -174,7 +196,7 @@ HWC不在乎厂商使用的是DPU还是其他的2D渲染芯片，厂商只需要
 
 *图片来源：https://source.android.com/devices/graphics/hwc*
 
-“每个字都认识就是不知道在说什么”系列，把这段话分为4段翻译一下：
+“每个字都认识就是不知道在说什么”系列，我把这段话按照标号翻译一下：
 
 1. 用DPU做合成比GPU要高效
 
@@ -190,6 +212,14 @@ HWC不在乎厂商使用的是DPU还是其他的2D渲染芯片，厂商只需要
 
 4. 超出hwc能力的图层会调用GPU合成，如果应用的图层太多会对性能产生影响，比如APP弹窗过多，每个Dialog都算一个图层
 
+关于第二点我们可以使用adb shell dumpsys SurfaceFlinger命令查看当前图层的合成方式，DEVICE表示HWC合成，CLIENT表示GPU合成
+
+我是图片
+
+另外，除了合成工作，hwc还负责送显以及发送Vsync信号，绝大多数情况下hwc的实现者是DPU，而DPU控制着屏幕的显示刷新
+
+关于送显部分可以看何小龙的[[DRM系列]](https://blog.csdn.net/hexiaolong2009/article/details/83720940)进行学习
+
 Android中各子系统通常不会直接基于Linux驱动来实现，而是由HAL层间接引用底层架构，在显示系统中也同样如此
 
 好了，hwc的部分到这里先告一段落，我们来总结一下“硬件驱动”小节的内容
@@ -199,7 +229,7 @@ Android中各子系统通常不会直接基于Linux驱动来实现，而是由HA
 - 渲染，关注的是单个图层的内容，在当前图层的坐标系中，每个坐标点应该显示什么颜色
 - 合成，关注的是多个图层的内容，将多个图层重新计算后得到一个图层，参考ps的合并图层功能
 
-另外，渲染和合成对应的GPU和HWC驱动都由OEM厂商提供，也就是高通、ARM这些SOC厂商
+还有一点要说明，渲染和合成对应的GPU和HWC驱动都由OEM厂商提供，也就是高通、ARM这些SOC厂商
 
 如果你的设备中没有GPU和DPU也没关系，Google为所有的驱动都提供了默认实现，也就是CPU模拟，这也是为什么虚拟机能运行的原因
 
@@ -207,9 +237,11 @@ Android中各子系统通常不会直接基于Linux驱动来实现，而是由HA
 
 #### 2、Google组件库
 
-聊完了厂商的硬件驱动，接下来我们一起聊聊
+所谓的组件库更多是对数据结构的封装，比如CPU、GPU和HWC要共享同一块内存，那就需要一种格式让它们都能识别这块内存
 
-瑞芯微开发板关于HWC部分实现点[[这里]](https://gitlab.com/TeeFirefly/firenow-oreo-rk3399/-/tree/master/hardware/rockchip/hwcomposer)
+另外还需要一种机制来约束它们的行为，防止某个硬件在使用过程中内存数据被其他硬件更改，保证数据安全
+
+Google为图形系统提供了[[libui.so]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[[libgui.so]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)两个库，接下来一起来看看这两个库里面分别有什么
 
 ##### libui组件库
 
@@ -219,17 +251,25 @@ GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此�
 
 每当应用有显示需求时，应用会向系统申请一块GraphicBuffer内存，这块内存将会共享给GPU用于执行渲染工作，接着会同步给HWC用于合成和显示
 
-一个渲染完成的GraphicBuffer对象就是在1.1.2小节中的图层，它俩是一一对应的关系
+我们可以把GraphicBuffer对象看做是一个个渲染完成以后的图层，对应1.1.2.1小节中launcher的各个图层
 
 更多关于GraphicBuffer的介绍请点击[[这里]](https://www.kancloud.cn/alex_wsc/android_depp/412982)
 
 ###### 2. 什么是Fence机制
 
-GraphicBuffer对象在流转的过程中，会被GPU、CPU、DPU三个不同的硬件访问
+GraphicBuffer对象的一个完整的生命周期大概是这样：
+
+- 渲染阶段：应用有绘图需求了，由GPU分配一块内存给应用，应用调用GPU执行绘图，此时使用者是GPU
+- 合成阶段：GPU渲染完成后将图层传递给sf进程，sf进程决定由谁来合成，hwc或者GPU
+  - 如果使用GPU合成，那么此时buffer的使用者依旧是GPU
+  - 如果使用hwc合成，那么此时buffer的使用者是hwc
+- 显示阶段：所有的buffer在此阶段的使用者都是hwc，因为hwc控制着显示芯片
+
+从生命周期可以看出GraphicBuffer对象在流转的过程中，会被GPU、CPU、DPU三个不同的硬件访问
 
 如果同一块内存能够被多个硬件设备访问，就需要一个同步机制，在Android图形系统中，Fence机制就是用来保证跨硬件访问时的数据安全
 
-实现原理可以类比Java的synchronized互斥锁机制，我们可以把Fence理解为一把硬件的互斥锁
+Fence的实现原理可以类比Java的synchronized互斥锁机制，我们也可以把Fence理解为一把硬件的互斥锁
 
 每个需要访问GraphicBuffer的角色，在使用前都要检查这把锁是否signaled了才能进行安全的操作，否则就要等待
 
@@ -240,27 +280,39 @@ GraphicBuffer对象在流转的过程中，会被GPU、CPU、DPU三个不同的�
 
 ###### 3. 什么是Gralloc
 
-移动设备内部空间寸土寸金，显然不大可能像PC一样给GPU单独配个显存，移动端的"图形内存"都被分配在运行内存中
+Gralloc是Android中负责申请和释放GraphicBuffer的HAL层模块
+
+移动设备的内部空间寸土寸金，显然不大可能像PC一样给GPU单独配个显存，移动端的"图形内存"都被分配在运行内存中
 
 为了防止图形内存被滥用，Google抽象出Gralloc模块，规定了所有图形内存的申请与释放都需要通过该模块，以此来规范图形内存的使用
 
 > *注意：Fence机制和Gralloc机制并不属于libui组件库，把它俩分到libui库展示是因为GraphicBuffer需要它们*
 
-更多关于Gralloc机制的介绍请点击[[这里]](https://source.android.com/devices/graphics/arch-bq-gralloc)
+更多关于Gralloc机制的介绍请点击[[这里]](https://windrunnerlihuan.com/2017/03/12/Android-SurfaceFlinger-%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF-%E4%B8%80-Android%E5%9B%BE%E5%BD%A2%E6%98%BE%E7%A4%BA%E4%B9%8BHAL%E5%B1%82Gralloc%E6%A8%A1%E5%9D%97%E5%AE%9E%E7%8E%B0/)
 
 ##### libgui组件库
 
-libui库的主要成员是GraphicBuffer，在libgui库中更多的是对GraphicBuffer对象的封装，加入了一些控制的逻辑
-
-需要提前说明的是，越接近上层业务设计上就越复杂
+越接近上层业务设计上就越复杂，libgui库虽说还没到业务层，但它里面的组件大多是对GraphicBuffer对象的封装以满足不同的业务需求
 
 ###### 1. 什么是BufferQueue
 
-从名称就可以看出来，BufferQueue是一个封装了GraphicBuffer的队列
+BufferQueue是在Android 4.1（黄油计划）版本加入的，它是黄油计划中的践行者
 
-BufferQueue
+Drawing with VSync
 
-BufferQueue使用生产者/消费者模型，还有
+从名称就可以看出来，BufferQueue是一个封装了GraphicBuffer的队列，对外提供了出列/入列的接口
+
+不光如此，BufferQueue还为包装了GraphicBuffer的几种状态，它们分别是：
+
+- **FREE：**闲置状态，任何进程都可以获取该buffer进行操作，通常表示为APP进程可以申请使用的内存
+- **DEQUEUED：**出列状态，通常是APP进程在绘图，使用者是GPU
+- **QUEUED：**入列状态，表示APP绘图已经完成，等待从队列取出执行下一步合成，没有使用者
+- **ACQUIRED：**锁定状态，通常表示sf进程从队列取出，正在做合成工作，此时使用者可能是hwc也有可能是GPU
+- **SHARED：**共享状态，7.0版本加入的新状态，没找到相关介绍资料，合成工作完成以后共享给录屏软件？
+
+对于一个图层而言，
+
+BufferQueue属于典型的[[生产者/消费者模型]](https://juejin.cn/post/7072263857015619621#heading-16)
 
 **简单描述一下状态转换过程：**
 
@@ -274,23 +326,21 @@ BufferQueue使用生产者/消费者模型，还有
 
 本章节了解BufferQueue完成了对GraphicBuffer的封装，同时赋予了Buffer五种状态，对于BufferQueue的关键类和生产者消费者模型了解即可
 
-> *为了避免引入过多的角色导致文章的阅读体验不佳，在后续的章节中，我会将BufferQueueCore以及生产消费者统称为BufferQueue，包括后续会出现的Surface、EventThread都是如此，只保留主干*
+> **
 
 BufferQueue有三种工作模式，绝大多数情况下都在默认情况下，BufferQueue在类同步模式下运行，了解即可
 
 在7.0中用BufferItem进行二次封装，其中的mslot表示buffer的状态，bufferitem在不同版本命名可能不一样，注意区分
 
-在BufferQueue包装中，赋予了GraphicBuffer的几种状态，它们分别是
 
-- **FREE：**闲置状态，表示任何进程都可以获取该buffer进行操作
-- **DEQUEUED：**出列状态，表示正在被使用，通常是APP进程
-- **QUEUED：**入列状态，表示已经绘图已经完成
-- **ACQUIRED：**
-- **SHARED：**
 
-更多关于BufferQueue机制的介绍请点击[[这里]](https://zhuanlan.zhihu.com/p/62813895)
+BufferQueue内部的实现原理还是挺复杂的，我们知道它是个GraphicBuffer队列以及每种状态的含义就行了，关于BufferQueue更多细节请点击[[这里]](https://zhuanlan.zhihu.com/p/62813895)
+
+另外，BufferQueue核心代码由BufferQueueCore、BufferQueueProducer、BufferQueueConsumer这3个类组成，为了避免引入过多的角色导致文章的阅读体验下降，在后续的章节中，我会将这几个类统称为BufferQueue，包括接下来会出现的Surface、EventThread都是如此，只保留主干
 
 ###### 2. 什么是Surface
+
+Surface是离我们应用开发者最近的一个组件类了，在应用中创建的Activity、Dialog、Toast和自定义悬浮窗本质上都是一个Surface
 
 对于用户空间来说，一个Surface意味着
 
@@ -306,11 +356,13 @@ DisplayEventReceiver成员看起来有点面生，但提到Choreographer我相�
 
 简单来说，DisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力，DisplayEventReceiver是Choreographer中的一个成员变量
 
-更多关于DisplayEventReceiver机制的介绍请点击[这里](https://lishuaiqi.top/2018/07/15/Choreographer-1-choreographerAnalysize/)
+关于DisplayEventReceiver更多细节请点击[这里](https://lishuaiqi.top/2018/07/15/Choreographer-1-choreographerAnalysize/)
 
-Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[libgui.so](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)库，厂商提供了[hwcomposer.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_hwcomposer/)和[gralloc.so](http://www.aospxref.com/android-7.1.2_r39/xref/external/drm_gralloc/)以及GPU的[libEGL.so](https://source.android.com/devices/graphics/implement-opengl-es?hl=zh-cn)库，这几个库为Android的图形系统打下了坚实的基础，几乎所有的图形显示都得依靠他们哥几个才能完成
+至此，libui、libgui两个Google组件库基本介绍完了，我们来回顾一下本章节内容：
 
-本章节的目的是认识硬件以及低级别组件库，了解它们在系统中的作用，提供了什么功能
+在硬件驱动中我们认识了GPU和DPU，在Google低级别组件库中我们认识了GraphicBuffer、BufferQueue和Surface
+
+本章节的目的是认识硬件以及低级别组件库，了解提供了什么功能，理解它们在系统中的位置，
 
 厂商驱动库和Google组件库作为Android图形系统基石，共同组建了庞大的图形子系统，为图形系统强有力的支撑
 
@@ -320,9 +372,15 @@ Google提供了[libui.so](http://www.aospxref.com/android-7.1.2_r39/xref/framewo
 
 只有把这些基础概念理解清楚，才能再阅读源码的过程中更加有的放矢
 
+我是图片
+
 ### 二、请求Vsync信号
 
-厂商驱动库和Google组件库作为Android图形系统基石，共同组建了庞大的图形子系统，为图形系统强有力的支撑
+厂商驱动库和Google组件库作为Android图形系统基石，共同组建了庞大的图形子系统，为整个图形系统强有力的支撑
+
+对于操作系统来说，得让这一切动起来才有意义
+
+本章节运行
 
 在Android图形系统中，surface_flinger进程和system_server进程管理着整个系统的运转，其中：
 
