@@ -12,7 +12,7 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 ### 一、开篇
 
-当我们点击“微信”这个应用后，它是怎么在屏幕上显示出来的？
+当我们点开“微信”这个应用后，它是怎么在屏幕上显示出来的？
 
 这是一个非常复杂的问题，它的背后包含了由厂商驱动、Linux操作系统、HAL硬件抽象层和Android Framework框架层共同组建的一套非常庞大的Android图形子系统
 
@@ -296,57 +296,71 @@ Gralloc是Android中负责申请和释放GraphicBuffer的HAL层模块
 
 ###### 1. 什么是BufferQueue
 
-BufferQueue是在Android 4.1（黄油计划）版本加入的，它是黄油计划中的践行者
+在Android 4.1（Project Butter）中引入了BufferQueue，它是黄油计划中“Triple Buffer”的执行者
 
-Drawing with VSync
+黄油计划的重点是“Drawing with VSync”，也就是把Vsync信号同步给APP进程
 
-从名称就可以看出来，BufferQueue是一个封装了GraphicBuffer的队列，对外提供了出列/入列的接口
+这样做的目的是将渲染和合成分成两步来执行，减少一个Vsync周期内的任务量，以降低丢帧发生的概率
 
-不光如此，BufferQueue还为包装了GraphicBuffer的几种状态，它们分别是：
+回到本章的主题BufferQueue，从名称就可以看出来，它是一个封装了GraphicBuffer的队列
 
-- **FREE：**闲置状态，任何进程都可以获取该buffer进行操作，通常表示为APP进程可以申请使用的内存
-- **DEQUEUED：**出列状态，通常是APP进程在绘图，使用者是GPU
-- **QUEUED：**入列状态，表示APP绘图已经完成，等待从队列取出执行下一步合成，没有使用者
-- **ACQUIRED：**锁定状态，通常表示sf进程从队列取出，正在做合成工作，此时使用者可能是hwc也有可能是GPU
-- **SHARED：**共享状态，7.0版本加入的新状态，没找到相关介绍资料，合成工作完成以后共享给录屏软件？
+BufferQueue对外提供了出列/入列的接口，还为GraphicBuffer包装了几种不同的状态，它们分别是：
 
-对于一个图层而言，
+> - FREE：闲置状态，任何进程都可以获取该buffer进行操作，通常表示为APP进程可以申请使用的内存
+> - DEQUEUED：出列状态，通常是APP进程在绘图，使用者是GPU
+> - QUEUED：入列状态，表示APP绘图已经完成，等待从队列取出执行下一步合成，没有使用者
+> - ACQUIRED：锁定状态，通常表示sf进程从队列取出，正在做合成工作，此时使用者可能是hwc也有可能是GPU
+> - SHARED：共享状态，7.0版本加入的新状态，没找到相关介绍资料，合成工作完成以后共享给录屏软件？
 
-BufferQueue属于典型的[[生产者/消费者模型]](https://juejin.cn/post/7072263857015619621#heading-16)
+**BufferQueue使用了[[生产者/消费者模式]](https://juejin.cn/post/7072263857015619621#heading-16)，在绝大多数的情况下，APP作为生产者，sf进程作为消费者，它们俩共同操作一个buffer队列**
 
-**简单描述一下状态转换过程：**
+**简单描述一下生产者消费者操作队列时状态转换的过程：**
 
-> 1、首先生产者dequeue过来一块Buffer，此时该buffer的状态为DEQUEUED，所有者为PRODUCER，生产者可以填充数据了。在没有dequeue操作时，buffer的状态为free,所有者为BUFFERQUEUE。
+> 生产者：APP进程
 >
-> 2、生产者填充完数据后,进行queue操作，此时buffer的状态由DEQUEUED->QUEUED的转变，buffer所有者也变成了BufferQueue了。
+> 1、producer->dequeueBuffer()
 >
-> 3、上面已经通知消费者去拿buffer了，这个时候消费者就进行acquire操作将buffer拿过来，此时buffer的状态由QUEUED->ACQUIRED转变，buffer的拥有者由BufferQueue变成Consumer。
+> ​	 从队列取出一个状态为“FREE”的buffer，此时该buffer状态变化为：FREE->DEQUEUED
 >
-> 4、当消费者已经消费了这块buffer(已经合成，已经编码等)，就进行release操作释放buffer,将buffer归还给BufferQueue,buffer状态由ACQUIRED变成FREE.buffer拥有者由Consumer变成BufferQueue.
+> 2、producer->queueBuffer()
+>
+> ​	 将渲染完成的buffer入列，此时该buffer状态变化为：DEQUEUED->QUEUED
+>
+> 消费者：sf进程
+>
+> 1、consumer->acquireBuffer()
+>
+> ​	 从队列中取出一个状态为“QUEUED”的渲染完的buffer准备去合成送显，此时该buffer的状态变化为：QUEUED->ACQUIRED
+>
+> 2、consumer->releaseBuffer()
+>
+> ​	 buffer内容已经显示过了，可以重新入列给APP使用了，此时该buffer的状态变化为：ACQUIRED->FREE
 
-本章节了解BufferQueue完成了对GraphicBuffer的封装，同时赋予了Buffer五种状态，对于BufferQueue的关键类和生产者消费者模型了解即可
+**一个buffer的一生，就是在不断地循环FREE->DEQUEUED->QUEUED->ACQUIRED->FREE这个过程，中间有任何一个环节出现延迟，反应到屏幕上就是应用出现了卡顿**
 
-> **
+> *BufferQueue核心代码由BufferQueueCore、BufferQueueProducer、BufferQueueConsumer这3个类组成*
+>
+> *为了避免引入过多的角色导致文章的阅读体验下降，在后续的章节中，我会将这几个类统称为BufferQueue，包括接下来会出现的Surface、EventThread都是如此，只保留主干*
 
-BufferQueue有三种工作模式，绝大多数情况下都在默认情况下，BufferQueue在类同步模式下运行，了解即可
-
-在7.0中用BufferItem进行二次封装，其中的mslot表示buffer的状态，bufferitem在不同版本命名可能不一样，注意区分
-
-
-
-BufferQueue内部的实现原理还是挺复杂的，我们知道它是个GraphicBuffer队列以及每种状态的含义就行了，关于BufferQueue更多细节请点击[[这里]](https://zhuanlan.zhihu.com/p/62813895)
-
-另外，BufferQueue核心代码由BufferQueueCore、BufferQueueProducer、BufferQueueConsumer这3个类组成，为了避免引入过多的角色导致文章的阅读体验下降，在后续的章节中，我会将这几个类统称为BufferQueue，包括接下来会出现的Surface、EventThread都是如此，只保留主干
+更多关于BufferQueue的介绍请点击[[这里]](https://zhuanlan.zhihu.com/p/62813895)
 
 ###### 2. 什么是Surface
 
-Surface是离我们应用开发者最近的一个组件类了，在应用中创建的Activity、Dialog、Toast和自定义悬浮窗本质上都是一个Surface
+Surface是离应用开发者最近的一个类，在Android Framework窗口实现里
 
-对于用户空间来说，一个Surface意味着
+每一个Window其实都会对应一个Surface，我们日常使用的Activity、Dialog、Toast这些都是Window
 
-Surface中持有BufferQueue的引用，并且封装了出列、入列等一系列的操作
+Surface中持有BufferQueue的引用，因为Surface通常作为buffer的生产者，所以它只封装了出列和入列两个方法
 
-Surface还
+每个egl对象
+
+作为surface
+
+Surface是ANativeWindow的子类，也是ANativeWindow的具体实现
+
+对于用户空间来说，一个Surface意味着图层，每个图层都会拥有一个BufferQueue
+
+
 
 ###### 3. 什么是DisplayEventReceiver
 
@@ -357,6 +371,10 @@ DisplayEventReceiver成员看起来有点面生，但提到Choreographer我相�
 简单来说，DisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力，DisplayEventReceiver是Choreographer中的一个成员变量
 
 关于DisplayEventReceiver更多细节请点击[这里](https://lishuaiqi.top/2018/07/15/Choreographer-1-choreographerAnalysize/)
+
+#### 分割线
+
+呼~
 
 至此，libui、libgui两个Google组件库基本介绍完了，我们来回顾一下本章节内容：
 
