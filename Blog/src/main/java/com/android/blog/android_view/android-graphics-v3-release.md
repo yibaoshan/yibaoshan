@@ -46,19 +46,23 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 图片来源：https://www.dpreview.com/news/2969199244/qualcomm-snapdragon-888-soc
 
-其中，Adreno 660 GPU是我们需要关心的重点，因为它封装了图形系统中经常要使用到的两块芯片：GPU（Graphics Processing Unit）和DPU（Display Processing Unit）
+其中，Adreno 660 GPU是我们需要关心的重点
+
+它封装了图形系统中经常要使用到的两块芯片：GPU（Graphics Processing Unit）和DPU（Display Processing Unit）
 
 ![android_graphic_v3_adreno660](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_adreno660.jpeg)
 
 *图片来源：https://www.dpreview.com/news/2969199244/qualcomm-snapdragon-888-soc*
 
-##### 图形渲染驱动
+一幅图像的显示必须要经过渲染、合成、送显这三个阶段
+
+GPU和DPU各自负责其中两个关键步骤：渲染和合成
+
+##### 图形渲染
 
 ###### 1. 什么是渲染
 
 渲染是计算机图形学中的最重要的研究课题之一，也是图形系统中必不可少的一部分
-
-一幅图像的显示必须要经过渲染、合成、送显这三个阶段
 
 其工作原理非常复杂，我们通过一个例子来感受什么是渲染：
 
@@ -112,7 +116,7 @@ Android硬件加速的一些问题和错误：https://blog.csdn.net/icyfox_bupt/
 
 游戏开发，普通的View或者自定义控件都是使用Canvas来完成绘图工作，
 
-##### 图形合成驱动
+##### 图形合成
 
 聊完了图形的渲染，下一步就到图像的合成阶段
 
@@ -166,15 +170,15 @@ Android硬件加速的一些问题和错误：https://blog.csdn.net/icyfox_bupt/
 
 ###### 2. 什么是DPU
 
-合成的工作本质上还是渲染，所以这原先其实是GPU的活
+合成的工作是将多个图层合并为一层，本质上还是渲染，所以这其实是GPU的活
 
 但是，图层合成的过程中是不需要3D渲染的，因为早在“图层渲染”那一步GPU就完成了所有的3D渲染工作
 
 这样的话为合成流程单独配置一颗2D渲染引擎就OK了，目前承担这一责任的就是DPU了
 
-DPU的全称是Display Processor Unit，通常被封装在GPU模块当中
+DPU作为图形硬件的一部分，通常被封装在GPU模块当中，最主要的功能是将GPU渲染完成的图层合并输出到屏幕
 
-其最主要的功能是将GPU渲染完成的图层合并输出到屏幕，对于图层重叠的部分，DPU会自动计算出“脏矩形”并更新像素颜色变化
+对于图层重叠的部分，DPU会自动计算出“脏矩形”并更新像素颜色变化
 
 如下图，Arm Mali-DP550这款DPU最多能够支持7层的合成任务
 
@@ -216,7 +220,9 @@ HWC不在乎厂商使用的是DPU还是其他的2D渲染芯片，厂商只需要
 
 我是图片
 
-另外，除了合成工作，hwc还负责送显以及发送Vsync信号，绝大多数情况下hwc的实现者是DPU，而DPU控制着屏幕的显示刷新
+另外，除了合成工作外，hwc模块还负责送显以及发送Vsync信号
+
+因为绝大多数情况下hwc的实现者是DPU，而DPU控制着屏幕的显示与刷新
 
 关于送显部分可以看何小龙的[[DRM系列]](https://blog.csdn.net/hexiaolong2009/article/details/83720940)进行学习
 
@@ -228,10 +234,6 @@ Android中各子系统通常不会直接基于Linux驱动来实现，而是由HA
 
 - 渲染，关注的是单个图层的内容，在当前图层的坐标系中，每个坐标点应该显示什么颜色
 - 合成，关注的是多个图层的内容，将多个图层重新计算后得到一个图层，参考ps的合并图层功能
-
-还有一点要说明，渲染和合成对应的GPU和HWC驱动都由OEM厂商提供，也就是高通、ARM这些SOC厂商
-
-如果你的设备中没有GPU和DPU也没关系，Google为所有的驱动都提供了默认实现，也就是CPU模拟，这也是为什么虚拟机能运行的原因
 
 至此，渲染、合成、送显三个阶段所需的硬件部分已经介绍完成，接下来我们一起看看Google为图形系统准备了哪些软件组件库
 
@@ -336,7 +338,7 @@ BufferQueue对外提供了出列/入列的接口，还为GraphicBuffer包装了�
 >
 > ​	 buffer内容已经显示过了，可以重新入列给APP使用了，此时该buffer的状态变化为：ACQUIRED->FREE
 
-**一个buffer的一生，就是在不断地循环FREE->DEQUEUED->QUEUED->ACQUIRED->FREE这个过程，中间有任何一个环节出现延迟，反应到屏幕上就是应用出现了卡顿**
+**每个buffer的一生，就是在不断地循环FREE->DEQUEUED->QUEUED->ACQUIRED->FREE这个过程，中间有任何一个环节出现延迟，反应到屏幕上就是应用出现了卡顿**
 
 > *BufferQueue核心代码由BufferQueueCore、BufferQueueProducer、BufferQueueConsumer这3个类组成*
 >
@@ -346,29 +348,45 @@ BufferQueue对外提供了出列/入列的接口，还为GraphicBuffer包装了�
 
 ###### 2. 什么是Surface
 
-Surface是离应用开发者最近的一个类，在Android Framework窗口实现里
+在介绍libui库的时候，提到了GraphicBuffer是整个图形系统的核心
 
-每一个Window其实都会对应一个Surface，我们日常使用的Activity、Dialog、Toast这些都是Window
+但对于开发者来说（尤其是应用开发），Surface才是图形系统的核心，我们所有的操作最终都是在Surface中执行的
 
-Surface中持有BufferQueue的引用，因为Surface通常作为buffer的生产者，所以它只封装了出列和入列两个方法
+Surface作为图像的生产者，持有BufferQueue的引用，并且封装了出列和入列两个方法
 
-每个egl对象
+这么说可能还是有些抽象，我们来举个例子解释一下：
 
-作为surface
+我们都知道Android支持2D绘图，API使用的是[[Canvas]](https://developer.android.com/reference/android/graphics/Canvas)
 
-Surface是ANativeWindow的子类，也是ANativeWindow的具体实现
+也支持3D绘图，API使用的是[[OpenGL ES]](https://developer.android.com/guide/topics/graphics/opengl)，版本不同API名称也不同：GLES10、GLES20、GLES30等
 
-对于用户空间来说，一个Surface意味着图层，每个图层都会拥有一个BufferQueue
+我们以2D绘图的流程来举例
 
+> 1、创建Surface对象，也就是本章节的主角
+>
+> 2、调用Surface.lockCanvas()获取Canvas对象
+>
+> 3、调用Canvas的draw开头的函数执行一系列的绘图操作
+>
+> 4、调用Surface.unlockCanvasAndPost()将绘制完成的图层提交，等待下一步合成显示
 
+第二步的[[lockCanvas()]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/Surface.java#299)方法不但返回了Canvas对象，内部还调用了BufferQueue的dequeueBuffer()申请一块图形buffer，后续所有的绘图结果都会写入这块内存中
+
+第四步的[[unlockCanvasAndPost()]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/Surface.java#321)方法内部调用了BufferQueue中的queueBuffer()方法将buffer入列，等待sf进程在下一次同步信号周期合成并完成送显
+
+Surface除了给Java层提供绘图接口外，它还是ANativeWindow的实现类
+
+不过ANativeWindow和应用开发关系不大，点击[[这里]](https://www.cnblogs.com/yongdaimi/p/11244950.html)了解一下它们之间的区别即可
+
+简单来说，ANativeWindow和Surface一样，都封装了buffer的出列和入列，不同点是ANativeWindow是提供给C/C++使用的
 
 ###### 3. 什么是DisplayEventReceiver
 
-DisplayEventReceiver本来不想加入到文章中，写到后面发现这哥们不介绍的话没法向下进行了
+DisplayEventReceiver对象看起来有点面生，但提到Choreographer我相信大部分读者应该都知道是干什么的
 
-DisplayEventReceiver成员看起来有点面生，但提到Choreographer我相信大部分读者应该都认识
+DisplayEventReceiver和Choreographer都是在黄油计划加入的新成员，并且它俩是一一对应的关系（DisplayEventReceiver是Choreographer中的一个成员变量）
 
-简单来说，DisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力，DisplayEventReceiver是Choreographer中的一个成员变量
+简单来说，DisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力
 
 关于DisplayEventReceiver更多细节请点击[这里](https://lishuaiqi.top/2018/07/15/Choreographer-1-choreographerAnalysize/)
 
@@ -376,38 +394,40 @@ DisplayEventReceiver成员看起来有点面生，但提到Choreographer我相�
 
 呼~
 
-至此，libui、libgui两个Google组件库基本介绍完了，我们来回顾一下本章节内容：
+终于把硬件驱动和Google组件库介绍完了，用一张图来总结本章内容：
 
-在硬件驱动中我们认识了GPU和DPU，在Google低级别组件库中我们认识了GraphicBuffer、BufferQueue和Surface
+我是图片
 
-本章节的目的是认识硬件以及低级别组件库，了解提供了什么功能，理解它们在系统中的位置，
+最底层的硬件驱动由OEM厂商提供，也就是高通、ARM这些SOC厂商
+
+如果设备中没有GPU/DPU这些硬件也没关系，Google为所有的驱动（包括HAL）都提供了默认实现，也就是CPU实现，这也是为什么虚拟机能运行的原因
+
+再往上是Google提供的组件库，里面都是一些常用的类，其中大部分成员我们都还是要了解它们各自是做什么的，因为只有把这些基础概念理解清楚，才能在后续阅读源码的过程中做到有的放矢
+
+好了，静态部分聊完了，接下来我们进入动态部分的内容
+
+厂商驱动库和Google组件库作为Android图形系统基石
+
+还有一点要说明，渲染和合成对应的GPU和HWC驱动都由OEM
 
 厂商驱动库和Google组件库作为Android图形系统基石，共同组建了庞大的图形子系统，为图形系统强有力的支撑
 
 接下来我们开始分析系统各个关键进程的启动流程，看看系统在开机到App请求Vsync信号之间都做了哪些工作
 
-当我们把硬件驱动的功能以及组件库这些基础概念理解清楚，才能在后续阅读源码的过程中做到有的放矢
-
-只有把这些基础概念理解清楚，才能再阅读源码的过程中更加有的放矢
-
-我是图片
-
 ### 二、请求Vsync信号
 
-厂商驱动库和Google组件库作为Android图形系统基石，共同组建了庞大的图形子系统，为整个图形系统强有力的支撑
+厂商驱动库和Google组件库作为Android图形系统的基石，为整个图形系统提供了强有力的支持
 
-对于操作系统来说，得让这一切动起来才有意义
-
-本章节运行
-
-在Android图形系统中，surface_flinger进程和system_server进程管理着整个系统的运转，其中：
+在Android图形系统的动态部分，surface_flinger进程和system_server进程支撑着整个系统的运转，其中：
 
 - surface_flinger进程负责接受来自APP进程的图形数据，调用hwc进行合成并完成最终的送显
-- system_server进程负责管理有哪些APP进程可以进行绘图操作以及管理各个图层的优先级
+- system_server进程负责管理有哪些APP进程可以进行绘图操作以及各个图层的优先级
 
-它们都是在Vsync信号的驱使下进行工作，在接下来的章节中我们将会分析这两大系统进程在Vsync信号到来时做了哪些事情
+这两大进程都是在VSync信号的驱使下进行工作
 
-在此之前，我们需要先了解系统进程是如何请求并最终接受到Vsync信号的？
+在接下来的章节中我们将会分析这两大系统进程在Vsync信号到来时做了哪些工作
+
+不过，在此之前，我们需要先知道它们是如何请求vsync信号的？
 
 *全文基于[Android 7.1.2](http://www.aospxref.com/android-7.1.2_r39/xref/)版本*
 
@@ -415,67 +435,71 @@ DisplayEventReceiver成员看起来有点面生，但提到Choreographer我相�
 
 Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起
 
-main_surfaceflinger的入口函数：
+先来看main_surfaceflinger的启动函数：
 
 ```c++
 /frameworks/native/services/surfaceflinger/main_surfaceflinger.cpp
-  
 int main(int, char**) {
 
-    // instantiate surfaceflinger
+    //创建sf对象
     sp<SurfaceFlinger> flinger = new SurfaceFlinger();
 
-    // initialize before clients can connect
+    //调用init方法进行初始化
     flinger->init();
 
-    // publish surface flinger
+    //注册sf服务到servicemanager
     sp<IServiceManager> sm(defaultServiceManager());
     sm->addService(String16(SurfaceFlinger::getServiceName()), flinger, false);
 
-    // publish GpuService
+    //注册gpu服务到servicemanager
     sp<GpuService> gpuservice = new GpuService();
     sm->addService(String16(GpuService::SERVICE_NAME), gpuservice, false);
 
-    // run surface flinger in this thread
+    //调用run方法，进入休眠
     flinger->run();
 
     return 0;
 }
 ```
 
-main()函数的主要作用是创建SurfaceFlinger对象并初始化，要完成的工作都在SurfaceFlinger对象中的init()函数中：
+main_surfaceflinger的入口函数的主要做了3件事：
+
+1. 创建flinger对象并调用init()方法执行初始化工作
+1. 注册sf服务和gpu服务到servicemanager
+1. 调用run()方法进入休眠
+
+主要的工作是在flinger对象中的init()函数中完成的
+
+我们继续向下跟init()函数
 
 ```c++
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
-  
-//利用RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
+
+//利用RefBase首次引用机制来做一些初始化工作，这里是初始化消息机制
+//消息队列在sf进程中一共提供两个功能
+//1. 执行sf进程请求vsync的工作
+//2. vsync-sf信号到来后，执行合成工作
 void SurfaceFlinger::onFirstRef()
 {
     mEventQueue.init(this);
 }
 
-//初始化
+//初始化-只截取了和vsync信号和图形合成有关的部分代码
 void SurfaceFlinger::init() {
     {
-        // initialize EGL for the default display
-      	//初始化OpenGL 图形库相关配置
-        mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        eglInitialize(mEGLDisplay, NULL, NULL);
 
         // start the EventThread
         //启动事件分发线程，提供给APP进程注册事件回调
+        //mPrimaryDispSync是用来控制
         sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 vsyncPhaseOffsetNs, true, "app");
         mEventThread = new EventThread(vsyncSrc, *this);
+
         //又启动一个事件分发线程，并将自己注册到hwc中，用于sf进程监听vsync信号
         sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 sfVsyncPhaseOffsetNs, true, "sf");
         mSFEventThread = new EventThread(sfVsyncSrc, *this);
         mEventQueue.setEventThread(mSFEventThread);
-
-        // Get a RenderEngine for the given display / config (can't fail)
-        mRenderEngine = RenderEngine::create(mEGLDisplay,
-                HAL_PIXEL_FORMAT_RGBA_8888);
     }
 
     // Drop the state lock while we initialize the hardware composer. We drop
@@ -486,21 +510,12 @@ void SurfaceFlinger::init() {
     //将自己注册到hwc的回调函数中，其内部分别调用registerHotplugCallback、registerRefreshCallback、registerVsyncCallback三个回调方法
     mHwc->setEventHandler(static_cast<HWComposer::EventHandler*>(this));
 
-    // retrieve the EGL context that was selected/created
-    mEGLContext = mRenderEngine->getEGLContext();
-
-    // make the GLContext current so that we can create textures when creating
-    // Layers (which may happens before we render something)
-    getDefaultDisplayDevice()->makeCurrent(mEGLDisplay, mEGLContext);
-
     mEventControlThread = new EventControlThread(this);
     mEventControlThread->run("EventControl", PRIORITY_URGENT_DISPLAY);
 
-    // set initial conditions (e.g. unblank default device)
-    initializeDisplays();
-
 }
 
+//进入消息轮询
 void SurfaceFlinger::run() {
     do {
         waitForEvent();
@@ -516,80 +531,50 @@ void SurfaceFlinger::waitForEvent() {
 }
 ```
 
-SurfaceFlinger初始化流程稍微有点长，我们一步步拆开来看
+init()函数初始化流程稍微有点长，我们一步步拆开来看
 
 ##### 初始化消息队列
 
 ```c++
-/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
-//利用RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
+//利用RefBase首次引用机制来做一些初始化工作，这里是初始化消息机制
+//消息队列在sf进程中一共提供两个功能
+//1. 执行sf进程请求vsync的工作
+//2. vsync-sf信号到来后，执行合成工作
 void SurfaceFlinger::onFirstRef()
 {
     mEventQueue.init(this);
 }
-
-/frameworks/native/services/surfaceflinger/MessageQueue.cpp
-void MessageQueue::init(const sp<SurfaceFlinger>& flinger)
-{
-    mFlinger = flinger;
-    mLooper = new Looper(true);
-    mHandler = new Handler(*this);
-}
 ```
 
-在SurfaceFlinger中，利用了RefBase首次引用机制来做一些初始化工作，这里是初始化Handler机制
+在SurfaceFlinger中，利用了RefBase首次引用机制来做一些初始化工作，这里是初始化消息队列
 
-sf进程在Android图形系统中，作为图层的消费者（不考虑截屏/录屏），负责调用hwc进行图层合成
+消息队列在sf进程一共负责处理两种类型的消息：
 
-这里的消息队列负责处理两件事：
+- INVALIDATE：图层有更新，请求VSync信号
+- REFRESH：监听到VSync信号，执行合成工作
 
-Android是消息驱动的操作系统，APP的UI线程的设计如此，native的系统进程也是如此
-
-在sf进程中，消息队列主要处理两件事：提供给APP进程发送“我要刷新”的消息以及接受来自HWC的Vsync信号开始执行合成工作
-
-##### 初始化EGL环境
-
-```c++
-/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
-void SurfaceFlinger::init() {
-    {
-        // initialize EGL for the default display
-        mEGLDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        eglInitialize(mEGLDisplay, NULL, NULL);
-      	...
-        // Get a RenderEngine for the given display / config (can't fail)
-        mRenderEngine = RenderEngine::create(mEGLDisplay,
-                HAL_PIXEL_FORMAT_RGBA_8888);
-    }
-
-    // retrieve the EGL context that was selected/created
-    mEGLContext = mRenderEngine->getEGLContext();
-
-}
-```
-
-初始化工作的第二步是配置EGL环境，eglGetDisplay()方法最终会调用到位于/frameworks/native/opengl/libs/EGL/Loader.cpp的load_driver()方法来加载libEGL.so
-
-[EGL](https://www.khronos.org/registry/EGL/)是OpenGL ES在每一部Android设备中的具体实现，这一步执行完成以后用户空间就可以调用egl进行绘图，接着调用eglSwapBuffers()方法将其送到屏幕显示
+sf进程的一生，都是在围绕着这两件事展开
 
 ##### 启动事件分发线程
 
 ```c++
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+//初始化-只截取了和vsync信号和图形合成有关的部分代码
 void SurfaceFlinger::init() {
     {
-      	...
+
         // start the EventThread
         //启动事件分发线程，提供给APP进程注册事件回调
+        //vsyncPhaseOffsetNs用来控制APP进程的偏移量
         sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 vsyncPhaseOffsetNs, true, "app");
         mEventThread = new EventThread(vsyncSrc, *this);
-        //又启动一个事件分发线程，并将自己注册到hwc中，用于sf进程监听vsync信号
+
+      //sfVsyncPhaseOffsetNs用来控制sf进程的偏移量
         sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 sfVsyncPhaseOffsetNs, true, "sf");
         mSFEventThread = new EventThread(sfVsyncSrc, *this);
         mEventQueue.setEventThread(mSFEventThread);
-
     }
 
     mEventControlThread = new EventControlThread(this);
@@ -598,35 +583,100 @@ void SurfaceFlinger::init() {
 }
 ```
 
-###### 1. 如何暂停接收vsync信号？
+init()函数中一共启动了3个线程，其中：
 
-理解这两个线程的作用非常重要，我们来思考一个问题：当页面没有发生任何变化时，APP进程会走渲染流程吗？同理，sf进程会走合成流程吗？
+- mEventThread用于给APP进程提供vsync信号监听，通常称为VSYNC-app
+- mSFEventThread用于给sf进提供vsync信号监听，通常称为VSYNC-sf
+- mEventControlThread是总开关，用于控制硬件vsync信号的开启与关闭
 
-答案是不会，为什么？
+1、2线程分别是APP进程和sf进程的vsync事件分发线程
 
-APP进程由渲染需求或者sf进程由合成需求才会打开接收vsync信号的开关
+把APP进程和sf进程的vsync分开管理的好处是：降低操控延时
 
-###### 2. 理解DispSync模型
+什么意思呢？我们先来看看正常的显示流程：
+
+> Vsync1：APP进程开始渲染，渲染完成后入列等待合成
+>
+> Vsync2：sf查找所有渲染完成的图层，调用hwc合成，合成完成调用drm/fb显示框架送显，等待显示
+>
+> Vsync3：为了防止画面撕裂，显示框架同样等待垂直同步信号到来时才切换framebuffer，此时用户能看到更新的画面
+
+一幅画面最起码要经过2个vsync周期（渲染、合成），在第3个vsync信号到来后才能展示给用户
+
+如果是60HZ的屏幕，用户从按下按钮到到看到画面更新，最快要16.67ms*2 = 33.34ms
+
+但是，假设我的硬件非常非常牛逼，再复杂的画面渲染也只要1ms，合成也是1ms
+
+那有没有一种机制能让用户更快的看到画面更新呢？
+
+VSync offset：有
+
+###### 1. VSync offset
+
+回到init()函数，在创建APP进程和sf进程的DispSyncSource对象时，分别传入了vsyncPhaseOffsetNs和sfVsyncPhaseOffsetNs两个变量
+
+```c++
+void SurfaceFlinger::init() {
+ 
+  //vsyncPhaseOffsetNs - i'm here
+  sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+             vsyncPhaseOffsetNs, true, "app");
+  
+  //sfVsyncPhaseOffsetNs
+  sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
+             sfVsyncPhaseOffsetNs, true, "sf");
+
+}
+```
+
+- vsyncPhaseOffsetNs用来控制APP进程的偏移量
+
+- sfVsyncPhaseOffsetNs用来控制sf进程的偏移量
+
+我们知道硬件垂直同步信号的发送周期是固定的
+
+既然大家都在自己的进程里等待着vsync信号的到来，然后各司其职做自己的工作
+
+那我们通过更改偏移量的方式把APP进程和sf进程接收到vsync信号的时间错开
+
+就可以实现在一个硬件vsync信号周期内完成渲染和合成两件事，具体方案如下：
+
+- vsyncPhaseOffsetNs = 0，硬件vsync发生后，直接转发给app进程，让它开始绘制
+- sfVsyncPhaseOffsetNs ≥1，硬件vsync发生后，延迟几毫秒再转发给sf进程，因为app已经渲染完成，sf合成刚刚渲染的图层
+
+好了，在一个硬件vsync周期16ms）内渲染和合成的工作都已经完成了，由于GPU模块硬件过于牛逼，导致距离下次切换framebuffer还有14ms~
+
+当下一次硬件Vsync信号到来时，完成画面切换
+
+和之前的方案比，同样是60HZ的屏幕
+
+用户从按下按钮到到看到画面更新，只需要等待1个vsync信号周期，也就是16.67ms
+
+###### 2. DispSync模型
+
+VSync offset能够控制偏移量的背后是因为DispSync
 
 在Android图形系统中，Vsync信号不管是硬件产生还是软件模拟，最终都交由DispSync来管理
 
-本章节了解hardware的信号经由DispSync转发后才会到达sf进程和app进程即可，想要完全理解DispSync模型，建议阅读这几篇文章
+还记得init()函数中启动的第3个线程吗？[mEventControlThread](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/EventControlThread.cpp)
 
-[《Analyze AOSP vsync model》](https://utzcoz.github.io/2020/05/02/Analyze-AOSP-vsync-model.html)
+它由DispSync持有，从函数名称来看，是用来启用和关闭硬件vsync的功能的
 
-[《DispSync解析》](http://echuang54.blogspot.com/2015/01/dispsync.html)
+DispSync控制着vsync信号的出口，除了调整偏移量外，其还有个预测机制
 
-[《Android DispSync 详解》](https://simowce.github.io/all-about-dispsync/)
+当接受到的硬件vsync信号量足够大时，DispSync会通过mEventControlThread关闭硬件vsync开关，自己向app进程和sf进程发送vsync信号
 
-[《Android R Vsync相关梳理》](https://wizzie.top/Blog/2021/04/14/2021/210414_android_VsyncStudy)
-
-[《Android SurfaceFlinger SW Vsync模型》](https://www.jianshu.com/p/d3e4b1805c92)
-
-vsyncPhaseOffsetNs和sfVsyncPhaseOffsetNs
-
-DispSync管理着vsync信号的出口，不管是
-
-DispSync训练完成以后，
+> ps：我个人对DispSync的预测机制仍然有疑问，所以这块理解的可能不太对，建议阅读以下几篇文章对照着看：
+>
+> [《Analyze AOSP vsync model》](https://utzcoz.github.io/2020/05/02/Analyze-AOSP-vsync-model.html)
+>
+> [《DispSync解析》](http://echuang54.blogspot.com/2015/01/dispsync.html)
+>
+> [《Android DispSync 详解》](https://simowce.github.io/all-about-dispsync/)
+>
+> [《Android R Vsync相关梳理》](https://wizzie.top/Blog/2021/04/14/2021/210414_android_VsyncStudy)
+>
+> [《Android SurfaceFlinger SW Vsync模型》](https://www.jianshu.com/p/d3e4b1805c92)
 
 ##### 初始化HWComposer
 
