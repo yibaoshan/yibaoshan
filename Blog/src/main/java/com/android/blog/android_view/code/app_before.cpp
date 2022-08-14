@@ -270,6 +270,7 @@ public class WindowManagerImpl implements WindowManager {
 
 //全局单例，和WMS建立连接通信，也是APP进程中，所有窗口实际的管理者
 //内部mViews和mRoots变量保存着所有创建的Activity对应的View和ViewRootImpl
+/frameworks/base/core/java/android/view/WindowManagerGlobal.java
 class WindowManagerGlobal {
 
 	List<View> mViews;
@@ -289,6 +290,7 @@ class WindowManagerGlobal {
 //1. Choreographer让它能够感知事件
 //2. 保存DecorView让它能够在事件来临时控制视图
 //3. Surface让它拥有绘图的能力
+/frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
     Choreographer mChoreographer;//构造函数中被创建
@@ -321,6 +323,15 @@ class ViewRootImpl {
         mChoreographer.postCallback(Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);//发送一条异步消息，mTraversalRunnable是处理这条消息的回调
         notifyRendererOfFramePending();
         pokeDrawLockIfNeeded();
+    }
+
+    final TraversalRunnable mTraversalRunnable = new TraversalRunnable();
+
+    class TraversalRunnable implements Runnable {
+
+        public void run() {
+            doTraversal();
+        }
     }
 
     //开始刷新

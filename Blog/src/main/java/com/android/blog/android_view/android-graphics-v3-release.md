@@ -10,7 +10,7 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 我是概览图
 
-### 一、开篇
+# 一、开篇
 
 当我们点开“微信”这个应用后，它是怎么在屏幕上显示出来的？
 
@@ -20,7 +20,7 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 今天，我们从认识Android设备的硬件开始，自下而上，一起来看看庞大的图形系统是如何一步步建立起来的
 
-#### 1、硬件驱动
+## 1、硬件驱动
 
 再复杂的系统设计，也离不开硬件的支持，在文章的开头，我们先来了解一下，Android设备里支撑应用程序绘图的硬件有哪些
 
@@ -58,9 +58,9 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 GPU和DPU各自负责其中两个关键步骤：渲染和合成
 
-##### 图形渲染
+### 图形渲染
 
-###### 1. 什么是渲染
+#### 1. 什么是渲染
 
 渲染是计算机图形学中的最重要的研究课题之一，也是图形系统中必不可少的一部分
 
@@ -92,7 +92,7 @@ GPU渲染工作完成后，我就能得到10*10大小的二维数组（还是原
 
 具体的渲染过程和实现原理可以看[《渲染管线的三大阶段》](https://zhuanlan.zhihu.com/p/101908082)这篇文章，本小节我们主要理解GPU的渲染工作是做什么的
 
-###### 2. 什么是GPU
+#### 2. 什么是GPU
 
 OpenGL ES
 
@@ -106,7 +106,7 @@ OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的�
 
 更多关于GPU和OpenGL ES的介绍请点击[[这里]](https://cloud.tencent.com/developer/article/1756011)
 
-###### 3. 什么是硬件加速
+#### 3. 什么是硬件加速
 
 Android硬件加速的一些问题和错误：https://blog.csdn.net/icyfox_bupt/article/details/18732001
 
@@ -116,13 +116,13 @@ Android硬件加速的一些问题和错误：https://blog.csdn.net/icyfox_bupt/
 
 游戏开发，普通的View或者自定义控件都是使用Canvas来完成绘图工作，
 
-##### 图形合成
+### 图形合成
 
 聊完了图形的渲染，下一步就到图像的合成阶段
 
 虽然GPU也可以用来做合成工作，但现阶段绝大多数的移动设备中，执行合成任务的都是DPU
 
-###### 1. 什么是合成
+#### 1. 什么是合成
 
 在介绍DPU之前，我们需要先来了解什么是合成
 
@@ -168,7 +168,7 @@ Android硬件加速的一些问题和错误：https://blog.csdn.net/icyfox_bupt/
 
 **将多个图层合并成一个图层的过程，被称为“合成”**
 
-###### 2. 什么是DPU
+#### 2. 什么是DPU
 
 合成的工作是将多个图层合并为一层，本质上还是渲染，所以这其实是GPU的活
 
@@ -186,7 +186,7 @@ DPU作为图形硬件的一部分，通常被封装在GPU模块当中，最主�
 
 *图片来源：https://community.arm.com/cn/f/discussions/6104/arm-mali-gpu*
 
-###### 3. 什么是HWC
+#### 3. 什么是HWC
 
 当然，合成的工作也可以不放在DPU中，厂商可以选择在板子上加一块2D渲染芯片，专门用来执行合成任务
 
@@ -237,7 +237,7 @@ Android中各子系统通常不会直接基于Linux驱动来实现，而是由HA
 
 至此，渲染、合成、送显三个阶段所需的硬件部分已经介绍完成，接下来我们一起看看Google为图形系统准备了哪些软件组件库
 
-#### 2、Google组件库
+## 2、Google组件库
 
 所谓的组件库更多是对数据结构的封装，比如CPU、GPU和HWC要共享同一块内存，那就需要一种格式让它们都能识别这块内存
 
@@ -245,9 +245,9 @@ Android中各子系统通常不会直接基于Linux驱动来实现，而是由HA
 
 Google为图形系统提供了[[libui.so]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/ui/)和[[libgui.so]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/)两个库，接下来一起来看看这两个库里面分别有什么
 
-##### libui组件库
+### libui组件库
 
-###### 1. 什么是GraphicBuffer
+#### 1. 什么是GraphicBuffer
 
 GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此对象上进行，包括同步给GPU和HWC
 
@@ -257,7 +257,7 @@ GraphicBuffer是整个图形系统的核心，所以的渲染操作都将在此�
 
 更多关于GraphicBuffer的介绍请点击[[这里]](https://www.kancloud.cn/alex_wsc/android_depp/412982)
 
-###### 2. 什么是Fence机制
+#### 2. 什么是Fence机制
 
 GraphicBuffer对象的一个完整的生命周期大概是这样：
 
@@ -280,7 +280,7 @@ Fence的实现原理可以类比Java的synchronized互斥锁机制，我们也�
 
 更多关于Fence同步机制的介绍请点击[[这里]](https://blog.csdn.net/jinzhuojun/article/details/39698317)
 
-###### 3. 什么是Gralloc
+#### 3. 什么是Gralloc
 
 Gralloc是Android中负责申请和释放GraphicBuffer的HAL层模块
 
@@ -292,11 +292,11 @@ Gralloc是Android中负责申请和释放GraphicBuffer的HAL层模块
 
 更多关于Gralloc机制的介绍请点击[[这里]](https://windrunnerlihuan.com/2017/03/12/Android-SurfaceFlinger-%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF-%E4%B8%80-Android%E5%9B%BE%E5%BD%A2%E6%98%BE%E7%A4%BA%E4%B9%8BHAL%E5%B1%82Gralloc%E6%A8%A1%E5%9D%97%E5%AE%9E%E7%8E%B0/)
 
-##### libgui组件库
+### libgui组件库
 
 越接近上层业务设计上就越复杂，libgui库虽说还没到业务层，但它里面的组件大多是对GraphicBuffer对象的封装以满足不同的业务需求
 
-###### 1. 什么是BufferQueue
+#### 1. 什么是BufferQueue
 
 在Android 4.1（Project Butter）中引入了BufferQueue，它是黄油计划中“Triple Buffer”的执行者
 
@@ -346,7 +346,7 @@ BufferQueue对外提供了出列/入列的接口，还为GraphicBuffer包装了�
 
 更多关于BufferQueue的介绍请点击[[这里]](https://zhuanlan.zhihu.com/p/62813895)
 
-###### 2. 什么是Surface
+#### 2. 什么是Surface
 
 在介绍libui库的时候，提到了GraphicBuffer是整个图形系统的核心
 
@@ -380,7 +380,7 @@ Surface除了给Java层提供绘图接口外，它还是ANativeWindow的实现�
 
 简单来说，ANativeWindow和Surface一样，都封装了buffer的出列和入列，不同点是ANativeWindow是提供给C/C++使用的
 
-###### 3. 什么是DisplayEventReceiver
+#### 3. 什么是DisplayEventReceiver
 
 DisplayEventReceiver对象看起来有点面生，但提到Choreographer我相信大部分读者应该都知道是干什么的
 
@@ -390,7 +390,7 @@ DisplayEventReceiver和Choreographer都是在黄油计划加入的新成员，�
 
 关于DisplayEventReceiver更多细节请点击[这里](https://lishuaiqi.top/2018/07/15/Choreographer-1-choreographerAnalysize/)
 
-#### 分割线
+## 3、小结
 
 呼~
 
@@ -414,7 +414,9 @@ DisplayEventReceiver和Choreographer都是在黄油计划加入的新成员，�
 
 接下来我们开始分析系统各个关键进程的启动流程，看看系统在开机到App请求Vsync信号之间都做了哪些工作
 
-### 二、请求Vsync信号
+一起来看看庞大的图形系统是如何运转起来的
+
+# 二、请求Vsync信号
 
 厂商驱动库和Google组件库作为Android图形系统的基石，为整个图形系统提供了强有力的支持
 
@@ -431,7 +433,7 @@ DisplayEventReceiver和Choreographer都是在黄油计划加入的新成员，�
 
 *全文基于[Android 7.1.2](http://www.aospxref.com/android-7.1.2_r39/xref/)版本*
 
-#### 1、启动surface_flinger进程
+## 1、启动surface_flinger进程
 
 Android 7.0以后对init.rc脚本进行了重构，sf进程的启动从[init.rc](http://androidxref.com/6.0.1_r10/xref/system/core/rootdir/init.rc)文件配置到了[surfaceflinger.rc](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/surfaceflinger.rc)文件，依旧由init进程拉起
 
@@ -533,7 +535,7 @@ void SurfaceFlinger::waitForEvent() {
 
 init()函数初始化流程稍微有点长，我们一步步拆开来看
 
-##### 初始化消息队列
+### 初始化消息队列
 
 ```c++
 //利用RefBase首次引用机制来做一些初始化工作，这里是初始化消息机制
@@ -548,14 +550,14 @@ void SurfaceFlinger::onFirstRef()
 
 在SurfaceFlinger中，利用了RefBase首次引用机制来做一些初始化工作，这里是初始化消息队列
 
-消息队列在sf进程一共负责处理两种类型的消息：
+sf进程中的消息队列一共负责处理两种类型的消息：
 
-- INVALIDATE：图层有更新，请求VSync信号
+- INVALIDATE：APP图层有更新，sf进程请求VSync信号
 - REFRESH：监听到VSync信号，执行合成工作
 
-sf进程的一生，都是在围绕着这两件事展开
+sf进程的一生，都将围绕着这两件事展开
 
-##### 启动事件分发线程
+### 启动事件分发线程
 
 ```c++
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
@@ -569,14 +571,15 @@ void SurfaceFlinger::init() {
         sp<VSyncSource> vsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 vsyncPhaseOffsetNs, true, "app");
         mEventThread = new EventThread(vsyncSrc, *this);
-
-      //sfVsyncPhaseOffsetNs用来控制sf进程的偏移量
+      
+				//又启动事件分发线程，提供给sf进程注册事件回调
+      	//sfVsyncPhaseOffsetNs用来控制sf进程的偏移量
         sp<VSyncSource> sfVsyncSrc = new DispSyncSource(&mPrimaryDispSync,
                 sfVsyncPhaseOffsetNs, true, "sf");
         mSFEventThread = new EventThread(sfVsyncSrc, *this);
         mEventQueue.setEventThread(mSFEventThread);
     }
-
+		//用于控制硬件vsync开关状态
     mEventControlThread = new EventControlThread(this);
     mEventControlThread->run("EventControl", PRIORITY_URGENT_DISPLAY);
 
@@ -593,25 +596,25 @@ init()函数中一共启动了3个线程，其中：
 
 把APP进程和sf进程的vsync分开管理的好处是：降低操控延时
 
-什么意思呢？我们先来看看正常的显示流程：
+“降低操控延时”是什么意思？我们先来看看正常的显示流程：
 
 > Vsync1：APP进程开始渲染，渲染完成后入列等待合成
 >
 > Vsync2：sf查找所有渲染完成的图层，调用hwc合成，合成完成调用drm/fb显示框架送显，等待显示
 >
-> Vsync3：为了防止画面撕裂，显示框架同样等待垂直同步信号到来时才切换framebuffer，此时用户能看到更新的画面
+> Vsync3：为了防止画面撕裂，显示框架同样等待垂直同步信号到来时才切换framebuffer，此时用户看到更新的画面
 
 一幅画面最起码要经过2个vsync周期（渲染、合成），在第3个vsync信号到来后才能展示给用户
 
 如果是60HZ的屏幕，用户从按下按钮到到看到画面更新，最快要16.67ms*2 = 33.34ms
 
-但是，假设我的硬件非常非常牛逼，再复杂的画面渲染也只要1ms，合成也是1ms
+现在假设有这么个情况：我自己造了个硬件非常非常牛逼，再复杂的画面渲染也只要1ms，合成也只要1ms
 
-那有没有一种机制能让用户更快的看到画面更新呢？
+那系统层面有没有一种机制能让用户更快的看到画面更新呢？
 
 VSync offset：有
 
-###### 1. VSync offset
+#### 1. VSync offset
 
 回到init()函数，在创建APP进程和sf进程的DispSyncSource对象时，分别传入了vsyncPhaseOffsetNs和sfVsyncPhaseOffsetNs两个变量
 
@@ -644,49 +647,47 @@ void SurfaceFlinger::init() {
 - vsyncPhaseOffsetNs = 0，硬件vsync发生后，直接转发给app进程，让它开始绘制
 - sfVsyncPhaseOffsetNs ≥1，硬件vsync发生后，延迟几毫秒再转发给sf进程，因为app已经渲染完成，sf合成刚刚渲染的图层
 
-好了，在一个硬件vsync周期16ms）内渲染和合成的工作都已经完成了，由于GPU模块硬件过于牛逼，导致距离下次切换framebuffer还有14ms~
+好了，在一个硬件vsync周期16ms）内渲染和合成的工作都已经完成了，由于GPU模块硬件过于牛逼，距离下次硬件vsync信号发送甚至还有14ms~
 
-当下一次硬件Vsync信号到来时，完成画面切换
+等下一次硬件Vsync信号到来时，显示框架完成画面切换
 
 和之前的方案比，同样是60HZ的屏幕
 
 用户从按下按钮到到看到画面更新，只需要等待1个vsync信号周期，也就是16.67ms
 
-###### 2. DispSync模型
+#### 2. DispSync模型
 
-VSync offset能够控制偏移量的背后是因为DispSync
+VSync offset能够控制偏移量的背后是DispSync模型
 
 在Android图形系统中，Vsync信号不管是硬件产生还是软件模拟，最终都交由DispSync来管理
 
-还记得init()函数中启动的第3个线程吗？[mEventControlThread](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/EventControlThread.cpp)
+还记得init()函数中启动的第3个线程吗？
 
-它由DispSync持有，从函数名称来看，是用来启用和关闭硬件vsync的功能的
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+void SurfaceFlinger::init() {
+		//用于控制硬件vsync开关状态
+    mEventControlThread = new EventControlThread(this);
+    mEventControlThread->run("EventControl", PRIORITY_URGENT_DISPLAY);
+}
+```
 
-DispSync控制着vsync信号的出口，除了调整偏移量外，其还有个预测机制
+mEventControlThread由DispSync持有，从函数名称来看，是用来启用和关闭硬件vsync的功能
+
+DispSync控制着vsync信号的出口，除了调整偏移量外，内部还有个预测机制
 
 当接受到的硬件vsync信号量足够大时，DispSync会通过mEventControlThread关闭硬件vsync开关，自己向app进程和sf进程发送vsync信号
 
-> ps：我个人对DispSync的预测机制仍然有疑问，所以这块理解的可能不太对，建议阅读以下几篇文章对照着看：
+> ps：我个人对DispSync模型仍然有疑问，这块理解的可能不太对，所以不敢妄下结论，建议阅读以下几篇文章进行学习：
 >
-> [《Analyze AOSP vsync model》](https://utzcoz.github.io/2020/05/02/Analyze-AOSP-vsync-model.html)
->
-> [《DispSync解析》](http://echuang54.blogspot.com/2015/01/dispsync.html)
->
-> [《Android DispSync 详解》](https://simowce.github.io/all-about-dispsync/)
->
-> [《Android R Vsync相关梳理》](https://wizzie.top/Blog/2021/04/14/2021/210414_android_VsyncStudy)
->
-> [《Android SurfaceFlinger SW Vsync模型》](https://www.jianshu.com/p/d3e4b1805c92)
+> [《Analyze AOSP vsync model》](https://utzcoz.github.io/2020/05/02/Analyze-AOSP-vsync-model.html)、[《DispSync解析》](http://echuang54.blogspot.com/2015/01/dispsync.html)、[《Android DispSync 详解》](https://simowce.github.io/all-about-dispsync/)、[《Android R Vsync相关梳理》](https://wizzie.top/Blog/2021/04/14/2021/210414_android_VsyncStudy)、[《Android SurfaceFlinger SW Vsync模型》](https://www.jianshu.com/p/d3e4b1805c92)
 
-##### 初始化HWComposer
+### 初始化HWComposer
 
 ```c++
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
 void SurfaceFlinger::init() {
   	...
-    // Drop the state lock while we initialize the hardware composer. We drop
-    // the lock because on creation, it will call back into SurfaceFlinger to
-    // initialize the primary display.
     //初始化HWC对象，加载hwcomposer.so的动作在HWComposer的初始化函数中
     mHwc = new HWComposer(this);
     //将自己注册到hwc的回调函数中，其内部分别调用registerHotplugCallback、registerRefreshCallback、registerVsyncCallback三个回调方法
@@ -694,9 +695,25 @@ void SurfaceFlinger::init() {
 }
 ```
 
-mHwc可以说是sf进程中的核心人物了，不管是接受硬件的vsync信号，还是完成图层合成工作以及最终的送显
+前面我们说sf进程的一生，就是在做“请求vsync”和“执行合成工作”这两件事
 
-##### 进入睡眠 等待唤醒
+而HWComposer就是完成这两件事的关键，不管是接受硬件的vsync信号，还是完成图层合成工作，都和它有关
+
+所以，HWComposer对象可以说是sf进程中的头号核心人物
+
+sf进程在初始化HWComposer阶段一共做了两件事：
+
+1. 创建HWC对象，保存到mHwc成员变量
+
+   > 注意，这里创建的是标准的HWComposer对象，不是厂商提供的so，加载so的动作在HWComposer构造函数中，调用了内部的[[loadHwcModule()]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/DisplayHardware/HWComposer.cpp#79)方法
+
+2. 注册vsync回调
+
+   > HWC对象创建完以后，第二步就调用了setEventHandler将自己注册到vsync信号监听
+   >
+   > 如果vsync信号阀发生变化，最终会调用到sf进程的[[onVSyncReceived()]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp#948)方法
+
+### 进入睡眠 等待唤醒
 
 ```c++
 /frameworks/native/services/surfaceflinger/main_surfaceflinger.cpp
@@ -713,93 +730,170 @@ void SurfaceFlinger::run() {
         waitForEvent();
     } while (true);
 }
+```
 
-//等待消息唤醒
-void SurfaceFlinger::waitForEvent() {
-    do {
-        IPCThreadState::self()->flushCommands();
-        int32_t ret = mLooper->pollOnce(-1);
-        } while (true);
+在完成所有初始化工作后，sf进程进入睡眠状态，等待消息唤醒
+
+总的来说，sf进程在图形处理相关方面一共做了两件事：
+
+1. 启动事件分发线程，内部由DispSync模型实现
+2. 初始化HWC对象，加载so库，注册vsync回调
+
+## 2、启动system_server进程
+
+[[system_server](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)进程中运行着AMS、WMS等常见服务，这些服务都是由java代码实现的，需要一个Java的运行环境
+
+所以system_server进程必须要等到zygote进程创建完DVM/ART虚拟机以后，再由zygote进程fork而来：
+
+```java
+
+/frameworks/base/services/java/com/android/server/SystemServer.java
+class SystemServer {
+
+    /**
+    * The main entry point from zygote.
+    */
+    public static void main(String[] args) {
+        new SystemServer().run();
+    }
+
+    private void run() {
+        Looper.prepareMainLooper();
+      	startBootstrapServices();
+    		startOtherServices();
+      	// Loop forever.
+        Looper.loop();
+    }
+
+    //启动AMS
+    private void startBootstrapServices() {
+         mActivityManagerService = mSystemServiceManager.startService(ActivityManagerService.Lifecycle.class).getService();
+         // Set up the Application instance for the system process and get started.
+         mActivityManagerService.setSystemProcess();
+    }
+
+    //启动WMS
+    private void startOtherServices() {
+      	WindowManagerService wm = WindowManagerService.main();
+      	//将wms注册到servicemanager
+      	ServiceManager.addService(Context.WINDOW_SERVICE, wm);
+      	mActivityManagerService.systemReady();//
+    }
+
+}
+
+/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+class ActivityManagerService {
+
+    //将自己注册到servicemanager中去
+    public void setSystemProcess() {
+        ServiceManager.addService(Context.ACTIVITY_SERVICE, this, true);
+    }
+
+    //启动launcher桌面
+    public void systemReady() {
+        //aosp版本不同代码也不同，在7.0中最终调用startHomeActivityLocked()方法唤起launcher
+    }
+
+}
+
+/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+class WindowManagerService {
+
+    public static WindowManagerService main(){
+        return new WindowManagerService();
+    }
+
+}
+
+```
+
+zygote进程是如何启动并拉起system_server进程这里不展开，我们来关注在SystemServer的run函数中启动了两个服务：AMS和WMS
+
+### 初始化ActivityManagerService
+
+ActivityManagerService是Android系统最为核心的服务之一，负责组件（主要是Activity）的启动、切换、调度工作，来看AMS的启动流程
+
+```java
+/frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+class ActivityManagerService {
+
+    //将自己注册到servicemanager中去
+    public void setSystemProcess() {
+        ServiceManager.addService(Context.ACTIVITY_SERVICE, this, true);
+    }
+
+    //启动launcher桌面
+    public void systemReady() {
+        //aosp版本不同代码也不同，在7.0中最终调用startHomeActivityLocked()方法唤起launcher
+    }
+
 }
 ```
 
-在完成所有初始化工作后，sf进程进入睡眠状态，等待唤醒
+AMS在SystemServer进程启动过程中做了两件事：
 
-整个调用流程可以简化为
+1. 将自己注册到servicemanager中去
+2. 启动launcher桌面
 
-我是图片
+在Android图形系统中，AMS是辅助角色，主要是配合WMS一起回调组件的生命周期，所以几乎没什么存在感
 
-> 之前写的，总的来说，sf进程在图形处理相关方面一共做了三件事
->
-> 1. 注册vsync信号回调，如果硬件不支持，启用VSyncThread线程模拟
-> 2. 启动vsync信号线程（如果硬件支持的话）
-> 3. 初始化HWComposer对象，并且注册HWC回调
-> 4. 提供链接方法，等待APP端跨进程调用
-> 5. 睡觉，等待消息
->
-> 关于第4点要着重强调一遍，APP进程申请Surface成功后，经过一系列的方法调用，最终会在sf进程中创建对应的Layer，这个Layer会保存在mLayers中
->
-> 注意，每个版本的surfaceflinger代码都在变，对不上的话可以检查源码版本
+AMS工作的大头是控制Activity，但Activity的生命周期其实是和WMS息息相关的
 
-#### 2、启动system_server进程
+除了创建和销毁的回调不需要WMS配合，其他的几个生命周期回调都和WMS相关，它们的对应关系如下：
 
-[system_server](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/services/java/com/android/server/SystemServer.java)进程中运行着AMS、WMS等常见服务，这些服务都是由java代码实现的，需要一个jvm的运行环境
+- onCreate()：无视图，有WMS无关
 
-因此，system_server进程必须要等到zygote进程创建DVM/ART虚拟机以后，再由zygote进程fork而来：
+  > Activity实例对象创建完以后触发该回调，触发动作在ActivtyThred
+  >
+  > 通常我们会在create函数中调用setContentView()方法设置视图文件
+  >
+  > 接着是解析视图并绑定到DecorView的过程，如果一切顺利，我们会接收到onContentChanged()回调，通知我们设置的View绑定完成
+
+- onResume()：创建视图，准备绑定到WMS
+
+  > 
+
+- onPause()：有视图，WMS在该图层被覆盖部分时调用
+
+- onStop()：有视图，WMS在该图层被完全覆盖时调用
+
+- onDestroy()：无视图，和WMS无关
+
+  > 在stop()阶段就已经没有视图了，此阶段是AMS执行清理工作
+
+### 初始化WindowManagerService
+
+WindowManagerService的启动函数非常简单，被SystemServer调用初始化，当然初始化的工作有许多，但是我觉得都不重要
 
 ```java
 /frameworks/base/services/java/com/android/server/SystemServer.java
-  
-/**
- * The main entry point from zygote.
- */
-public static void main(String[] args) {
-    new SystemServer().run();
+class SystemServer {
+
+    //启动WMS
+    private void startOtherServices() {
+      	WindowManagerService wm = WindowManagerService.main();
+      	//将wms注册到servicemanager
+      	ServiceManager.addService(Context.WINDOW_SERVICE, wm);
+    }
+
 }
 
-private void run() {
-  	...
-    Looper.prepareMainLooper();
-  	startBootstrapServices();
-		startOtherServices();
-  	// Loop forever.
-    Looper.loop();
-}  
+/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+class WindowManagerService {
 
-//启动AMS
-private void startBootstrapServices() {
-  	// Activity manager runs the show.
- 	 mActivityManagerService = mSystemServiceManager.startService().getService();
-}  
+    public static WindowManagerService main(){
+        return new WindowManagerService();
+    }
 
-//启动WMS
-private void startOtherServices() {
-  	WindowManagerService.main();//ps：同样是系统服务，待遇差距为什么这么大？我wms差哪了？不服.jpg
-}  
-
+}
 ```
 
-zygote进程是如何启动并最终拉起system_server进程这里不展开，我们重点关注SystemServer的run函数
+对于WindowManagerService来说，它最重要的任务就是负责处理来自各个进程创建window的工作
 
-##### 初始化ActivityManagerService
+每个window都是一个视图，它们内部都包含一个surface
 
-AMS是Android系统最为核心的服务之一，其职责包括四大核心组件与进程的管理
-
-
-
-从服务的名称也可以看出来，主要是管理Activity
-
-所有的页面都是以Activity作为页面的承载，四大组件是Android系统为应用开发者提供
-
-提供给上层业务开发，也就是为应用开发提供接口
-
-在图形系统中AMS有什么作用呢？管理页面是否可见，举个例子：
-
-当Activity完全不可见时，页面有个无限循环动画在执行，操作系统会绘制它吗？
-
-这也是为什么当我们启动一个透明态的Activity时，原本的Activity只会执行onPause()而不执行onStop()回调方法的原因
-
-##### 初始化WindowManagerService
+WMS控制着Window的显示与否，
 
 理论上，可以不通过AMS实现页面展示
 
@@ -813,204 +907,981 @@ activity、dialog、toast等等
 
 用户点击返回键时，接收事件的肯定是最上层的弹窗，接着dismiss()
 
-##### 进入睡眠 等待唤醒
+### Looper.loop()
+
+SystemServer进程中，ActivityManagerService通常是最忙的服务，所有的组件都是ams在管理
+
+但在图形系统中，WindowManagerService地位更重要一些，我们甚至可以忽略ams直接和wms通信来进行视图的展示
+
+wms比ams有用，这一点在Vsync信号到来后提现的尤为明显，工具人属性拉满
+
+
 
 进入循环，保证system_server进程不退出
 
-详细的启动流程这里不展开，我们着重关注system_server进程中的AMS和WMS这两个服务
+## 3、启动app进程
 
+APP进程和system_server进程一样，都是从zygote进程fork而来：
 
-
-> - AMS负责组件（主要是Activity）的启动、切换、调度工作，简单来说就是管理组件是否有绘制权限，如果应用被切换到后台，就没必要绘制图形了
-> - PMS负责为APP分配图层，并确定每个图层的深度，除此以外，PMS还负责分发触摸信号、垂直同步信号等工作
-
-
-
-#### 3、启动app进程
-
-代码已经非常精简了，乱不乱，我觉得很乱
-
-接下来上一道硬菜，从ActivityThread.main()到Activity.onCreate()的过程
-
-虽然删减了许多但代码非常长，建议跳过，接下来会分片段分析
-
-有(*在*)时(*摸*)间(*鱼*)的朋友可以通篇阅读，几乎每个方法我都写了注释
-
-没办法越接近上层业务设计就越复杂
-
-> 创建流程
->
-> 启动Activity
-
-APP进程和system_server进程一样，都是从zygote进程fork而来
-
-创建过程中的IPC通信，最终会回调到Activity的onCreate()方法
-
-我们直接快进到setContentView以后，初始化以后
-
-onCreate中解析xml文件
-
-关注onCreate以后发生的事情
-
-onResume中可见，显然
-
-APP的启动过程这里同样不展开，对于Activity启动流程不熟悉的同学可以去网上搜索文章看完再回来（不必拘泥于细节，了解大致流程即可）
-
-在APP创建完成以后，会启动AndroidManifest中配置的默认Activity，拉起Activity过程中，一共完成了三件事：
-
-1. 调用setContentView加载视图，创建ViewRootImpl
-2. 调用ViewRootImpl.requestLayout()方法请求Vsync信号
-3. 主线程Looper.loop()进入休眠，等待Vsync到来
-
-##### 创建ViewRootImpl
-
-Android开发中设置视图不外乎于两种方式：xml文件和Java编码
-
-不管是使用xml还是View对象，都需要调用setContentView()方法将视图绑定到Activity当中：
+> ps：启动APP进程的代码稍微有些长，下面的代码中包含了从Activity的创建到setContentView()之间的关键方法调用，每个方法都加了注释，有时(摸)间(鱼)的同学建议点击[[这里]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/app/ActivityThread.java)打开源码对照着看，没时间的同学点击[这里]跳转到解析
 
 ```java
-\frameworks\base\core\java\android\app\Activity.java
+/*
 
-public void setContentView(View view) {
-    getWindow().setContentView(view);
+视图加载可以分为三个阶段：Activity对象的创建、视图对象的创建、ViewRootImpl的创建
+
+在第一个阶段，ActivityThread.main()
+ActivityThread，入口函数中初始化handler机制
+ApplicationThread，ams传话筒
+Activity，开发者的主战场
+PhoneWindow，空壳子
+WindowManager，wms的代理对象
+
+在第二个阶段，Activity.setContentView
+调用PhoneWindow设置视图
+根据不同主题，为DecorView设置不同的子View（无论使用哪种主题视图，其中必然包含名为content的FrameLayout）
+将开发者的布局文件添加到子View名为content的FrameLayout当中
+为PhoneWindow设置DecorView
+
+在第三个阶段，创建ViewRootImpl
+1. Choreographer让它能够感知事件
+2. 保存DecorView让它能够在事件来临时控制视图
+3. Surface让它拥有绘图的能力
+通过addToDisplay()方法推送到wms
+
+**/
+
+/frameworks/base/core/java/android/app/ActivityThread.java
+class ActivityThread {
+
+    //zygote进程fork成功后调用入口函数
+    void main(){
+        Looper.prepareMainLooper();
+        attach();//attach方法和ams建立连接，提供给ams控制四大组件的句柄
+        Looper.loop();
+    }
+
+    //分两步解释更容易理解
+    //1. 不管是从桌面点击图标进入还是adb命令启动，最终都交由ams发送启动请求给zygote进程，接着zygote孵化出该APP进程调用main方法
+    //2. APP进程启动将创建ApplicationThread对象，并发起IPC把此对象传递给ams，此后四大组件相关回到都将有ApplicationThread对象负责，最终转发给H类执行
+    void attach() {
+        //获取ams代理并将ApplicationThread将给ams，这个对象以后将是ams的传声筒
+        IActivityManager mgr = ActivityManagerNative.getDefault();
+        mgr.attachApplication(new ApplicationThread());
+    }
+
+    //ApplicationThreadNative封装一系列的关于四大组件回调方法的跨进程通信命令
+    //ApplicationThread对象所有操作几乎都由AMS发起调用
+    class ApplicationThread extends ApplicationThreadNative {
+
+        void scheduleLaunchActivity(){
+            handleMessage(LAUNCH_ACTIVITY);
+        }
+
+    }
+
+    class H extends Handler {
+
+        //转发来自ApplicationThread的消息
+        void handleMessage(Message msg) {
+            case LAUNCH_ACTIVITY::handleLaunchActivity();
+            case RESUME_ACTIVITY::handleResumeActivity();
+        }
+
+        //转发来自handleMessage的消息
+        void handleLaunchActivity(){
+            performLaunchActivity();
+            handleResumeActivity();
+        }
+
+        //转发来自handleMessage的消息
+        void handleResumeActivity(){
+            performResumeActivity()
+            activity.makeVisible();//调用此方法说明第二阶段视图加载已经完成，准备提交到wms服务
+        }
+
+        //执行创建Activity对象并回调生命周期
+        Activity performLaunchActivity(){
+            Activity activity = new Activity();
+            activity.attach();//回调attach
+            activity.onCreate();//回调Activity
+            return activity;
+        }
+
+        //执行回调生命周期
+        void performResumeActivity(){
+            activity.onResume();
+        }
+
+    }
+
 }
 
-\frameworks\base\core\java\com\android\internal\policy\PhoneWindow.java
-@Override
-public void setContentView(View view) {
-  ...
+/frameworks/base/core/java/android/app/Activity.java
+class Activity {
+
+    View mDecor;//用户设置的跟视图，通常会在ActivityThread中被赋值
+    Window mWindow;//Activity首次被创建调用attach()方法时同步创建，创建动作在Activity
+    WindowManager  mWindowManager;//在attach方法中被创建
+
+    //1. 创建PhoneWindow保存到变量mWindow，此时的Window还没有View视图
+    //2. 获取wms代理对象，塞到刚刚创建的window对象当中，同时保存到本地mWindowManager变量
+    void attach(Window window){
+        mWindow = new PhoneWindow(this, window);
+        mWindow.setWindowManager(getSystemService(Context.WINDOW_SERVICE));
+        mWindowManager = mWindow.getWindowManager();//获取WindowManager动作在Activity中，获取完成接着设置给自己的局部变量，这我是真的没想到，找的好辛苦
+    }
+
+    //至此，APP进程启动成功，第一阶段结束，准备进入第二阶段
+    void onCreate(){
+        setContentView();
+    }
+
+    //第二阶段开始：加载视图文件并绑定到DecorView
+    void setContentView(View view) {
+        mWindow.setContentView(view);
+    }
+
+    //第二阶段已经完成，准备进入第三阶段
+    void onContentChanged(){
+    }
+
+    //第三阶段开始：将视图传递给wms
+    //makeVisible()在ActivityThread.H.handleResumeActivity()方法中被调用
+    //此阶段完成后会请求vsync信号，并在下一次vsync到来时绘制View树，在下下次sf进程合成，在下下下次展示给用户，整个流程如下：
+    //vsync->view.draw()
+    //     vysnc->sf.compose()
+    //          vsync->drm.flip() 用户可以看到
+    void makeVisible() {
+        mWindowManager.addView(mDecor);
+    }
+
 }
 
-\frameworks\base\core\java\android\view\WindowManagerGlobal.java
+/frameworks/base/core/java/com/android/internal/policy/PhoneWindow.java
+class PhoneWindow extends Window {
 
-public void addView() {
-  ...
-  root = new ViewRootImpl()//创建了关键的viewrootimpl
-  root.setView();
+    DecorView mDecor;
+    ViewGroup mContentParent;
+
+    //1. 创建DecorView对象
+    //2. 将开发者设置的视图文件作为子View添加到mContentParent
+    //3. 通知Activity中onContentChanged方法
+    void setContentView(View view) {
+        mDecor = generateDecor();
+        mContentParent = generateLayout();//看generateLayout方法的注释
+        mContentParent.addView(view);//将开发者设置的视图添加为子View
+        getCallback().onContentChanged();//回调Activity中onContentChanged()方法
+    }
+
+    //创建一个空的DecorView，也就是FrameLayout，里面啥也没有
+    void generateDecor() {
+        return new DecorView(this);
+    }
+
+    //1. 根据不同主题设置不同布局文件，加载该布局文件并设置成DecorView的子View
+    //2. 返回子View中id为content的ViewGroup，通常还是个FrameLayout
+    //以上两步执行完成以后，DecorView的布局变成：
+    //<FrameLayout>//DecorView的根布局
+    //  <LinearLayout>//开发者设置带有ActionBar的主题，注意，这里的视图可变的，根据主题来选择不同的视图
+    //      <ActionBar/>
+    //      <FrameLayout
+    //      android:id="@android:id/content"/>//这里的FrameLayout才是最终包含开发者在setContentView中设置的布局
+    //  </LinearLayout>
+    //</FrameLayout>
+    void generateLayout() {
+        //加载不同的theme主题的布局文件，比如我们在xml中指定android:theme=@style/NoActionBar
+        View root = inflater.inflate(layoutResource);
+        //将上一步解析的视图作为根布局添加到DecorView，常见的比如垂直方向的LinearLayout，这样布局DecorView
+        mDecor.addView(root);
+        //找到用来装用户视图的ViewGroup，通常还是个FrameLayout
+        ViewGroup contentParent = mDecor.findViewById(R.id.content);
+        return contentParent;
+    }
+
 }
 
-frameworks\base\core\java\android\view\ViewRootImpl.java
+//自身无逻辑，可以跳过
+/frameworks/base/core/java/com/android/internal/policy/DecorView.java
+class DecorView extends FrameLayout {
 
-public void setView(View view) {
-    mView = view;//将DecorView保存到ViewRootImpl的成员变量mView中
+    //DecorView和PhoneWindow互相持有，这代码写的，啧啧啧
+    PhoneWindow mWindow;
+
+    DecorView(PhoneWindow window){
+        mWindow = window;
+    }
+
+}
+
+//定义View操作接口，顶级接口
+/frameworks/base/core/java/android/view/ViewManager.java
+public interface ViewManager
+{
+    public void addView();
+    public void updateViewLayout();
+    public void removeView();
+}
+
+//啥也不是
+/frameworks/base/core/java/android/view/WindowManager.java
+public interface WindowManager extends ViewManager {
+
+}
+
+//WindowManager的最终实现
+/frameworks/base/core/java/android/view/WindowManagerImpl.java
+public class WindowManagerImpl implements WindowManager {
+
+    WindowManagerGlobal mGlobal = WindowManagerGlobal.getInstance();
+
+    void addView(View decorView) {
+        mGlobal.addView(decorView);
+    }
+
+}
+
+//全局单例，和WMS建立连接通信，也是APP进程中，所有窗口实际的管理者
+//内部mViews和mRoots变量保存着所有创建的Activity对应的View和ViewRootImpl
+class WindowManagerGlobal {
+
+   List<View> mViews;
+   List<ViewRootImpl> mRoots;
+
+   void addView(View decorView){
+      ViewRootImpl root = new ViewRootImpl(decorView);
+      mViews.add(decorView);
+      mRoots.add(root);
+      // do this last because it fires off messages to start doing things
+      root.setView(view);
+   }
+
+}
+
+//对应一个Activity，关于视图的事件触发都在此
+//1. Choreographer让它能够感知事件
+//2. 保存DecorView让它能够在事件来临时控制视图
+//3. Surface让它拥有绘图的能力
+class ViewRootImpl {
+
+    Choreographer mChoreographer;//构造函数中被创建
+    View mView;//保存DecorView
+
+    final Surface mSurface = new Surface();
+
+    public ViewRootImpl(){
+        //可以感知vsync的原因可以追溯到libgui库中的DisplayEventReceiver类
+        mChoreographer = Choreographer.getInstance();
+    }
+
+    //1. 请求vsync信号，等待vsync来临后绘图
+    //2. 创建binder代理对象传递给wms，此后wms将通过此代理对象来通知APP进程应该做什么事
+    void setView(View decorView){
+        mView = decorView;//将DecorView保存到ViewRootImpl的成员变量mView中
+        requestLayout();//请求vsync信号
+        //通过binder向wms添加窗口
+       res = mWindowSession.addToDisplay();
+    }
+
+}
+```
+
+APP整个启动过程大致可以分为三步：
+
+1. **创建Activity并调用setContentView()绑定视图**
+2. **请求VSync信号**
+3. **进入睡眠等待唤醒，比如被VSync信号执行绘制流程**
+
+### 创建Activity
+
+在Android开发中，第一步永远都是设置视图，而设置视图不外乎于两种方式：xml文件和Java编码
+
+不管使用哪种方式，都需要调用setContentView()方法将视图绑定到Activity当中
+
+在此之后，经过一系列的方法调用，最终会执行到ViewRootImpl.setView()方法，将DecorView保存到ViewRootImpl的成员变量mView中，最后setView()方法会将视图同步给WMS
+
+视图加载过程中要依赖三个关键的对象：Window、DecorView、ViewRootImpl，我们可以按照这三个对象把视图加载也分成了三个阶段：
+
+> 1、Window对象的创建
+>
+> 2、DecorView的创建
+>
+> 3、ViewRootImpl的创建
+
+#### 1. Window的创建
+
+```java
+/frameworks/base/core/java/android/app/ActivityThread.java
+class ActivityThread {
+
+    //zygote进程fork成功后调用入口函数
+    void main(){
+        Looper.prepareMainLooper();
+        attach();//attach方法和ams建立连接，提供给ams控制四大组件的句柄
+        Looper.loop();
+    }
+
+    //分两步解释更容易理解
+    //1. 不管是从桌面点击图标进入还是adb命令启动，最终都交由ams发送启动请求给zygote进程，接着zygote孵化出该APP进程调用main方法
+    //2. APP进程启动将创建ApplicationThread对象，并发起IPC把此对象传递给ams，此后四大组件相关回到都将有ApplicationThread对象负责，最终转发给H类执行
+    void attach() {
+        //获取ams代理并将ApplicationThread将给ams，这个对象以后将是ams的传声筒
+        IActivityManager mgr = ActivityManagerNative.getDefault();
+        mgr.attachApplication(new ApplicationThread());
+    }
+
+    //ApplicationThreadNative封装一系列的关于四大组件回调方法的跨进程通信命令
+    //ApplicationThread对象所有操作几乎都由AMS发起调用
+    class ApplicationThread extends ApplicationThreadNative {
+
+        void scheduleLaunchActivity(){
+            handleMessage(LAUNCH_ACTIVITY);
+        }
+
+    }
+
+    class H extends Handler {
+
+        //转发来自ApplicationThread的消息
+        void handleMessage(Message msg) {
+            case LAUNCH_ACTIVITY::handleLaunchActivity();
+            case RESUME_ACTIVITY::handleResumeActivity();
+        }
+
+        //转发来自handleMessage的消息
+        void handleLaunchActivity(){
+            performLaunchActivity();
+            handleResumeActivity();
+        }
+
+        //执行创建Activity对象并回调生命周期
+        Activity performLaunchActivity(){
+            Activity activity = new Activity();
+            activity.attach();//回调attach
+            activity.onCreate();//回调Activity
+            return activity;
+        }
+
+    }
+
+}
+
+/frameworks/base/core/java/android/app/Activity.java
+class Activity {
+
+    Window mWindow;//Activity首次被创建调用attach()方法时同步创建，创建动作在Activity
+    WindowManager  mWindowManager;//在attach方法中被创建
+
+    //1. 创建PhoneWindow保存到变量mWindow，此时的Window还没有View视图
+    //2. 获取wms代理对象，塞到刚刚创建的window对象当中，同时保存到本地mWindowManager变量
+    void attach(Window window){
+        mWindow = new PhoneWindow(this, window);
+        mWindow.setWindowManager(getSystemService(Context.WINDOW_SERVICE));
+        mWindowManager = mWindow.getWindowManager();//获取WindowManager动作在Activity中，获取完成接着设置给自己的局部变量
+    }
+
+    //至此，APP进程启动成功，第一阶段结束，准备进入第二阶段
+    void onCreate(){
+        setContentView();
+    }
+
+}
+```
+
+ApplicationThread作为AMS控制手柄，接受到启动Activity的指令后会转发到H.handleMessage()方法，最终handleMessage()方法执行来创建Activity对象，并将Activity传递给AMS管理
+
+在Activity创建完成以后，紧接着就会调用Activity的attach()方法
+
+前面我们介绍WMS时提到了所有的Activity在WMS中，都是一个Window对象
+
+在Activity的attach()方法完成的工作中，最重要的就是：创建了类型为PhoneWindow的Window实例对象
+
+#### 2. DecorView的创建
+
+Window对象创建是在Activity的attach()方法中完成的，调用完attach()紧接着就会调用onCreate()方法
+
+开发者通常会在onCreate()方法中调用setContentView()来设置视图文件
+
+这就进入到第二个阶段：DecorView的创建
+
+```java
+/frameworks/base/core/java/android/app/ActivityThread.java
+class ActivityThread {
+
+  //执行创建Activity对象并回调生命周期
+  Activity performLaunchActivity(){
+      Activity activity = new Activity();
+      activity.attach();//回调attach
+      activity.onCreate();//回调Activity
+      return activity;
+  }
+
+}
+
+/frameworks/base/core/java/android/app/Activity.java
+class Activity {
+
+    Window mWindow;//Activity首次被创建调用attach()方法时同步创建，创建动作在Activity
+    WindowManager  mWindowManager;//在attach方法中被创建
+
+    //第二阶段开始：加载视图文件并绑定到DecorView
+    void setContentView(View view) {
+        mWindow.setContentView(view);
+    }
+
+    //第二阶段已经完成，准备进入第三阶段
+    void onContentChanged(){
+    }
+
+}
+
+/frameworks/base/core/java/com/android/internal/policy/PhoneWindow.java
+class PhoneWindow extends Window {
+
+    DecorView mDecor;
+    ViewGroup mContentParent;
+
+    //1. 创建DecorView对象
+    //2. 将开发者设置的视图文件作为子View添加到mContentParent
+    //3. 通知Activity中onContentChanged方法
+    void setContentView(View view) {
+        mDecor = generateDecor();
+        mContentParent = generateLayout();//看generateLayout方法的注释
+        mContentParent.addView(view);//将开发者设置的视图添加为子View
+        getCallback().onContentChanged();//回调Activity中onContentChanged()方法
+    }
+
+    //创建一个空的DecorView，也就是FrameLayout，里面啥也没有
+    void generateDecor() {
+        return new DecorView(this);
+    }
+
+    //1. 根据不同主题设置不同布局文件，加载该布局文件并设置成DecorView的子View
+    //2. 返回子View中id为content的ViewGroup，通常还是个FrameLayout
+    //以上两步执行完成以后，DecorView的布局变成：
+    //<FrameLayout>//DecorView的根布局
+    //  <LinearLayout>//开发者设置带有ActionBar的主题，注意，这里的视图可变的，根据主题来选择不同的视图
+    //      <ActionBar/>
+    //      <FrameLayout
+    //      android:id="@android:id/content"/>//这里的FrameLayout才是最终包含开发者在setContentView中设置的布局
+    //  </LinearLayout>
+    //</FrameLayout>
+    void generateLayout() {
+        //加载不同的theme主题的布局文件，比如我们在xml中指定android:theme=@style/NoActionBar
+        View root = inflater.inflate(layoutResource);
+        //将上一步解析的视图作为根布局添加到DecorView，常见的比如垂直方向的LinearLayout，这样布局DecorView
+        mDecor.addView(root);
+        //找到用来装用户视图的ViewGroup，通常还是个FrameLayout
+        ViewGroup contentParent = mDecor.findViewById(R.id.content);
+        return contentParent;
+    }
+
+}
+
+//自身无逻辑，可以跳过
+/frameworks/base/core/java/com/android/internal/policy/DecorView.java
+class DecorView extends FrameLayout {
+
+    //DecorView和PhoneWindow互相持有
+    PhoneWindow mWindow;
+
+    DecorView(PhoneWindow window){
+        mWindow = window;
+    }
+
+}
+
+//定义View操作接口，顶级接口
+/frameworks/base/core/java/android/view/ViewManager.java
+public interface ViewManager
+{
+    public void addView();
+    public void updateViewLayout();
+    public void removeView();
+}
+
+//啥也不是
+/frameworks/base/core/java/android/view/WindowManager.java
+public interface WindowManager extends ViewManager {
+
+}
+
+//WindowManager的最终实现
+/frameworks/base/core/java/android/view/WindowManagerImpl.java
+public class WindowManagerImpl implements WindowManager {
+
+    WindowManagerGlobal mGlobal = WindowManagerGlobal.getInstance();
+
+    void addView(View decorView) {
+        mGlobal.addView(decorView);
+    }
+
+}
+
+//全局单例，和WMS建立连接通信，也是APP进程中，所有窗口实际的管理者
+//内部mViews和mRoots变量保存着所有创建的Activity对应的View和ViewRootImpl
+class WindowManagerGlobal {
+
+   List<View> mViews;
+   List<ViewRootImpl> mRoots;
+
+   void addView(View decorView){
+      ViewRootImpl root = new ViewRootImpl(decorView);
+      mViews.add(decorView);
+      mRoots.add(root);
+      // do this last because it fires off messages to start doing things
+      root.setView(view);
+   }
+
+}
+```
+
+我们都知道DecorView是顶级View，而且它自身是个FrameLayout，所以在mWindow.setContentView()中第一步就是将DecorView对象创建出来
+
+创建完DecorView后，接着会加载Activity使用的主题，并且将该主题作为子View添加到DecorView，这个子View就是mContentParent
+
+有了mContentParent，接下来才是将我们设置的视图添加为mContentParent的子View
+
+在每个mContentParent中，都有一个名为R.id.content的FrameLayout，里面包含的就是我们设置的视图
+
+```java
+void setContentView(View view) {
+    mDecor = generateDecor();
+    mContentParent = generateLayout();//看generateLayout方法的注释
+    mContentParent.addView(view);//将开发者设置的视图添加为子View
+    getCallback().onContentChanged();//回调Activity中onContentChanged()方法
+}
+```
+
+把开发者设置的视图添加为子View的下一步是回调Activity中onContentChanged()方法
+
+好了，当我们在Activity收到onContentChanged()回调的这一刻，说明DecorView已经创建完成
+
+#### 3. ViewRootImpl的创建
+
+第一阶段和第二阶段分别让我们拥有了一个Window对象和一个DecorView对象
+
+Window对象中包含了DecorView对象，DecorView包含了我们设置的视图文件
+
+接下来就是把该Window对象传递给WMS
+
+和前两个阶段不同的是，第三阶段是在Activity的onResume()回调中被触发的
+
+在ActivityThread通知完onResume()的下一步调用了makeVisible()方法
+
+makeVisible()方法中，将会调用WindowManager.addView(mDecor)将视图传递给WMS
+
+```java
+/frameworks/base/core/java/android/app/ActivityThread.java
+class ActivityThread {
+ 
+  void handleResumeActivity(){
+      performResumeActivity()
+      activity.makeVisible();//开始执行第三个阶段
+  }
+
+  //执行回调生命周期
+  void performResumeActivity(){
+      activity.onResume();
+  }
+  
+}
+
+/frameworks/base/core/java/android/app/Activity.java
+class Activity {
+
+    //第三阶段开始：将视图传递给wms
+    //makeVisible()在ActivityThread.H.handleResumeActivity()方法中被调用
+    void makeVisible() {
+        mWindowManager.addView(mDecor);
+    }
+
+}
+
+//WindowManager的最终实现
+/frameworks/base/core/java/android/view/WindowManagerImpl.java
+public class WindowManagerImpl implements WindowManager {
+
+    WindowManagerGlobal mGlobal = WindowManagerGlobal.getInstance();
+
+    void addView(View decorView) {
+        mGlobal.addView(decorView);
+    }
+
+}
+
+//全局单例，和WMS建立连接通信，也是APP进程中，所有窗口实际的管理者
+//内部mViews和mRoots变量保存着所有创建的Activity对应的View和ViewRootImpl
+/frameworks/base/core/java/android/view/WindowManagerGlobal.java
+class WindowManagerGlobal {
+
+	List<View> mViews;
+	List<ViewRootImpl> mRoots;
+
+	void addView(View decorView){
+		ViewRootImpl root = new ViewRootImpl(decorView);
+		mViews.add(decorView);
+		mRoots.add(root);
+		// do this last because it fires off messages to start doing things
+		root.setView(view);
+	}
+
+}
+
+//对应一个Activity，关于视图的事件触发都在此
+//1. Choreographer让它能够感知事件
+//2. 保存DecorView让它能够在事件来临时控制视图
+//3. Surface让它拥有绘图的能力
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    Choreographer mChoreographer;//构造函数中被创建
+    View mView;//保存DecorView
+
+    final Surface mSurface = new Surface();
+
+    public ViewRootImpl(){
+        //可以感知vsync的原因可以追溯到libgui库中的DisplayEventReceiver类
+        mChoreographer = Choreographer.getInstance();
+    }
+
+    //1. 请求vsync信号，等待vsync来临后绘图
+    //2. 创建binder代理对象传递给wms，此后wms将通过此代理对象来通知APP进程应该做什么事
+    void setView(View decorView){
+        mView = decorView;//将DecorView保存到ViewRootImpl的成员变量mView中
+        requestLayout();//请求vsync信号
+        //通过binder向wms添加窗口
+      	res = mWindowSession.addToDisplay();
+    }
+
+}
+```
+
+WindowManagerImpl是WindowManager的最终实现类，它会调用到WindowManagerGlobal的addView()方法
+
+WindowManagerGlobal是全局单例，每个进程有且只有一个，也就是说，所有的Activity对应的Window都由WindowManagerGlobal管理
+
+因此，WindowManagerGlobal会有两个关键集合：mViews和mRoots
+
+mViews是保管着的DecorView的集合，mRoots是保管着ViewRootImpl的集合
+
+DecorView是Activity的跟视图，ViewRootImpl是什么？
+
+```java
+//对应一个Activity，关于视图的事件触发都在此
+//1. Choreographer让它能够感知事件
+//2. 保存DecorView让它能够在事件来临时控制视图
+//3. Surface让它拥有绘图的能力
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    Choreographer mChoreographer;//构造函数中被创建
+    View mView;//保存DecorView
+
+    final Surface mSurface = new Surface();
+
+    public ViewRootImpl(){
+        //可以感知vsync的原因可以追溯到libgui库中的DisplayEventReceiver类
+        mChoreographer = Choreographer.getInstance();
+    }
+  
+}
+```
+
+看看ViewRootImpl中的三个成员变量：
+
+- mView：DecorView让ViewRootImpl能够在事件来临时控制视图
+- mSurface：让Activity拥有绘图的能力
+- mChoreographer：让ViewRootImpl能够监听vsync信号
+
+王炸！一个类几乎集齐了所有与视图相关的成员
+
+我们接着往下跟：
+
+```java
+/frameworks/base/core/java/android/view/WindowManagerGlobal.java
+class WindowManagerGlobal {
+  
+  List<ViewRootImpl> mRoots;
+  
+	void addView(View decorView){
+		ViewRootImpl root = new ViewRootImpl(decorView);
+    mRoots.add(root);
+    root.setView(view);
+	}
+
+}
+
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    //1. 请求vsync信号，等待vsync来临后绘图
+    //2. 创建binder代理对象传递给wms，此后wms将通过此代理对象来通知APP进程应该做什么事
+    void setView(View decorView){
+        mView = decorView;//将DecorView保存到ViewRootImpl的成员变量mView中
+        requestLayout();//请求vsync信号
+        //通过binder向wms添加窗口，这个方法背后又是一大堆方法调用，这里不展开讨论
+       res = mWindowSession.addToDisplay();
+    }
+
+}
+```
+
+WindowManagerGlobal创建了ViewRootImpl对象后，把它保存到本地集合mRoots
+
+接着调用ViewRootImpl的setView()方法，setView()调用addToDisplay()方法通过binder向wms添加窗口
+
+至此，Window对象的创建、DecorView的创建和ViewRootImpl的创建这三大阶段全部完成
+
+我们来总结一下创建Activity发生的事情
+
+- Activity中，创建PhoneWindow类型的Window对象
+- Window中，创建DecorView对象，绑定setContentView传入的视图文件
+- 调用WindowManager添加视图，准备把视图绑定到WMS
+- 创建ViewRootImpl作为最终的执行者，将视图添加WMS
+
+### 请求Vsync信号
+
+在视图相关的对象创建就绪后，我们开始正式请求vsync信号
+
+首次请求vsync信号的动作是在ViewRootImpl.setView()方法中触发的
+
+```java
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+  void setView(View decorView){
     requestLayout();//请求vsync信号
-  	res = mWindowSession.addToDisplay();//背后又是老长一串调用链，就不展开跟了，大致流程是在wms服务中创建了WindowState对象
+  }
+  
+  void requestLayout() {
+      scheduleTraversals();
+  }
+
+  //请求vsync，等待刷新
+  void scheduleTraversals() {
+      //1. 发送同步屏障消息的意义在于，保证vsync信号到来时，第一时间执行ViewRootImpl.doTraversal()方法
+      mTraversalBarrier = mHandler.getLooper().getQueue().postSyncBarrier();//创建一个同步屏障（详见Android消息机制）
+    	//2. 发送一条异步消息，mTraversalRunnable是处理这条消息的回调
+      mChoreographer.postCallback(Choreographer.CALLBACK_TRAVERSAL, mTraversalRunnable, null);
+    }
+  
+    final TraversalRunnable mTraversalRunnable = new TraversalRunnable();
+
+    class TraversalRunnable implements Runnable {
+
+        public void run() {
+          //执行绘制流程
+            doTraversal();
+        }
+    }
+  
 }
 ```
 
-如代码所示，经过一系列的方法调用后，最终会执行ViewRootImpl.setView()方法，将DecorView保存到ViewRootImpl的成员变量mView中；同时，setView()方法会将视图同步给WMS，在WMS中对应创建了一个WindowState对象
+setView()方法中调用了requestLayout()方法，接着调用scheduleTraversals()方法进行vsync信号的请求
 
-除此以外，ViewRootImpl还包含Choreographer对象，它是ViewRootImpl几个关键成员变量之一：
+此后View#invalidate()/requestLayout()这两个方法，最终也都会调用到ViewRootImpl#scheduleTraversals()方法
+
+我们来看看scheduleTraversals()里面都做了些什么？
+
+> **1、向主线程发送一个同步屏障消息**
+>
+> **2、通过Choreographer提交类型为CALLBACK_TRAVERSAL的Runnable**
+
+两件事
+
+一是向主线程中的消息队列发送一条同步消息，发送同步屏障消息的意义在于，保证vsync信号到来时，第一时间执行ViewRootImpl#doTraversal()方法
+
+二是提交了mTraversalRunnable，如果vsync信号到来后将会被执行，mTraversalRunnable内部封装的是doTraversal()方法用于执行绘制流程
+
+### 进入睡眠 等待唤醒
+
+真正的vsync请求由[[Choreographer]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/Choreographer.java)对象中[[DisplayEventReceiver]](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/native/libs/gui/DisplayEventReceiver.cpp)来完成，当请求信号发出以后，APP进程就进入等待状态，等待vsync发生
 
 ```java
-\frameworks\base\core\java\android\view\ViewRootImpl.java
-  
-public ViewRootImpl(){
-  //获取Choreographer单例对象
-  mChoreographer = Choreographer.getInstance();
+/frameworks/base/core/java/android/app/ActivityThread.java
+class ActivityThread {
+
+    //zygote进程fork成功后调用入口函数
+    void main(){
+        Looper.loop();
+    }
+
 }
-
-/frameworks/base/core/java/android/view/Choreographer.java
-  
-private Choreographer(Looper looper) {
-  mHandler = new FrameHandler(looper);
-  //初始化之后通过jni调用到DisplayEventDispatcher初始化，接着创建libgui.so中DisplayEventReciver对象
-  //再往下的代码就不跟了，感兴趣的同学可以自己去看，大致流程是创建了一个与sf进程的连接并注册到EventThread线程中，从而获得vsync感知能力
-  mDisplayEventReceiver =  new FrameDisplayEventReceiver(looper);
-}  
 ```
 
-ViewRootImpl在构造函数中获取了Choreographer实例对象，紧接着在Choreographer的构造函数中又创建了FrameDisplayEventReceiver对象
+Choreographer运行在主线程，也就是ActivityThread所在的线程，它们共用一个消息队列
 
-FrameDisplayEventReceiver对应的实现是开篇中提到的libgui.so中DisplayEventReciver对象，到这里我们就不向下继续追踪，以免引入过多的角色导致文章的阅读体验下降
+所以，vsync请求最终阻塞在ActivityThread#main()方法中
 
-总之，FrameDisplayEventReceiver让Choreographer对象拥有了感知Vsync信号的能力
+> ps：虽然本章节的标题叫“请求vsync信号”，但其实只有APP进程触发了请求vsync信号
+>
+> 因为只有当APP进程接受到信号，并且渲染完图层，sf进程才有活干，这一点要注意
 
-ViewRootImpl另一个需要关注的成员变量是mSurface，它是View能显示一切的基础
+# 三、处理Vsync信号
+
+万事俱备，只欠东风，APP进程等待着Vsync信号的到来，而SF进程则需要再等一段时间
+
+## 1、APP进程：绘制三部曲
+
+vsync以异步消息的身份被发送到主线程消息队列，该消息处理者为Choreographer中的mHandler对象
+
+经过处理以后，最终会调用到ViewRootImpl#doTraversal()方法执行绘制，也就是View三部曲：measure、layout、draw
 
 ```java
-\frameworks\base\core\java\android\view\ViewRootImpl.java
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
   
-public final Surface mSurface = new Surface();
+  	View mView;//保存DecorView
+
+    //开始绘制
+    void doTraversal() {
+      mHandler.getLooper().getQueue().removeSyncBarrier(mTraversalBarrier);//移除同步屏障
+            //由于同步屏障消息被移除，所以view的绘制工作和主线程的消息处理是一起在执行的
+      performTraversals();//View的绘制起点
+    }
+
+    //绘图三部曲
+    void performTraversals(){
+        relayoutWindow();//向sf正式申请surface，在进入绘图之前为APP进程准备好一块surface内存
+        mAttachInfo.mHardwareRenderer.initialize(mSurface);
+        performMeasure();//Ask host how big it wants to be
+        performLayout();
+        performDraw();
+    }
+
+    void performMeasure(){
+        mView.measure();
+    }
+
+    void performLayout(){
+        mView.layout();
+    }
+
+    void performDraw(){
+        mView.draw();
+        mAttachInfo.mHardwareRenderer.draw(mView, mAttachInfo, this);
+    }
+
+    //创建surface
+    //viewrootimpl持有的surface是Java对象，并没有在native创建对应的surface
+    //不过这一些对于APP进程来说是无感的，APP->WMS->SF->WMS->APP，在这个过程中APP
+    //在此方法中，调用wms为其创建native层的surface对象，在surface创建的过程中，会通知sf进程，sf进程为surface创建对应的layer，创建layer的过程中，又会初始化BufferQueue对象
+    //surface中包含bufferqueue，所以sf进程除了为surface创建layer，还会为surface创建队列监听，当有新的视图变化，sf进程将会收到onFrameAvaliable()回调
+    int relayoutWindow(){
+    }
+
+}
 ```
 
-总结一下在setContentView阶段发生的事情：
+在开始绘图之前，ViewRootImpl还做了两件事
 
-- 创建ViewRootImpl对象并将DecorView绑定到mView成员变量中
-- 创建Choreographer对象并注册一系列回调方法
-- 创建了Surface对象交给ViewRootImpl成员变量mSurface
+第一步是移除同步屏障消息，View的绘制流程执行结束后，让我们开发者post的消息得以执行
 
-##### 请求Vsync信号
+第二部是调用了relayoutWindow()方法，向sf正式申请surface，在进入绘图之前为APP进程准备好一块surface内存
 
-在ViewRootImpl首次加载视图的时候，需要注意一个细节
+好了，接下来正式执行绘图流程
 
-ViewRootImpl.requestLayout()
+### View#onMeasure()
 
-在ViewRootImpl.setView()方法中，
+performMeasure()方法中调用了[View#measure()](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/View.java#19820)
+
+ViewRootImpl成员变量mView保存的是DecorView对象，所以，measure()方法将会从跟视图一层层向下遍历
 
 ```java
-View.invalidate()/requestLayout()
-	->
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+  
+  	View mView;//保存DecorView
+
+    void performMeasure(){
+        mView.measure();
+    }
+
+}
 ```
 
-invalidate 和 requestLayout最终都会调用到viewrootimpl.scheduleTraversals()方法，在此方法中会调用requestNextVsync()
+在遍历整个View树的过程中，会出现多次遍历才能确定View大小的情况，尤其对于ViewGoup来说，取决于测量模式和LayoutParams配置等
 
-ViewRootImpl#performTraversals
+View的绘制我打算另起一篇文章介绍，所以关于onMeasure()更多好玩有趣的部分，比如测试模式touchMode以及焦点的处理等，这里暂时不展开，包括之后的layout和draw也都会一笔带过
 
-scheduleTraversals() 
+在本章节我们需要了解：measure()方法是为了计算每一个View需要的大小，measure()方法执行完成以后，各个View的大小也都确定了
+
+### View#onLayout()
+
+performLayout()方法中调用了[View#layout()](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/View.java#17622)
+
+```java
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+  
+  	View mView;//保存DecorView
+
+    void performLayout(){
+        mView.layout();
+    }
+
+}
+```
+
+上一小节measure执行完以后，确定了各个View的大小
+
+在本章节中，layout()方法是为了计算每一个View的位置，layout()方法执行完成以后，各个View的位置也都确定了
+
+### View#onDraw()
+
+draw是最终绘制的阶段，在View体系中，所有的绘图操作都在draw阶段得到执行
+
+measure过程和layout过程都是发生在CPU，draw不同，如果开启硬件加速，那么draw的过程发生在GPU
+
+并且，Android 5.0版本加入了ThreadedRenderer，draw的绘制实际执行在渲染线程
+
+什么是硬件加速我们在介绍硬件驱动的时候已经聊过了，本章节简单聊聊什么是ThreadedRenderer
+
+```java
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+  
+  	View mView;//保存DecorView
+
+    //绘图三部曲
+    void performTraversals(){
+        relayoutWindow();//向sf正式申请surface，在进入绘图之前为APP进程准备好一块surface内存
+        mAttachInfo.mHardwareRenderer.initialize(mSurface);
+        performDraw();
+    }
+
+    void performDraw(){
+        mView.draw();
+        mAttachInfo.mHardwareRenderer.draw(mView, mAttachInfo, this);
+        ThreadedRenderer->draw()
+            ->updateViewTreeDisplayList()
+            ->View.
+    }
+
+}
+```
+
+在我查阅资料的过程中，发现有一小部分文章会把渲染线程都和硬件加速联系到一起，大概意思是：
+
+开启硬件加速后，在执行draw的过程中，Android将单独启动一个渲染线程来执行绘制任务
+
+事实上，硬件加速和渲染线程之间没什么关系
+
+Android系统发布之初就已经支持硬件加速，而渲染线程（Android 5.0）出现的时机甚至在黄油计划（Android 4.1）以后
 
 
 
-当queue buffer到BufferQueue时终于会触发layer的onFrameAvailable()函数，而该函数会触发一次surfaceflinger的vsync事件。
+可以聊聊的方法，它涉及到两个比较重要
 
-##### 进入睡眠 等待唤醒
+硬件加速、渲染线程
 
-> 之前写的，从zygote进程中fork出APP进程后，WindowManagerGlobal
->
-> Activity的创建过程的调用链有点长，这里先忽略掉，在AMS和WMS的通力合作下创建出Activity实例对象
->
-> 这个实例在AMS保存为ActivityRecord对象，在WMS中保存为WindowState对象
->
-> ViewRootImpl中持有两个非常重要的对象：Choreographer和Surface
->
-> Choreographer中也有一个非常重要的对象：DisplayEventReceiver
->
-> DisplayEventReceiver完成对gui.so中的DisplayEventReceiver封装，
->
-> 还记得DisplayEventReceiver吗？
->
-> 这就是为什么Choreographer也能接收到vsync信号的关键
->
-> ```c++
-> frameworks/native/libs/gui/DisplayEventReceiver.cpp
-> DisplayEventReceiver::DisplayEventReceiver() {
->     sp<ISurfaceComposer> sf(ComposerService::getComposerService());
->     if (sf != NULL) {
->         mEventConnection = sf->createDisplayEventConnection();
->         if (mEventConnection != NULL) {
->             mDataChannel = mEventConnection->getDataChannel();
->         }
->     }
-> }
-> ```
->
-> ViewRootImpl本身由WMS管理，一个Activity对应一个ViewRootImpl
->
-> 从这里我们也可以两位
->
-> AMS负责管理组件状态，WMS负责管理视图状态
->
-> 我们这里一笔带过，简单来说是通过AMS创建了
+渲染线程是Android 5.0加入的，强制开启，和你开不开硬件加速没关系
 
-AMS创建了Record
+开了硬件加速，你这部分的内容就是
 
-### 三、接收Vsync信号
-
-好了，万事俱备，只欠东风，APP进程和SF进程都一同等待着Vsync信号的到来
-
-Drawing with VSync
-
-#### 1、APP进程执行绘制
+一旦超过一个vsync周期，该丢帧还是会丢帧
 
 创建Surface，创建BufferQueue，SF对应创建Layer，每一个Surface创建成功后，经过一系列的方法调用，最终会被同步到sf进程，并创建Layer，就将会被把书翻到第一章第二节的，surface
 
@@ -1035,21 +1906,11 @@ unlockCanvasAndPost()`or `eglSwapBuffers()（取决于开发者使用2D绘图API
 
 对于大部分应用开发工程师来说，最终调用的都是unlockCanvasAndPost()方法
 
-##### 发送同步消息屏障
 
-为了避免屏幕发生撕裂，vsync信号早在1.6版本就已经存在，去源码搜索eventhub.cpp可以看到
-
-Google在Android 4.1发布的黄油计划之所以广为人知，是因为vsync同步给了APP进程，通过代码逻辑将渲染、合成、送显
-
-渲染合成显示各占一个buffer，这也是Triple buffering的由来
-
-除此以外，为了配合chro，handler机制加入了异步消息和同步屏障
 
 Google在Android 5.0加入了renderthread，更进一步优化了图形，ui线程负责onlayout/onmeausre，在ondraw阶段记录下渲染命令，接着同步给RenderThread
 
 
-
-##### 执行绘制工作
 
 Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
@@ -1061,9 +1922,11 @@ Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
 
 二是留给UI线程更多的时间来处理messagequeue中的消息，
 
-##### 取消同步消息屏障
+### 特殊情况：SurfaceView
 
-##### 特殊情况：SurfaceView
+SurfaceView作为DecorView中的一员，和普通View一样能够接受到input事件、vsync信号等
+
+不过SurfaceView并不会执行View的onDraw的一套方法，而是自己在内部使用canvas进行2D开发或者OpenGL ES进行3D开发
 
 在游戏开发或其他需要展示3D图形时，多数情况是使用SurfaceView来绘制
 
@@ -1093,7 +1956,11 @@ texture暂时没研究，不敢妄下结论
 
 注意，无论如何，因为sf进程接受vsync的指导的原因，APP的输出帧率永远小于等于屏幕的刷新率，APP进程提交的画面总是在下一次vsync信号到来时才能被输送到屏幕显示
 
-#### 2、SurfaceFlinger进程执行合成
+不管使用View#onDraw()，还是使用调用unlockCanvasAndPost()/eglSwapBuffers()自主上帧，它们最终都是将一个渲染完成的图层（GraphicBuffer）添加到BufferQueue队列
+
+入列以后，接下来就是SF的合成工作
+
+## 2、SF进程：合成五部曲
 
 mLayers对象保存着所有的图层，APP进程中申请的graphicbuffer也是驻留在SurfaceFlinger这边的进程中
 
@@ -1101,31 +1968,9 @@ sf负责合成工作，大致的流程是询问
 
 关键是两个回调，具体细节这里就不展开
 
-##### invalidate
+### invalidate
 
-##### vsyncCallback
-
-##### 闲聊DispSync设计
-
-offset的设计理念是，用户能够更早的看到画面，绘制工作和合成工作将在一个vsync周期内完成
-
-至此，整个vsync周期发生的都已经完成，我们来梳理显示流程
-
-下面几个问题是我个人在学习图形系统中比较疑惑的点，在此分享希望能够帮助到其他人
-
-如何暂停接收Vsync信号？
-
-我们打开APP后没有进行任何操作，APP还会执行渲染流程吗？
-
-答案显然是否定的
-
-sf和app都需要调用requestNextVsync方法请求下一次同步信号
-
-vsync信号由DispSyncSource和EventThread来分发
-
-比如录屏软件就会调用获取当前的buffer
-
-sf的两个回调：
+### vsyncCallback
 
 **MessageQueue::invalidate**
 
@@ -1145,7 +1990,7 @@ sf的两个回调：
 
 
 
-### 四、结语
+# 四、结语
 
 作者是应用开发工程师，没有硬件经验，文中难免遗漏甚至错误
 
@@ -1279,7 +2124,7 @@ Android图形子系统是最复杂的子系统，没有之一
 
 全文完
 
-### 五、参考资料
+# 五、参考资料
 
 - [《深入理解Android内核设计思想》- 林学森](https://book.douban.com/subject/25921329/)
 - [《深入理解Android 卷III》- 张大伟](https://book.douban.com/subject/26598458/)
