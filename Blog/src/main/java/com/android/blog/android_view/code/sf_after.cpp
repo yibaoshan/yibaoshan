@@ -287,3 +287,13 @@ class SurfaceFlinger {
     }
 
 }
+
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
+
+    //第五步：更新DispSync机制，详情参见
+    void SurfaceFlinger::postComposition(){
+        //更新DispSync，详情参见DispSync模型一节
+    }
+
+}

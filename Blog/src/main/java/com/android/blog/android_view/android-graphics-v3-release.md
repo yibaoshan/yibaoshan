@@ -12,17 +12,19 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 # 一、开篇
 
-当我们点开“微信”这个应用后，它是怎么在屏幕上显示出来的？
+“当我们点开‘微信’这个应用后，它是怎么在屏幕上显示出来的？”
 
 这是一个非常复杂的问题，它的背后包含了由厂商驱动、Linux操作系统、HAL硬件抽象层和Android Framework框架层共同组建的一套非常庞大的Android图形子系统
 
-想要给出这个问题的答案，需要对Android图形子系统背后的运行流程有所了解
+想要给出这个问题的答案，就必须对Android图形子系统背后的运行流程有所了解
 
-今天，我们从认识Android设备的硬件开始，自下而上，一起来看看庞大的图形系统是如何一步步建立起来的
+今天，我们从认识Android设备中的硬件开始，自下而上
+
+一起来看看庞大的图形系统是如何一步步建立并且运行起来的
 
 ## 1、硬件驱动
 
-再复杂的系统设计，也离不开硬件的支持，在文章的开头，我们先来了解一下，Android设备里支撑应用程序绘图的硬件有哪些
+再复杂的系统设计，也离不开硬件的支持，在文章的开头，我们先来了解一下：执行应用绘图的硬件有哪些？
 
 ![f](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_mi10_dismantle.png)
 
@@ -48,109 +50,93 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 其中，Adreno 660 GPU是我们需要关心的重点
 
-它封装了图形系统中经常要使用到的两块芯片：GPU（Graphics Processing Unit）和DPU（Display Processing Unit）
+它封装了图形系统中经常使用到的两块芯片：GPU（Graphics Processing Unit）和DPU（Display Processing Unit）
 
 ![android_graphic_v3_adreno660](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_adreno660.jpeg)
 
 *图片来源：https://www.dpreview.com/news/2969199244/qualcomm-snapdragon-888-soc*
 
-一幅图像的显示必须要经过渲染、合成、送显这三个阶段
+我们知道，一幅图像的显示必须要经过渲染、合成、送显这三个过程
 
-GPU和DPU各自负责其中两个关键步骤：渲染和合成
+GPU芯片负责执行渲染工作，DPU芯片负责执行合成
 
-### 图形渲染
+### 图形渲染驱动
 
 #### 1. 什么是渲染
 
-渲染是计算机图形学中的最重要的研究课题之一，也是图形系统中必不可少的一部分
+本章节我们来聊聊图形渲染驱动，也就是GPU驱动
 
-其工作原理非常复杂，我们通过一个例子来感受什么是渲染：
+GPU驱动的渲染工作是什么
 
-我们知道，那么什么是渲染？
+在系统中申请一块10*10大小的图层内存，执行下列几条指令：
 
-举个例子来解释GPU的渲染工作：
+> 1. 把图层背景这玩意染成绿的
+> 2. 从左上（0,0）到右下（10,10）画一条宽度为1颜色为红色的直线
+> 3. 以坐标点（5,5）为中心，画一个半径为3的实心圆，颜色要蓝色
 
-我向系统申请了一块10*10大小的图层内存，单位是像素，接着想在图层上画点东西
-
-> 1. **把图层染成绿的**
-> 2. **从左上（0,0）到右下（10,10）画一条宽度为1颜色为红色的直线**
-> 3. **以坐标点（5,5）为中心，画一个半径为3的实心圆，颜色要蓝色**
-
-好了，接下来CPU会把我的这些绘图指令同步给GPU去执行渲染任务，一起同步过去的还有图层的内存描述符
-
-GPU渲染工作完成后，我就能得到10*10大小的二维数组（还是原先那块内存），数组中的每个元素保存着坐标点的颜色信息、深度信息，对应着将来要显示到屏幕上的一个个像素点
+好了，接下来操作系统会把这些绘图指令同步给GPU去执行渲染任务
 
 ![android_graphic_v3_gpu_draw](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_gpu_draw.png)
 
 *图片来源：自己画的*
 
-在一块固定大小的图层中，执行一系列的绘图指令，执行完成以后我能将这块内存交给屏幕去显示，这个就叫做渲染
+GPU渲染工作完成后，我们能够得到一个大小为10*10二维数组
 
-图像渲染是一个非常复杂的话题
+数组中的每个元素都保存着坐标点的颜色信息、深度信息，对应着将来要显示到屏幕上的一个个像素点
 
-渲染和绘制是同一个意思，对应单词都是Render
+把绘图指令转化为二维像素数组的过程，就叫做“渲染”
 
-具体的渲染过程和实现原理可以看[《渲染管线的三大阶段》](https://zhuanlan.zhihu.com/p/101908082)这篇文章，本小节我们主要理解GPU的渲染工作是做什么的
+> *图像渲染是一个非常复杂的话题，本文的通过2D绘图的小例子来帮助理解渲染工作是做什么的*
+>
+> *想要了解关于渲染实现原理可以点击[[这里]](https://zhuanlan.zhihu.com/p/101908082)*
 
 #### 2. 什么是GPU
 
-OpenGL ES
+GPU全称是GraphicProcessing Unit，中文是图形处理器，其最大的作用就是进行各种绘制计算机图形所需的运算，包括顶点设置、光影、像素操作等
 
-OpenGL ES是一个由[Khronos组织](http://www.khronos.org/)制定并维护的开发规范，类似的协议还有Vulkan、DirectX
+GPU实际上是多组图形函数的集合，这些函数由硬件驱动实现，硬件厂商们遵循着不同协议的开发规范，比如OpenGL ES
 
-它规定了每个函数该如何执行，以及它们的输出值，至于具体每个函数是如何实现，由OpenGL库的开发者自行决定，实际的OpenGL库的开发者通常是显卡的生产商
+![android_graphic_v3_adreno660_specifications](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_adreno660_specifications.png)
 
-比如我们打开[Adreno 660 GPU](https://chiptechie.com/mobile-gpu/qualcomm-adreno-660/)的介绍页面，可以看到这块GPU芯片支持OpenGL ES 3.2版本、OpenCL 2.0版本和Vulkan 1.1版本
+*图片来源：https://chiptechie.com/mobile-gpu/qualcomm-adreno-660/*
 
-另外，它还支持了微软家的DirectX，这就意味着在安装了Windows ARM版的手机中，应用程序也可以使用骁龙GPU来加速图形的渲染
+打开[Adreno 660 GPU](https://chiptechie.com/mobile-gpu/qualcomm-adreno-660/)的介绍页面，可以看到小米11使用的这块芯片支持OpenGL ES 3.2版本、OpenCL 2.0版本和Vulkan 1.1版本
 
-更多关于GPU和OpenGL ES的介绍请点击[[这里]](https://cloud.tencent.com/developer/article/1756011)
+另外，660还支持了微软家的DirectX，这就意味着在安装了Windows ARM版的小米11中，应用程序也可以使用骁龙GPU来加速图形的渲染
 
-#### 3. 什么是硬件加速
+> *更多关于GPU的介绍请点击[[这里]](https://cloud.tencent.com/developer/article/1756011)*
 
-Android硬件加速的一些问题和错误：https://blog.csdn.net/icyfox_bupt/article/details/18732001
+### 图形合成驱动
 
-对于应用开发者是无感的
-
-早些年对硬件加速都是又爱又恨的，好的方面是开启硬件加速后页面的确会流畅许多，坏的方面是在某些机型上页面显示可能会有些问题
-
-游戏开发，普通的View或者自定义控件都是使用Canvas来完成绘图工作，
-
-### 图形合成
-
-聊完了图形的渲染，下一步就到图像的合成阶段
-
-虽然GPU也可以用来做合成工作，但现阶段绝大多数的移动设备中，执行合成任务的都是DPU
+图形渲染阶段结束以后，下一步就是图像的合成阶段
 
 #### 1. 什么是合成
 
-在介绍DPU之前，我们需要先来了解什么是合成
+这是一张launcher桌面的截屏，它是由“壁纸”、“顶部的状态栏”、“桌面的应用列表”以及“底部导航栏”这4个图层组成
 
 ![android_graphic_v3_hwc_finally](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_finally.png)
 
 *图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
-这是一张launcher桌面的截屏，它是由“壁纸”、“顶部的状态栏”、“桌面的应用列表”以及“底部导航栏”这4个图层组成
-
-壁纸图层：
+1、壁纸图层：
 
 ![android_graphic_v3_hwc_wallpaper](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_wallpaper.png)
 
 *图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
-顶部状态栏图层（很小的一个横条）：
+2、顶部状态栏图层（很小的一个横条）：
 
 ![android_graphic_v3_hwc_statusbar](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_statusbar.png)
 
 *图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
-桌面应用列表：
+3、桌面应用列表：
 
 ![android_graphic_v3_hwc_launcher](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_launcher.png)
 
 *图片来源：https://blog.zhoujinjian.cn/posts/20210810*
 
-底部导航栏：
+4、底部导航栏：
 
 ![android_graphic_v3_hwc_navigationbar](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_hwc_navigationbar.png)
 
@@ -190,9 +176,9 @@ DPU作为图形硬件的一部分，通常被封装在GPU模块当中，最主�
 
 当然，合成的工作也可以不放在DPU中，厂商可以选择在板子上加一块2D渲染芯片，专门用来执行合成任务
 
-[Hardware Composer](https://source.android.com/devices/graphics/hwc)就是专门用来定义合成工作的接口对象，它是[Android Hardware Abstraction Layer（HAL）](https://source.android.com/devices/architecture/hal-types?hl=zh-cn)硬件抽象层的成员之一
+[Hardware Composer](https://source.android.com/devices/graphics/hwc)就是专门用来定义合成工作的抽象接口，它是[Android Hardware Abstraction Layer（HAL）](https://source.android.com/devices/architecture/hal-types?hl=zh-cn)硬件抽象层的成员之一
 
-HWC不在乎厂商使用的是DPU还是其他的2D渲染芯片，厂商只需要实现HWC的接口定义即可
+在HWC中，厂商使用的是DPU还是其他的2D渲染芯片不重要，只需要实现HWC的接口即可
 
 我们来看Google官网对于HWC的定义：
 
@@ -892,7 +878,7 @@ AMS工作的大头是控制Activity，但Activity的生命周期其实是和WMS�
 
 ### 初始化WindowManagerService
 
-WindowManagerService的启动函数非常简单，被SystemServer调用初始化，当然初始化的工作有许多，但是我觉得都不重要
+WindowManagerService的启动函数非常简单，在SystemServer中创建以后注册到servicemanager
 
 ```java
 /frameworks/base/services/java/com/android/server/SystemServer.java
@@ -917,7 +903,7 @@ class WindowManagerService {
 }
 ```
 
-对于WindowManagerService来说，它最重要的任务就是负责处理来自各个进程创建window的工作
+对于WindowManagerService来说，启动完成以后，最重要的任务就是等待处理来自各个进程创建Window的工作
 
 AMS也可以通知WMS，比如启动一个全屏的Activity时，当前的Activity显然不需要显示
 
@@ -1956,7 +1942,7 @@ SurfaceView作为DecorView中的一员，和普通View一样能够接受到input
 
 SurfaceView让应用无需等待vsync信号的到来便可以执行绘制工作
 
-## 2、SurfaceFlinger进程
+## 2、SF进程：合成五部曲
 
 无论应用使用哪种API开发，在绘制流程结束后，APP作为图层的生产者会调用BufferQueue#queueBuffer()方法将GraphicBuffer入列
 
@@ -2009,7 +1995,7 @@ layer作为图层的消费者，封装了获取渲染图层和释放图层的操
 
 ### sf进程处理vsync
 
-sf进程在MessageQueue中执行了请求vsync信号的动作，所以，vsync信号到来时的处理同样也是在MessageQueue类中
+sf进程在MessageQueue中执行了请求vsync信号的动作，所以，vsync信号到来后的处理同样也是在MessageQueue类中
 
 ```c++
 /frameworks/native/services/surfaceflinger/MessageQueue.cpp
@@ -2067,13 +2053,23 @@ class SurfaceFlinger {
 
 sf进程对vsync信号的处理稍微有点点绕，我们来捋一下调用链：
 
-MessageQueue#eventReceiver()收到vsync信号后发送INVALIDATE消息给sf进程，SurfaceFlinger##onMessageReceived()方法被触发
+- MessageQueue
+
+  > MessageQueue#eventReceiver()收到vsync信号后发送INVALIDATE消息给sf进程SurfaceFlinger##onMessageReceived()方法被触发
+
+- SurfaceFlinger
+
+  > MessageQueue#eventReceiver()收到vsync信号后发送INVALIDATE消息给sf进程，SurfaceFlinger##onMessageReceived()方法被触发
 
 在case为INVALIDATE的方法中，调用handleMessageTransaction()、handleMessageInvalidate()检查是否需要执行下一步合成
 
 如果需要执行合成，最终会执行到SurfaceFlinger#handleMessageRefresh()方法
 
-### sf进程：合成五部曲
+### sf进程执行合成
+
+一旦调用到handleMessageRefresh()方法，意味着合成工作正式开始执行
+
+合成流程一共有五个步骤，所以可以取名叫做“合成五部曲”
 
 一起来看看handleMessageRefresh()方法中都做了哪些事情：
 
@@ -2081,42 +2077,22 @@ MessageQueue#eventReceiver()收到vsync信号后发送INVALIDATE消息给sf进�
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
 class SurfaceFlinger {
 
-    void SurfaceFlinger::onMessageReceived(){
-        case MessageQueue::INVALIDATE: {
-            //接收到vsync信号后
-            handleMessageTransaction();
-            //主要调用handlePageFlip，从各Layer的BufferQueue拿到最新的缓冲数据，并根据内容更新脏区域
-            handleMessageInvalidate();
-            signalRefresh();//会触发handleMessageRefresh
-        }
-        case MessageQueue::REFRESH: {
-            handleMessageRefresh();//合成并输出到屏幕
-        }
-    }
-
-    //queue内部调用了请求下一次vsync
-    void SurfaceFlinger::signalLayerUpdate() {
-        mEventQueue.invalidate();
-    }
-
     //合成五部曲
     void SurfaceFlinger::handleMessageRefresh(){
         //合成之前的与处理，检查是否有新的图层变化，如果有，执行请求下一次vsync信号
         preComposition();
         //若Layer的位置/先后顺序/可见性发生变化，重新计算Layer的目标合成区域和先后顺序
         rebuildLayerStacks();
-        //调hwc的prepare方法询问是否支持硬件合成
+        //调用hwc的prepare方法询问每个图层是否支持硬件合成
         setUpHWComposer();
         //当打开开发者选项中的“显示Surface刷新”时，额外为产生变化的图层绘制闪烁动画
         doDebugFlashRegions();
-        //执行合成主体，对3D合成而言，调opengl的drawcall，对硬件合成而言，调hwc的set方法
+        //如果不支持硬件合成，在该方法中会调用GPU合成，接着提交buffer
         doComposition();
         //调Layer的onPostComposition方法，主要用于调试，可以忽略
         postComposition(refreshStartTime);
     }
 
-    //第一步：预处理阶段，调用每个layer的onPreComposition()方法询问是否需要合成
-    //第一步执行完以后，确定是否有遗漏的图层，如果有就再次请求vsync信号
     void SurfaceFlinger::preComposition(){
         bool needExtraInvalidate = false;
         const LayerVector& layers(mDrawingState.layersSortedByZ);
@@ -2133,8 +2109,6 @@ class SurfaceFlinger {
         }
     }
 
-    //第二步： 若Layer的位置/先后顺序/可见性发生变化，重新计算Layer的目标合成区域和先后顺序
-    //第二步执行完以后，确定了每个图层的可见区域和跟其他图层发生重叠部分的脏区域
     void SurfaceFlinger::rebuildLayerStacks(){
         //获取当前应用程序所有按照z-order排列的layer
         const LayerVector& layers(mDrawingState.layersSortedByZ);
@@ -2151,8 +2125,6 @@ class SurfaceFlinger {
         }
     }
 
-    //第三步：更新HWComposer对象中图层对象列表以及图层属性
-    //第三步执行完以后，确定了每个图层的合成方式
     void SurfaceFlinger::setUpHWComposer() {
         //prepareFrame方法中调用了HWComposer::prepare方法
         for (size_t displayId = 0; displayId < mDisplays.size(); ++displayId) {
@@ -2164,10 +2136,6 @@ class SurfaceFlinger {
         }
     }
 
-    //第四步：执行真正的合成工作
-    //第四部执行完以后，完成了两件事
-    //1. 将不支持硬件合成的图层进行GPU合成
-    //2. 调用postFramebuffer()将GPU合成后的图层和需要HWC合成的图层一起打包提交给HWC
     void SurfaceFlinger::doComposition(){
         //遍历所有的DisplayDevice然后调用doDisplayComposition函数
         for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
@@ -2192,25 +2160,181 @@ class SurfaceFlinger {
 }
 ```
 
-所以在开始合成流程之前，sf进程需要完成请求vsync信号
+忽略掉doDebugFlashRegions()用于调试的方法，我们来看剩余的5个方法各自完成了哪些事情
 
-更多关于合成内容请点击查看
+#### 1. preComposition()
 
-SF#requestNextVsync()
+第一步是预处理阶段，调用每个layer的onPreComposition()方法询问是否需要合成
 
-SF#preComposition()
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
 
-SF#rebuildLayerStacks()
+    void SurfaceFlinger::preComposition(){
+        bool needExtraInvalidate = false;
+        const LayerVector& layers(mDrawingState.layersSortedByZ);
+        const size_t count = layers.size();
+        for (size_t i=0 ; i<count ; i++) {
+            //因为在调用合成之前已经计算过脏区域，如果有图层在计算以后加入了队列，那么在预处理阶段要再次请求vsync信号
+            if (layers[i]->onPreComposition()) {
+                needExtraInvalidate = true;
+            }
+        }
+        //存在未处理的layer，执行请求下一次vsync信号，避免这段时间内的帧数据丢掉了
+        if (needExtraInvalidate) {
+            signalLayerUpdate();
+        }
+    }
 
-SF#setUpHWComposer()
+}
+```
 
-SF#doComposition()
+第一步执行完以后，根据needExtraInvalidate来确定是否有遗漏的图层，如果有就再次请求vsync信号
 
-SF#postComposition()
+#### 2. rebuildLayerStacks()
 
-mLayers对象保存着所有的图层，APP进程中申请的graphicbuffer也是驻留在SurfaceFlinger这边的进程中
+第二步：计算各个Layer的目标合成区域和先后顺序
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
+
+    void SurfaceFlinger::rebuildLayerStacks(){
+        //获取当前应用程序所有按照z-order排列的layer
+        const LayerVector& layers(mDrawingState.layersSortedByZ);
+        //遍历每一个显示屏
+        for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
+            //z-order排列的layer
+            hw->setVisibleLayersSortedByZ(layersSortedByZ);
+            //显示屏大小
+            hw->undefinedRegion.set(bounds);
+            //减去不透明区域
+            hw->undefinedRegion.subtractSelf(tr.transform(opaqueRegion));
+            //累加脏区域
+            hw->dirtyRegion.orSelf(dirtyRegion);
+        }
+    }
+
+}
+```
+
+第二步执行完以后，确定了每个图层的可见区域和跟其他图层发生重叠部分的脏区域
+
+#### 3. setUpHWComposer()
+
+第三步：更新HWComposer对象中图层对象列表以及图层属性
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
+
+    void SurfaceFlinger::setUpHWComposer() {
+        //prepareFrame方法中调用了HWComposer::prepare方法
+      	//在HWC的prepare方法中，将会确定每一个图层使用哪种合成方式
+        for (size_t displayId = 0; displayId < mDisplays.size(); ++displayId) {
+            auto& displayDevice = mDisplays[displayId];
+            if (!displayDevice->isDisplayOn()) {
+                continue;
+            }
+            status_t result = displayDevice->prepareFrame(*mHwc);
+        }
+    }
+
+}
+```
+
+第三步执行完以后，确定了每个图层的合成方式
+
+#### 4. doComposition()
+
+第四步：执行真正的合成工作
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
+
+    //第四部执行完以后，完成了两件事
+    //
+    //2. 调用postFramebuffer()将GPU合成后的图层和需要HWC合成的图层一起打包提交给HWC
+    void SurfaceFlinger::doComposition(){
+        //遍历所有的DisplayDevice然后调用doDisplayComposition函数
+        for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
+            const sp<DisplayDevice>& hw(mDisplays[dpy]);
+            if (hw->isDisplayOn()) {
+                //获得屏幕的脏区域，将脏区转换为该屏幕的座标空间
+                const Region dirtyRegion(hw->getDirtyRegion(repaintEverything));
+                //在此方法中将会调用到doComposeSurfaces()方法
+                //在doComposeSurfaces方法中，将会为被标记为不支持硬件合成的图层调用Layer#draw()方法使用OpenGL ES合成
+                doDisplayComposition(hw, dirtyRegion);
+            }
+        }
+        postFramebuffer();
+    }
+
+}
+```
+
+第四步执行完以后，完成了两件事：
+
+1. 将不支持硬件合成的图层进行GPU合成
+
+   > 在doComposeSurfaces方法中，将会为被标记为不支持硬件合成的图层调用Layer#draw()方法使用OpenGL ES合成
+
+2. 调用postFramebuffer()进行送显
+
+   >  postFramebuffer()方法会将GPU合成后的图层和需要HWC合成的图层一起打包提交给HWC
+   >
+   > HWC最终会调用DRM框架进行送显，当下一次硬件vsync信号发生时交换Framebuffer
+
+#### 5. postComposition()
+
+第五步：送显之后的善后工作
+
+在Android 7.0版本中，postComposition()方法用来执行更正DispSync模型，可以忽略
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
+
+    //第五步：更新DispSync机制，详情参见
+    void SurfaceFlinger::postComposition(){
+        //更新DispSync，详情参见DispSync模型一节
+    }
+
+}
+```
+
+> *ps：关于SF进程合成部分的源码没法调试，所以我的理解不一定对，本篇合成部分大多数结论都来自于[[这里](https://windrunnerlihuan.com/archives/page/2/)，读者朋友可以去查找其他资料学习*
+
+## 3、小结
+
+至此，APP绘制工作和SF合成工作已经全部完成，我们来画张图总结一下本章节内容
+
+![android_graphic_v3_dynamic_overview](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v3/android_graphic_v3_dynamic_overview.png)
+
+*图片来源：自己画的*
+
+一个APP完整的显示流程大致分为三个阶段
+
+1. app-请求
+
+   > APP页面元素一旦发生变化，调用invalidate()/requestLayout()方法请求下一次Vsync信号，此时sf什么都不做
+
+2. app-vsync & sf-请求
+
+   > app-vsync信号到来后，APP进程执行绘图三部曲，
+   >
+   > 绘图流程结束后，sf收到onFrameAvailable()，sf进程请求vsync
+
+3. sf-vsync
+
+   > sf-vsync信号到来，sf进程执行合成五部曲，接着将结果提交给hwc
+   >
+   > 等待下次硬件vsync信号发生，切换Framebuffer展示给用户
 
 # 四、结语
+
+
 
 作者是应用开发工程师，没有硬件经验，文中难免遗漏甚至错误
 
