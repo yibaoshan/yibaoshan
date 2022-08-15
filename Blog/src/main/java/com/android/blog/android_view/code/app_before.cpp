@@ -11,6 +11,24 @@ SurfaceFlinger {
         ->invalidate()
 }
 
+#activity生命周期与视图的关系
+
+class Activity {
+
+    //AMS-创建实例对象后回调该方法
+    void onCreate(){
+    }
+
+    //AMS-
+    void onResume(){
+    }
+
+    //AMS调用-同步给WMS
+    void onStop(){
+    }
+
+}
+
 #setView流程
 
 //三个阶段：创建APP进程、加载视图文件、将视图文件传递给为wms、sf进程的连接
@@ -377,6 +395,27 @@ class ViewRootImpl {
     //该方法调用链稍微有点长，不在此展开讨论，大致流程是这样：
     //APP进程告知
     int relayoutWindow(){
+    }
+
+}
+
+/frameworks/base/core/java/android/view/View.java
+class View {
+
+    /**
+     * This method is called by ViewGroup.drawChild() to have each child view draw itself.
+     *
+     * This is where the View specializes rendering behavior based on layer type,
+     * and hardware acceleration.
+     */
+    void draw(Canvas canvas, ViewGroup parent, long drawingTime) {
+        final boolean hardwareAcceleratedCanvas = canvas.isHardwareAccelerated();
+        /* If an attached view draws to a HW canvas, it may use its RenderNode + DisplayList.
+         *
+         * If a view is dettached, its DisplayList shouldn't exist. If the canvas isn't
+         * HW accelerated, it can't handle drawing RenderNodes.
+         */
+
     }
 
 }

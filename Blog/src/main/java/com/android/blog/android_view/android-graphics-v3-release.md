@@ -6,7 +6,7 @@ Android图形系统（三）系统篇：当我们点击“微信”这个应用�
 
 本文的目标是希望读者朋友建立一个Android图形子系统的框架，因此，文中不会包含太多的方法调用链以及代码逻辑，非Android开发工程师也可以放心食用
 
-以下，enjoy：
+> *前排提醒：全文近2万字，建议阅读时长30分钟*
 
 我是概览图
 
@@ -552,7 +552,7 @@ void SurfaceFlinger::onFirstRef()
 
 sf进程中的消息队列一共负责处理两种类型的消息：
 
-- INVALIDATE：APP图层有更新，sf进程请求VSync信号
+- INVALIDATE：处理Layer属性变化以及buffer的更新
 - REFRESH：监听到VSync信号，执行合成工作
 
 sf进程的一生，都将围绕着这两件事展开
@@ -657,24 +657,52 @@ void SurfaceFlinger::init() {
 
 #### 2. DispSync模型
 
-VSync offset能够控制偏移量的背后是DispSync模型
-
-在Android图形系统中，Vsync信号不管是硬件产生还是软件模拟，最终都交由DispSync来管理
-
-还记得init()函数中启动的第3个线程吗？
+还记得init()函数中启动的第3个线程吗？名称是：mEventControlThread
 
 ```c++
 /frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
-void SurfaceFlinger::init() {
-		//用于控制硬件vsync开关状态
-    mEventControlThread = new EventControlThread(this);
-    mEventControlThread->run("EventControl", PRIORITY_URGENT_DISPLAY);
+class SurfaceFlinger {
+
+    void SurfaceFlinger::init() {
+        //用于控制硬件vsync开关状态
+        mEventControlThread = new EventControlThread(this);
+        mEventControlThread->run("EventControl", PRIORITY_URGENT_DISPLAY);
+    }
+
+    //接收来自hwc的硬件vsync信号
+    void SurfaceFlinger::onVSyncReceived(int32_t type, nsecs_t timestamp) {
+        bool needsHwVsync = false;
+        needsHwVsync = mPrimaryDispSync.addResyncSample(timestamp);
+
+        if (needsHwVsync) {
+            enableHardwareVsync();
+        } else {
+            disableHardwareVsync(false);
+        }
+    }
+
+    //启用硬件vsync信号
+    void SurfaceFlinger::enableHardwareVsync() {
+        mPrimaryDispSync.beginResync();
+        mEventControlThread->setVsyncEnabled(true);
+    }
+
+    //关闭硬件vsync信号
+    void SurfaceFlinger::disableHardwareVsync(bool makeUnavailable) {
+       mEventControlThread->setVsyncEnabled(false);
+       mPrimaryDispSync.endResync();
+    }
+
 }
 ```
 
-mEventControlThread由DispSync持有，从函数名称来看，是用来启用和关闭硬件vsync的功能
+mEventControlThread初始化之后被DispSync持有，用来启用和关闭硬件vsync的功能
 
-DispSync控制着vsync信号的出口，除了调整偏移量外，内部还有个预测机制
+在Android图形系统中，Vsync信号不管是硬件产生还是软件模拟，最终都交由DispSync来管理
+
+VSync offset能够控制偏移量的背后就是DispSync模型
+
+DispSync控制着这个系统的vsync信号出口，除了调整偏移量外，内部还有个预测机制
 
 当接受到的硬件vsync信号量足够大时，DispSync会通过mEventControlThread关闭硬件vsync开关，自己向app进程和sf进程发送vsync信号
 
@@ -890,6 +918,10 @@ class WindowManagerService {
 ```
 
 对于WindowManagerService来说，它最重要的任务就是负责处理来自各个进程创建window的工作
+
+AMS也可以通知WMS，比如启动一个全屏的Activity时，当前的Activity显然不需要显示
+
+Activity的stop则会调用WMS通知停止绘图的[stop](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/app/Activity.java#6851)
 
 每个window都是一个视图，它们内部都包含一个surface
 
@@ -1804,7 +1836,7 @@ class ViewRootImpl {
 
 在遍历整个View树的过程中，会出现多次遍历才能确定View大小的情况，尤其对于ViewGoup来说，取决于测量模式和LayoutParams配置等
 
-View的绘制我打算另起一篇文章介绍，所以关于onMeasure()更多好玩有趣的部分，比如测试模式touchMode以及焦点的处理等，这里暂时不展开，包括之后的layout和draw也都会一笔带过
+> *View的绘制我打算另起一篇文章介绍，所以关于onMeasure()更多好玩有趣的部分，比如测试模式touchMode以及焦点的处理等，这里暂时不展开，包括之后的layout和draw也都会一笔带过*
 
 在本章节我们需要了解：measure()方法是为了计算每一个View需要的大小，measure()方法执行完成以后，各个View的大小也都确定了
 
@@ -1831,13 +1863,9 @@ class ViewRootImpl {
 
 ### View#onDraw()
 
+performDraw()方法中调用了[View#draw()](http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/View.java#17154)
+
 draw是最终绘制的阶段，在View体系中，所有的绘图操作都在draw阶段得到执行
-
-measure过程和layout过程都是发生在CPU，draw不同，如果开启硬件加速，那么draw的过程发生在GPU
-
-并且，Android 5.0版本加入了ThreadedRenderer，draw的绘制实际执行在渲染线程
-
-什么是硬件加速我们在介绍硬件驱动的时候已经聊过了，本章节简单聊聊什么是ThreadedRenderer
 
 ```java
 /frameworks/base/core/java/android/view/ViewRootImpl.java
@@ -1845,150 +1873,342 @@ class ViewRootImpl {
   
   	View mView;//保存DecorView
 
-    //绘图三部曲
-    void performTraversals(){
-        relayoutWindow();//向sf正式申请surface，在进入绘图之前为APP进程准备好一块surface内存
-        mAttachInfo.mHardwareRenderer.initialize(mSurface);
-        performDraw();
-    }
-
     void performDraw(){
         mView.draw();
-        mAttachInfo.mHardwareRenderer.draw(mView, mAttachInfo, this);
-        ThreadedRenderer->draw()
-            ->updateViewTreeDisplayList()
-            ->View.
     }
 
 }
 ```
 
-在我查阅资料的过程中，发现有一小部分文章会把渲染线程都和硬件加速联系到一起，大概意思是：
+在执行View#draw()时，逻辑会和measure、layout过程有一点点不一样
 
-开启硬件加速后，在执行draw的过程中，Android将单独启动一个渲染线程来执行绘制任务
+measure过程和layout过程都是发生在CPU，draw不同，如果开启硬件加速，那么draw的过程发生在GPU
 
-事实上，硬件加速和渲染线程之间没什么关系
+并且，Android 5.0版本加入了RenderThread，开启硬件加速后，在执行draw的过程中，Android将单独启动一个渲染线程来执行绘制任务
 
-Android系统发布之初就已经支持硬件加速，而渲染线程（Android 5.0）出现的时机甚至在黄油计划（Android 4.1）以后
+```java
+/frameworks/base/core/java/android/view/View.java
+class View {
 
+    /**
+     * This method is called by ViewGroup.drawChild() to have each child view draw itself.
+     *
+     * This is where the View specializes rendering behavior based on layer type,
+     * and hardware acceleration.
+     */
+    boolean draw(Canvas canvas, ViewGroup parent, long drawingTime) {
+        final boolean hardwareAcceleratedCanvas = canvas.isHardwareAccelerated();
+        /* If an attached view draws to a HW canvas, it may use its RenderNode + DisplayList.
+         *
+         * If a view is dettached, its DisplayList shouldn't exist. If the canvas isn't
+         * HW accelerated, it can't handle drawing RenderNodes.
+         */
 
+    }
 
-可以聊聊的方法，它涉及到两个比较重要
+}
+```
 
-硬件加速、渲染线程
+关于RenderThread资料并不多，我们可以从源码注释中得到一些的信息
 
-渲染线程是Android 5.0加入的，强制开启，和你开不开硬件加速没关系
+- 启用硬件加速
 
-开了硬件加速，你这部分的内容就是
+  > 此时每一步绘图操作都将以RenderNode的形式保存到DisplayList
+  >
+  > 然后同步给RenderThread执行实际的渲染工作
 
-一旦超过一个vsync周期，该丢帧还是会丢帧
+- 关闭硬件加速
 
-创建Surface，创建BufferQueue，SF对应创建Layer，每一个Surface创建成功后，经过一系列的方法调用，最终会被同步到sf进程，并创建Layer，就将会被把书翻到第一章第二节的，surface
+  > View将会直接调用Canvas API画图，此时的渲染工作执行在UI线程
 
-前面我们提到了eventthread，
+启用渲染线程的好处网上倒是有现成的资料，我给大家念一念：
 
-- ViewRootImpl.requestLayout()
-- ViewRootImpl.scheduleTraversals()
-- ViewRootImpl.doTraversal()
-- ViewRootImpl.performTraversals()
-
-> perfromDraw()
+> 1. 显示列表可以根据需要绘制任意多次，无需进一步与业务逻辑交互
+> 2. 可以对整个列表进行某些操作（如平移、缩放等），而无需重新发出任何绘图操作
+> 3. 一旦知道所有的绘图操作，就可以对其进行优化：例如，所有文本在可能的情况下一次绘制在一起
+> 4. 显示列表的处理可能会被分发到另一个线程中执行
 >
-> ​	->draw()
->
-> ​		->drawSoftware()	
+> 来自于：[《Understanding the RenderThread》](https://medium.com/@workingkills/understanding-the-renderthread-4dc17bcaf979)
 
-unlockCanvasAndPost()`or `eglSwapBuffers()（取决于开发者使用2D绘图API或者3D绘图API）
+我个人理解下来有两大好处：
 
-最后，如果使用2D绘图API，调用unlockCanvasAndPost()方法将graphicbuffer入列
+一是去除重复绘图指令，比如多次setText只保留最后一次
 
-如果使用3D绘图API，调用eglSwapBuffers()方法入列
+二是减轻UI线程压力，一旦绘图指令收集完成，就可以同步给渲染线程执行，这样主线程在剩余的时间片就可以用来执行其他的消息，比如我们post的消息
 
-对于大部分应用开发工程师来说，最终调用的都是unlockCanvasAndPost()方法
+不过，不管有没有开启硬件加速，绘制工作执行在哪个线程，整个渲染流程还是要控制在一个vsync信号周期内完成
 
-
-
-Google在Android 5.0加入了renderthread，更进一步优化了图形，ui线程负责onlayout/onmeausre，在ondraw阶段记录下渲染命令，接着同步给RenderThread
-
-
-
-Android 5.0以后的View体系中加入了RenderThread，也就是渲染线程
-
-支持硬件加速的情况下，渲染过程和UI线程分离了，UI线程负责将onDraw中的绘制命令（被称为RenderNode）收集到DisplayList，接着调用syncAndDrawFrame()方法将命令同步给RenderThread，随后执行渲染任务
-
-引入渲染线程的好处有两个：
-
-一是可以防止重复绘制，比如
-
-二是留给UI线程更多的时间来处理messagequeue中的消息，
+否则，该丢帧还是会丢帧
 
 ### 特殊情况：SurfaceView
 
-SurfaceView作为DecorView中的一员，和普通View一样能够接受到input事件、vsync信号等
-
-不过SurfaceView并不会执行View的onDraw的一套方法，而是自己在内部使用canvas进行2D开发或者OpenGL ES进行3D开发
-
 在游戏开发或其他需要展示3D图形时，多数情况是使用SurfaceView来绘制
 
-SurfaceView和普通View最大的区别是拥有“自主上帧”的权利，什么意思呢？
+SurfaceView作为DecorView中的一员，和普通View一样能够接受到input事件（覆写onTouchEvent方法）
 
-我们都知道SurfaceView拥有单独的一块Surface，
+它和普通View最大的区别是拥有“自主上帧”的权利
 
-在有绘图需求时，我们可以调用lockCanvas()/eglCreateWindowSurface()获取一块surface
+什么“自主上帧”呢？
 
-绘制完成以后，调用unlockCanvasAndPost()/eglSwapBuffers()将graphicbuffer入列，提交给sf进程，等待下一次vsync信号到来
+我们都知道SurfaceView拥有单独的一块Surface，无论是使用Canvas进行2D开发还是OpenGL ES进行3D开发，最终的绘制结果都是保存在这块单独的Surface上
 
-我们可以选择使用Canvas在这块单独的Surface进行绘制，
+绘制完成以后，调用unlockCanvasAndPost()/eglSwapBuffers()将GraphicBuffer入列，提交给sf进程等待合成送显
 
-使用他们的好处是可以，什么意思呢
+SurfaceView让应用无需等待vsync信号的到来便可以执行绘制工作
 
-2D场景使用canvas，3D场景使用egl
+## 2、SurfaceFlinger进程
 
-自行调用eglSwapBuffers进行入列
+无论应用使用哪种API开发，在绘制流程结束后，APP作为图层的生产者会调用BufferQueue#queueBuffer()方法将GraphicBuffer入列
 
-比如王者荣耀早期最高只有30帧，也就是说王者荣耀每一帧画面绘制时间需要2个vsync周期，之后才会提交给sf进行合成
+一旦有新的图层加入队列，意味着作为图层消费者的SF进程可以开始工作了
 
-gl是拥有egl环境的surfaceview，同样适用于
+### sf进程请求VSync
 
-texture暂时没研究，不敢妄下结论
+由于vsync是注册制，因此，sf进程在工作之前必须先请求vsync信号
 
-同理，适用于glsurfaceview拥有自己的surface的视图组件
+```c++
+/frameworks/native/services/surfaceflinger/Layer.cpp
+class Layer {
 
-注意，无论如何，因为sf进程接受vsync的指导的原因，APP的输出帧率永远小于等于屏幕的刷新率，APP进程提交的画面总是在下一次vsync信号到来时才能被输送到屏幕显示
+    //当Surface发生变化以后，最终会调用onFrameAvailable()方法通知sf，让sf请求下一次vsync
+    //这里需要注意，vsync信号是EventThread来分发的，APP和sf各自管理自己是否需要请求下一次vsync信号
+    void Layer::onFrameAvailable() {
+        mFlinger->signalLayerUpdate();
+    }
+}
 
-不管使用View#onDraw()，还是使用调用unlockCanvasAndPost()/eglSwapBuffers()自主上帧，它们最终都是将一个渲染完成的图层（GraphicBuffer）添加到BufferQueue队列
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
 
-入列以后，接下来就是SF的合成工作
+    //queue内部调用了请求下一次vsync
+    void SurfaceFlinger::signalLayerUpdate() {
+        mEventQueue.invalidate();
+    }
 
-## 2、SF进程：合成五部曲
+}
+
+/frameworks/native/services/surfaceflinger/MessageQueue.cpp
+class MessageQueue {
+
+    //最终在MessageQueue类中执行了请求vsync信号的操作
+    void MessageQueue::invalidate() {
+        mEvents->requestNextVsync();
+    }
+}
+```
+
+当APP端的Surface发生变化以后，Layer的onFrameAvailable()方法会被调用，经过层层转发，最终由requestNextVsync()执行vsync信号的请求
+
+Layer之前好像没有出现过，简单介绍一下
+
+APP进程中的一个Surface对象，对应SF进程当中的一个layer对象，它俩共享一个bufferqueue
+
+surface作为图层的生产者，封装了出列入列的操作
+
+layer作为图层的消费者，封装了获取渲染图层和释放图层的操作
+
+### sf进程处理vsync
+
+sf进程在MessageQueue中执行了请求vsync信号的动作，所以，vsync信号到来时的处理同样也是在MessageQueue类中
+
+```c++
+/frameworks/native/services/surfaceflinger/MessageQueue.cpp
+class MessageQueue {
+
+    //接受来自DisplayEventReceiver的vsync信号
+    int MessageQueue::eventReceiver(int /*fd*/, int /*events*/) {
+        mHandler->dispatchInvalidate();
+        return 1;
+    }
+
+    //收到vsync信号后，向sf进程中发送类型为"INVALIDATE"的消息
+    void MessageQueue::Handler::dispatchInvalidate() {
+        mQueue.mLooper->sendMessage(this, Message(MessageQueue::INVALIDATE));
+    }
+
+    //外部接口，用于向sf发送合成消息
+    void MessageQueue::refresh() {
+        mHandler->dispatchRefresh();
+    }
+
+    //给sf发送类型为REFRESH的消息，sf收到以后将会执行合成操作
+    void MessageQueue::Handler::dispatchRefresh() {
+        mQueue.mLooper->sendMessage(this, Message(MessageQueue::REFRESH));
+    }
+
+}
+
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
+
+    void SurfaceFlinger::onMessageReceived(){
+
+        //接收到vsync信号后，判断图层是否需要合成
+        case MessageQueue::INVALIDATE: {
+            bool refreshNeeded = false;
+            refreshNeeded = handleMessageTransaction();
+            refreshNeeded |= handleMessageInvalidate();
+            //如果需要合成，通知MessageQueue发送一条REFRESH类型的消息
+            if(refreshNeeded) signalRefresh();
+        }
+        //将会执行最终的合成操作
+        case MessageQueue::REFRESH: {
+            handleMessageRefresh();//合成并输出到屏幕
+        }
+    }
+
+    //调用mEventQueue给sf自己发送一条Refresh类型的消息
+    void SurfaceFlinger::signalRefresh() {
+        mEventQueue.refresh();
+    }
+
+}
+```
+
+sf进程对vsync信号的处理稍微有点点绕，我们来捋一下调用链：
+
+MessageQueue#eventReceiver()收到vsync信号后发送INVALIDATE消息给sf进程，SurfaceFlinger##onMessageReceived()方法被触发
+
+在case为INVALIDATE的方法中，调用handleMessageTransaction()、handleMessageInvalidate()检查是否需要执行下一步合成
+
+如果需要执行合成，最终会执行到SurfaceFlinger#handleMessageRefresh()方法
+
+### sf进程：合成五部曲
+
+一起来看看handleMessageRefresh()方法中都做了哪些事情：
+
+```c++
+/frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp
+class SurfaceFlinger {
+
+    void SurfaceFlinger::onMessageReceived(){
+        case MessageQueue::INVALIDATE: {
+            //接收到vsync信号后
+            handleMessageTransaction();
+            //主要调用handlePageFlip，从各Layer的BufferQueue拿到最新的缓冲数据，并根据内容更新脏区域
+            handleMessageInvalidate();
+            signalRefresh();//会触发handleMessageRefresh
+        }
+        case MessageQueue::REFRESH: {
+            handleMessageRefresh();//合成并输出到屏幕
+        }
+    }
+
+    //queue内部调用了请求下一次vsync
+    void SurfaceFlinger::signalLayerUpdate() {
+        mEventQueue.invalidate();
+    }
+
+    //合成五部曲
+    void SurfaceFlinger::handleMessageRefresh(){
+        //合成之前的与处理，检查是否有新的图层变化，如果有，执行请求下一次vsync信号
+        preComposition();
+        //若Layer的位置/先后顺序/可见性发生变化，重新计算Layer的目标合成区域和先后顺序
+        rebuildLayerStacks();
+        //调hwc的prepare方法询问是否支持硬件合成
+        setUpHWComposer();
+        //当打开开发者选项中的“显示Surface刷新”时，额外为产生变化的图层绘制闪烁动画
+        doDebugFlashRegions();
+        //执行合成主体，对3D合成而言，调opengl的drawcall，对硬件合成而言，调hwc的set方法
+        doComposition();
+        //调Layer的onPostComposition方法，主要用于调试，可以忽略
+        postComposition(refreshStartTime);
+    }
+
+    //第一步：预处理阶段，调用每个layer的onPreComposition()方法询问是否需要合成
+    //第一步执行完以后，确定是否有遗漏的图层，如果有就再次请求vsync信号
+    void SurfaceFlinger::preComposition(){
+        bool needExtraInvalidate = false;
+        const LayerVector& layers(mDrawingState.layersSortedByZ);
+        const size_t count = layers.size();
+        for (size_t i=0 ; i<count ; i++) {
+            //因为在调用合成之前已经计算过脏区域，如果有图层在计算以后加入了队列，那么在预处理阶段要再次请求vsync信号
+            if (layers[i]->onPreComposition()) {
+                needExtraInvalidate = true;
+            }
+        }
+        //存在未处理的layer，执行请求下一次vsync信号，避免这段时间内的帧数据丢掉了
+        if (needExtraInvalidate) {
+            signalLayerUpdate();
+        }
+    }
+
+    //第二步： 若Layer的位置/先后顺序/可见性发生变化，重新计算Layer的目标合成区域和先后顺序
+    //第二步执行完以后，确定了每个图层的可见区域和跟其他图层发生重叠部分的脏区域
+    void SurfaceFlinger::rebuildLayerStacks(){
+        //获取当前应用程序所有按照z-order排列的layer
+        const LayerVector& layers(mDrawingState.layersSortedByZ);
+        //遍历每一个显示屏
+        for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
+            //z-order排列的layer
+            hw->setVisibleLayersSortedByZ(layersSortedByZ);
+            //显示屏大小
+            hw->undefinedRegion.set(bounds);
+            //减去不透明区域
+            hw->undefinedRegion.subtractSelf(tr.transform(opaqueRegion));
+            //累加脏区域
+            hw->dirtyRegion.orSelf(dirtyRegion);
+        }
+    }
+
+    //第三步：更新HWComposer对象中图层对象列表以及图层属性
+    //第三步执行完以后，确定了每个图层的合成方式
+    void SurfaceFlinger::setUpHWComposer() {
+        //prepareFrame方法中调用了HWComposer::prepare方法
+        for (size_t displayId = 0; displayId < mDisplays.size(); ++displayId) {
+            auto& displayDevice = mDisplays[displayId];
+            if (!displayDevice->isDisplayOn()) {
+                continue;
+            }
+            status_t result = displayDevice->prepareFrame(*mHwc);
+        }
+    }
+
+    //第四步：执行真正的合成工作
+    //第四部执行完以后，完成了两件事
+    //1. 将不支持硬件合成的图层进行GPU合成
+    //2. 调用postFramebuffer()将GPU合成后的图层和需要HWC合成的图层一起打包提交给HWC
+    void SurfaceFlinger::doComposition(){
+        //遍历所有的DisplayDevice然后调用doDisplayComposition函数
+        for (size_t dpy=0 ; dpy<mDisplays.size() ; dpy++) {
+            const sp<DisplayDevice>& hw(mDisplays[dpy]);
+            if (hw->isDisplayOn()) {
+                //获得屏幕的脏区域，将脏区转换为该屏幕的座标空间
+                const Region dirtyRegion(hw->getDirtyRegion(repaintEverything));
+                //在此方法中将会调用到doComposeSurfaces()方法
+                //在doComposeSurfaces方法中，将会为被标记为不支持硬件合成的图层调用Layer#draw()方法使用OpenGL ES合成
+                doDisplayComposition(hw, dirtyRegion);
+            }
+        }
+        postFramebuffer();
+    }
+
+
+    //第五步：更新DispSync机制，详情参见
+    void SurfaceFlinger::postComposition(){
+        //更新DispSync机制，详情参见
+    }
+
+}
+```
+
+所以在开始合成流程之前，sf进程需要完成请求vsync信号
+
+更多关于合成内容请点击查看
+
+SF#requestNextVsync()
+
+SF#preComposition()
+
+SF#rebuildLayerStacks()
+
+SF#setUpHWComposer()
+
+SF#doComposition()
+
+SF#postComposition()
 
 mLayers对象保存着所有的图层，APP进程中申请的graphicbuffer也是驻留在SurfaceFlinger这边的进程中
-
-sf负责合成工作，大致的流程是询问
-
-关键是两个回调，具体细节这里就不展开
-
-### invalidate
-
-### vsyncCallback
-
-**MessageQueue::invalidate**
-
-当layer有变化时，messagequeue会收到invalidate的消息
-
-在invalidate回调中，sf回去请求请求一次vsync callback回调
-
-没有layer请求，就永远不会有vsync回调
-
-而invalidate回调，可能是app进程画面有更新，要去合成
-
-也可能画面没更新，虚拟屏幕或者录屏软件在发消息
-
-**MessageQueue::vsyncCallback**
-
-走合成流程
-
-
 
 # 四、结语
 
@@ -2033,8 +2253,6 @@ WMS管理的窗口类型可以分为三种，应用窗口、子窗口（需要�
 Activity/Dialog/Toast/Window之间的区别？
 
 Surface/Layer/GraphicBuffer/ButterQueue之间的联系？
-
-
 
 总结一下View的显示流程，分三步走：
 
@@ -2118,9 +2336,11 @@ Android图形子系统是最复杂的子系统，没有之一
 
 内容
 
+Android图形子系统是最复杂的子系统之一，感谢参考资料中，本篇文章才能诞生
+
 站在前人的肩膀上，结合着自己的理解，聊一聊对View的显示流程，不当之处多多指正
 
-希望本文能够抛砖引玉，为屏幕前的读者朋友提供一点点帮助
+希望本文能够抛砖引玉，为各位读者朋友提供一点点帮助
 
 全文完
 
