@@ -23,8 +23,14 @@ class Activity {
     void onResume(){
     }
 
+    void onPause(){
+    }
+
     //AMS调用-同步给WMS
     void onStop(){
+    }
+
+    void onDestroy(){
     }
 
 }
@@ -95,6 +101,13 @@ hw-vsync
 hw-vsync信号到来，PageFlip，framebuffer发生切换，展示给用户
 
 **/
+
+
+#结语
+
+/*
+
+*/
 
 /frameworks/base/core/java/android/app/ActivityThread.java
 class ActivityThread {
