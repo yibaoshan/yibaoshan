@@ -7,7 +7,9 @@
 3. ActivityTask
 4. 启动流程：冷启动、热启动、跨进程启动
 
-## 2、Window/View/Animation
+## 2、Context
+
+## 2、Window
 
 1. 事件分发与拦截
 2. View#post()
@@ -21,6 +23,8 @@
 
 1. LiveData
 2. ViewModel
+3. Fragment
+4. Lifecycle
 
 ## 1、RecyclerView
 
@@ -46,9 +50,12 @@
 
 # 存储系列
 
-sp
+##  1、SharedPreferences
 
-mmkv
+1. 优缺点
+2. 跨进程同步
+
+## 2、mmkv
 
 # 元编程系列
 
@@ -60,6 +67,7 @@ mmkv
 4. ButterKnife
 5. ARoute
 6. Retrofit
+7. Xposed
 
 ## 
 
