@@ -33,8 +33,8 @@ public class Medium_L3_无重复字符的最长子串 {
 
     @Test
     public void main() {
-        String s = "abcabcbb";
-        System.out.println(lengthOfLongestSubstring2(s));
+        String s = "pwwkew";
+        System.out.println(lengthOfLongestSubstring4(s));
     }
 
     /**
@@ -111,6 +111,23 @@ public class Medium_L3_无重复字符的最长子串 {
             ans = Math.max(ans, rk - i + 1);
         }
         return ans;
+    }
+
+
+    public int lengthOfLongestSubstring4(String s) {
+        if (s == null || s.length() == 0) return 0;
+        int res = 1;
+        StringBuilder sb = new StringBuilder(Character.toString(s.charAt(0)));
+        System.err.println(sb.toString());
+        for (int i = 1; i < s.length(); i++) {
+            String str = Character.toString(s.charAt(i));
+            int index = sb.indexOf(str);
+            sb.delete(0, index > -1 ? index + 1 : 0);
+            sb.append(str);
+            res = Math.max(res, sb.length());
+            System.out.println(sb.toString());
+        }
+        return res;
     }
 
 }
