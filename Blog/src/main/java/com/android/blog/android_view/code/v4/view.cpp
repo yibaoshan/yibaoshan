@@ -34,6 +34,7 @@ margin和padding
 
 */
 
+//View/ViewGroup绘制的入口，从DecorView开始向下调用
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
@@ -71,10 +72,12 @@ class ViewRootImpl {
 class View {
 
     //http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/View.java#19820
+    //默认什么都不做的情况下，measure方法中会直接调用onMeasure()方法进行测量
     void measure(int widthMeasureSpec, int heightMeasureSpec) {
         onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
+    //onMeasure()方法中更直接，根据LayoutParams获取默认的MeasureSpec，接着设置View的大小
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
     }
@@ -110,33 +113,11 @@ class View {
         return result;
     }
 
-    int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) {
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-        int result;
-        switch (specMode) {
-            case MeasureSpec.AT_MOST:
-                if (specSize < size) {
-                    result = specSize | MEASURED_STATE_TOO_SMALL;
-                } else {
-                    result = size;
-                }
-                break;
-            case MeasureSpec.EXACTLY:
-                result = specSize;
-                break;
-            case MeasureSpec.UNSPECIFIED:
-            default:
-                result = size;
-        }
-        return result | (childMeasuredState & MEASURED_STATE_MASK);
-    }
-
     static class MeasureSpec {
 
-        static int UNSPECIFIED;
-        static int EXACTLY;
-        static int AT_MOST;
+        static int UNSPECIFIED;//未指定，不限制大小，
+        static int EXACTLY;//精确模式，match_parent或者指定尺寸可用
+        static int AT_MOST;//最大模式，warp_content可用
 
         public static int getMode(int measureSpec) {
             return (measureSpec & MODE_MASK);

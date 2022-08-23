@@ -4,7 +4,8 @@
 >    3. 自定义View/ViewGroup，虽然写过不少自定义View，还没有从0到1的写过ViewGroup，很遗憾。目前的ViewGroup几个布局完全够用
 >    4. 自定义View还是很酷的，记得刚学会自定义View那会，感觉天下都是我的，恨不得整个页面的控件都用自定义一遍，比较深的一次是当时公司在做区块链钱包
 >    5. 当时有一个助记词的需求，刚开完ui评审会我就自告奋勇的和tl接下了这个页面，然后
->    5. 年龄上来了以后，想要一个，github搜，点击下载库，找到控件类，删作者名称，改一改添加到项目，完事
+>    6. 年龄上来了以后，想要一个，github搜，点击下载库，找到控件类，删作者名称，改一改添加到项目，完事
+>    7. 在《图形系统三》这篇文章中详细介绍了View绘制的执行入口，我们来复习一遍：
 > 2. View绘制三部曲，说明自定ViewGroup场景较少，所以measure/layout过程我们就以常用的几个布局来介绍他们的原理和区别，
 >    1. measure，多次调用的意义
 >    2. layout，
@@ -12,6 +13,10 @@
 > 3. Window与View，介绍在开发中，我们常用的两种方式，二是Activity，Activity本身也是包含了Window
 >    1. Window添加View，注意事项，Window类型
 >    2. Activity本身包含Window，这个Window包含了一个DecorView
+
+Android图形系统（四）应用篇：描述下自定义View/ViewGroup的过程？
+
+
 
 开发方式，在XML文件中使用控件
 
@@ -50,6 +55,28 @@ View体系是Google为Android开发者准备的一套描述视图的API
 View绘制三部曲背后的原理
 
 #### 1、measure
+
+- View的大小是由MeasureSpec和LayoutParams决定的
+- MeasureSpec是父布局传递过来的，目的是限制子View的大小，LayoutParams是View/ViewGroup自身属性
+- measure阶段要把View和ViewGroup分开来看，它俩在measure完成的事情不同
+
+##### 
+
+##### MeasureSpec
+
+- 在此模式下，如果你自己写的自定义View/ViewGroup没有重写onMeasure()方法来确定View大小，并且LayoutParams不是指定的值（math或者warp），那么你将不会在屏幕上看到它，高度为0
+
+##### LayoutParams
+
+##### View#measure()
+
+默认情况
+
+在父视图MeasureSpec没有确定的情况下，除了
+
+如何重写measure()
+
+##### ViewGroup#measure()
 
 View 的工作原理中最重要的就是测量、布局、绘制三大过程，而其中测量是最复杂的
 
@@ -104,5 +131,4 @@ padding和margin的影响
 MeasureSpec决定什么？
 
 MATCH_PARENT和WRAP_CONTENT会如何处理？
-
 

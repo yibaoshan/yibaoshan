@@ -3,14 +3,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <com.android.blog.android_view.demo.v4.UnSpecifiedLinearLayout
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.android.blog.android_view.demo.v4.UnSpecifiedLinearLayout
             android:layout_width="match_parent"
             android:orientation="vertical"
             android:gravity="center"
             android:background="@color/purple_700"
             android:layout_height="match_parent">
 
-        <TextView
+            <TextView
                 android:layout_width="match_parent"
                 android:text="马总好"
                 android:textSize="38sp"
@@ -18,6 +22,13 @@
                 android:textColor="@color/white"
                 android:layout_height="match_parent" />
 
-    </com.android.blog.android_view.demo.v4.UnSpecifiedLinearLayout>
+            <com.android.blog.android_view.demo.v4.HelpWordView
+                android:id="@+id/word_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.android.blog.android_view.demo.v4.UnSpecifiedLinearLayout>
+
+    </RelativeLayout>
 
 </ScrollView>
