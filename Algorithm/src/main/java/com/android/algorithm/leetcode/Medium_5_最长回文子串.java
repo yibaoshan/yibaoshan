@@ -38,6 +38,39 @@ public class Medium_5_最长回文子串 {
         System.out.println(isPalindrome(new char[]{1, 0, 1, 1}));
     }
 
+    /*
+最长回文子串，经典题目，直接暴力遍历求解，也可以用hash，思路如下：
+以字符串s = "babad"举例，先写个方法判断是否是回文字符串
+1. 从最长的字符串长度开始遍历，length = 5时字符串为"babad"，不是回文
+2. length = 4时，字符串有两个，分别判断"baba"、"abad"，都不是回文
+3. length = 3时，有三种字符串组合，第一个是"bab"，哎，找到了
+由于遍历长度是递减的，所以一旦找到回文子串，那必然是最长的回文子串
+*/
+    public String longestPalindrome3(String s) {
+        if(s==null||s.length()<2)return s;
+        int length = s.length();
+        while(length>=0){
+            for(int i = 0;i <s.length();i++){
+                if(i+length>=s.length())break;
+                if(isPalindrome(s,i,i+length))return s.substring(i,i+length+1);
+            }
+            length--;
+        }
+        return null;
+    }
+
+    //判定是否是回文字符串，为了避免浪费内存空间，要求传入下标在字符串内部操作
+    public boolean isPalindrome(String s,int start,int end){
+        //System.out.println(s.substring(start,end+1));
+        while(start<=end){
+            if(s.charAt(start)!=s.charAt(end))return false;
+            end--;
+            start++;
+        }
+        return true;
+    }
+
+
     /**
      * 滑动窗口思想：从左到右按步进长度依次遍历，步进长度从字符串长度开始然后递减
      * String s = "abcdc"

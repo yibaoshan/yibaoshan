@@ -1,4 +1,4 @@
-package com.android.blog.android_view.demo
+package com.android.blog.android_view.demo.v1
 
 import android.content.Intent
 import android.os.Bundle

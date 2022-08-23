@@ -9,13 +9,15 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/Theme.Blackboard">
 
-        <activity android:name=".android_view.demo.FPSTestActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".android_view.demo.v4.ScrollViewUnSpecifiedTestActivity" />
 
     </application>
 

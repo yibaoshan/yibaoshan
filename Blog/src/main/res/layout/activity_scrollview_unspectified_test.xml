@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <com.android.blog.android_view.demo.v4.UnSpecifiedLinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@color/purple_700"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:text="马总好"
+                android:textSize="38sp"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:layout_height="match_parent" />
+
+    </com.android.blog.android_view.demo.v4.UnSpecifiedLinearLayout>
+
+</ScrollView>

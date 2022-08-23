@@ -20,6 +20,20 @@ margin和padding
 
 */
 
+/**
+
+测量是最复杂的一步，需要处理warp_content、match_content、padding、margin等各种情况
+
+测量分为两种情况
+
+在自定义View时，如果
+
+我们知道DecorView最终是通过调用onMeasure()方法来完成测量工作，
+
+对于自定义ViewGroup来说，另一个需要关心的参数是LayoutParams
+
+*/
+
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
@@ -206,7 +220,6 @@ class ViewGroup {
             }
             break;
         }
-        //noinspection ResourceType
         return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
     }
 
