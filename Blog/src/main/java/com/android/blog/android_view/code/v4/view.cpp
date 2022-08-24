@@ -34,6 +34,14 @@ margin和padding
 
 */
 
+/**
+
+首先我们要明确一点，由于我们的视图是绑定在DecorView下的FrameLayout
+
+所以传递到我们的根布局时，测量模式为
+
+*/
+
 //View/ViewGroup绘制的入口，从DecorView开始向下调用
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
@@ -73,6 +81,9 @@ class View {
 
     //http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/View.java#19820
     //默认什么都不做的情况下，measure方法中会直接调用onMeasure()方法进行测量
+    //widthMeasureSpec和heightMeasureSpec是父视图传递过来的
+    //依据是父视图自身的spec和子View的LayoutParams
+    //所以说，如果不考虑父视图的spec的情况下，这两个参数就是由自身的LayoutParams属性决定的
     void measure(int widthMeasureSpec, int heightMeasureSpec) {
         onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
@@ -80,6 +91,10 @@ class View {
     //onMeasure()方法中更直接，根据LayoutParams获取默认的MeasureSpec，接着设置View的大小
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
+    }
+
+    protected int getSuggestedMinimumHeight() {
+        return (mBackground == null) ? mMinHeight : max(mMinHeight, mBackground.getMinimumHeight());
     }
 
     //记录测量的宽高
@@ -133,76 +148,6 @@ class View {
 
 /frameworks/base/core/java/android/view/ViewGroup.java
 class ViewGroup {
-
-    void measureChildWithMargins(View child,int parentWidthMeasureSpec,int parentHeightMeasureSpec) {
-        //确认子view的MeasureSpec
-        int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec);
-        int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec);
-        //执行子view测量过程
-        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
-    }
-
-    int getChildMeasureSpec(int spec, int padding, int childDimension) {
-        int specMode = MeasureSpec.getMode(spec);
-        int specSize = MeasureSpec.getSize(spec);
-        switch (specMode) {
-        // Parent has imposed an exact size on us
-        case MeasureSpec.EXACTLY:
-            if (childDimension >= 0) {
-                resultSize = childDimension;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.MATCH_PARENT) {
-                // Child wants to be our size. So be it.
-                resultSize = size;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.WRAP_CONTENT) {
-                // Child wants to determine its own size. It can't be
-                // bigger than us.
-                resultSize = size;
-                resultMode = MeasureSpec.AT_MOST;
-            }
-            break;
-
-        // Parent has imposed a maximum size on us
-        case MeasureSpec.AT_MOST:
-            if (childDimension >= 0) {
-                // Child wants a specific size... so be it
-                resultSize = childDimension;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.MATCH_PARENT) {
-                // Child wants to be our size, but our size is not fixed.
-                // Constrain child to not be bigger than us.
-                resultSize = size;
-                resultMode = MeasureSpec.AT_MOST;
-            } else if (childDimension == LayoutParams.WRAP_CONTENT) {
-                // Child wants to determine its own size. It can't be
-                // bigger than us.
-                resultSize = size;
-                resultMode = MeasureSpec.AT_MOST;
-            }
-            break;
-
-        // Parent asked to see how big we want to be
-        case MeasureSpec.UNSPECIFIED:
-            if (childDimension >= 0) {
-                // Child wants a specific size... let him have it
-                resultSize = childDimension;
-                resultMode = MeasureSpec.EXACTLY;
-            } else if (childDimension == LayoutParams.MATCH_PARENT) {
-                // Child wants to be our size... find out how big it should
-                // be
-                resultSize = View.sUseZeroUnspecifiedMeasureSpec ? 0 : size;
-                resultMode = MeasureSpec.UNSPECIFIED;
-            } else if (childDimension == LayoutParams.WRAP_CONTENT) {
-                // Child wants to determine its own size.... find out how
-                // big it should be
-                resultSize = View.sUseZeroUnspecifiedMeasureSpec ? 0 : size;
-                resultMode = MeasureSpec.UNSPECIFIED;
-            }
-            break;
-        }
-        return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
-    }
 
     class LayoutParams {
         static int MATCH_PARENT = -1;

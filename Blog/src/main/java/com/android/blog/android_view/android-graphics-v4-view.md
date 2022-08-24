@@ -60,15 +60,22 @@ View绘制三部曲背后的原理
 - MeasureSpec是父布局传递过来的，目的是限制子View的大小，LayoutParams是View/ViewGroup自身属性
 - measure阶段要把View和ViewGroup分开来看，它俩在measure完成的事情不同
 
-##### 
 
-##### MeasureSpec
+##### 什么是MeasureSpec
 
 - 在此模式下，如果你自己写的自定义View/ViewGroup没有重写onMeasure()方法来确定View大小，并且LayoutParams不是指定的值（math或者warp），那么你将不会在屏幕上看到它，高度为0
 
-##### LayoutParams
+##### 什么是LayoutParams
+
+比较重要的是MarginLayoutParams，我们常用的LinearLayout、RelativeLayout都是继承于MarginLayoutParams
+
+这里有同学可能要问了：为什么没有PaddingLayoutParams呢？
+
+因为padding是View的属性呀，小傻瓜
 
 ##### View#measure()
+
+View的任务是在此阶段计算自己的大小
 
 默认情况
 
@@ -76,7 +83,19 @@ View绘制三部曲背后的原理
 
 如何重写measure()
 
-##### ViewGroup#measure()
+如果要重写的话内部的逻辑是业务逻辑，比如助记词那篇文章中就是计算每行的高度
+
+##### ViewGroup#measure()，问题：如何根据子view计算自己的大小？？？
+
+ViewGroup的任务是先调用child.measure计算子View的大小
+
+
+
+ViewGroup在测量阶段只需要考虑两种情况，如果LayoutParams宽高都为match_parent
+
+根据自身的LayoutParams属性，来计算自身的高度
+
+ScrollView就重写了measureChildWithMargins方法，然后将子视图的MeasureSpec改成了MeasureSpec.UNSPECIFIED
 
 View 的工作原理中最重要的就是测量、布局、绘制三大过程，而其中测量是最复杂的
 
