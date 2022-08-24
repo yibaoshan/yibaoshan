@@ -56,7 +56,25 @@ View绘制三部曲背后的原理
 
 #### 1、measure
 
-- View的大小是由MeasureSpec和LayoutParams决定的
+- 每个View和ViewGroup都有MeasureSpec和LayoutParams两个参数，决定了View/ViewGroup的大小
+- 每个View/ViewGroup的MeasureSpec属性大多数参考父视图的MeasureSpec，当然，你可以更改自身的MeasureSpec属性
+- 每个View/ViewGroup的LayoutParams属性通常是由开发者/业务决定的，基本上都继承自MarginLayoutParams
+- 每个View在measure阶段要做的事情就是合理的计算自身所需的宽和高，不重写onMeasure()方法也行，根据父视图的MeasureSpec，将会有以下几种组合
+  - 不固定大小，match_parent或者warp_content
+    - 父视图为Exactly或者AT_Most时，当前View宽高为父视图宽高
+    - 父视图为UPSPECIFIED未确定时，当前View宽高为0，在页面中看不见它
+
+  - 确定大小，比如写死layout_width为200dp，和上面一样的
+    - 父视图为Exactly或者AT_Most时，当前View宽高为父视图宽高
+    - 父视图为UPSPECIFIED未确定时，当前View宽高为0，在页面中看不见它
+
+- 每个ViewGroup在measure阶段必须要重写onMeasure()方法，否则，在页面中看不到它
+  - 重写onMeasure()，调用measureChild()或者measureChildWithMargins()方法让子View自己完成测量
+  - 所有子View测量工作完成后，我们可以获取每个子View的宽高信息，相加得到自身宽高
+
+- 每个View/ViewGroup在onMeasure()结束以后，都会调用setMeasuredDimension()方法来保存测量的宽高值
+- View的大小是由父视图的MeasureSpec和自身的LayoutParams参数决定的
+- ViewGroup的大小同样是由父视图的MeasureSpec和自身的LayoutParams决定的
 - MeasureSpec是父布局传递过来的，目的是限制子View的大小，LayoutParams是View/ViewGroup自身属性
 - measure阶段要把View和ViewGroup分开来看，它俩在measure完成的事情不同
 
@@ -88,8 +106,6 @@ View的任务是在此阶段计算自己的大小
 ##### ViewGroup#measure()，问题：如何根据子view计算自己的大小？？？
 
 ViewGroup的任务是先调用child.measure计算子View的大小
-
-
 
 ViewGroup在测量阶段只需要考虑两种情况，如果LayoutParams宽高都为match_parent
 
