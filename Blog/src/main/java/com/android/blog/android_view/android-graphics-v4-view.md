@@ -54,6 +54,12 @@ View体系是Google为Android开发者准备的一套描述视图的API
 
 View绘制三部曲背后的原理
 
+
+#### invalidate会触发其他view的重绘吗？
+
+#### View绘制过程用的是同一个canvas吗？
+
+
 #### 1、measure
 
 - 每个View和ViewGroup都有MeasureSpec和LayoutParams两个参数，决定了View/ViewGroup的大小
@@ -81,9 +87,25 @@ View绘制三部曲背后的原理
 
 ##### 什么是MeasureSpec
 
+- UPSPECIFIED : 父容器对于子容器没有任何限制,子容器想要多大就多大，你爱多大就多大
+- 父控件对子控件不加任何束缚，子元素可以得到任意想要的大小，这种MeasureSpec一般是由父控件自身的特性决定的
+- 比如ScrollView，它的子View可以随意设置大小，无论多高，都能滚动显示，这个时候，size一般就没什么意义
+- 这个模式用于可以滚动的容器，比如如果你的父视图是ScrollView或者RecyclerView，你在自定义View设置的是wrap_content或者match_parent
+- 本来应该收到的是AT_MOST，却受到了UNSPECIFIED
+- EXACTLY: 精确模式，View设置了确切的大小，或者设置了match，对其父视图，总之大小都是确定的，对应 MATCH_PARENT 和确定的值
+- AT_MOST：子容器可以是声明大小内的任意大小，当View收到此模式时，意味着你可以自己在父视图的这块小天地随意实战，通常情况下，你在xml指定宽高为WRAP_CONTENT，在measure阶段，将会收到AT_MOST
+
 - 在此模式下，如果你自己写的自定义View/ViewGroup没有重写onMeasure()方法来确定View大小，并且LayoutParams不是指定的值（math或者warp），那么你将不会在屏幕上看到它，高度为0
 
+什么时候不会收到AT_MOST
+
 ##### 什么是LayoutParams
+
+LinearLayout继承自MarginLayoutParams，新增了gravity和权重weight属性
+
+RelativeLayout继承自MarginLayoutParams，新增了above、below、alignxxx等一系列属性
+
+在自定义ViewGroup时，如果对布局有要求，在layout阶段同样也会使用到
 
 比较重要的是MarginLayoutParams，我们常用的LinearLayout、RelativeLayout都是继承于MarginLayoutParams
 
@@ -103,7 +125,18 @@ View的任务是在此阶段计算自己的大小
 
 如果要重写的话内部的逻辑是业务逻辑，比如助记词那篇文章中就是计算每行的高度
 
-##### ViewGroup#measure()，问题：如何根据子view计算自己的大小？？？
+##### ViewGroup#measure()
+
+
+伪代码：
+
+
+onMeasure(){  
+    for(int i = 0;i<count;i++){
+        child.measure();
+        child.margin();
+    }
+}
 
 ViewGroup的任务是先调用child.measure计算子View的大小
 
@@ -145,12 +178,6 @@ ViewRootImpl#performTraversals()：确定DecorView的MeasureSpec
 
 所有的View都会执行measure过程吗？
 
-- UPSPECIFIED : 父容器对于子容器没有任何限制,子容器想要多大就多大，你爱多大就多大
-- 父控件对子控件不加任何束缚，子元素可以得到任意想要的大小，这种MeasureSpec一般是由父控件自身的特性决定的
-- 比如ScrollView，它的子View可以随意设置大小，无论多高，都能滚动显示，这个时候，size一般就没什么意义
-- EXACTLY: 精确模式，对应 MATCH_PARENT 和确定的值
-- AT_MOST：子容器可以是声明大小内的任意大小，对应 WRAP_CONTENT
-
 不按照MeasureSpec可以吗？父容器限制我的大小为10*10，我可以申请20*20的大小吗？
 
 这里需要注意measure是一个final方法，在内部它通过调用onMeasure来完成实际的测量工作
@@ -166,4 +193,8 @@ padding和margin的影响
 MeasureSpec决定什么？
 
 MATCH_PARENT和WRAP_CONTENT会如何处理？
+
+
+#### 2、layout
+
 

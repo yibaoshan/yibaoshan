@@ -17,11 +17,47 @@ public class Medium_300_最长递增子序列 {
      */
     @Test
     public void main() {
+//        int[] nums = new int[]{7, 7, 7, 7, 7, 7, 7};
+//        int[] nums = new int[]{0, 1, 0, 3, 2, 3};
+//        int[] nums = new int[]{11, 12, 13, 14, 15, 6, 7, 8, 101, 18};
 //        int[] nums = new int[]{10, 9, 2, 5, 3, 7, 101, 18};
         int[] nums = new int[]{1, 3, 6, 7, 9, 4, 10, 5, 6};
-        System.out.println(lengthOfLIS(nums));
+//        System.out.println(lengthOfLIS(nums));
         System.out.println(lengthOfLIS2(nums));
+        System.out.println(lengthOfLIS3(nums));
     }
+
+    /**
+     * 执行结果：通过
+     *
+     * 执行用时：52 ms, 在所有 Java 提交中击败了74.15%的用户
+     * 内存消耗：41.3 MB, 在所有 Java 提交中击败了8.28%的用户
+     * */
+    public int lengthOfLIS3(int[] nums) {
+        if (nums == null) return 0;
+        if (nums.length < 2) return nums.length;
+        int minIndex = 0, maxLength = 1;
+        int[] dp = new int[nums.length];
+        dp[0] = 1;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] > nums[minIndex]) {
+                int temp = 0;
+                for (int j = i; j >= 0; j--) {
+                    if (nums[i] > nums[j]) {
+                        temp = Math.max(temp, dp[j]);
+                    }
+                }
+                dp[i] = temp + 1;
+                maxLength = Math.max(maxLength, dp[i]);
+            } else {
+                if (nums[i] < nums[minIndex]) minIndex = i;
+                dp[i] = 1;
+            }
+        }
+        System.out.println(Arrays.toString(dp));
+        return maxLength;
+    }
+
 
     /**
      * 执行结果：通过
@@ -95,6 +131,8 @@ public class Medium_300_最长递增子序列 {
      * 当7>3时，此时的dp[i=5]=1，dp[j=4]=1，根据max(dp[i],dp[j]+1)，此时dp[i] = dp[j=4]+1 = 1+1 = 2
      * 当前dp数组=[0,0,0,1,1,2,0,0]
      *
+     * 我们以官方给的例子来举例：10, 9, 2, 5, 3, 7, 101, 18
+     *
      * 当i=6时值是101，101要和0~6之间的10、9、2、5、3、7比较比较，101大于前面所有数字，所以我们又要一个个来看看：
      * 当101>10时，此时的dp[i=6]=0，dp[j=0]=0，根据公式max(dp[i],dp[j]+1)，此时dp[i] = dp[j=0]+1 = 1
      * 当101>9时，此时的dp[i=6]=1，dp[j=1]=0，根据公式max(dp[i],dp[j]+1)，此时dp[i] = dp[j=1]+1 = 1
@@ -118,6 +156,7 @@ public class Medium_300_最长递增子序列 {
                 if (nums[i] > nums[j]) dp[i] = Math.max(dp[i], dp[j] + 1);
             }
         }
+        System.err.println(Arrays.toString(dp));
         Arrays.sort(dp);
         return dp[dp.length - 1];
     }

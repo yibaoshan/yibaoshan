@@ -128,6 +128,8 @@ class View {
         return result;
     }
 
+    //描述View/ViewGroup的测量模式和视图大小
+    //根据自身的LayoutParams和父视图的MeasureSpec决定
     static class MeasureSpec {
 
         static int UNSPECIFIED;//未指定，不限制大小，
@@ -149,9 +151,27 @@ class View {
 /frameworks/base/core/java/android/view/ViewGroup.java
 class ViewGroup {
 
+    //描述View/ViewGroup的宽高值
     class LayoutParams {
+
+        static int FILL_PARENT = -1;//已废弃，等同于MATCH_PARENT
         static int MATCH_PARENT = -1;
         static int WRAP_CONTENT = -2;
+
+        //视图的宽高属性，小于0表示为WRAP_CONTENT/MATCH_PARENT，大于0表示为具体的尺寸
+        public int width;
+        public int height;
     }
+
+    //在宽高值的基础上增加了上下左右间距值，因此，凡是支持设置margin的容器都是继承自MarginLayoutParams
+    class MarginLayoutParams extends ViewGroup.LayoutParams {
+
+        public int leftMargin;
+        public int topMargin;
+        public int rightMargin;
+        public int bottomMargin;
+        ...
+    }
+
 
 }

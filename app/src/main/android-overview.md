@@ -28,6 +28,8 @@
 
 ## 1、RecyclerView
 
+[自定义 LayoutManager，让 RecyclerView 效果起飞 - 掘金 快手团队](https://juejin.cn/post/7044797219878223909)
+
 # Framework
 
 ## 1、ActivityManagerService
