@@ -43,6 +43,9 @@ margin和padding
 */
 
 //View/ViewGroup绘制的入口，从DecorView开始向下调用
+/**
+并不是每次vsync信号时都会发生measure、layout
+*/
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
@@ -51,7 +54,12 @@ class ViewRootImpl {
     void performTraversals() {
         //最终DecorView拿到的屏幕宽高
         int desiredWindowWidth , desiredWindowHeight;
-        measureHierarchy(desiredWindowWidth, desiredWindowHeight);
+        if(首次添加视图/视图尺寸发生变化等){
+            int childWidthMeasureSpec = getRootMeasureSpec();
+            int childHeightMeasureSpec = getRootMeasureSpec();
+            performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
+        }
+        performLayout();
     }
 
     //确定APP的测量模式和大小
@@ -65,6 +73,7 @@ class ViewRootImpl {
 
     //从DecorView开始执行子view的measure
     void performMeasure(int childWidthMeasureSpec, int childHeightMeasureSpec) {
+        //宽高为屏幕宽高（减去状态栏导航栏），模式为EXACTLY（精确）
         mView.measure(childWidthMeasureSpec, childHeightMeasureSpec);
     }
 
@@ -74,16 +83,33 @@ class ViewRootImpl {
         return MeasureSpec.EXACTLY;//精确模式，窗口想要精确的大小，强制根视图为该大小
     }
 
+    void performLayout(){
+        mView.layout(0, 0, mView.getMeasuredWidth(), mView.getMeasuredHeight());
+    }
+
 }
 
 /frameworks/base/core/java/android/view/View.java
 class View {
+
+    void invalidate(){
+        //View不可见、没有动画等情况跳过
+        if (skipInvalidate()) {
+            return;
+        }
+        //设置重绘区域
+        if (p != null && ai != null && l < r && t < b) {
+            p.invalidateChild(this, damage);
+        }
+
+    }
 
     //http://www.aospxref.com/android-7.1.2_r39/xref/frameworks/base/core/java/android/view/View.java#19820
     //默认什么都不做的情况下，measure方法中会直接调用onMeasure()方法进行测量
     //widthMeasureSpec和heightMeasureSpec是父视图传递过来的
     //依据是父视图自身的spec和子View的LayoutParams
     //所以说，如果不考虑父视图的spec的情况下，这两个参数就是由自身的LayoutParams属性决定的
+    //widthMeasureSpec、heightMeasureSpec是父视图为自己生成的测量模式
     void measure(int widthMeasureSpec, int heightMeasureSpec) {
         onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
@@ -126,6 +152,23 @@ class View {
             break;
         }
         return result;
+    }
+
+    //viewrootimpl调用传递过来的是0,0,屏幕宽度,屏幕高度
+    void layout(int left,int top,int right,int bottom){
+        setFrame();
+        if(尺寸/位置发生变化){
+        }
+    }
+
+    void setFrame(){
+        onSizeChanged();
+    }
+
+    //changed标识视图的尺寸大小或者位置发生变化
+    void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        //根据LayoutParams规则确定子View摆放的位置
+        //如果是LinearLayout，将每个子View按照居上/居下/居左/居右摆摆好
     }
 
     //描述View/ViewGroup的测量模式和视图大小
