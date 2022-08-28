@@ -50,66 +50,66 @@ public class SlantLayout extends LinearLayout {
         final int majorGravity = getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
         final int minorGravity = getGravity() & Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK;
 
-        switch (majorGravity) {
-            case Gravity.BOTTOM:
-                // mTotalLength contains the padding already
-                childTop = getPaddingTop() + bottom - top - mTotalLength;
-                break;
-
-            // mTotalLength contains the padding already
-            case Gravity.CENTER_VERTICAL:
-                childTop = getPaddingTop() + (bottom - top - mTotalLength) / 2;
-                break;
-
-            case Gravity.TOP:
-            default:
-                childTop = getPaddingTop();
-                break;
-        }
-
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child == null) {
-            } else if (child.getVisibility() != GONE) {
-                final int childWidth = child.getMeasuredWidth();
-                final int childHeight = child.getMeasuredHeight();
-
-                final LinearLayout.LayoutParams lp =
-                        (LinearLayout.LayoutParams) child.getLayoutParams();
-
-                int gravity = lp.gravity;
-                if (gravity < 0) {
-                    gravity = minorGravity;
-                }
-                final int layoutDirection = getLayoutDirection();
-                final int absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);
-                switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
-                    case Gravity.CENTER_HORIZONTAL:
-                        childLeft = paddingLeft + ((childSpace - childWidth) / 2)
-                                + lp.leftMargin - lp.rightMargin;
-                        break;
-
-                    case Gravity.RIGHT:
-                        childLeft = childRight - childWidth - lp.rightMargin;
-                        break;
-
-                    case Gravity.LEFT:
-                    default:
-                        childLeft = paddingLeft + lp.leftMargin;
-                        break;
-                }
-
-                if (hasDividerBeforeChildAt(i)) {
-                    childTop += mDividerHeight;
-                }
-
-                childTop += lp.topMargin;
-                setChildFrame(child, childLeft, childTop + getLocationOffset(child),
-                        childWidth, childHeight);
-                childTop += childHeight + lp.bottomMargin + getNextLocationOffset(child);
-
-                i += getChildrenSkipCount(child, i);
-            }
-        }
+//        switch (majorGravity) {
+//            case Gravity.BOTTOM:
+//                // mTotalLength contains the padding already
+//                childTop = getPaddingTop() + bottom - top - mTotalLength;
+//                break;
+//
+//            // mTotalLength contains the padding already
+//            case Gravity.CENTER_VERTICAL:
+//                childTop = getPaddingTop() + (bottom - top - mTotalLength) / 2;
+//                break;
+//
+//            case Gravity.TOP:
+//            default:
+//                childTop = getPaddingTop();
+//                break;
+//        }
+//
+//        for (int i = 0; i < count; i++) {
+//            final View child = getChildAt(i);
+//            if (child == null) {
+//            } else if (child.getVisibility() != GONE) {
+//                final int childWidth = child.getMeasuredWidth();
+//                final int childHeight = child.getMeasuredHeight();
+//
+//                final LinearLayout.LayoutParams lp =
+//                        (LinearLayout.LayoutParams) child.getLayoutParams();
+//
+//                int gravity = lp.gravity;
+//                if (gravity < 0) {
+//                    gravity = minorGravity;
+//                }
+//                final int layoutDirection = getLayoutDirection();
+//                final int absoluteGravity = Gravity.getAbsoluteGravity(gravity, layoutDirection);
+//                switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+//                    case Gravity.CENTER_HORIZONTAL:
+//                        childLeft = paddingLeft + ((childSpace - childWidth) / 2)
+//                                + lp.leftMargin - lp.rightMargin;
+//                        break;
+//
+//                    case Gravity.RIGHT:
+//                        childLeft = childRight - childWidth - lp.rightMargin;
+//                        break;
+//
+//                    case Gravity.LEFT:
+//                    default:
+//                        childLeft = paddingLeft + lp.leftMargin;
+//                        break;
+//                }
+//
+//                if (hasDividerBeforeChildAt(i)) {
+//                    childTop += mDividerHeight;
+//                }
+//
+//                childTop += lp.topMargin;
+//                setChildFrame(child, childLeft, childTop + getLocationOffset(child),
+//                        childWidth, childHeight);
+//                childTop += childHeight + lp.bottomMargin + getNextLocationOffset(child);
+//
+//                i += getChildrenSkipCount(child, i);
+//            }
+//        }
     }
 }

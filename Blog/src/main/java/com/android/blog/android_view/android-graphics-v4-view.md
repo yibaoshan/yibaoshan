@@ -59,8 +59,9 @@ View绘制三部曲背后的原理
 
 #### View绘制过程用的是同一个canvas吗？
 
-
 #### 1、measure
+
+为了加深对MeasureSpec的理解，接下来我们通过几个小栗子来感受下：
 
 - 每个View和ViewGroup都有MeasureSpec和LayoutParams两个参数，决定了View/ViewGroup的大小
 - 每个View/ViewGroup的MeasureSpec属性大多数参考父视图的MeasureSpec，当然，你可以更改自身的MeasureSpec属性
@@ -196,5 +197,4 @@ MATCH_PARENT和WRAP_CONTENT会如何处理？
 
 
 #### 2、layout
-
 
