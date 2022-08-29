@@ -12,6 +12,23 @@ public class knapsack_01 {
         int[] weight = new int[]{1, 3, 4};
         int w = 4;
         System.out.println(maxValueInKnapsack(value, weight, w));
+        System.out.println(maxValueInKnapsack2(value, weight, w));
+    }
+
+    public int maxValueInKnapsack2(int[] value, int[] weight, int w) {
+        int[][] dp = new int[value.length][w + 1];
+        Arrays.fill(dp[0], value[0]);
+        for (int i = 1; i < dp.length; i++) {
+            for (int j = 1; j <= w; j++) {
+                if (j >= weight[i]) {
+                    dp[i][j] = Math.max(dp[i - 1][j], value[i] + dp[i][j - weight[i]]);
+                } else {
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        print(dp);
+        return dp[value.length - 1][w];
     }
 
     /**
@@ -42,9 +59,10 @@ public class knapsack_01 {
                 if (weight[i] < j) {
                     dp[i][j] = Math.max(dp[i - 1][j], value[i] + dp[i - 1][j - weight[i]]);
                 } else dp[i][j] = dp[i - 1][j];
-                print(dp);
+//                print(dp);
             }
         }
+        print(dp);
         return dp[n - 1][w];
     }
 

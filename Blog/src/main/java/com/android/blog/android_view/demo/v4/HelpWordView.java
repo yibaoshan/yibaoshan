@@ -112,11 +112,11 @@ public class HelpWordView extends View {
     private String getMode(int spec) {
         switch (MeasureSpec.getMode(spec)) {
             case MeasureSpec.AT_MOST:
-                return "AT_MOST";
+                return "AT_MOST(" + MeasureSpec.getSize(spec) + ")";
             case MeasureSpec.EXACTLY:
-                return "EXACTLY";
+                return "EXACTLY(" + MeasureSpec.getSize(spec) + ")";
             case MeasureSpec.UNSPECIFIED:
-                return "UNSPECIFIED";
+                return "UNSPECIFIED(" + MeasureSpec.getSize(spec) + ")";
         }
         return "UNKNOWN";
     }

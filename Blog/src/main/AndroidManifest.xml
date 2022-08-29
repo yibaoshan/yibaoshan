@@ -17,7 +17,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".android_view.demo.v4.ScrollViewUnSpecifiedTestActivity" />
+        <activity android:name=".android_view.demo.v4.MeasureSpecTestActivity"
+                android:theme="@style/Theme.AppCompat.Dialog"/>
 
     </application>
 

@@ -3,7 +3,9 @@ package com.android.algorithm.leetcode;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.sound.midi.Soundbank;
 
@@ -25,7 +27,10 @@ public class Medium_139_单词拆分 {
         List<String> wordDict = new ArrayList<>();
         wordDict.add("leet");
         wordDict.add("code");
+        Queue<Character> queue = new LinkedList<>();
+        queue.
         System.out.println(wordBreak(s, wordDict));
+        System.out.println(wordBreak2(s, wordDict));
     }
 
     public boolean wordBreak(String s, List<String> wordDict) {
@@ -46,9 +51,28 @@ public class Medium_139_单词拆分 {
         return dp[n];
     }
 
+    //回溯法，超时
     public boolean wordBreak2(String s, List<String> wordDict) {
-        if (s == null || wordDict == null || wordDict.size() == 0) return false;
-       return true;
+        backtrack(s, wordDict, 0);
+        return result;
+    }
+
+    boolean result = false;
+    StringBuilder sb = new StringBuilder();
+
+    private void backtrack(String s, List<String> wordDict, int start) {
+        if (result) return;
+        if (sb.length() == s.length() && sb.toString().equals(s)) {
+            result = true;
+            return;
+        }
+        if (sb.length() >= s.length()) return;
+        for (int i = start; i < wordDict.size(); i++) {
+            sb.append(wordDict.get(i));
+            backtrack(s, wordDict, start);
+            sb.delete(sb.length() - wordDict.get(i).length(), sb.length());
+        }
+        return;
     }
 
 }

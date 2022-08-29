@@ -54,11 +54,19 @@ class ViewRootImpl {
     void performTraversals() {
         //最终DecorView拿到的屏幕宽高
         int desiredWindowWidth , desiredWindowHeight;
-        if(首次添加视图/视图尺寸发生变化等){
-            int childWidthMeasureSpec = getRootMeasureSpec();
-            int childHeightMeasureSpec = getRootMeasureSpec();
-            performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
+        if(首次添加视图/视图尺寸发生变化/窗口未停止活动){
+            measureHierarchy();
         }
+        //执行测量
+        performMeasure();
+        //WindowManager.LayoutParams中的垂直/水平方向的权重是否大于0，这玩意不知道在哪可以设置
+        //要使一个Window全屏，我们可以调用window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)方法
+        //Window竟然还可以设置权重我还真没用过
+        if (lp.horizontalWeight/lp.verticalWeight > 0.0f){
+            measureAgain = true;
+        }
+        if(measureAgain)performMeasure();
+        ...
         performLayout();
     }
 
@@ -66,9 +74,31 @@ class ViewRootImpl {
     //执行完这一步以后，DecorView的宽高和模式都确定下来了，MeasureSpec
     //DecorView是FrameLayout，宽高都是MATCH_PARENT，所以通常走第一项case
     void measureHierarchy(int desiredWindowWidth, int desiredWindowHeight){
-        int childWidthMeasureSpec = getRootMeasureSpec();
-        int childHeightMeasureSpec = getRootMeasureSpec();
-        performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
+        //如果DecorView是对话框或者是对话框形式的Activity，Android不希望它充满屏幕，所以在进入正式策略之前，需要先摸摸底，看看这个视图需要多大
+        if (width == ViewGroup.LayoutParams.WRAP_CONTENT) {//Decor的宽度是warp，通常是Dialog或者是Dialog类型的Activity
+            childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);
+            childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
+            //进行首次测量，我们可以利用Android Studio断点调试来验证
+            performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+            //视图的期望宽度没有超过预置宽度，符合条件，进行下一步
+            if ((host.getMeasuredWidthAndState() & View.MEASURED_STATE_TOO_SMALL) == 0) {
+                goodMeasure = true;
+            } else {
+                //视图的期望宽度超过了预置宽度，比如我在xml写死"layout_width=10086dp"，那么更改baseSize再次测量试一试
+                baseSize = (baseSize + desiredWindowWidth) / 2;
+                childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);
+                performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+                if ((host.getMeasuredWidthAndState() & View.MEASURED_STATE_TOO_SMALL) == 0) {
+                    goodMeasure = true;
+                }
+            }
+        }
+        //如果是普通的Activity，那么DecorView的宽高都是match_parent，执行测量
+        if (!goodMeasure) {
+            childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);
+            childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
+            performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
+        }
     }
 
     //从DecorView开始执行子view的measure
@@ -111,7 +141,9 @@ class View {
     //所以说，如果不考虑父视图的spec的情况下，这两个参数就是由自身的LayoutParams属性决定的
     //widthMeasureSpec、heightMeasureSpec是父视图为自己生成的测量模式
     void measure(int widthMeasureSpec, int heightMeasureSpec) {
-        onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if(一堆判断条件：是否重新布局/宽高是否改变/有无缓存等等){
+            onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
     }
 
     //onMeasure()方法中更直接，根据LayoutParams获取默认的MeasureSpec，接着设置View的大小
