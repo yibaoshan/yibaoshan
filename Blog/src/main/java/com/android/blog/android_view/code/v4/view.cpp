@@ -52,12 +52,34 @@ class ViewRootImpl {
     DecorView mView;
 
     void performTraversals() {
-        //最终DecorView拿到的屏幕宽高
+        //最终Window的尺寸大小
         int desiredWindowWidth , desiredWindowHeight;
+        if (mFirst) {
+            if (shouldUseDisplaySize(lp)) {
+                // NOTE -- system code, won't try to do compat mode.
+                //默认为屏幕的尺寸
+                Point size = new Point();
+                desiredWindowWidth = size.x;
+                desiredWindowHeight = size.y;
+            } else {
+                Configuration config = mContext.getResources().getConfiguration();
+                desiredWindowWidth = dipToPx(config.screenWidthDp);
+                desiredWindowHeight = dipToPx(config.screenHeightDp);
+            }
+        } else {
+            //取缓存大小
+            desiredWindowWidth = frame.width();
+            desiredWindowHeight = frame.height();
+        }
         if(首次添加视图/视图尺寸发生变化/窗口未停止活动){
+            //确定Window的大小，如果是Dialog或者Dialog形式的Activity，那么该window最好不要铺满全屏
+            //此方法内部可能多次调用performMeasure()
+            //此方法结束后，window的大小将会被确定，出发window的尺寸发生改变，否则不会再次执行该方法
             measureHierarchy();
         }
-        //执行测量
+        //Window大小确定下来以后，去sf申请对应大小的surface
+        relayoutWindow()
+        //window大小确定以后，DecorView依据window的大小，执行测量工作
         performMeasure();
         //WindowManager.LayoutParams中的垂直/水平方向的权重是否大于0，这玩意不知道在哪可以设置
         //要使一个Window全屏，我们可以调用window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)方法

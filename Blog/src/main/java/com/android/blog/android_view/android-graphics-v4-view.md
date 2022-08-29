@@ -16,6 +16,8 @@
 
 Android图形系统（四）应用篇：描述下自定义View/ViewGroup的过程？
 
+绝大多数Android开发工程师都有自定义View的经历，
+
 
 
 开发方式，在XML文件中使用控件

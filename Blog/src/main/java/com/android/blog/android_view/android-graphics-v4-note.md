@@ -16,11 +16,9 @@
   - 确定大小，比如写死layout_width为200dp，和上面一样的
     - 父视图为Exactly或者AT_Most时，当前View宽高为父视图宽高
     - 父视图为UPSPECIFIED未确定时，当前View宽高为0，在页面中看不见它
-
 - 每个ViewGroup在measure阶段必须要重写onMeasure()方法，否则，在页面中看不到它
   - 重写onMeasure()，调用measureChild()或者measureChildWithMargins()方法让子View自己完成测量
   - 所有子View测量工作完成后，我们可以获取每个子View的宽高信息，相加得到自身宽高
-
 - 每个View/ViewGroup在onMeasure()结束以后，都会调用setMeasuredDimension()方法来保存测量的宽高值
 - View的大小是由父视图的MeasureSpec和自身的LayoutParams参数决定的
 - ViewGroup的大小同样是由父视图的MeasureSpec和自身的LayoutParams决定的
@@ -75,6 +73,16 @@ EXACTLY表示未确定模式，比较特殊，一般和你的LayoutParams关系�
 #### 3、LayoutParams
 
 #### 4、Others
+
+##### View执行onMeasure()
+
+View的职责是根据父视图传递的SpecMode和SpecSize测量自己所需要的大小
+
+##### ViewGroup执行onMeasure()
+
+ViewGroup的职责是调用measureChild()或者measureChildWithMargins()完成子View的测量工作
+
+接着，拿到子View的宽高
 
 ##### 为什么onMeasure执行多次?
 
