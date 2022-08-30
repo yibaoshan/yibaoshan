@@ -33,6 +33,8 @@ bug修改，比如钉钉sdk调用systemcall导致系统崩溃
 
 公司C
 
+2018年10月26加入Android团队，后任组长
+
 埋点/曝光方案开发
 
 webview加载速度优化

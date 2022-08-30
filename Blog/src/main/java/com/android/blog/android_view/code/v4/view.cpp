@@ -136,7 +136,23 @@ class ViewRootImpl {
     }
 
     void performLayout(){
+        //DecorView作为多叉树的根节点，向下深度优先遍历整棵树
         mView.layout(0, 0, mView.getMeasuredWidth(), mView.getMeasuredHeight());
+    }
+
+    void performDraw(){
+    }
+
+    void draw() {
+        if(硬件绘制){
+            mAttachInfo.mThreadedRenderer.draw(mView, mAttachInfo, this);
+        } else {
+            drawSoftware();
+        }
+    }
+
+    void drawSoftware(){
+        mView.draw();
     }
 
 }
@@ -210,8 +226,9 @@ class View {
 
     //viewrootimpl调用传递过来的是0,0,屏幕宽度,屏幕高度
     void layout(int left,int top,int right,int bottom){
-        setFrame();
+        setFrame();//保存left，top，right，bottom，并回调onSizeChanged方法
         if(尺寸/位置发生变化){
+            onLayout();
         }
     }
 
@@ -223,6 +240,23 @@ class View {
     void onLayout(boolean changed, int left, int top, int right, int bottom) {
         //根据LayoutParams规则确定子View摆放的位置
         //如果是LinearLayout，将每个子View按照居上/居下/居左/居右摆摆好
+    }
+
+    void draw(){
+        drawBackground();//画背景，如果有的话
+        onDraw();//
+        dispatchDraw();//空方法，由ViewGroup实现
+        onDrawForeground();
+    }
+
+    /**
+     * This method is called by ViewGroup.drawChild() to have each child view draw itself.
+     *
+     * This is where the View specializes rendering behavior based on layer type,
+     * and hardware acceleration.
+     */
+    boolean draw(ViewGroup parent){
+        draw()
     }
 
     //描述View/ViewGroup的测量模式和视图大小
@@ -247,6 +281,21 @@ class View {
 
 /frameworks/base/core/java/android/view/ViewGroup.java
 class ViewGroup {
+
+    void dispatchDraw(){
+        if (clipToPadding) {
+            clipSaveCount = canvas.save();
+            //处理clipToPadding标签
+        }
+        //遍历绘制
+        for (int i = 0; i < childrenCount; i++) {
+            child.draw();
+        }
+        //绘制完毕，还原canvas
+        if (clipToPadding) {
+            canvas.restoreToCount(clipSaveCount);
+        }
+    }
 
     //描述View/ViewGroup的宽高值
     class LayoutParams {

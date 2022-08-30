@@ -25,6 +25,7 @@
 - MeasureSpec是父布局传递过来的，目的是限制子View的大小，LayoutParams是View/ViewGroup自身属性
 - measure阶段要把View和ViewGroup分开来看，它俩在measure完成的事情不同
 - measure是最复杂的一步，我们需要理解MeasureSpec和LayoutParams的含义才能
+- 调用setMeasuredDimension()方法确定mMeasuredWidth和mMeasuredHeight变量的值
 
 #### 2、MeasureSpec
 
@@ -59,6 +60,8 @@ EXACTLY表示未确定模式，比较特殊，一般和你的LayoutParams关系�
 滚动模式，比如横向/纵向滚动的ScrollView、RecyclerView等等
 
 在滚动模式下，子View/ViewGroup的大小对于父视图来说没有意义，就算超过屏幕大小我滑动查看就行了，如何处理滑动事件才是父视图需要考虑的重点
+
+以ScrollView举例，无论ScrollView的父视图的LayoutParams如何设置，ScrollView都会将子View的高度mode设置为未指定模式
 
 所以如果你在ScrollView中自定义View，LayoutParams设置为warp_content或者match_parent，在屏幕上找不到你的自定义View，因为此时接收到父视图的高度为0（ScrollView重写了计算高度方法）
 
@@ -96,6 +99,16 @@ ViewRootImpl中有5个地方进行方法调用，他们分别是
 
 它的任务是根据上一步测量的结果把每个View/ViewGroup摆摆好
 
+- 对于View来说，执行完onLayout以后，我们就可以调用getWidth()/getHeight()方法获取View的实际宽高，因为到了这一步，View的尺寸大小就已经确定了下来
+- 在自定义View过程中，如果我们将宽高设置为自适应大小，那么我们只需要关心onSizeChanged()方法，此方法调用后，新的视图尺寸会确定下来，我们可以根据这个尺寸来绘图
+- 对于ViewGroup来说，重点需要关注LayoutParams参数，几乎每个ViewGroup都有自己的LayoutParams属性，比如LinearLayout有权重、居上/下/左右中等，RelativeLayout有marginTop等等
+- ViewGroup的职责就是依据自身的规则来排兵布阵
+- View/ViewGroup的layout方法都没有默认实现，我们自己来写个demo玩一玩
+
 ### 三、Draw
+
+Draw阶段调用流程有点特殊，measure和layout都是以DecorView作为根节点深度优先遍历的多叉树，Draw不同
+
+Draw的调用链稍微有点绕，对于开发者来说，只需要关注在onDraw方法中做些什么事情
 
 绝大多数自定义View需要实现该方法，

@@ -106,7 +106,7 @@ public class HelpWordView extends View {
         Log.e(TAG, "widthMeasureSpec: " + getMode(widthMeasureSpec));
         Log.e(TAG, "heightMeasureSpec: " + getMode(heightMeasureSpec));
         totalHeight += totalHeight;
-//        setMeasuredDimension(mScreenWidth, (int) totalHeight);
+        setMeasuredDimension(mScreenWidth, (int) totalHeight);
     }
 
     private String getMode(int spec) {
