@@ -112,3 +112,11 @@ Draw阶段调用流程有点特殊，measure和layout都是以DecorView作为根
 Draw的调用链稍微有点绕，对于开发者来说，只需要关注在onDraw方法中做些什么事情
 
 绝大多数自定义View需要实现该方法，
+
+Draw的调用链之所以这么绕，是因为Android的绘制是有顺序的
+
+比如一个ViewGroup的背景是蓝色，子View是一个红色的圆形，用户希望看到的肯定是这样：
+
+我是图片
+
+的小伙肯定是绘制了ViewGroup的背景
