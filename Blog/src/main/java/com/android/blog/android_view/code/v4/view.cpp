@@ -71,16 +71,18 @@ class ViewRootImpl {
             desiredWindowWidth = frame.width();
             desiredWindowHeight = frame.height();
         }
-        if(首次添加视图/视图尺寸发生变化/窗口未停止活动){
-            //确定Window的大小，如果是Dialog或者Dialog形式的Activity，那么该window最好不要铺满全屏
-            //此方法内部可能多次调用performMeasure()
-            //此方法结束后，window的大小将会被确定，出发window的尺寸发生改变，否则不会再次执行该方法
+        if(layoutRequested){//APP发起requestLayout请求
+            //执行测量工作，确定Window的尺寸大小，如果是Dialog或者Dialog形式的Activity，那么该window最好不要铺满全屏
             measureHierarchy();
         }
         //Window大小确定下来以后，去sf申请对应大小的surface
         relayoutWindow()
-        //window大小确定以后，DecorView依据window的大小，执行测量工作
-        performMeasure();
+        if(首次添加视图/视图尺寸发生变化){
+            //surface申请成功以后，再次执行测量工作
+            //此方法结束后，该window的大小将会被确定，除非window的尺寸发生改变，否则不会再次执行该方法
+            performMeasure();
+        }
+
         //WindowManager.LayoutParams中的垂直/水平方向的权重是否大于0，这玩意不知道在哪可以设置
         //要使一个Window全屏，我们可以调用window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)方法
         //Window竟然还可以设置权重我还真没用过
@@ -95,7 +97,7 @@ class ViewRootImpl {
     //确定APP的测量模式和大小
     //执行完这一步以后，DecorView的宽高和模式都确定下来了，MeasureSpec
     //DecorView是FrameLayout，宽高都是MATCH_PARENT，所以通常走第一项case
-    void measureHierarchy(int desiredWindowWidth, int desiredWindowHeight){
+    boolean measureHierarchy(int desiredWindowWidth, int desiredWindowHeight){
         //如果DecorView是对话框或者是对话框形式的Activity，Android不希望它充满屏幕，所以在进入正式策略之前，需要先摸摸底，看看这个视图需要多大
         if (width == ViewGroup.LayoutParams.WRAP_CONTENT) {//Decor的宽度是warp，通常是Dialog或者是Dialog类型的Activity
             childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);
@@ -121,6 +123,7 @@ class ViewRootImpl {
             childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
             performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
         }
+        return 和缓存窗口大小相比尺寸是否发生变化;
     }
 
     //从DecorView开始执行子view的measure

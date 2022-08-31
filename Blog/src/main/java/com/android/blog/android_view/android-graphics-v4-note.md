@@ -105,6 +105,14 @@ ViewRootImpl中有5个地方进行方法调用，他们分别是
 - ViewGroup的职责就是依据自身的规则来排兵布阵
 - View/ViewGroup的layout方法都没有默认实现，我们自己来写个demo玩一玩
 
+在layout阶段最重要的是理解各个ViewGroup的LayoutParams属性，比如在线性布局LinearLayout中，排在前面的View属性如果是match_parent
+
+那么线性布局就会按照测量结果传递给这个子View全屏，在此容器的其他视图就会被排挤出屏幕外
+
+这时候你就会发现虽然调用getWidth方法有值，但它就是不显示，这种情况要么是被覆盖，要么是被隐藏，要么就是像这种情况，它的坐标被绘制到屏幕外了
+
+在屏幕外的View的宽高，可能会发生的一件事情是
+
 ### 三、Draw
 
 Draw阶段调用流程有点特殊，measure和layout都是以DecorView作为根节点深度优先遍历的多叉树，Draw不同

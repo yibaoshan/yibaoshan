@@ -3,12 +3,14 @@ package com.android.blog.android_view.demo.v4;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import com.android.blog.android_view.demo.v4.util.PrintUtil;
 
 import java.lang.reflect.Field;
 
@@ -20,6 +22,8 @@ public class SlantLinearLayout extends LinearLayout {
 
     private boolean slant = false;
 
+    private static final String TAG = "SlantLinearLayout";
+
     public SlantLinearLayout(Context context) {
         super(context);
     }
@@ -29,7 +33,14 @@ public class SlantLinearLayout extends LinearLayout {
     }
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        PrintUtil.measure(TAG, widthMeasureSpec, heightMeasureSpec);
+    }
+
+    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        PrintUtil.layout(TAG, l, t, r, b);
         if (getOrientation() == HORIZONTAL) throw new RuntimeException("horizontal orientation is not supported");
         layoutVertical(l, t, r, b);
     }

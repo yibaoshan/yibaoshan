@@ -1,4 +1,4 @@
-package com.android.blog.android_view.demo.v4;
+package com.android.blog.android_view.demo.v4.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
