@@ -35,17 +35,36 @@ layout阶段唯一的职责是确定每个子View的位置，非常简单
 
 ### 一、测量阶段
 
-#### 一直以来MeasureSpec的误解
 
-#### 为什么ViewGroup没有默认实现？
+如果你看过这张图，那么只需要将父视图改成ScrollView，就会打破表中所有组合
 
-因为 ViewGroup 容器，它的职责是结合容器内的子View计算自己的高度，这是由ViewGroup的不同的属性决定的
+#### 重新理解MeasureSpec
+
+#### View的测量过程
+
+#### ViewGroup的测量过程
+
+#### 聊聊onMeasure()多次执行的原因
+
+##### 从ViewRootImpl 入口
+
+##### ViewGroup 个人行为
+
+除了 ViewRootImpl 入口处会发起多次调用外，各个 ViewGroup 自身的业务逻辑同样会导致
+
+ViewGroup没有默认实现onMeasure()方法，这是因为不同的测量策略会产生不同的结果
 
 拿 LinearLayout 来说，在高度设置为 wrap_content 的情况下
 
 如果是横向布局，LinearLayout 的高度应该为最大子View的高度
 
 如果是纵向布局，LinearLayout 的高度应该为所有子View的高度总和
+
+#### 小结
+
+#### 为什么ViewGroup没有默认实现？
+
+因为 ViewGroup 容器，它的职责是结合容器内的子View计算自己的高度，这是由ViewGroup的不同的属性决定的
 
 这是由业务决定的
 
@@ -54,9 +73,6 @@ layout阶段唯一的职责是确定每个子View的位置，非常简单
 在测量阶段，View 和 ViewGroup 的侧重点完全不同
 
 对于 View 来说，onMeasure() 是通知，我可以在父视图的规则下进行测量，也可以肆意妄为
-
-#### onMeasure()多次执行的原因
-
 
 
 ### 二、布局阶段

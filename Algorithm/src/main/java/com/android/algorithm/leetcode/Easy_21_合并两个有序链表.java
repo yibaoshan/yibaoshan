@@ -2,6 +2,11 @@ package com.android.algorithm.leetcode;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
 public class Easy_21_合并两个有序链表 {
 
     /**
@@ -30,7 +35,26 @@ public class Easy_21_合并两个有序链表 {
 
     @Test
     public void main() {
+        ListNode node = new ListNode(2);
+        for (int i = 0; i < 4; i++) {
+            node = new ListNode(new Random().nextInt(10), node);
+        }
 
+        ListNode res = null, temp = node;
+
+        List<Integer> list = new ArrayList<>();
+        while (temp != null) {
+            list.add(temp.val);
+            temp = temp.next;
+        }
+
+        Collections.sort(list);
+        Collections.reverse(list);
+
+        for (int v : list) {
+            if (res == null) res = new ListNode(v);
+            else res = new ListNode(v, res);
+        }
     }
 
     /**

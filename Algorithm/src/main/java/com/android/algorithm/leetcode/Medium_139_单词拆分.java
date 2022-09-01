@@ -28,7 +28,6 @@ public class Medium_139_单词拆分 {
         wordDict.add("leet");
         wordDict.add("code");
         Queue<Character> queue = new LinkedList<>();
-        queue.
         System.out.println(wordBreak(s, wordDict));
         System.out.println(wordBreak2(s, wordDict));
     }

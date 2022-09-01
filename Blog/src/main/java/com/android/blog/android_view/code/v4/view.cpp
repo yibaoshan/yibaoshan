@@ -100,11 +100,12 @@ class ViewRootImpl {
     boolean measureHierarchy(int desiredWindowWidth, int desiredWindowHeight){
         //如果DecorView是对话框或者是对话框形式的Activity，Android不希望它充满屏幕，所以在进入正式策略之前，需要先摸摸底，看看这个视图需要多大
         if (width == ViewGroup.LayoutParams.WRAP_CONTENT) {//Decor的宽度是warp，通常是Dialog或者是Dialog类型的Activity
-            childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);
+            childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);//注意这里，屏幕的宽度被设置为了预设宽度
             childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
             //进行首次测量，我们可以利用Android Studio断点调试来验证
             performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
             //视图的期望宽度没有超过预置宽度，符合条件，进行下一步
+            //MEASURED_STATE_TOO_SMALL表示测量尺寸小于视图想要的空间
             if ((host.getMeasuredWidthAndState() & View.MEASURED_STATE_TOO_SMALL) == 0) {
                 goodMeasure = true;
             } else {
@@ -117,8 +118,10 @@ class ViewRootImpl {
                 }
             }
         }
-        //如果是普通的Activity，那么DecorView的宽高都是match_parent，执行测量
         if (!goodMeasure) {
+            //方法能走到这有两种情况：
+            //1. 该视图是普通的Activity，DecorView宽高为match_parent
+            //2. 该视图是Dialog，且Dialog想要的宽度很大，上面的预设宽度不满足，扩容以后还不满足，索性直接给它屏幕的宽度让它自己折腾去
             childWidthMeasureSpec = getRootMeasureSpec(desiredWindowWidth, lp.width);
             childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);
             performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
