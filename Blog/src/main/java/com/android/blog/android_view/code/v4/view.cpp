@@ -49,6 +49,7 @@ margin和padding
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
+
     DecorView mView;
 
     void performTraversals() {
@@ -80,6 +81,10 @@ class ViewRootImpl {
         if(首次添加视图/视图尺寸发生变化){
             //surface申请成功以后，再次执行测量工作
             //此方法结束后，该window的大小将会被确定，除非window的尺寸发生改变，否则不会再次执行该方法
+            //在阅读源码的过程中，看到performTraversals()方法中调用了performMeasure()执行了测量
+            //会认为最终调用到onMeasure方法的就是由它源头就在这
+            //实际上，每当我们调用requestLayout方法请求重新测量时，发起者是上面的measureHierarchy()方法
+            //除非首次添加视图或者Window的尺寸发生变化，否则该方法不会再次执行
             performMeasure();
         }
 
@@ -248,6 +253,7 @@ class View {
         //如果是LinearLayout，将每个子View按照居上/居下/居左/居右摆摆好
     }
 
+    //调用到各个View的onDraw()，接着，我们
     void draw(){
         drawBackground();//画背景，如果有的话
         onDraw();//
@@ -269,7 +275,7 @@ class View {
     //根据自身的LayoutParams和父视图的MeasureSpec决定
     static class MeasureSpec {
 
-        static int UNSPECIFIED;//未指定，不限制大小，
+        static int UNSPECIFIED;//未指定，不限制大小
         static int EXACTLY;//精确模式，match_parent或者指定尺寸可用
         static int AT_MOST;//最大模式，warp_content可用
 
