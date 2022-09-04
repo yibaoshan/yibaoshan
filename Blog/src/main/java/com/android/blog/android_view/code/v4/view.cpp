@@ -46,6 +46,101 @@ margin和padding
 /**
 并不是每次vsync信号时都会发生measure、layout
 */
+
+//描述View/ViewGroup的宽高值
+class LayoutParams {
+
+    int MATCH_PARENT = -1;
+    int WRAP_CONTENT = -2;
+
+    //视图的宽高属性，小于0表示为WRAP_CONTENT/MATCH_PARENT，大于0表示为具体的尺寸
+    int width;
+    int height;
+}
+
+//在宽高值的基础上增加了上下左右间距值，凡是支持设置margin的容器都是继承自MarginLayoutParams
+class MarginLayoutParams extends ViewGroup.LayoutParams {
+
+    leftMargin;
+    topMargin;
+    rightMargin;
+    bottomMargin;
+    ...
+}
+
+
+/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup extends View {
+
+    void measureChild(View child, int parentWidthMeasureSpec,int parentHeightMeasureSpec) {
+        LayoutParams lp = child.getLayoutParams();//普通
+        int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec, lp.width);
+        int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,lp.height);
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+    }
+
+    void measureChildWithMargins(View child,int parentWidthMeasureSpec,int parentHeightMeasureSpec) {
+        MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+        int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,lp.width);
+        int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec, lp.height);
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+    }
+
+    int getChildMeasureSpec(int spec, int padding, int childDimension) {
+        //获取子View的MeasureSpec
+    }
+
+    //描述View/ViewGroup的宽高值
+    class LayoutParams {
+
+        int MATCH_PARENT = -1;
+        int WRAP_CONTENT = -2;
+
+        //视图的宽高属性，小于0表示为WRAP_CONTENT/MATCH_PARENT，大于0表示为具体的尺寸
+        int width;
+        int height;
+    }
+
+    //在宽高值的基础上增加了上下左右间距值，凡是支持设置margin的容器都是继承自MarginLayoutParams
+    class MarginLayoutParams extends ViewGroup.LayoutParams {
+
+        leftMargin;
+        topMargin;
+        rightMargin;
+        bottomMargin;
+        ...
+    }
+
+}
+
+int getDefaultSize(int size, int measureSpec) {
+    int result = getSuggestedMinimumWidth();//默认为android:minHeight属性的值或者View背景图片的大小值
+    int specMode = MeasureSpec.getMode(measureSpec);
+    int specSize = MeasureSpec.getSize(measureSpec);
+    switch (specMode) {
+        case MeasureSpec.UNSPECIFIED:
+            result = size;
+            break;
+        case MeasureSpec.AT_MOST:
+        case MeasureSpec.EXACTLY:
+            result = specSize;
+            break;
+    }
+    return result;
+}
+
+//
+protected int getSuggestedMinimumWidth() {
+   return (mBackground == null) ? mMinWidth : max(mMinWidth, mBackground.getMinimumWidth());
+}
+
+void measureChild() {
+    ViewGroup.LayoutParams lp = child.getLayoutParams();
+    int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,lp.width);
+    int childHeightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(parentSize,MeasureSpec.UNSPECIFIED);
+
+    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+}
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
