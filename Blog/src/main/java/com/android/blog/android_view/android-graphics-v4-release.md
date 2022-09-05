@@ -246,7 +246,7 @@ class LayoutParams {
 
 LayoutParams 使用 width 和 height 属性来描述宽高，如果小于0表示为 WRAP_CONTENT / MATCH_PARENT，大于0则表示为具体的尺寸
 
-ViewGroup 中还有一个叫 MarginLayoutParams 的静态内部类，它继承自 LayoutParams 并在其基础上增加了上下左右间距值，我们日常使用的 ViewGroup 中凡是支持设置 margin 属性的都是继承自MarginLayoutParams，如果你想要在代码中动态的修改 View 的 margin 属性，记得强转为 MarginLayoutParams 再进行操作
+ViewGroup 中还有一个叫 MarginLayoutParams 的静态内部类，它继承自 LayoutParams 并在其基础上增加了上下左右间距值，我们日常使用的 ViewGroup 中凡是支持设置 margin 属性的都是继承自 MarginLayoutParams，如果你想要在代码中动态的修改 View 的 margin 属性，记得强转为 MarginLayoutParams 再进行操作
 
 ```java
 //在宽高值的基础上增加了上下左右间距值，凡是支持设置margin的容器都是继承自MarginLayoutParams
@@ -518,13 +518,13 @@ class ViewRootImpl {
 
 我在源码中全局搜索后，发现只有 Toast 类中会设置 horizontalWeight / verticalWeight 属性，具体代码逻辑我没有深究，感兴趣的同学可以自己点击[这里](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/widget/Toast.java#415)查看源码
 
-到这里，ViewRootImpl 类中所有能发起测量的地方我们都分析完了，performMeasure() 方法一共有5处调用
+到这里，ViewRootImpl 类中所有发起测量的地方我们都分析完了，performMeasure() 方法一共有5处调用
 
 ![android_graphic_v4_measure_viewrootimpl](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v4/android_graphic_v4_measure_viewrootimpl.GIF)
 
 *图片来源：自己截图*
 
-在 measureHierarchy() 方法中调用3次：
+在 ViewRootImpl#measureHierarchy() 方法中调用3次：
 
 1. 在1331行，视图为Dialog 类型时，将视图宽度设置为 Dialog 预置宽度，发起首次测量
 2. 在1344行，视图为 Dialog 类型时，预置宽度不满足视图期望值，扩容宽度后再次发起测量
@@ -532,10 +532,12 @@ class ViewRootImpl {
    1. 该视图是普通的 Activity，发起第一次测量
    2. 该视图是 Dialog，且 Dialog 想要的宽度很大，预设宽度和扩容宽度均不满足，给它屏幕实际尺寸发起第三次测量
 
-performTraversals() 方法中调用了2次：
+在 ViewRootImpl#performTraversals() 方法中调用了2次：
 
 1. 在2024行，每次申请到 Surface 以后，发起一次测量
 2. 在2050行，为 Window 设置权重时，再次发起一次测量
+
+*Android 不同版本代码行数也不同，笔者源码环境是：[Android 7.0](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/view/ViewRootImpl.java)*
 
 ### 4、由 ViewGroup 自身发起调用
 
@@ -547,29 +549,46 @@ performTraversals() 方法中调用了2次：
 
 比如 LinearLayout 在设置权重属性后就会多执行一次测量流程，LinearLayout 最少会经历1次测量，最多会经历3次
 
-所以由 ViewGroup 自身发起调用次数很难有一个标准、统一的答案
-
-## 小结
-
-本章节主要围绕
+所以由 ViewGroup 自身发起调用次数很难有一个标准、统一的答案，我们这里就不展开讨论了
 
 # 二、布局阶段
 
-如果说测量阶段的学习难度是100分的话，那布局阶段可以直接降一个数量级，降到10分（我觉得10分都高了！）
+最难的测量任务在上一章节已经结束了，接下来的内容会轻松很多
 
-最难的测量任务在上一阶段已经结束了，
+如果说测量阶段的学习难度是100分的话，那布局阶段可以直接降一个数量级，降到10分（10分我都觉得高了）
 
-布局阶段，这就大大减少了，
+布局阶段的任务量主要是在 ViewGroup 一侧，子 View 不参与布局过程，ViewGroup 负责把子 View 们按照LayoutParams 规则摆放好
+
+![android_graphic_v4_layout_process](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v4/android_graphic_v4_layout_process.GIF)
+
+*图片来源：自己画的*
 
 ## 再谈 LayoutParams
 
-想知道一个 ViewGroup 支持哪些属性的方法有很多，其中一种是点击 xml 文件中的 layot_xx 属性跳转到 attrs.xml 文件，在 attrs.xml 文件中，保存着 Android 官方控件的属性，每个属性都有注释表明是用来干嘛的
+在 ViewGroup 的测量阶段我们认识了 LayoutParams 和 MarginLayoutParams，这里再来简单复习一下
+
+LayoutParams 是 ViewGroup 的内部类，里面有 width / height 两个属性，用来描述一个 View 的宽高
+
+MarginLayoutParams 同样是 ViewGroup 的内部类，继承自LayoutParams，增加了上下左右四个方向的 margin 属性
+
+LayoutParams 是每个 ViewGroup 能够正确摆放子视图的重要依据，除了Android 为 ViewGroup 提供的这两个默认的 LayoutParams 外，每个 ViewGroup 也都会重写一个属于自己的 LayoutParams：
+
+> - FrameLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 gravity 属性
+> - LinearLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 weight、gravity 等属性
+> - RelativeLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 above、below、alignXxx、toXxxOf 等属性
+> - GridLayout.LayoutParams 继承自 MarginLayoutParams，在此基础上增加了 row、column、gravity 等属性
+
+从几个常用布局的 LayoutParams 可以看到，凡是支持设置 margin 属性的都会选择继承自 MarginLayoutParams
+
+想要了解某个 ViewGroup 支持哪些属性，我们可以在 xml 布局文件中直接点击 layot_xx 属性跳转到 attrs.xml 文件，在 attrs.xml 文件中，保存着所有 Android 官方控件支持的属性列表
 
 ## ViewGroup 的布局过程
 
-子视图怎么摆放完全由 ViewGroup 的业务决定，接下来我们一起手写一个斜着的线性布局，来感受一下布局阶段到底在布局些什么？
+ViewGroup 类中的 onLayout() 方法是空实现，且由 abstract 关键字修饰，这表示 Android 不但没有为 onLayout() 方法提供默认实现，还要求集成 ViewGroup 的类必须实现 onLayout() 方法
 
 ## 手写一个斜着的线性布局
+
+子视图怎么摆放完全由 ViewGroup 的业务决定，接下来我们一起手写一个斜着的线性布局，来感受一下布局阶段到底在布局些什么？
 
 先看效果
 
