@@ -136,10 +136,10 @@ void measureChild() {
 
  measure 过程是自顶向下的过程，我们可以把 View 当做一棵以 DecorView 作为 root 节点的多叉树，测量工作会以深度优先的顺序遍历整棵树，所以，子 View 的测量工作总是会在 ViewGroup 的测量工作之前发生
 
-对于一个正经的 View 来说，在 onMeasure() 阶段要完成两件事
+对于一个正经的 View 来说，在 onMeasure() 阶段要完成两件事：
 
-- 一是根据父视图传递的 MeasureSpec，合理的计算自己所需的尺寸大小
-- 二是在确定了尺寸后，调用 setMeasuredDimension() 方法进行保存
+1. 根据父视图传递的 MeasureSpec，合理的计算自己所需的尺寸大小
+2. 在确定了自身尺寸后，调用 setMeasuredDimension() 方法进行保存
 
 当子 View 的测量工作完成以后，父视图就可以通过调用 getMeasureWidth() / getMeasureHeight() 方法来获取子 View 的宽高
 
@@ -225,7 +225,7 @@ measureChild() 和 measureChildWithMargins() 都调用了 getChildMeasureSpec() 
 
 什么是 MarginLayoutParams 呢？
 
-### 初识 LayoutParams
+### 1、初识 LayoutParams
 
 View 有 top 、bottom 、left 、right 和 padding 这几个属性，记录的是这个 View 在屏幕坐标系中的绝对位置，但它的上下左右属性只有在 layout 阶段以后才会有具体的值
 
@@ -262,13 +262,13 @@ class MarginLayoutParams extends ViewGroup.LayoutParams {
 
 MarginLayoutParams 虽然是 View 的属性之一，但它描述的间距并不算在 View 的可用空间，在计算视图大小时，margin 是算到父视图的可用空间里，只有 padding 才是算到自己的可用空间
 
-### 为子 View 生成 MeasureSpec
+### 2、生成 ChildView MeasureSpec
 
 关于 LayoutParams 暂时先告一段落，在后面 layout 阶段会再次介绍，它是 ViewGroup 能够正确摆放子视图的重要依据
 
 接下来我们开始 ViewGroup 最核心的逻辑，如何为子 View 生成 MeasureSpec ？
 
-前面说了 Android 虽然没有为 ViewGroup 提供 onMeasure() 方法的默认实现，但 Android 为 ViewGroup 准备了几个测量子 View 的方法，其中最重要的当属 getChildMeasureSpec() 方法中的逻辑
+前面说了 Android 虽然没有为 ViewGroup 提供 onMeasure() 方法的默认实现，但 Android 为 ViewGroup 准备了几个测量子 View 的方法，其中最重要的当属 getChildMeasureSpec() 方法
 
 ```java
 /frameworks/base/core/java/android/view/ViewGroup.java
@@ -319,17 +319,15 @@ class ViewGroup extends View {
 }
 ```
 
-getChildMeasureSpec() 中主要是根据父视图的 MeasureSpec 和 子 View 的 LayoutParams 来生成 MeasureSpec，将代码逻辑统计成表格的话就是《Android开发艺术探索》中的内容
+getChildMeasureSpec() 中的逻辑主要是根据父视图的 MeasureSpec 和 子 View 的 LayoutParams 来生成 MeasureSpec，将代码中 ChildView MeasureSpec 的生成规则统计成表格的话就是《Android开发艺术探索》中的内容
 
 ![android_graphic_v4_measure_spec_book_excel](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v4/android_graphic_v4_measure_spec_book_excel.jpg)
 
 *图片来源：https://www.yuque.com/docs/share/c2296195-b016-49d3-a7d4-30775b2c0f3f*
 
-再次强调一遍，表格内的规则只适用于父视图调用 getChildMeasureSpec() 方法的情况下，我们完全可以自己调用 makeMeasureSpec() 来为子 View 创建一个不符合这套规则的 MeasureSpec
+当子 View 的 MeasureSpec 生成以后，ViewGroup 便可以通知子 View 执行测量工作，所有的子 View 全部完成测量工作以后，就轮到 ViewGroup 计算自身大小了
 
-当子 View 的 MeasureSpec 生成以后，ViewGroup 便可以通知子 View 执行测量工作
-
-接下来我们通过一段示例代码来总结一下 ViewGroup 的测量过程
+接下来我们通过一段示例代码来总结下 ViewGroup 的测量过程
 
 ```java
 /frameworks/base/core/java/android/widget/LinearLayout.java
@@ -358,33 +356,25 @@ class LinearLayout extends ViewGroup {
 }
 ```
 
-示例代码演示的是一个纵向的 LinearLayout 测量自身的过程：
+示例代码演示的是一个纵向的 LinearLayout 测量过程：
 
-- 它首先调用了 measureChildWithMargins() 方法为每个子 View 创建 MeasureSpec 并通知其执行 measure
+> 1. 调用了 measureChildWithMargins() 方法为每个子 View 创建 MeasureSpec 并通知其执行 measure
+> 2. 子 View 测量完成后，获取每个子 View 的高度累加到成员变量 mTotalLength ，同时不断更新最大宽度的子 View，它的宽度就是 LinearLayout 将来的宽度
+> 3. 循环结束表示所有子 View 全都测量完成，调用 setMeasuredDimension() 方法设置自身尺寸信息
 
-- 子 View 测量完成后，获取每个子 View 的高度累加到成员变量 mTotalLength ，同时不断更新最大宽度的子 View，它的宽度就是 LinearLayout 将来的宽度
-
-- 循环结束表示所有子 View 全都测量完成，调用 setMeasuredDimension() 方法设置自身尺寸信息
-
-当一个 ViewGroup 的测量工作结束，会开始执行它父视图的测量流程，直到最顶部的 DecorView measure 方法执行结束，该视图所依附的 Window 的最终大小才可以确定下来
+当一个 ViewGroup 的测量工作结束，会开始执行它的父视图的测量流程，直到最顶部的 DecorView 的 measure 方法执行结束，到那时，整个视图所依附的 Window 的大小才可以确定下来
 
 ## onMeasure() 执行多次的原因
 
 有过自定义 View / ViewGroup 开发经验的小伙伴肯定知道，View 的 onMeasure() 方法可能存在被多次调用的情况
 
-尤其是在首次加载 Activity 时，每个 View 最少也会执行2次 onMeasure() 方法
+尤其在首次加载 Activity 时，每个 View 最少也会执行2次 onMeasure() 方法
 
-有哪些原因会导致 View 执行多次测量呢？分为两种情况
+这2次测量调用都发生在 ViewRootImpl 类的 performTraversals() 方法中，其他的几次调用有的也还是发生在 ViewRootImpl 中，有的则是 ViewGroup 的个人行为，我们接着往下看
 
-- 一是在确定 Window 窗口大小时可能会调用多次，方法入口在 ViewRootImpl
+### 1、创建 Surface 引起的二次调用
 
-- 二是在确定 View 大小时也可能会调用多次，方法入口在各个 ViewGroup 的 onMeasure() 方法里
-
-首次加载 Activity 会执行2次 onMeasure() 的原因就在 ViewRootImpl 里面，我们接着往下看
-
-### 由 ViewRootImpl 发起
-
-了解 View 显示合成的同学肯定知道 ViewRootImpl 里面管理着一个 Surface 对象
+[上一篇](https://juejin.cn/post/7132777622487957517#heading-14)文章中我们介绍了 ViewRootImpl 里面管理着一个 Surface 对象
 
 View 必须依托 Surface 对象才能够显示绘制，所以，在 View 执行测量工作之前，Surface 的大小必须先确定下来
 
@@ -396,7 +386,7 @@ class ViewRootImpl {
     
     void performTraversals() {
         if(layoutRequested){//APP发起requestLayout请求
-            measureHierarchy();//① 执行日常测量工作
+            boolean 视图尺寸发生变化 = measureHierarchy();//① 执行日常测量工作
         }
         if(首次添加视图/视图尺寸发生变化等){
             relayoutWindow();//Window大小确定下来以后，去sf申请对应大小的surface
@@ -404,7 +394,9 @@ class ViewRootImpl {
         }
     }
     
-    boolean measureHierarchy();//执行测量，并返回和缓存的窗口大小比，新的测量尺寸是否发生变化
+    boolean measureHierarchy(){//执行测量，并返回和缓存的窗口大小比，新的测量尺寸是否发生变化
+      performMeasure();
+    }
     
     void performMeasure() {
         mView.measure();
@@ -412,26 +404,28 @@ class ViewRootImpl {
 }
 ```
 
-从 performTraversals() 方法的代码逻辑中我们发现，当开发者发起requestLayout请求时，最终是由 measureHierarchy() 方法来执行测量工作
+在 performTraversals() 方法中可以看到，当我们发起requestLayout请求时，最终是由 measureHierarchy() 方法来执行测量工作
 
-测量工作结束后，接着判断是不是首次添加视图或者发现测量的结果与缓存窗口尺寸不符
+测量工作结束后，接着判断是不是首次添加视图或者测量得到的结果与缓存窗口尺寸不符
 
-- 首次添加视图，说明 Surface 之前不存在，需要重新创建
-- 测量结果与缓存不符，说明 Surface 的大小发生变化，需要重新申请
+1. 如果是首次添加视图，说明 Surface 之前不存在，需要重新创建
+2. 如果调用 measureHierarchy() 方法得到的测量结果与缓存不符，说明 Window 的大小发生变化，需要重新申请Surface
 
-只要满足以上条件，ViewRootImpl 便会携带测量后的宽高调用 relayoutWindow() 方法，请求 SF 进程创建一个符合尺寸要求的 Surface
+只要满足以上条件，ViewRootImpl 便会携带测量得到的宽高值去调用 relayoutWindow() 方法，请求 SF 进程创建一个符合尺寸要求的 Surface
 
-到这里，Surface 的大小便可以确定下来了！
+等到 relayoutWindow() 方法返回，一个和 DecorView 大小相同的 Surface 便创建成功。
 
-回头看 Surface 的创建过程，一共执行了两次测量（代码中标记为1/2号）：
+在创建 Surface 的过程中，一共执行了两次测量（代码中标记为1/2号）：
 
 第一次是在 measureHierarchy() 方法中调用了 performMeasure() 执行测量工作
 
-第二次是在 relayoutWindow() 方法申请到 Surface 以后再次调用 performMeasure() 发起的测量
+第二次是在 relayoutWindow() 方法申请到 Surface 以后，再次调用 performMeasure() 发起的测量
 
-这两次测量就是首次加载 Activity 时，每个 View 都会执行2次 onMeasure() 方法的原因！！！
+这两次测量就是首次加载 Activity 时，View 都会执行2次 onMeasure() 方法的原因！
 
-在了解首次加载会发生2次测量的原因后，我们来看下面的这张表格：
+### 2、Dialog 可能会引发多次调用
+
+在了解创建 Surface 会导致二次调用 onMeasure() 方法的原因后，我们来看下面的这张表格：
 
 ![android_graphic_v4_measure_count_test](/Users/bob/Desktop/Bob/work/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v4/android_graphic_v4_measure_count_test.jpg)
 
@@ -439,13 +433,13 @@ class ViewRootImpl {
 
 这张表格的数据来自我自己做的一个小测试，测试的步骤很简单：自定义一个 ViewGroup 继承自 FrameLayout，在不同的 Activity 主题中，记录 onMeasure() 方法的执行次数
 
-从测试的结果来看，普通的 Activity + FrameLayout 的组合，首次加载时 onMeasure() 方法被调用了2次，请求 requestLayout() 以后 onMeasure() 方法执行了一次，符合我们的预期
+从测试的结果来看，普通的 Activity + FrameLayout 的组合，在首次加载 Activity 时 onMeasure() 方法被调用了2次，在我们手动请求 requestLayout() 以后 onMeasure() 方法执行了一次，测试结果符合我们的预期
 
-但是，当 Activity 的主题为 Dialog 时，onMeasure() 的调用次数竟然达到了6次！
+但是，当我们把 Activity 的主题为 Dialog 时，onMeasure() 方法的调用次数竟然达到了6次！
 
-我们把根视图的宽度改为屏幕实际的宽度后，onMeasure() 方法的调用次数更是达到了惊人的12次！
+再把根视图的宽度改为和屏幕实际宽度相同后，onMeasure() 方法的调用次数更是达到了惊人的12次！！
 
-通过跟踪方法调用链可以发现，多出来的几次都是由 measureHierarchy() 方法发起的调用，一起来看看 measureHierarchy() 方法的代码逻辑：
+为什么会发生这么多次的调用？跟踪 performMeasure() 方法的调用链可以发现，多出来的几次调用都是在 measureHierarchy() 方法内发起，那接下来我们就一起来看看 measureHierarchy() 方法里面都做了些什么
 
 ```java
 /frameworks/base/core/java/android/view/ViewRootImpl.java
@@ -486,59 +480,78 @@ class ViewRootImpl {
 }
 ```
 
-在 measureHierarchy() 方法中，首先判断 DecorView 的宽度是不是 WRAP_CONTENT，如果是的话表示该视图可能是个 Dialog 或者是 Dialog 主题的 Activity
+在 measureHierarchy() 方法中，首先会判断 DecorView 的宽度是不是 WRAP_CONTENT，是的话表示该视图可能是个 Dialog 或者是 Dialog 主题的 Activity
 
-如果是 Dialog 类型，Android 不希望它充满屏幕，所以视图的宽度将会被设置为系统预设宽度，然后执行测量工作
+如果是 Dialog 类型的视图，Android 不希望它充满屏幕，因此，视图的宽度将会从屏幕实际宽度更改为 Dialog 的系统预设宽度，然后执行视图的测量工作
 
-第一次测量完成以后，如果发现 DecorView 期望的宽度比系统预设宽度大，那就用系统预设宽度 + 屏幕实际宽度 / 2算出来的值（比如屏幕实际宽度为100，系统预设宽度为60，重新计算结果为(100 + 60) / 2 = 80）当做新的宽度要求，再次执行测量工作
+第一次测量完成后，如果该视图期望的宽度比系统预设宽度大，那就用系统预设宽度 + 屏幕实际宽度 / 2算出来的值当做新的宽度要求，再次执行测量工作（比如屏幕实际宽度为100，系统预设宽度为60，新的宽度为(100 + 60) / 2 = 80）
 
-第二次测量完成以后，如果发现扩容后的宽度仍然不满足 DecorView 期望的宽度，Android 系统将不再尝试再次测量，等第三次的最终测量
+第二次测量完成后，如果扩容后的宽度大小仍然不满足该视图期望值，Android 系统将不再尝试再次测量，等待第三次的最终测量
 
 第三次测量执行之前会先判断 goodMeasure 变量的值，只有当 goodMeasure 为 false 的情况下才会执行测量，什么时候值会为 false 呢？两种情况（看代码注释）：
 
-要么视图是普通的Activity，DecorView 宽不为 WRAP_CONTENT 的情况，那么标记为3号的 performMeasure() 方法将会是第一次调用
+> - 视图是普通的 Activity，DecorView 宽不为 WRAP_CONTENT 的情况，那么标记为3号的 performMeasure() 方法将会被执行（第一次调用）
+>
+> - 视图是 Dialog 类型，且 Dialog 想要的宽度很大，系统预设的宽度不满足，再次扩容以后同样不满足，那么标记为3号的 performMeasure() 方法将会被执行（第三次调用）
 
-要么视图是 Dialog 类型，且 Dialog 想要的宽度很大，系统预设的宽度不满足，再次扩容以后同样不满足，那么标记为3号的 performMeasure() 方法将会是第三次调用
+在测试中我发现如果把 Activity 设置为 Dialog 主题后，每次 requestLayout() 都会执行3次 performTraversals() 方法，导致同一个调用链也会重复3遍，发生这种情况的原因我暂时不清楚，有了解这块的老哥可以在评论区留言
 
-注意看测试表格中的"代码调用链"一栏，我们会发现将 Activity 设置为 Dialog 主题后，每次 requestLayout() 都会执行3次 performTraversals() 方法，导致同一个调用链也会重复3遍
+我们把数据手动去重以后，会发现去重后的调用链会完全符合 measureHierarchy() 方法中的代码逻辑
 
-performTraversals() 方法会重复执行的原因我暂时不清楚，所以我们只能对数据手动去重，去重以后的调用链会完全符合 measureHierarchy() 方法中的代码逻辑
+### 3、Window 权重导致多次调用
 
-另外，
+在 ViewRootImpl 的 performTraversals() 方法中，还有一种不怎么常见的场景同样会触发执行 onMeasure() 方法，直接来看代码
 
-综上，在 ViewRootImpl 类中发起 onMeasure() 的原因有：
+```java
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+    void performTraversals() {
+        if (lp.horizontalWeight/lp.verticalWeight > 0.0f){///WindowManager.LayoutParams中的垂直/水平方向的权重是否大于0，这玩意不知道在哪可以设置
+            measureAgain = true;
+        }
+        if(measureAgain)performMeasure();
+    }
+}
+```
 
-- 调用 requestLayout() 请求重新布局时会调用 measureHierarchy() 方法测量
-  - DecorView 的宽为 wrap_content 时（Dialog 或者 Dialog 主题的 Activity），会执行一次测量
-  - DecorView 内有 View 申请大于等于预置 Dialog 宽度的情况，扩大尺寸，在执行一次测量
-  - 两次测量结果均不满足 DecorView 或者 DecorView 的宽并非 wrap_content 时，执行一次测量
-- 首次加载视图或者 Window 的尺寸发生变化，申请到 Surface 以后，调用 performMeasure() 方法执行一次测量
+在 performTraversals() 方法中，会检查 WindowManager.LayoutParams 是否设置权重，如果设置了则会重新执行一次测量
 
-以上是在 ViewRootImpl 中所有可能发生测量的几种情况
+我在源码中全局搜索后，发现只有 Toast 类中会设置 horizontalWeight / verticalWeight 属性，具体代码逻辑我没有深究，感兴趣的同学可以自己点击[这里](http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/android/widget/Toast.java#415)查看源码
 
-### 由 ViewGroup 发起
+到这里，ViewRootImpl 类中所有能发起测量的地方我们都分析完了，performMeasure() 方法一共有5处调用
 
-除了 ViewRootImpl 入口处会发起多次调用外，各个 ViewGroup 自身的业务逻辑同样会导致 View 的 onMeasure() 被调用多次
+![android_graphic_v4_measure_viewrootimpl](/Users/bob/Desktop/Bob/workspace/androidstudio/Blackboard/Blog/src/main/java/com/android/blog/android_view/imgs/v4/android_graphic_v4_measure_viewrootimpl.GIF)
+
+*图片来源：自己截图*
+
+在 measureHierarchy() 方法中调用3次：
+
+1. 在1331行，视图为Dialog 类型时，将视图宽度设置为 Dialog 预置宽度，发起首次测量
+2. 在1344行，视图为 Dialog 类型时，预置宽度不满足视图期望值，扩容宽度后再次发起测量
+3. 在1358行，goodMeasure 变量为 false 的情况下，两种情况：
+   1. 该视图是普通的 Activity，发起第一次测量
+   2. 该视图是 Dialog，且 Dialog 想要的宽度很大，预设宽度和扩容宽度均不满足，给它屏幕实际尺寸发起第三次测量
+
+performTraversals() 方法中调用了2次：
+
+1. 在2024行，每次申请到 Surface 以后，发起一次测量
+2. 在2050行，为 Window 设置权重时，再次发起一次测量
+
+### 4、由 ViewGroup 自身发起调用
+
+除了 ViewRootImpl 入口处会发起多次调用外，各个 ViewGroup 自身的业务逻辑同样会导致 View 的 onMeasure() 被多次调用
 
 这部分内容我们可以去看缘佬在[ 玩 Android 每日一问 onMeasure()多次执行原因？](https://www.wanandroid.com/wenda/show/17920)这个问题下的回答
 
-照搬两句缘佬的回答
+搬一部分缘佬的回答：View.`onMeasure`方法的回调次数，主要取决于它所在的容器的`onMeasure`逻辑，搭配不同ViewGroup和设置不同属性都会有影响
 
-ViewGroup没有默认实现onMeasure()方法，
+比如 LinearLayout 在设置权重属性后就会多执行一次测量流程，LinearLayout 最少会经历1次测量，最多会经历3次
+
+所以由 ViewGroup 自身发起调用次数很难有一个标准、统一的答案
 
 ## 小结
 
-为什么ViewGroup没有默认实现？
-
-因为 ViewGroup 容器，它的职责是结合容器内的子View计算自己的高度，这是由ViewGroup的不同的属性决定的
-
-这是由业务决定的
-
-这张图的结论是怎么来的？
-
-在测量阶段，View 和 ViewGroup 的侧重点完全不同
-
-对于 View 来说，onMeasure() 是通知，我可以在父视图的规则下进行测量，也可以肆意妄为
+本章节主要围绕
 
 # 二、布局阶段
 

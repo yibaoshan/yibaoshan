@@ -263,6 +263,17 @@ class ViewRootImpl {
         return windowSizeMayChange;//返回和缓存的window相比，测量下来的视图大小是否发生变化
     }
 }
+
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+    void performTraversals() {
+        if (lp.horizontalWeight/lp.verticalWeight > 0.0f){///WindowManager.LayoutParams中的垂直/水平方向的权重是否大于0，这玩意不知道在哪可以设置
+            measureAgain = true;
+        }
+        if(measureAgain)performMeasure();
+    }
+}
+
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
@@ -313,7 +324,6 @@ class ViewRootImpl {
         }
         if(measureAgain)performMeasure();
         ...
-        performLayout();
     }
 
     //确定APP的测量模式和大小
