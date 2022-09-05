@@ -47,6 +47,92 @@ margin和padding
 并不是每次vsync信号时都会发生measure、layout
 */
 
+class LinearLayout extends ViewGroup {
+
+    void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int mTotalLength = 0;
+        for (int i = 0; i < count; ++i) {
+            measureChildWithMargins(child, widthMeasureSpec, totalWidth,heightMeasureSpec, totalHeight);
+            mTotalLength += child.getHeight(); // 获取每个View高度，累加结果 LinearLayout 的高度
+        }
+    }
+
+    void measureChildWithMargins(View child,int parentWidthMeasureSpec,int parentHeightMeasureSpec) {
+        MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+        int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,lp.width);
+        int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec, lp.height);
+        child.measure(childWidthMeasureSpec, childHeightMeasureSpec);// 通知子 View 执行 measure
+    }
+
+    void getChildMeasureSpec();//为子 View 生成 MeasureSpec
+
+}
+
+protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed, int parentHeightMeasureSpec, int heightUsed) {
+
+// 子View的LayoutParams，你在xml的layout_width和layout_height,
+// layout_xxx的值最后都会封装到这个个LayoutParams。
+final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+
+//根据父View的测量规格和父View自己的Padding，
+//还有子View的Margin和已经用掉的空间大小（widthUsed），就能算出子View的MeasureSpec,具体计算过程看getChildMeasureSpec方法。
+final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,
+mPaddingLeft + mPaddingRight + lp.leftMargin + lp.rightMargin + widthUsed, lp.width);
+
+final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,
+mPaddingTop + mPaddingBottom + lp.topMargin + lp.bottomMargin  + heightUsed, lp.height);
+
+//通过父View的MeasureSpec和子View的自己LayoutParams的计算，算出子View的MeasureSpec，然后父容器传递给子容器的
+// 然后让子View用这个MeasureSpec（一个测量要求，比如不能超过多大）去测量自己，如果子View是ViewGroup 那还会递归往下测量。
+child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+
+}
+/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup extends View {
+    int getChildMeasureSpec(int spec, int padding, int childDimension) {
+        int specMode = MeasureSpec.getMode(spec);//父视图的 SpecMode
+        int specSize = MeasureSpec.getSize(spec);//父视图的大小
+        int size = Math.max(0, specSize - padding);//子视图可用空间大小为：父视图大小 - 父视图 padding - 子视图 margin
+
+        int resultSize = 0;
+        int resultMode = 0;
+
+        switch (specMode) {
+            case MeasureSpec.EXACTLY: // 父视图为 EXACTLY 时
+                if (childDimension >= 0)
+                    resultSize = childDimension;// 子视图设置的大小为固定值时，听子视图的，我不管你，爱多大就多大，模式也给你精确模式 EXACTLY
+                    resultMode = MeasureSpec.EXACTLY;/
+                if (childDimension == LayoutParams.MATCH_PARENT) {
+                    resultSize = size;// 子视图为 MATCH_PARENT ，把你的大小设置和父视图相同，值固定了，模式给你精确模式 EXACTLY
+                    resultMode = MeasureSpec.EXACTLY;
+                if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    resultSize = size;// 子视图为 WRAP_CONTENT，爸爸也不知道你要多大，把我的全部都给你，模式指定为最大模式，你在这个范围内随意发挥
+                    resultMode = MeasureSpec.AT_MOST;
+            case MeasureSpec.AT_MOST: // 父视图为 AT_MOST 时
+                if (childDimension >= 0) {
+                    resultSize = childDimension;// 同上，子视图设置的大小为固定值时，听子视图的，我不管你，爱多大就多大，模式也给你精确模式 EXACTLY
+                    resultMode = MeasureSpec.EXACTLY;
+                if (childDimension == LayoutParams.MATCH_PARENT) {
+                    resultSize = size;// 虽然子视图是 MATCH_PARENT 但父视图我自个是 AT_MOST，那怎么办？我多大你多大呗，将模式指定为最大模式，在我给你这个范围内随意发挥好了
+                    resultMode = MeasureSpec.AT_MOST;
+                if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    resultSize = size;// 同上，把父视图的全部都给你，模式指定为最大模式，你在这个范围内随意发挥
+                    resultMode = MeasureSpec.AT_MOST;
+        case MeasureSpec.UNSPECIFIED: // 父视图为 UNSPECIFIED 时
+                if (childDimension >= 0) {
+                    resultSize = childDimension;// 不管父视图我是什么模式，只要你设置了具体值，你爱多大多大
+                    resultMode = MeasureSpec.EXACTLY;
+                if (childDimension == LayoutParams.MATCH_PARENT) {
+                    resultSize = sUseZeroUnspecifiedMeasureSpec ? 0 : size;// 子视图想和我一样大？ 满足你，模式给你 UNSPECIFIED，ps：sUseZeroUnspecifiedMeasureSpec 默认为false
+                    resultMode = MeasureSpec.UNSPECIFIED;  //mode为
+                if (childDimension == LayoutParams.WRAP_CONTENT) {
+                    resultSize = sUseZeroUnspecifiedMeasureSpec ? 0 : size;// 你也不知道自己多大，那我就把自己的尺寸给你，模式也给你我的模式 UNSPECIFIED
+                    resultMode = MeasureSpec.UNSPECIFIED;
+        }
+        return MeasureSpec.makeMeasureSpec(resultSize, resultMode);
+    }
+}
+
 //描述View/ViewGroup的宽高值
 class LayoutParams {
 
@@ -140,6 +226,42 @@ void measureChild() {
     int childHeightMeasureSpec = MeasureSpec.makeSafeMeasureSpec(parentSize,MeasureSpec.UNSPECIFIED);
 
     child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+}
+
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    boolean measureHierarchy(int desiredWindowWidth, int desiredWindowHeight){
+        //宽度为 WRAP_CONTENT，通常表示是 Dialog 或者是 Dialog 主题的 Activity
+        if (width == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            int baseSize = 读取系统预置的Dialog宽度;
+            //既然是Dialog，Android不希望它充满屏幕，所以这里的宽度被设置为了预设宽度
+            childWidthMeasureSpec = getRootMeasureSpec(baseSize, lp.width);
+            childHeightMeasureSpec = getRootMeasureSpec(desiredWindowHeight, lp.height);//高度依旧为屏幕高度，你想要多高自己定
+            //①进行首次测量
+            performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+            //测量结束后，发现视图期望的宽度没有超过预设宽度，goodMeasure设为true，在后续流程中不再执行测量工作，MEASURED_STATE_TOO_SMALL这个flag表示测量尺寸小于视图想要的空间
+            if ((host.getMeasuredWidthAndState() & View.MEASURED_STATE_TOO_SMALL) == 0) {
+                goodMeasure = true;
+            } else {
+                //视图期望的宽度超过了预置宽度，比如我在xml写死"layout_width=10086px"，那么把baseSize改大一些再次测量试一试
+                baseSize = (baseSize + desiredWindowWidth) / 2;
+                //②再次执行测量
+                performMeasure(childWidthMeasureSpec, childHeightMeasureSpec);
+                //同样的，在测量执行结束后查看宽度是否满足预期，满足则将goodMeasure设为true，在后续流程中不再执行测量工作
+                if ((host.getMeasuredWidthAndState() & View.MEASURED_STATE_TOO_SMALL) == 0) {
+                    goodMeasure = true;
+                }
+            }
+        }
+        if (!goodMeasure) {
+            //方法能走到这有两种情况：
+            //1. 该视图是普通的Activity，DecorView宽高不是 WRAP_CONTENT
+            //2. 该视图是Dialog类型，且Dialog想要的宽度很大，系统预设的宽度不满足，再次扩容以后同样不满足，没办法，索性直接给它屏幕的实际宽高让它自己折腾去
+            performMeasure(childWidthMeasureSpec,childHeightMeasureSpec);
+        }
+        return windowSizeMayChange;//返回和缓存的window相比，测量下来的视图大小是否发生变化
+    }
 }
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
