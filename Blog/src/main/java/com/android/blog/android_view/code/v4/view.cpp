@@ -656,6 +656,8 @@ class View {
         onDrawForeground(canvas);//最后画前景
     }
 
+    void dispatchDraw();//空方法
+
     boolean draw(Canvas canvas, ViewGroup parent, long drawingTime) {
         draw(canvas);
     }
@@ -664,9 +666,16 @@ class View {
 /frameworks/base/core/java/android/view/ViewGroup.java
 class ViewGroup {
 
+    void draw(Canvas canvas) {
+        drawBackground();//先画背景
+        onDraw(canvas);//不管是View还是ViewGroup，先把自己画出来
+        dispatchDraw(canvas);//通知子视图执行绘制，如果是视图是View，这个方法默认为空，只有ViewGroup有实现
+        onDrawForeground(canvas);//最后画前景
+    }
+
     void dispatchDraw(){
         for (int i = 0; i < childrenCount; i++) {
-            drawChild(canvas, child, drawingTime);
+            draw();//简化过的路径
         }
     }
 
@@ -717,5 +726,27 @@ class DisplayListCanvas {
         //保存指令
     }
 
+}
 
+/frameworks/base/core/java/android/view/View.java
+class View {
+
+    void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+      	int width = getDefaultSize(widthMeasureSpec);
+      	int height = getDefaultSize(heightMeasureSpec);
+        setMeasuredDimension(width,height);//保存宽高值
+    }
+
+    int getDefaultSize(int size, int measureSpec) {
+        switch (specMode) {
+            case MeasureSpec.UNSPECIFIED://注意，如果接收到未指定模式，一定要为View设置背景或者设置最小高度
+                result = size;
+                break;
+            case MeasureSpec.AT_MOST:
+            case MeasureSpec.EXACTLY:
+                result = specSize;
+                break;
+        }
+        return result;
+    }
 }
