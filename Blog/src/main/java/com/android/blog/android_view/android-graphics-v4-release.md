@@ -584,11 +584,60 @@ LayoutParams 是每个 ViewGroup 能够正确摆放子视图的重要依据，�
 
 ## ViewGroup 的布局过程
 
-ViewGroup 类中的 onLayout() 方法是空实现，且由 abstract 关键字修饰，这表示 Android 不但没有为 onLayout() 方法提供默认实现，还要求集成 ViewGroup 的类必须实现 onLayout() 方法
+layout() 事件的起点和测量事件一样，都在 ViewRootImpl 类中触发，布局流程执行的顺序也和测量流程相同，以 DecorView 作为 View 多叉树的根节点，深度优先遍历整棵树
+
+来看入口函数
+
+```java
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    void performTraversals() {
+        if(发起requestLayout请求){
+            performLayout();
+        }
+    }
+    void performLayout(){
+        mView.layout(mView.getMeasuredWidth(), mView.getMeasuredHeight());//以DecorView的宽高作为起始坐标
+    }
+}
+```
+
+ViewRootImpl 中判断是否有任一 View 发起过 requestLayout() 请求，有的话执行 performLayout() 方法，从 DecorView 开始向下分发 layout() 事件
+
+接着看 ViewGroup 类接收到 layout() 事件后的处理逻辑
+
+```java
+/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup extends View {
+
+  	//View.java中的逻辑，被我挪到这了
+    void layout(int l, int t, int r, int b){
+        setFrame();
+        if(该视图执行了requestLayout()请求，或者视图的位置发生变化){
+            onLayout();
+        }
+    }
+    
+    boolean setFrame(int left, int top, int right, int bottom) {
+        //如果视图位置发生变化，保存新的上下左右坐标点位置
+    }
+
+    abstract void onLayout(boolean changed,int l, int t, int r, int b);
+}
+```
+
+ViewRootImpl 在向下分发布局事件的过程中，会通知到每个 View 的 layout() 方法，所以在 layout() 方法中，会先判断自己有没有发起过 requestLayout() 请求，没有发起请求说明不需要更新，就不执行 onLayout() 方法了
+
+如果自己调用过 requestLayout() 请求，或者视图的位置发生变化，会将新的位置信息保存下来，然后调用自身的 onLayout() 方法执行布局
+
+在 ViewGroup 中，onLayout() 方法是由 abstract 关键字修饰的空方法，这表示 Android 要求所有继承 ViewGroup 的类必须自行实现 onLayout() 方法
+
+到这里，对于 Android 系统来说，整个布局流程已经执行完成了（开头说的布局很简单没骗你吧），接下来调用的 onLayout() 方法是各个 ViewGroup 自身的业务逻辑
 
 ## 手写一个斜着的线性布局
 
-子视图怎么摆放完全由 ViewGroup 的业务决定，接下来我们一起手写一个斜着的线性布局，来感受一下布局阶段到底在布局些什么？
+为了更好的理解 ViewGroup 的布局过程，接下来我准备手写一个可以斜着摆放子 View 的线性布局，在一步步实现功能的过程中理解布局阶段的意义
 
 先看效果
 
@@ -596,12 +645,101 @@ ViewGroup 类中的 onLayout() 方法是空实现，且由 abstract 关键字修
 
 *图片来源：自己录的*
 
-可以想象成一个纵向居中的 LinearLayout 内部有几个子 View ，点击“启用倾斜属性”后，这个 ViewGroup 会更改这几个子视图的左间距
+动图演示的是一个纵向居中排列的容器，容器内包含5个 TextView 和 1个 ImageView，点击“启用倾斜属性”按钮后，ViewGroup 会按照一定的偏移量重新布局，把容器内所有的子 View 以左上到右下对角线的方式斜着摆放
+
+SlantLinearLayout 实现的功能非常简单，代码量也不多，关键代码只有3行：
+
+```java
+class SlantLinearLayout extends LinearLayout {
+
+    void onLayout(boolean changed, int l, int t, int r, int b) {
+        for (int i = 0; i < getChildCount(); i++) {
+           int childLeft = (childSpace - childWidth) / 2;//根据父视图的padding和子View的margin、自身测量的宽高，计算每个子View起始位置
+           int childTop += lp.topMargin;//起始位置加上子View设定的顶部距离
+           int childOffset = offset * i - (count - i - 1) * offset;//如果用户启用倾斜属性，那么计算每个子View在原先的基础上的偏移量
+           
+           child.layout(left, top, left + width, top + height);//通知子View执行布局
+        }
+    }
+}
+```
+
+在上一节测量阶段执行完以后，SlantLinearLayout 的自身宽高和子 View 们的宽高都已经确定下来了，我们可以根据测量的结果来计算每个子 View 所在的位置
+
+- childTop 表示每个 View 距离顶部的值，由于容器是纵向的线性排列，所以在确定了第一个距离顶部的高度后，接下来每次累加子 View 自身的高度作为下一个子 View 的起始高度就行了
+
+- childLeft 表示每个 View 距离左边的值，由于每个 View 宽度都不一样，所以 childLeft 要动态计算
+
+- childOffset 表示每个 View 距离左边的偏移量，如果用户启用倾斜属性，那么计算每个子 View 时需要在原先的基础上的加上设定的偏移量
+
+SlantLinearLayout 的布局阶段就是在不停的计算这3个变量的值，然后调用子 View 的 layout() 方法，将计算得到的上下左右位置信息（屏幕坐标系的绝对值）传递给子 View，点击[[这里]](https://github.com/yibaoshan/Blackboard/blob/master/Blog/src/main/java/com/android/blog/android_view/demo/v4/SlantLinearLayout.java)查看源码
+
+布局阶段结束后，开发者可以调用 getWidth() / getHeight() 方法来获取视图的宽高
 
 # 三、绘制阶段
 
-绘制在三部曲中的地位有些特殊，从
+绘制阶段在三部曲中的地位有些特殊，体现在两个方面
 
-# 四、参考资料
+一是绘制执行的顺序，测量和布局阶段都是先执行子 View 再执行 ViewGroup 自身，而绘制是先执行 ViewGroup 绘制流程，再执行子 View 的绘制流程
+
+二是绘制流程还涉及到硬件加速，启用硬件加速和关闭硬件加速方法走的是两条完全不同的路线，这就会导致绘制阶段的调用链要更复杂一些，在后续分析方法调用的时候要有心理准备
+
+按照惯例，先来看绘制流程的入口：
+
+```java
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    void performTraversals() {
+        performDraw();
+    }
+
+    void performDraw(){
+        draw();
+    }
+
+    void draw() {
+        if(是否启用硬件绘制){
+            ThreadedRenderer.draw(mView);
+        } else {
+            drawSoftware();
+        }
+    }
+}
+```
+
+依旧是 ViewRootImpl#performTraversals() 方法作为绘制事件的入口，经过 performDraw() 转发后，最终由 draw() 来执行绘制事件的分发
+
+在 draw() 方法中，先判断应用是否启用硬件加速，如果启用硬件加速的话就走 ThreadedRenderer#draw() 方法
+
+Android 4.0 以后对所有应用程序都默认开启硬件加速，加上现在的 GPU 驱动对绘图指令支持的非常全面，所以绝大多数的应用其实都是走硬件绘制这条线的
+
+## 硬件绘制
+
+硬件绘制主要逻辑在 ThreadedRenderer 类里面
+
+如果视图是 ViewGroup 类型，在分发绘制事件时，不会直接调用子 View 的 draw() 方法
+
+## 硬件绘制
+
+开不开硬件加速都不要在 onDraw() 里面折腾
+
+到这里，对于 Android 系统来说，整个绘制流程已经执行完成了，接下来调用的 onDraw() 方法是各个 View 自身的业务逻辑
+
+# 四、结语
+
+在文章的最后，本篇文章介绍了自定义 View / ViewGroup 过程中最重要的三个流程：测量、布局、绘制，每个阶段我们需要关心的重点也不同
+
+对于测量阶段，我们需要理解三种 MeasureSpec 的含义、ChildView MeasureSpec 的默认生成规则，以及了解为什么 onMeasure() 方法会执行多次的原因
+
+对于布局阶段，我们需要了解 LayoutParams 对于 ViewGroup 的意义，布局阶段的流程
+
+对于绘制阶段，我们需要了解 View / ViewGroup 的绘制顺序，以及掌握一些基础的 Canvas API
+
+希望能对大家有帮助
+
+全文完
+
+# 五、参考资料
 
 - [Android measure过程 - 吴迪](https://www.viseator.com/2017/03/10/android_view_onMeasure/)

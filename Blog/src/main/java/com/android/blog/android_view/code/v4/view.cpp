@@ -273,6 +273,18 @@ class ViewRootImpl {
         if(measureAgain)performMeasure();
     }
 }
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    void performTraversals() {
+        if(发起requestLayout请求){
+            performLayout();
+        }
+    }
+    void performLayout(){
+        mView.layout(mView.getMeasuredWidth(), mView.getMeasuredHeight());//以DecorView的宽高作为起始坐标
+    }
+}
 
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
@@ -556,6 +568,153 @@ class ViewGroup {
         public int rightMargin;
         public int bottomMargin;
         ...
+    }
+
+
+}
+
+/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup {
+
+    void measure(int l, int t, int r, int b){
+        if(该视图执行了requestLayout()请求，或者视图的位置发生变化){
+            onLayout();
+        }
+    }
+
+    abstract void onLayout(boolean changed,int l, int t, int r, int b);
+}
+
+class SlantLinearLayout extends LinearLayout {
+
+    int childLeft;//每个子View距离左边间距大小，这里偷懒全部居中了
+    int childTop = getPaddingTop() + (bottom - top - getTotalLength()) / 2;//垂直方向也直接居中处理了，这里计算的是第一个子View的起始位置
+    int childSpace = right - left - getPaddingLeft() - getPaddingRight();//减去父视图的padding后，所有子View实际可用的宽度
+
+    void onLayout(boolean changed, int l, int t, int r, int b) {
+        final int count = getChildCount();
+
+        for (int i = 0; i < count; i++) {
+           View child = getChildAt(i);
+           int childWidth = child.getMeasuredWidth();//获取子View测量的宽
+           int childHeight = child.getMeasuredHeight();//获取子View测量的高
+
+           childLeft = getPaddingLeft() + ((childSpace - childWidth) / 2) + lp.leftMargin - lp.rightMargin;//根据父视图的padding和子View的margin、自身测量的宽高，计算每个子View起始位置
+           childTop += lp.topMargin;//起始位置加上子View设定的顶部距离
+
+           int childOffset = offset * i - (count - i - 1) * offset;//如果用户启用倾斜属性，那么计算每个子View在原先的基础上的偏移量
+           child.layout(left, top, left + width, top + height);//通知子View执行布局
+        }
+    }
+}
+
+/*
+启用硬件加速后的调用链
+ThreadedRenderer#draw()->updateRootDisplayList()->updateViewTreeDisplayList()
+    View#updateDisplayListIfDirty()->draw(canvas)//注意，这里canvas的类型被转为了RecordingCanvas
+
+未启用硬件加速的调用链
+View#draw()
+
+RecordingCanvas 从名字就可以看出来它不干
+
+*/
+/frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+
+    void performTraversals() {
+        performDraw();
+    }
+
+    void performDraw(){
+        draw();
+    }
+
+    void draw() {
+        if(是否启用硬件绘制){
+            ThreadedRenderer.draw(mView);
+        } else {
+            drawSoftware();
+        }
+    }
+
+    void drawSoftware(){
+        canvas = mSurface.lockCanvas(dirty);//获取一个可用的graphicbuffer
+        mView.draw(canvas);//执行画画
+        surface.unlockCanvasAndPost(canvas);//把绘制完成的 graphicbuffer 入列，交给sf进程执行合成
+    }
+}
+
+//软件绘制
+/frameworks/base/core/java/android/view/View.java
+class View {
+
+    void draw(Canvas canvas) {
+        drawBackground();//先画背景
+        onDraw(canvas);//不管是View还是ViewGroup，先把自己画出来
+        dispatchDraw(canvas);//通知子视图执行绘制，如果是视图是View，这个方法默认为空，只有ViewGroup有实现
+        onDrawForeground(canvas);//最后画前景
+    }
+
+    boolean draw(Canvas canvas, ViewGroup parent, long drawingTime) {
+        draw(canvas);
+    }
+}
+
+/frameworks/base/core/java/android/view/ViewGroup.java
+class ViewGroup {
+
+    void dispatchDraw(){
+        for (int i = 0; i < childrenCount; i++) {
+            drawChild(canvas, child, drawingTime);
+        }
+    }
+
+}
+
+//硬件绘制
+/frameworks/base/core/java/android/view/ThreadedRenderer.java
+class ThreadedRenderer {
+
+    void draw(){
+        updateRootDisplayList();
+        int syncResult = nSyncAndDrawFrame();//切换到render thread 执行真正的绘图指令！
+    }
+
+    void updateRootDisplayList(){
+        updateViewTreeDisplayList(view);
+    }
+
+    void updateViewTreeDisplayList(view){
+        view.updateDisplayListIfDirty();
+    }
+}
+
+/frameworks/base/core/java/android/view/View.java
+class View {
+
+    //DisplayListCanvas 继承自 Canvas ，当我们使用 DisplayListCanvas 进行一系列绘图操作时，绘图指令实际上会通过重定向的方式保存到DisplayList集合中，并没有立即执行
+    //详见/frameworks/base/libs/hwui/DisplayListCanvas.cpp，7.0中 DisplayListCanvas 是c++实现，高版本貌似改为java实现，如果搜不到DisplayListCanvas，可以搜索BaseRecordingCanvas
+    RenderNode updateDisplayListIfDirty(){
+        RenderNode renderNode;
+        DisplayListCanvas canvas = renderNode.start();//开始记录绘制节点
+        draw(canvas);//执行常规的draw阶段，注意这里使用的canvas类型是DisplayListCanvas
+        renderNode.end();//View 树遍历完成，结束记录
+        return renderNode;//将记录的节点返回给 ThreadedRenderer.java
+    }
+
+}
+
+/frameworks/base/libs/hwui/DisplayListCanvas.cpp
+class DisplayListCanvas {
+
+    //花蛤圆圈
+    void DisplayListCanvas::drawCircle(float x, float y, float radius, const SkPaint& paint) {
+        addDrawOp(new (alloc()) DrawCircleOp(x, y, radius, refPaint(&paint)));
+    }
+
+    size_t DisplayListCanvas::addDrawOp(DrawOp* op) {
+        //保存指令
     }
 
 
