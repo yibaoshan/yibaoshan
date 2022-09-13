@@ -43,7 +43,8 @@ Android图形系统（五）番外篇：触摸事件
 
 ##### InputDispatcher
 
-负责分发事件，找到获得焦点的Window
+1. 找到能够被触摸的窗口
+2. 通过 InputChannel 发送跨进程通信给目标窗口
 
 触发 ANR 分发
 

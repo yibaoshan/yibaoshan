@@ -4,12 +4,55 @@
 
 /frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
-    void addView(){
-        mInputEventReceiver = new WindowInputEventReceiver(mInputChannel, Looper.myLooper());
+
+    InputChannel mInputChannel;
+
+    void setView(){
+        mInputChannel = new InputChannel();
+        Session.addToDisplay(mInputChannel);//向wms添加窗口，最终调用到WindowManagerService#addWindow()方法
+        mInputEventReceiver = new WindowInputEventReceiver(mInputChannel, Looper.myLooper());//客户端创建socket连接
     }
 
     class WindowInputEventReceiver extends InputEventReceiver {
         void onInputEvent(InputEvent event);
+    }
+}
+
+/frameworks/base/services/core/java/com/android/server/wm/Session.java
+class Session {
+
+    void addToDisplay(InputChannel inputChannel){
+        WindowManagerService.addWindow(inputChannel);
+    }
+
+}
+
+/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+class WindowManagerService {
+
+    int addWindow(InputChannel outInputChannel){
+        WindowState win = new WindowState();//首次添加视图时创建，用于描述一个window
+        win.openInputChannel(outInputChannel);
+    }
+
+}
+
+/frameworks/base/services/core/java/com/android/server/wm/WindowState.java
+class WindowState {
+
+    void openInputChannel(InputChannel outInputChannel) {
+        InputChannel[] inputChannels = InputChannel.openInputChannelPair();
+        mInputChannel = inputChannels[0];
+        mClientChannel = inputChannels[1];
+        WindowManagerService.InputManager.registerInputChannel(mInputChannel);//通过wms持有的inputManager调用它的注册方法
+    }
+}
+
+/frameworks/base/core/java/android/view/InputChannel.java
+class InputChannel {
+
+    static InputChannel[] openInputChannelPair() {
+        return nativeOpenInputChannelPair();//native调用了socketpair()创建一对本地socket对象，被封装成两个 InputChannel
     }
 }
 
@@ -30,6 +73,12 @@ class InputManagerService {
 
     public InputManagerService() {
         nativeInit();
+    }
+
+    void registerInputChannel(){
+        //native层调用getDispatcher()方法获取 InputDispatcher 对象，然后，调用 registerInputChannel() 方法将此channel注册到 InputDispatcher，等到事件发生
+        //此方法结束后，如果有触摸事件发生，ims会收到
+        nativeRegisterInputChannel(mPtr, inputChannel, inputWindowHandle, false);
     }
 }
 
@@ -73,10 +122,13 @@ class InputReader {
 
 /frameworks/native/services/inputflinger/InputDispatcher.cpp
 class InputDispatcher {
+
     const nsecs_t DEFAULT_INPUT_DISPATCHING_TIMEOUT = 5000 * 1000000LL; // 5 sec
     const nsecs_t APP_SWITCH_TIMEOUT = 500 * 1000000LL; // 0.5sec
     const nsecs_t STALE_EVENT_TIMEOUT = 10000 * 1000000LL; // 10sec
     const nsecs_t STREAM_AHEAD_EVENT_TIMEOUT = 500 * 1000000LL; // 0.5sec
+
+    int registerInputChannel();//注册监听，方法内部会创建一个新的connection连接
 
     void notifyMotion(const NotifyMotionArgs* args) {
         MotionEntry* newEntry = new MotionEntry(args);//封装成entry
@@ -107,8 +159,8 @@ class InputDispatcher {
 
     void dispatchEventLocked(Vector<InputTarget>& inputTargets) {
         for (size_t i = 0; i < inputTargets.size(); i++) {
-            InputChannel channel = inputTarget.inputChannel;//删减流程
-            channel->sendMessage(&msg);//发送跨进程消息
+            InputChannel channel = inputTarget.inputChannel;//删减过的流程
+            channel->sendMessage(&msg);//给能够被触摸的window发送跨进程消息
         }
     }
 
