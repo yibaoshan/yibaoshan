@@ -3,11 +3,11 @@ Android图形系统（五）番外篇：触摸事件
 
 自底向上循序渐进
 
-#### 触摸事件的来源
+### 触摸事件的来源
 
 触摸事件最初的来源是当我们触摸屏幕时屏幕驱动向 OS 发起的中断信号
 
-##### 从硬件到内核
+#### 从硬件到内核
 
 显示屏芯片驱动 触摸屏芯片驱动
 
@@ -23,26 +23,38 @@ Android图形系统（五）番外篇：触摸事件
 
 使用 adb shell getevent 查看触摸事件发生时的原始值 /dev/input/eventX
 
-##### 系统对触摸事件的处理
+#### 系统对触摸事件的处理
 
 现在触摸屏驱动已经为我们收集好原始的触摸事件并写入到 event 文件中，下一步就轮到系统对这个 input 事件的处理
 
-###### EventHub
+##### EventHub：读event事件
 
 文件在frameworks/native/services/inputflinger/EventHub.cpp
 
-它的作用是监听、读取/dev/input目录下产生的新事件，并封装成RawEvent结构体供InputReader使用。
+它的作用是监听、读取/dev/input目录下产生的新事件，并封装成RawEvent结构体等待InputReader使用。
 
-###### InputReader
+#### Android Framework分发
 
-文件在frameworks/native/services/inputflinger/InputReader.cpp
+##### InputReader
 
-InputReader运行在一个单独的进程中，这个进程由InputManagerService的初始化而新建，具体内容请见：
+1. 负责从EventHub读取出元事件，不断地循环调用loopOnce()方法来不断读取事件
+2. 对元事件进行处理，封装成inputEvent事件
+3. 把inputEvent事件发送给事件监听器QueueInputListener，通过该监听器将事件传递给InputDispatcher
 
-http://gityuan.com/2016/12/10/input-manager/
+##### InputDispatcher
 
-它会在内部不断地循环调用loopOnce()方法来不断读取事件
+负责分发事件，找到获得焦点的Window
 
-###### InputDispatcher
+触发 ANR 分发
 
-文件在frameworks/native/services/inputflinger/InputDispatcher.cpp
+大胆猜一下路径，服务端
+
+1. system_server 进程启动以后，创建 InputManagerService
+2. InputManagerService 创建 InputReader 和 InputDispatcher
+3. InputDispatcher 等待客户端连接
+
+
+客户端
+
+1. Activity 启动，ViewRootImpl 创建和 InputDispatcher 连接
+
