@@ -1,7 +1,15 @@
 
+Android事件分发（上）：触摸事件的来源
+
+Android事件分发（上）：从内核到应用
+
+Android事件分发（下）：应用进程消费
+
 Android图形系统（五）番外篇：触摸事件
 
 自底向上循序渐进
+
+### 系统进程传递事件
 
 ### 触摸事件的来源
 
@@ -58,4 +66,18 @@ Android图形系统（五）番外篇：触摸事件
 客户端
 
 1. Activity 启动，ViewRootImpl 创建和 InputDispatcher 连接
+
+#### Input事件在系统层面传递流程
+
+触摸事件的来源与传递，下一篇将介绍应用进程是如何消费事件的
+
+全文完
+
+### 应用进程消费事件
+
+View 事件分发
+
+窗口与 InputManagerService 建立 socket 通信的过程还是挺复杂的，建议读者朋友再去搜索其他文章加深理解
+
+总之，我们在 setContentView() 首次添加视图的过程中，InputChannel 就被创建好了，能够监听到用户触摸屏幕的事件
 

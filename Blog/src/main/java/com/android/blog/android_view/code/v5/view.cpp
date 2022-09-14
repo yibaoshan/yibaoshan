@@ -10,6 +10,7 @@ class ViewRootImpl {
     void setView(){
         mInputChannel = new InputChannel();
         Session.addToDisplay(mInputChannel);//向wms添加窗口，最终调用到WindowManagerService#addWindow()方法
+        //这里的调用链是这样的，native 层的 NativeInputEventReceiver 将 InputChannel的fd 加入到 Native Looper中进行监听
         mInputEventReceiver = new WindowInputEventReceiver(mInputChannel, Looper.myLooper());//客户端创建socket连接
     }
 
@@ -94,6 +95,11 @@ class NativeInputManager {
         NativeInputManager im = new NativeInputManager();
     }
 
+    void nativeRegisterInputChannel(){
+        InputManager->getDispatcher()->registerInputChannel(
+                inputChannel, inputWindowHandle, monitor);
+    }
+
 }
 
 /frameworks/native/services/inputflinger/InputManager.cpp
@@ -128,7 +134,13 @@ class InputDispatcher {
     const nsecs_t STALE_EVENT_TIMEOUT = 10000 * 1000000LL; // 10sec
     const nsecs_t STREAM_AHEAD_EVENT_TIMEOUT = 500 * 1000000LL; // 0.5sec
 
-    int registerInputChannel();//注册监听，方法内部会创建一个新的connection连接
+    //注册监听，用于方法内部会创建一个新的connection连接，将 inputChannel 的fd 添加到 looper 监听
+    int registerInputChannel() {
+        sp<Connection> connection = new Connection();
+        int fd = inputChannel->getFd();
+        mConnectionsByFd.add(fd, connection);
+        mLooper->addFd(fd, 0, ALOOPER_EVENT_INPUT, handleReceiveCallback, this);
+    }
 
     void notifyMotion(const NotifyMotionArgs* args) {
         MotionEntry* newEntry = new MotionEntry(args);//封装成entry
