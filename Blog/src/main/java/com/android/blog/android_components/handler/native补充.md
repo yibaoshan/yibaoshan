@@ -1,8 +1,60 @@
+### 理解 Linux eventfd
+
+Linux 系统中，把一切都看做是文件，当进程打开现有文件或创建新文件时，内核向进程返回一个文件描述符
+
+fd是文件描述符的缩写，每一个fd会与一个打开的文件相对应，既然是文件，那么就只有读和写两种操作
+
+```cpp
+fd = open(pathname, flags, mode)//根据路径打开一个文件
+readLen = read(fd, buf, count)//buf表示内存空间，count表示希望读取的字节数，返回值为实际读到的字节数
+writeLen = write(fd, buf, count)//参数含义同上
+status = close(fd)
+```
+
+
+监听的是可读可写事件
+
+
+这里的 wait() 和 Java 中 Object.wait() 可不一样，Object#wait() 必须要写在同步代码块里面，同步代码块就意味着要竞争锁，这是的CPU
+
+以 eventfd 举例，任意一个地方调用了 write(fd) 方法向该 fd 写入值时，此时这个事件源里面就有值供其他程序读取了，那么注册该 fd 的监听回调便会收到内核发送的一条可读事件，表示该 eventfd 支持读值了
+
+
+同样，我们在读写 fd 的时候，可能会遇到阻塞，对于 eventfd 来说，没有数据可以读的时候，就阻塞了
+
+
+对于 Java Handler 来说，只要收到来自内核的可读事件，说明此时消息队列有消息了，那么 nativePollOnce() 方法会释放返回，继续执行获取消息的 next() 方法
+
+### 理解 Linux epoll
+
+
+之后我们来讨论I/O的操作，通过read，我们可以从流中读入数据；通过write，我们可以往流写入数据。
+
+现在假定一个情形，我们需要从流中读数据，但是流中还没有数据
+
+（典型的例子为，客户端要从socket读如数据，但是服务器还没有把数据传回来），这时候该怎么办？
+
+
+同步阻塞和异步轮询
+
+现在假定一个情形，我们需要从文件中读数据，但这个文件中现在还没有数据
+
+一个典型的例子为，客户端向服务器发起一个请求，服务器返回处理需要一段时间，这段时间内客户端会一直向 socket 读数据
+
+这时候我们应该怎么办？
+
+这不是用户进程该考虑的事情，
+
+这就是内核的 I/O 多路复用机制诞生背景，Linux 为我们提供了 select() / poll() / epoll() 三种复用机制，我们这里只讨论 epoll()
+
+算了，胆子再大一点，同时发起一万个网络请求，操作系统会为我们创建一万个socket
+
 
 
 - 大部分的binder用来跨进程将消息送到目标进程的消息队列
 - MessageQueue 实际存在于 native 层，名为 NativeMessageQueue
 - 在 native 创建 NativeMessageQueue 的同时，也会创建一个 Looper ，它用于处理 native 注册的自定义 Fd 引起的 Request 消息
+- Native 层的 Looper 用来封装 epoll
 
 从后台数据来看，
 
@@ -44,3 +96,22 @@
 ### native层的消息循环与阻塞
 
 1. Java 层中的 next() 方法中，首先会调用 nativePollOnce() 方法，一来是为了检测有没有消息，二来是为了优先处理 native 层消息
+
+### 几个jni方法
+
+Java Handler 机制是基于生产者消费者模型，
+
+在 Java 层可以叫做 Handler 机制，在 Native 层，可以叫做 Looper 机制
+
+在 MessageQueue 中，我们需要重点关注3个 jni 方法，nativeInit() nativePollOnce nativeWake()
+
+关键就在于 messagequeue 里面的几个 jni 方法
+
+
+重点关注 阻塞调用和唤醒这两个jni 实现原理
+
+藏在背后的 native 层的逻辑
+
+### 参考资料
+
+- [Scalable Event Multiplexing: epoll vs. kqueue](https://long-zhou.github.io/2012/12/21/epoll-vs-kqueue.html)

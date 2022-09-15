@@ -10,6 +10,12 @@ https://stackoverflow.com/questions/38818642/android-what-is-message-queue-nativ
 
 所以，只有加上 Native 层的逻辑才算是完整的 Handler 机制
 
+## 一、开篇
+
+### 什么是 I/O 多路复用
+
+### 什么是 eventfd
+
 ## Java层
 
 ### Handler 创建流程
