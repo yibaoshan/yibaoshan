@@ -159,6 +159,10 @@ class looper {
         mResponseIndex = 0;
         struct epoll_event eventItems[EPOLL_MAX_EVENTS];//step2，创建用来从内核得到事件的集合
         int eventCount = epoll_wait(mEpollFd, eventItems, EPOLL_MAX_EVENTS, timeoutMillis);//调用 epoll_wait() 等待事件的产生
+        //达到设定的超时时间
+        if (eventCount == 0) {
+            result = POLL_TIMEOUT;
+        }
         //执行到for循环说明内核返回事件了
         for (int i = 0; i < eventCount; i++) {
             //如果事件是消息队列的 eventfd ，说明有人向消息队列提交了需要马上执行的消息，或者延迟消息到期了
@@ -172,6 +176,7 @@ class looper {
                 mResponses.push(response);
             }
         }
+        //分发native层的消息队列中的消息
         while (mMessageEnvelopes.size() != 0) {
             if (messageEnvelope.uptime <= now) {//如果有到期消息
                 // obtain handler
@@ -184,6 +189,7 @@ class looper {
         for (size_t i = 0; i < mResponses.size(); i++) {
             response.request.callback->handleEvent(fd, events, data);
         }
+        return result;
     }
 
     //调用 read() 方法将 eventfd 里面的计数读出来，使 eventfd 重新变成监听可读事件就行了，因为 epoll_wait() 方法返回后，pollInner() 方法也会返回到 pollOnce()
@@ -222,10 +228,4 @@ class looper {
     }
 
 }
-
-
-
-
-
-
 

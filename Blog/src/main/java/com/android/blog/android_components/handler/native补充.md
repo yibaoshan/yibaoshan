@@ -1,3 +1,26 @@
+### Android组件系列：再谈Handler机制（Native层）
+
+之前已经写过一篇关于 Handler 机制的文章，从应用开发工程师的角度出发，详细介绍了 Handler 机制的设计背景、如何自己如何实现一套 Handler 机制、Handler 使用注意事项，以及
+
+### 一、开篇
+
+#### 理解 I/O多路复用之epoll
+
+#### 理解 Linux eventfd
+
+### 二、进入Native Handler
+
+#### 消息队列的初始化
+
+#### 消息的循环与阻塞
+
+#### 消息的发送/唤醒机制
+
+#### Looper监听自定义Fd
+
+### 三、结语
+
+### 四、参考资料
 
 介绍 Native Handler 机制之前，我们需要了解 Linux 的 I/O 多路复用机制，它是 Looper#loop() 方法能够使 APP 进程进入休眠的核心原因
 
@@ -117,7 +140,7 @@ status = close(fd)
 
 对于 Java Handler 来说，只要收到来自内核的可读事件，说明此时消息队列有消息了，那么 nativePollOnce() 方法会释放返回，继续执行获取消息的 next() 方法
 
-### 哪些地方使用了 native 方法？
+### Java Handler使用流程
 
 有了 epoll 基础和 eventfd 基础，我们开始正式进入的 Native Handler 一探究竟
 
@@ -142,7 +165,7 @@ MessageQueue(boolean quitAllowed) {
 }
 ```
 
-### 初始化消息队列
+### Native消息队列初始化
 
 1. 创建 NativeMessageQueue 对象，Native 层的消息队列
 2. 创建 Looper 对象，Native 层没有 Handler 类，所有消息队列的操作都是通过 Looper 来完成，同时 Looper 还兼任增删 fd 的功能
@@ -151,9 +174,9 @@ MessageQueue(boolean quitAllowed) {
 
 到这里其实文章就可以结束了，因为接下来的阻塞和唤醒
 
-### 消息的循环与阻塞
+### Handler消息的循环与阻塞
 
-消息队列创建完以后，如果消息队列里面一条消息都没有，整个线程就会阻塞到 MessageQueue#nativePollOnce() 方法中，Java 层的的调用链大致是这样的
+消息队列创建完以后，如果消息队列里面一条消息都没有，整个线程就会阻塞到 Looper#loop() 方法中，Java 层的的调用链大致是这样的
 
 ```java
 Looper#loop()
@@ -170,6 +193,7 @@ Looper#loop()
             -> NativeMessageQueue#pollOnce()//进入 Native 层
                 -> Looper#pollOnce()
                     -> Looper#pollInner()
+                        -> epoll_wait()
 
 
 pollInner() 方法是 native 消息机制的核心，理解它的内部逻辑对于理解消息机制非常重要
@@ -208,8 +232,19 @@ input 分发的大致流程是，InputManagerService
 
 分析下来 Native 的实现不算复杂，利用了 eventfd 作为监听消息队列有没有消息，关键的阻塞与唤醒部分是借助了 Linux 系统 epoll 机制来实现的
 
-
 Native 中的 Looper 创建的 epoll 不止监听消息队列的可读时间，同时还提供了 addFd() 方法支持进程内其他监听 fd 的需求，这一点非常重要，Android 的 input 事件就是通过 Native Looper 单独注册 fd 监听来通知到 APP 进程的
+
+不复杂
+
+Java 和 Native 各自维护一套消息队列，使用 Java 开发可以通过 Handler 类向 Java 层的消息队列提交消息，使用 C/C++ 开发可以通过 Looper 类向 Native 层的消息队列提交消息
+
+他们共用Java 层的阻塞与唤醒机制，
+
+不同点是 Java 为了系统消息的优先级，引入了同步屏障和异步消息的概念
+
+而 Native 则支持监听自定义 Fd
+
+总的来说 Handler 机制并不复杂
 
 到这里就结束了，希望能对大家有所帮助
 
