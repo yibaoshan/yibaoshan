@@ -42,7 +42,13 @@ I/O 多路复用就是用户线程不需要阻塞在某一行方法调用（比�
 
 而是把监听事件变化这件事情交给了内核，用户线程只需要告诉内核我需要监听什么事件，以及注册一个回调，注册完成后，用户线程可以去做其他的事情，或者调用 epoll_wait() 进入休眠，让出 CPU 调度，当目标事件发生时，内核会通过注册的回调通知到用户线程
 
-至于 select、poll、epoll 之间的区别，我们这只关注 epoll()
+Linux I/O 多路复用有select、poll 和 epoll 三种实现方式，Native 使用的是 epoll，所以我们这只关注 epoll()
+
+```cpp
+int epoll_create(int size);
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+```
 
 总感觉说了太多了会有点绕，其实多路复用理解起来非常简单，回到刚开始的阻塞 I/O 模型，在阻塞模型中，一个线程一次只能处理一个流的 I/O 事件，多路复用是让单线程拥有一次能处理多个流事件的能力
 
@@ -71,25 +77,18 @@ epoll 诞生的背景是为了解决应用程序做不到，或者说，做起�
 
 解决了用户程序监听可读可写事件监听，像文件一般是不可监听的，因为应用程序想什么时候写入/读取都可以，不会有读不出来写不进去的情况
 
-
-同步阻塞和异步轮询
-
-现在假定一个情形，我们需要从文件中读数据，但这个文件中现在还没有数据
-
-一个典型的例子为，客户端向服务器发起一个请求，服务器返回处理需要一段时间，这段时间内客户端会一直向 socket 读数据
-
-这时候我们应该怎么办？
-
-这不是用户进程该考虑的事情，
-
 这就是内核的 I/O 多路复用机制诞生背景，Linux 为我们提供了 select() / poll() / epoll() 三种复用机制，我们这里只讨论 epoll()
 
 
 ### 理解 Linux eventfd
 
-理解了 epoll 机制之后，我们再来看 eventfd 就简单多了
+理解了 epoll 以后再来看 eventfd 就简单多了
 
-epoll 是用来干嘛的，用来监听各个 fd 的可读可写事件变化的，虽然
+epoll 监听的是可读可写事件，那么 eventfd 的可读可写事件是什么呢？
+
+从上面的例子也可以看到，eventfd 实现的是计数功能，因此当 eventfd 计数不为0时，那么 fd 时可读的。由于eventfd是一直可写的（也即是一直可以累积计数），因此 eventfd 一直有可写事件。
+
+所以当 eventfd 结合 epoll 使用时，一般使用可读事件，因为eventfd一直可写，监听可写事件也没什么意义
 
 那我们就创建一个文件，叫做事件文件，它的职责是内容发生变化后
 
@@ -118,9 +117,111 @@ status = close(fd)
 
 对于 Java Handler 来说，只要收到来自内核的可读事件，说明此时消息队列有消息了，那么 nativePollOnce() 方法会释放返回，继续执行获取消息的 next() 方法
 
+### 哪些地方使用了 native 方法？
+
+有了 epoll 基础和 eventfd 基础，我们开始正式进入的 Native Handler 一探究竟
+
+熟悉 Java Handler 机制的同学肯定知道，在 MessageQueue 中有几个 native 方法
+
+```java
+/frameworks/base/core/java/android/os/MessageQueue.java
+class MessageQueue {
+    private native static long nativeInit();
+    private native static void nativeDestroy(long ptr);
+    private native void nativePollOnce(long ptr, int timeoutMillis); /*non-static for callbacks*/
+    private native static void nativeWake(long ptr);
+}
+```
+
+MessageQueue 类的构造方法中调用了 nativeInit() 方法，用于初始化，在创建 Java 消息队列的时候也在 Native 层创建了一个消息队列
+
+```java
+MessageQueue(boolean quitAllowed) {
+    mQuitAllowed = quitAllowed;
+    mPtr = nativeInit();
+}
+```
+
+### 初始化消息队列
+
+1. 创建 NativeMessageQueue 对象，Native 层的消息队列
+2. 创建 Looper 对象，Native 层没有 Handler 类，所有消息队列的操作都是通过 Looper 来完成，同时 Looper 还兼任增删 fd 的功能
+3. 创建 epoll 对象 mEpollFd，它是整个 Handler 机制的核心
+4. 创建 eventfd 对象 mWakeEventFd，用于监听消息队列的可读事件，唤醒消息队列
+
+到这里其实文章就可以结束了，因为接下来的阻塞和唤醒
+
+### 消息的循环与阻塞
+
+消息队列创建完以后，如果消息队列里面一条消息都没有，整个线程就会阻塞到 MessageQueue#nativePollOnce() 方法中，Java 层的的调用链大致是这样的
+
+```java
+Looper#loop()
+    -> MessageQueue#next()
+        -> MessageQueue#nativePollOnce()
+}
+```
+
+Native 层是怎么实现的呢？我们来跟一下
+
+Looper#loop()
+    -> MessageQueue#next()
+        -> MessageQueue#nativePollOnce()
+            -> NativeMessageQueue#pollOnce()//进入 Native 层
+                -> Looper#pollOnce()
+                    -> Looper#pollInner()
+
+
+pollInner() 方法是 native 消息机制的核心，理解它的内部逻辑对于理解消息机制非常重要
+
+最终阻塞到 epoll_wait() 方法
+
+### 消息的发送与唤醒
+
+好了，现在消息队列里面是空的，并且阻塞到 native 层的 Looper#pollInner() 方法中，我们来向消息队列发送一条消息唤醒它
+
+这是用于初始化native
+
+我们从这几个 nativeInit() 方法作为入口，进入到 Native 层一探究竟
+
+好，总结下来 Handler 机制主要在创建、获取有效消息、唤醒
+
+epoll_wait() 返回后，
+
+总结一下唤醒以后做了那些事情
+
+1. 清零消息队列的 eventfd 计数（如果是消息队列 eventfd 类型的话）
+2. 执行 native handler 消息分发
+3. 
+
+### Native自定义Fd机制
+
+自定义 Fd 有什么用呢？了解 Android 触摸事件分发的朋友会知道，input 事件就是通过向来实现，通信的
+
+input 分发的大致流程是，InputManagerService
+
+比如触摸事件的分发就利用了 Native Looper 中的自定义 Fd 机制
+
+### 进入 Native 层
+
+### 总结
+
+分析下来 Native 的实现不算复杂，利用了 eventfd 作为监听消息队列有没有消息，关键的阻塞与唤醒部分是借助了 Linux 系统 epoll 机制来实现的
+
+
+Native 中的 Looper 创建的 epoll 不止监听消息队列的可读时间，同时还提供了 addFd() 方法支持进程内其他监听 fd 的需求，这一点非常重要，Android 的 input 事件就是通过 Native Looper 单独注册 fd 监听来通知到 APP 进程的
+
+到这里就结束了，希望能对大家有所帮助
+
+全文完
+
+理解了 epoll 就理解了 Native 层的消息队列机制
+
+利用内核的 I/O 多路复用完成消息队列的休眠与唤醒，
+
+在文章的最后我们来总结一下 Native 层的消息队列
 
 ### 笔记
-
 
 
 - 大部分的binder用来跨进程将消息送到目标进程的消息队列
