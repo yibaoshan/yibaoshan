@@ -130,17 +130,17 @@ class looper {
     }
 
     int pollOnce(int timeoutMillis){
+        int result = 0;
         for (;;) {
-            while (mResponseIndex < mResponses.size()) {
-                int ident = response.request.ident;
-                if (ident >= 0) {
-                    return ident;
-                }
-            }
             if (result != 0) {
+                //不等于0有几种情况
+                //-1 ：表示被唤醒，通常是有需要立刻执行的新消息加入了队列
+                //-2：表示自定义fd触发事件
+                //-3：表示达到设定的超时时间，自动唤醒
+                //-4：error，不知道哪里用到
                 return result;
             }
-            result = pollInner(timeoutMillis);
+            result = pollInner(timeoutMillis);//超时
         }
     }
 
@@ -195,6 +195,7 @@ class looper {
     //调用 read() 方法将 eventfd 里面的计数读出来，使 eventfd 重新变成监听可读事件就行了，因为 epoll_wait() 方法返回后，pollInner() 方法也会返回到 pollOnce()
     //一直返回到 MessageQueue#next() 方法，阻塞的方法返回了
     void awoken() {
+        //重新变成可读事件
         read(mWakeEventFd);
     }
 
