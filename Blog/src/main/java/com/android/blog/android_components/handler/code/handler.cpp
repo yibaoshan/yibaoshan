@@ -18,6 +18,19 @@ class Looper {
     }
 }
 
+void Looper::sendMessageAtTime(uptime, handler,message) {
+    int i = 0;
+    int messageCount = mMessageEnvelopes.size();
+    while (i < messageCount && uptime >= mMessageEnvelopes.itemAt(i).uptime) {
+        i += 1;
+    }
+    mMessageEnvelopes.insertAt(messageEnvelope(uptime, handler, message), i, 1);
+    // Wake the poll loop only when we enqueue a new message at the head.
+    if (i == 0) {
+        wake();
+    }
+}
+
 ///frameworks/base/core/java/android/os/Handler.java
 class Handler {
 
