@@ -1,5 +1,4 @@
 
-
 Linux内核的作用是将应用层序的请求传递给硬件，并充当底层驱动程序，比如程序想要访问内存、访问相机、得到键鼠事件等等
 
 
@@ -52,3 +51,7 @@ select，poll，epoll都是IO多路复用的机制。I/O多路复用就通过一
 管道用于父子进程的通信，pipe 函数会返回两个描述符（pipe_in, pipe_out），一个用于读，一个用于写
 
 ### unix domain socket（域套接字）
+
+## Linux 安装/启动过程
+
+Android 系统虽然也是基于 Linux 系统的，但是由于 Android 属于嵌入式设备，并没有像 PC 那样的 BIOS 程序。 取而代之的是 Bootloader —— 系统启动加载器。
