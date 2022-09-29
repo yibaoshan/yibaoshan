@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.android.blog.android_view.demo.v4.view.LogScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.android.blog.android.graphics.demo.v4.view.LogScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -29,10 +29,10 @@
 <!--            android:textColor="@color/black"-->
 <!--            android:layout_height="wrap_content" />-->
 
-    <com.android.blog.android_view.demo.v4.view.LogTextView
+    <com.android.blog.android.graphics.demo.v4.view.LogTextView
             android:layout_width="100dp"
             android:text="100dp"
             android:textColor="@color/design_default_color_error"
             android:layout_height="100dp" />
 
-</com.android.blog.android_view.demo.v4.view.LogScrollView>
+</com.android.blog.android.graphics.demo.v4.view.LogScrollView>

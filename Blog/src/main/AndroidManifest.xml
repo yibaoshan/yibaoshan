@@ -17,9 +17,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".android_view.demo.v4.MeasureTestActivity" />
+        <activity android:name=".android.graphics.demo.v4.MeasureTestActivity" />
 
-        <activity android:name=".android_view.demo.v4.LayoutTestActivity" />
+        <activity android:name=".android.graphics.demo.v4.LayoutTestActivity" />
 
     </application>
 

@@ -5,7 +5,7 @@
         android:layout_height="match_parent"
         tools:ignore="MissingDefaultResource">
 
-    <com.android.blog.android_view.demo.v1.MyTextureView
+    <com.android.blog.android.graphics.demo.v1.MyTextureView
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

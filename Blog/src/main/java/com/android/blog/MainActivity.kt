@@ -7,8 +7,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatButton
-import com.android.blog.android_view.demo.v4.LayoutTestActivity
-import com.android.blog.android_view.demo.v4.MeasureTestActivity
+import com.android.blog.android.graphics.demo.v4.LayoutTestActivity
+import com.android.blog.android.graphics.demo.v4.MeasureTestActivity
 
 class MainActivity : AppCompatActivity() {
 

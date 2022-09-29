@@ -1,10 +1,6 @@
 include ':Chatbot'
 include ':Blog'
-include ':DesignPattern'
-include ':Book'
 include ':Notebook'
 include ':Algorithm'
-include ':DataStructure'
 include ':app'
 rootProject.name = "Blackboard"
-include ':Jetpack'
