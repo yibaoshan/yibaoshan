@@ -11,5 +11,4 @@ java {
 dependencies {
     implementation "junit:junit:$junit_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation project(':AOSP')
 }
