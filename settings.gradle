@@ -1,6 +1,5 @@
 include ':Chatbot'
 include ':Blog'
-include ':Java'
 include ':DesignPattern'
 include ':AOSP'
 include ':Book'
