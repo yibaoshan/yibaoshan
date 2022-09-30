@@ -48,6 +48,14 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
 
 dependencies {
@@ -67,5 +75,6 @@ dependencies {
     /*企业微信聊天机器人使用*/
     implementation 'com.alibaba:fastjson:1.2.76'
     implementation 'org.apache.httpcomponents:httpcore:4.4.15'
+    //noinspection DuplicatePlatformClasses
     implementation 'org.apache.httpcomponents:httpclient:4.5.6'
 }

@@ -1,40 +1,96 @@
 package com.android.blackboard
 
+import android.app.Activity
+import android.content.Intent
 import android.os.*
-import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
+import java.lang.ref.WeakReference
 
 @ExperimentalStdlibApi
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+
+        @JvmStatic
+        fun startActivity(activity: Activity, path: String? = null) {
+            val intent = Intent(activity, MainActivity::class.java)
+            intent.putExtra("path", path)
+            activity.startActivity(intent)
+        }
+
+    }
+
+    private lateinit var mPath: String
+
+    private lateinit var mContentViewReference: WeakReference<ViewGroup>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = "Overview"
-        setContentView(R.layout.activity_main)
+        mPath = intent.getStringExtra("path") ?: ""
+        initView()
+        parseAssets()
     }
 
-    fun onJavaClick(view: View) {
-        MenuActivity.startActivity(this, TypeEnum.Java)
+    private fun initView() {
+
+        fun createScrollView(): ScrollView {
+            return ScrollView(this)
+        }
+
+        fun createLinearLayout(): LinearLayout {
+            val linearLayout = LinearLayout(this)
+            linearLayout.orientation = LinearLayout.VERTICAL
+            linearLayout.setPadding(20, 20, 20, 20)
+            return linearLayout
+        }
+
+        val rootView = createScrollView()
+        val contentView = createLinearLayout()
+
+        rootView.addView(contentView)
+        setContentView(rootView)
+
+        mContentViewReference = WeakReference(contentView)
     }
 
-    fun onAndroidClick(view: View) {
-        MenuActivity.startActivity(this, TypeEnum.Android)
+    private fun parseAssets() {
+
+        fun generateItem(name: String): Item {
+            if (name.contains(".")) return Item(name.substring(0, name.indexOf(".")), name);
+            return return Item(name, name);
+        }
+
+        fun generateItemButtonView(path: String): Button {
+            val button = AppCompatButton(this)
+            val item = generateItem(path)
+            button.text = item.path
+
+            if (item.name == item.path) {// it's an folder
+                button.setOnClickListener { startActivity(this, item.absolutePath(mPath)) }
+            } else { // it's an file
+                button.setOnClickListener { ContentActivity.startActivity(this, item.absolutePath(mPath)) }
+            }
+            return button
+        }
+
+        for (path in resources.assets.list(mPath) ?: return) {
+            mContentViewReference.get()?.addView(generateItemButtonView(path))
+        }
     }
 
-    fun onNetworkClick(view: View) {
-        MenuActivity.startActivity(this, TypeEnum.Network)
-    }
 
-    fun onVMClick(view: View) {
-        MenuActivity.startActivity(this, TypeEnum.VM)
-    }
+    data class Item(val name: String, val path: String) {
 
-    fun onOSClick(view: View) {
-        MenuActivity.startActivity(this, TypeEnum.OS)
-    }
+        fun absolutePath(parent: String): String {
+            if (parent.isEmpty()) return path;
+            return "${parent}/" + path
+        }
 
-    fun onBookClick(view: View) {
-        MenuActivity.startActivity(this, TypeEnum.BOOK)
     }
 
 }

@@ -17,13 +17,7 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".MenuActivity"
-                android:launchMode="standard" />
-        <activity
                 android:name=".ContentActivity"
-                android:launchMode="standard" />
-        <activity
-                android:name=".ImageActivity"
                 android:launchMode="standard" />
     </application>
 

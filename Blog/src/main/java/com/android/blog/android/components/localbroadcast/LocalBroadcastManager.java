@@ -1,4 +1,4 @@
-package com.android.blackboard;
+package com.android.blog.android.components.localbroadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
