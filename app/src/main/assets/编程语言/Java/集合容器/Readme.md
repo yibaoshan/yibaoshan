@@ -1,15 +1,18 @@
 ### Overview
+
 1. 集合框架简介
 2. Iterator迭代器
 3. 集合工具类Arrays&Collections
 
 ### 一、Java集合框架
+
 Java集合框架大致可以分为4类：List、Set、Queue、Map
 其中，前三个实现的是Collection接口，用于存放单一元素
 最后一个实现的是Map接口，用于存放键值对
 它们的顶级上司都是Iterator迭代器，详细的结构图在**附录**
 
 ### 二、Iterator迭代器
+
 1. fail-fast机制：
 当在遍历过程中改动元素数量就会抛异常，其实现逻辑是在创建迭代器时记录下modCount，每次取元素时校验两个值是否相同。
 调用Iterator.remove()能够安全删除是因为Iterator调用了原集合的删除方法后，将modCount值同步减去1
@@ -18,7 +21,9 @@ Java集合框架大致可以分为4类：List、Set、Queue、Map
 拷贝一份原数据进行遍历，缺点是不保证数据一致性
 
 ### 三、集合工具类Arrays&Collections
+
 #### 1、Arrays
+
 1. int binarySearch()：使用二分查找在排好序的数组中查找指定Key，找不到-1
 2. object[] copyOf()/copyOfRange()：复制数组
 3. boolean equals()：比较数组内容
@@ -28,7 +33,9 @@ Java集合框架大致可以分为4类：List、Set、Queue、Map
 7. object[] sort()：升序排序
 
 #### 2、Collections
+
 ##### 2.1、排序
+
 1. void reverse(List<?> list)：翻转元素
 2. void shuffle(List<?> list)：随机排序(洗牌)
 3. void sort(List list)：升序排序
@@ -37,6 +44,7 @@ Java集合框架大致可以分为4类：List、Set、Queue、Map
 6. void rotate(List list, int distance)：将所有元素向右移位指定长度，如果distance等于size那么结果不变
 
 ##### 2.2、查找和替换
+
 1. binarySearch(List list, Object key)：使用二分搜索法，以获得指定对象在List中的索引，前提是集合已经排序
 2. max(Collection coll)：返回最大元素
 3. max(Collection coll, Comparator comp)：根据自定义比较器，返回最大元素
@@ -47,12 +55,14 @@ Java集合框架大致可以分为4类：List、Set、Queue、Map
 8. replaceAll(List list, Object old, Object new)：替换
 
 ##### 2.3、同步控制：对线程不安全的集合所有操作方法加锁
+
 1. Collections.synchronizedCollection()
 2. Collections.synchronizedList()
 3. Collections.synchronizedSet()
 4. Collections.synchronizedMap()
 
 ##### 2.4、设置不可变集合
+
 1. emptyXxx()：返回一个空的不可变的集合对象
 2. singletonXxx()：返回一个只包含指定对象的，不可变的集合对象。
 3. unmodifiableXxx()：返回指定集合对象的不可变视图

@@ -1,5 +1,6 @@
 package com.android.blackboard
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.*
@@ -10,8 +11,10 @@ import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import java.lang.ref.WeakReference
+import java.util.*
 
 @ExperimentalStdlibApi
+@SuppressLint("UseCompatLoadingForDrawables")
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -65,12 +68,13 @@ class MainActivity : AppCompatActivity() {
             return return Item(name, name);
         }
 
+
         fun generateItemButtonView(path: String): Button {
             val button = AppCompatButton(this)
             val item = generateItem(path)
             button.text = item.path
-
             if (item.name == item.path) {// it's an folder
+                button.setCompoundDrawables(resources.getDrawable(R.mipmap.ic_folder), null, null, null)
                 button.setOnClickListener { startActivity(this, item.absolutePath(mPath)) }
             } else { // it's an file
                 button.setOnClickListener { ContentActivity.startActivity(this, item.absolutePath(mPath)) }
@@ -78,7 +82,15 @@ class MainActivity : AppCompatActivity() {
             return button
         }
 
+        fun filter(path: String): Boolean {
+            val value = path.toUpperCase(Locale.ROOT);
+            if (value == "IMAGES") return false
+            if (value == "WEBKIT") return false
+            return true
+        }
+
         for (path in resources.assets.list(mPath) ?: return) {
+            if (!filter(path)) continue
             mContentViewReference.get()?.addView(generateItemButtonView(path))
         }
     }
