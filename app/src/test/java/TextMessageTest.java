@@ -16,7 +16,7 @@ public class TextMessageTest {
         TaskMessage taskMessage = new TaskMessage("src/main/resources/daily.md");
 //        TaskMessage taskMessage = new TaskMessage("src/main/resources/weekly.md");
         System.out.println(taskMessage.toJsonString());
-//        SendResult result = WxChatbotClient.send(TestConfig.CHATBOT_WEBHOOK, taskMessage);
-//        System.out.println(result);
+        SendResult result = WxChatbotClient.send(TestConfig.CHATBOT_WEBHOOK, taskMessage);
+        System.out.println(result);
     }
 }
