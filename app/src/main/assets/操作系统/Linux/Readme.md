@@ -12,6 +12,6 @@ Linux 内核的作用是将应用层序的请求传递给硬件，并充当底�
 
 ### 相关链接
 
-- [GNU 官网](https://www.linux.org/)
-- [Linux 官网](https://www.gnu.org/)
-- [GNU 官网：Linux 和 GNU 系统](https://www.gnu.org/gnu/linux-and-gnu.html)
+- [Linux 官网](https://www.linux.org/)
+- [GNU 官网](https://www.gnu.org/)
+- [Linux 和 GNU 系统 - GNU 官网](https://www.gnu.org/gnu/linux-and-gnu.html)
