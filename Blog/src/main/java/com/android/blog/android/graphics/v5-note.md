@@ -1,4 +1,11 @@
 
+
+### 一、触摸事件的起源与传递
+
+- Hardware
+  - 驱动加载成功以后，便会在/dev下生成设备文件
+
+
 ### Hardware
 
 ### Linux Kernel

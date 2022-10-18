@@ -135,6 +135,8 @@ Linux input ：
 
 - [Linux驱动开发|input子系统 - 安迪西](https://blog.csdn.net/Chuangke_Andy/article/details/122181549)
 - [Linux驱动开发|电容触摸屏 - 安迪西](https://blog.csdn.net/Chuangke_Andy/article/details/122454299)
+- [Linux裸机开发|电容触摸屏实验 - 安迪西](https://blog.csdn.net/Chuangke_Andy/article/details/120935263)
+- [从 0 开始学 Linux 驱动开发 - Hcamael](https://paper.seebug.org/779/)
 - [Android(Linux) 输入子系统解析 - Andy Lee](http://huaqianlee.github.io/2017/11/23/Android/Android-Linux-input-system-analysis/)
 - [Android 如何上报 Touchevent 给应用层 - 董刚](https://dqdongg.com/c/touch/android/2014/07/10/Touch-inputevent.html)
 
