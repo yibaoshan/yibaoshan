@@ -1,0 +1,98 @@
+C51 COMPILER V7.06   LED                                                                   10/25/2022 06:33:55 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE LED
+OBJECT MODULE PLACED IN led.OBJ
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE led.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include <reg52.h>
+   2          
+   3          sbit led1 = P1^0;
+   4          sbit led2 = P1^1;
+   5          sbit led3 = P1^2;
+   6          sbit led4 = P1^3;
+   7          sbit led5 = P1^4;
+   8          sbit led6 = P1^5;
+   9          sbit led7 = P1^6;
+  10          sbit led8 = P1^7;
+  11          
+  12          sbit beep = P2^3;
+  13          
+  14          void delay(){
+  15   1              unsigned int cnt = 11000;
+  16   1              while(cnt--);
+  17   1      }
+  18          
+  19          void start(){
+  20   1      
+  21   1              unsigned int cnt;
+  22   1      
+  23   1              while(1){
+  24   2      
+  25   2                      //0 = on £¬ 1 = off
+  26   2                      beep = 0;
+  27   2      
+  28   2                      led1 = 0;
+  29   2      
+  30   2                      delay();
+  31   2      
+  32   2                      led1 = 1;
+  33   2                      led2 = 0;
+  34   2      
+  35   2                      beep = 1;
+  36   2                      delay();
+  37   2      
+  38   2                      led2 = 1;
+  39   2                      led3 = 0;
+  40   2                      beep = 0;
+  41   2                      delay();
+  42   2      
+  43   2                      led3 = 1;
+  44   2                      led4 = 0;
+  45   2                      beep = 1;
+  46   2                      delay();
+  47   2      
+  48   2                      led4 = 1;
+  49   2                      led5 = 0;
+  50   2      
+  51   2                      delay();
+  52   2      
+  53   2                      led5 = 1;
+  54   2                      led6 = 0;
+  55   2      
+C51 COMPILER V7.06   LED                                                                   10/25/2022 06:33:55 PAGE 2   
+
+  56   2                      delay();
+  57   2      
+  58   2                      led6 = 1;
+  59   2                      led7 = 0;
+  60   2      
+  61   2                      delay();
+  62   2      
+  63   2                      led7 = 1;
+  64   2                      led8 = 0;
+  65   2      
+  66   2                      delay();
+  67   2      
+  68   2                      led8 = 1;
+  69   2                      //delay();
+  70   2      
+  71   2              }
+  72   1      }
+*** WARNING C280 IN LINE 21 OF LED.C: 'cnt': unreferenced local variable
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     81    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
