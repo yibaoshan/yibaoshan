@@ -11,62 +11,40 @@ sbit led8 = P1^7;
 
 sbit beep = P2^3;
 
-void delay(){
-	unsigned int cnt = 11000;
-	while(cnt--);
-}
 
-void start(){
+unsigned int index = 0;
+unsigned int toggle = 1;
 
-	unsigned int cnt;
+void once_led(){
 
-	while(1){
-
-		//0 = on £¬ 1 = off
-		beep = 0;
-
-		led1 = 0;
-
-		delay();
-
-		led1 = 1;
-		led2 = 0;
-
-		beep = 1;
-		delay();
-
-		led2 = 1;
-		led3 = 0;
-		beep = 0;
-		delay();
-
-		led3 = 1;
-		led4 = 0;
-		beep = 1;
-		delay();
-
-		led4 = 1;
-		led5 = 0;
-
-		delay();
-
-		led5 = 1;
-		led6 = 0;
-
-		delay();
-
-		led6 = 1;
-		led7 = 0;
-
-		delay();
-
-		led7 = 1;
-		led8 = 0;
-
-		delay();
-
-		led8 = 1;
-		//delay();
-
+	if(index>=8){
+		index = 0;
+		if(toggle==1)toggle = 0;
+		else toggle = 1;
 	}
+
+	beep = toggle;
+
+	switch(index){
+		case 0:led1 = toggle;
+		break;
+		case 1:led2 = toggle;
+		break;
+		case 2:led3 = toggle;
+		break;
+		case 3:led3 = toggle;
+		break;
+		case 4:led4 = toggle;
+		break;
+		case 5:led5 = toggle;
+		break;
+		case 6:led6 = toggle;
+		break;
+		case 7:led7 = toggle;
+		break;
+		case 8:led8 = toggle;
+		break;
+	}
+	index++;
+
 }

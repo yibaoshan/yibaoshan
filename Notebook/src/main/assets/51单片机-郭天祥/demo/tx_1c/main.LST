@@ -1,4 +1,4 @@
-C51 COMPILER V7.06   MAIN                                                                  10/25/2022 06:33:55 PAGE 1   
+C51 COMPILER V7.06   MAIN                                                                  10/25/2022 22:20:59 PAGE 1   
 
 
 C51 COMPILER V7.06, COMPILATION OF MODULE MAIN
@@ -9,14 +9,27 @@ stmt level    source
 
    1          #include <reg52.h>
    2          
-   3          void main(){
-   4   1              start();
-*** WARNING C206 IN LINE 4 OF MAIN.C: 'start': missing function-prototype
-   5   1      }
+   3          
+   4          void delay(){
+   5   1              unsigned int cnt = 11000;
+   6   1              while(cnt--);
+   7   1      }
+   8          
+   9          void main(){
+  10   1              while(1){
+  11   2                      once_led();
+*** WARNING C206 IN LINE 11 OF MAIN.C: 'once_led': missing function-prototype
+  12   2                      once_digita();
+*** WARNING C206 IN LINE 12 OF MAIN.C: 'once_digita': missing function-prototype
+  13   2                      delay();
+  14   2              }
+  15   1      }
+  16          
+  17          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =      3    ----
+   CODE SIZE        =     26    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
@@ -26,4 +39,4 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,102 @@
+C51 COMPILER V7.06   DIGITAL                                                               10/25/2022 22:20:59 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE DIGITAL
+OBJECT MODULE PLACED IN digital.OBJ
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE digital.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include<reg52.h>
+   2          #define uchar unsigned char
+   3          #define uint unsigned int
+   4          
+   5          sbit dula = P2^6;
+   6          
+   7          sbit wela = P2^7;
+   8          
+   9          uchar code table[]={
+  10          0x3f,0x06,0x5b,0x4f,
+  11          0x66,0x6d,0x7d,0x07,
+  12          0x7f,0x6f,0x77,0x7c,
+  13          0x39,0x5e,0x79,0x71};
+  14          
+  15          unsigned int index1 = 0;
+  16          
+  17          void once_digita(){
+  18   1              if(index1 >= 60)index1 = 0;
+  19   1              switch(index1){
+  20   2                      case 0:
+  21   2                              dula=1;
+  22   2                              P0=table[1];
+  23   2                              dula=0;
+  24   2                              P0=0xff;
+  25   2                              wela=1;
+  26   2                              P0=0xfe;
+  27   2                              wela=0;
+  28   2                      break;
+  29   2                      case 10:
+  30   2                              dula=1;
+  31   2                              P0=table[2];
+  32   2                              dula=0;
+  33   2                              P0=0xff;
+  34   2                              wela=1;
+  35   2                              P0=0xfd;
+  36   2                              wela=0;
+  37   2                      break;
+  38   2                      case 20:
+  39   2                              dula=1;
+  40   2                              P0=table[3];
+  41   2                              dula=0;
+  42   2                              P0=0xff;
+  43   2                              wela=1;
+  44   2                              P0=0xfb;
+  45   2                              wela=0;
+  46   2                      break;
+  47   2                      case 30:
+  48   2                              dula=1;
+  49   2                              P0=table[4];
+  50   2                              dula=0;
+  51   2                              P0=0xff;
+  52   2                              wela=1;
+  53   2                              P0=0xf7;
+  54   2                              wela=0;
+  55   2                      break;
+C51 COMPILER V7.06   DIGITAL                                                               10/25/2022 22:20:59 PAGE 2   
+
+  56   2                      case 40:
+  57   2                              dula=1;
+  58   2                              P0=table[5];
+  59   2                              dula=0;
+  60   2                              P0=0xff;
+  61   2                              wela=1;
+  62   2                              P0=0xef;
+  63   2                              wela=0;
+  64   2                      break;
+  65   2                      case 50:
+  66   2                              dula=1;
+  67   2                              P0=table[6];
+  68   2                              dula=0;
+  69   2                              P0=0xff;
+  70   2                              wela=1;
+  71   2                              P0=0xdf;
+  72   2                              wela=0;
+  73   2                      break;
+  74   2              }
+  75   1              index1++;;
+  76   1      }
+  77          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    197    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

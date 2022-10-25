@@ -1,4 +1,4 @@
-C51 COMPILER V7.06   LED                                                                   10/25/2022 06:33:55 PAGE 1   
+C51 COMPILER V7.06   LED                                                                   10/25/2022 22:20:59 PAGE 1   
 
 
 C51 COMPILER V7.06, COMPILATION OF MODULE LED
@@ -20,79 +20,56 @@ stmt level    source
   11          
   12          sbit beep = P2^3;
   13          
-  14          void delay(){
-  15   1              unsigned int cnt = 11000;
-  16   1              while(cnt--);
-  17   1      }
-  18          
-  19          void start(){
-  20   1      
-  21   1              unsigned int cnt;
-  22   1      
-  23   1              while(1){
-  24   2      
-  25   2                      //0 = on £¬ 1 = off
-  26   2                      beep = 0;
-  27   2      
-  28   2                      led1 = 0;
-  29   2      
-  30   2                      delay();
-  31   2      
-  32   2                      led1 = 1;
-  33   2                      led2 = 0;
-  34   2      
-  35   2                      beep = 1;
-  36   2                      delay();
-  37   2      
-  38   2                      led2 = 1;
-  39   2                      led3 = 0;
-  40   2                      beep = 0;
-  41   2                      delay();
-  42   2      
-  43   2                      led3 = 1;
-  44   2                      led4 = 0;
-  45   2                      beep = 1;
-  46   2                      delay();
-  47   2      
-  48   2                      led4 = 1;
-  49   2                      led5 = 0;
-  50   2      
-  51   2                      delay();
-  52   2      
-  53   2                      led5 = 1;
-  54   2                      led6 = 0;
-  55   2      
-C51 COMPILER V7.06   LED                                                                   10/25/2022 06:33:55 PAGE 2   
-
-  56   2                      delay();
-  57   2      
-  58   2                      led6 = 1;
-  59   2                      led7 = 0;
-  60   2      
-  61   2                      delay();
-  62   2      
-  63   2                      led7 = 1;
-  64   2                      led8 = 0;
-  65   2      
-  66   2                      delay();
-  67   2      
-  68   2                      led8 = 1;
-  69   2                      //delay();
-  70   2      
-  71   2              }
-  72   1      }
-*** WARNING C280 IN LINE 21 OF LED.C: 'cnt': unreferenced local variable
+  14          
+  15          unsigned int index = 0;
+  16          unsigned int toggle = 1;
+  17          
+  18          void once_led(){
+  19   1      
+  20   1              if(index>=8){
+  21   2                      index = 0;
+  22   2                      if(toggle==1)toggle = 0;
+  23   2                      else toggle = 1;
+  24   2              }
+  25   1      
+  26   1              beep = toggle;
+  27   1      
+  28   1              switch(index){
+  29   2                      case 0:led1 = toggle;
+  30   2                      break;
+  31   2                      case 1:led2 = toggle;
+  32   2                      break;
+  33   2                      case 2:led3 = toggle;
+  34   2                      break;
+  35   2                      case 3:led3 = toggle;
+  36   2                      break;
+  37   2                      case 4:led4 = toggle;
+  38   2                      break;
+  39   2                      case 5:led5 = toggle;
+  40   2                      break;
+  41   2                      case 6:led6 = toggle;
+  42   2                      break;
+  43   2                      case 7:led7 = toggle;
+  44   2                      break;
+  45   2                      case 8:led8 = toggle;
+  46   2                      break;
+  47   2              }
+  48   1              index++;
+  49   1      
+  50   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     81    ----
+   CODE SIZE        =    176    ----
    CONSTANT SIZE    =   ----    ----
+C51 COMPILER V7.06   LED                                                                   10/25/2022 22:20:59 PAGE 2   
+
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----       2
+   DATA SIZE        =      4    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
