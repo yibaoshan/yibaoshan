@@ -36,6 +36,7 @@ class FragmentTestMainActivity : AppCompatActivity() {
 
     fun onRecreateActivity(view: View) {
         recreate()
+        finish()
     }
 
 }

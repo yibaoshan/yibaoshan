@@ -1,134 +1,19 @@
+书接上回
 
-问各位一个比较常见的问题。一个fragment在点击按钮直接跳转一个新的activity的时候，报崩溃异常：fragment not attached to Activity。复现路径可能是什么样的呢
-
-这个问题之前在项目中也有碰到过，不过那时候忙于业务没有深入研究
-
-当时的解决方案是，通过调用 isAdded() 判断 Fragment 是否添加到 Activity ，来避免因为上下文为空导致的崩溃
-
-现在来研究一下下，描述：在一个 Fragment 页面中，点击按钮跳转到新的 Activity 时，报崩溃异常：Fragment not attached to Activity
-
-问：可能路径是怎样的？
-
-网上搜了一圈，没发现靠谱的答案，那我们就来跟踪源码，试试能不能从源码中推出来
-
-首先，打开 Fragment 源码，路径：frameworks/base/core/java/android/app/Fragment.java
-
-用 “not attached to Activity” 作为关键字搜索，可以发现 getResources() 、getLoaderManager() 、startActivity() 等等共计 6 处地方，都可能抛出这个错误信息
-
-题目明确提到，是在跳转 Activity 时发生的错误，那我们直接来看 Fragment#startActivity() 方法
-
-void startActivity(){
-    if (mHost == null)
-        throw new IllegalStateException("Fragment " + this + " not attached to Activity");
-}
-
-从代码可以看到，mHost 对象为空时，就会抛出 Fragment not attached to Activity 异常
-
-好，现在我们的问题转变为:
-
-1. mHost 对象什么时候会被赋值？
-
-很显然，如果在赋值前调用了 startActivity() 方法，那程序必然会崩溃
-
-2. mHost 对象会被置空吗？如果会，什么时候发生？
-
-我们都知道，Fragment 依赖 Activity 才能生存，那我们有理由怀疑：
-
-当 Activity 执行 stop/destory ，或者，配置发生变化（比如屏幕旋转）导致 Activity 重建，会不会发生 mHost 对象置空的情况？
-
-先来看第一个问题，mHost 对象什么时候会被赋值？
-
-平时我们使用 Fragment 时，通常都是先 new 一个对象出来，然后再提交给 FragmentManager 去显示
-
-我们在创建 Fragment 对象时不需要传入 mHost ，那 mHost 对象只能是 Android 系统帮我们赋值的了
-
-得，又得去翻源码
-
-打开 FragmentManager.java ，路径在：/frameworks/base/core/java/android/app/FragmentManager.java
-
-void moveToState(f){
-    if (f.mState < newState) {
-        switch(f.mState){
-            case Fragment.INITIALIZING:
-                f.mHost = mHost; // 赋值 Fragment 的 mHost 对象
-        }
-    } else if (f.mState > newState) {
-        case Fragment.CREATED:
-            f.initState();
-            f.mHost = null; // mHost 对象置空
-    }
-
-}
-
-接上文，FragmentManager#moveToState() 方法中，有对 mHost 对象进行赋值、置空的操作
-
-那么明天的重点在于，理清 moveToState() 方法逻辑，什么时候执行的赋值和置空？
-
---------------------------------------------------------------------------------------------------------------------
-
-
-即使 Activity 因为各种原因被销毁重建，在 FragmentActivity 的 onSaveInstance()/onRestoreInstance()
-
-这个问题就可以下结论了：不要在异步任务中执行跳转 Activity ！！！
-
-同步代码：
-
-```
-void onClick(){  
-    startActivity();
-}
-```
-
-异步代码（拿 Handler 举例子，实际上业务可能复杂的多）：
-
-```
-
-void onClick(){  
-    Handler().postDelayed(startActivity(),0);
-}
-
-```
-
-看到上面的代码，有同学可能要问了，你这 delay 时间传入的是0，代码应该会立即执行，不能算是异步吧~
-
-要知道，Android
-
-class Fragment$1 implements Runnable {
-    Fragment$1(Fragment var1) {
-        this.this$0 = var1;
-    }
-
-    public void run() {
-        this.this$0.startActivity();
-    }
-}
-
-class ActivityThread {
-    void main(){  
-        message.callback.run();
-    }
-}
-
-Runnable 会持有 Fragment 的实例对象
-
-一旦该 Fragment 对象发生 remove 、replace 操作，
-
-并且，一旦 Activity 发生重建，
-
-1. 异步回调 + Activity 销毁重建，内部类持有的 Activity 已经不在了
-
---------------------------------------------------------------------------------------------------------------------
-
-书接上回，昨天我们说到，调用 Fragment#startActivity() 发生崩溃是因为 mHost 对象为空
+昨天我们说到，调用 `Fragment#startActivity()` 发生崩溃是因为 `mHost` 对象为空
 
 接着，我们又提出两个猜想：
 
-1. 在 mHost 对象赋值前，有没有可能调用 startActivity() 进行页面跳转？
-2. 在 mHost 赋值后，会不会因为发生一些事情，将 mHost 被置空，导致调用 startActivity() 时发生崩溃
+1. **在 `mHost` 对象赋值前，有没有可能调用 `startActivity()` 进行页面跳转？**
+2. **在 `mHost` 赋值后，会不会因为发生一些事情，将 `mHost` 被置空，导致调用 startActivity() 时发生崩溃**
 
-先来看第一个，有没有可能在 mHost 对象赋值前调用 startActivity() ？这个问题的关键点在于，mHost 对象什么时候会被赋值？
 
-打开 FragmentManager 源码，搜索 "mHost" 关键字
+
+先来看第一个，有没有可能在 `mHost` 对象赋值前调用 startActivity() ？这个问题的关键点在于，`mHost` 对象什么时候会被赋值？
+
+
+
+打开 FragmentManager 源码，搜索 `"mHost"` 关键字
 
 ``` java
 class FragmentManager {
@@ -146,19 +31,19 @@ class FragmentManager {
 }
 ```
 
-我们会发现源码里只有一个地方会给 mHost 对象赋值，在 moveToState() 方法中
+我们发现源码里只有一个地方会给 `mHost` 对象赋值，在 `moveToState()` 方法中
 
-如果 Fragment 的状态是 INITIALIZING ，那么就把 FragmentManager 自身的 mHost 对象，赋值给 Fragment 的 mHost 对象
+如果当前 Fragment 的状态是 `INITIALIZING` ，那么就把 FragmentManager 自身的 `mHos`t 对象，赋值给 Fragment 的 `mHost` 对象
 
-这里多说一句，在 Android 中，一个 Activity 只会对应一个 FragmentManager 管理者。而 FragmentManager 中的 mHost ，其本质上就是 Activity 宿主。
+这里多说一句，在 Android 中，一个 Activity 只会对应一个 FragmentManager 管理者。而 FragmentManager 中的 `mHost` ，其本质上就是 Activity 宿主。
 
-所以，这里又把 FragmentManager 的 mHost 对象，赋值给了 Fragment ，相当于 Fragment 也持有了宿主 Activity
+所以，这里把 FragmentManager 的 `mHost` 对象，赋值给了 Fragment ，就相当于 Fragment 也持有了宿主 Activity
 
-我们在 Fragment 调用的 getResource() 、startActivity() 等需要 context 的才能访问方法时，实际使用的就是 Activity 的上下文
+我们在 Fragment 调用的 `getResource()` 、`startActivity()` 等需要 `context` 的才能访问方法时，实际使用的就是 Activity 的上下文
 
 废话说完了，我们来聊正事
 
-moveToState() 方法会去判断 Fragment 的状态，那我们首先得知道 Fragment 有哪几种状态？
+`FragmentManager#moveToState()` 方法会先去判断 Fragment 的状态，那我们首先得知道 Fragment 有哪几种状态
 
 ```java
 class Fragment {
@@ -174,9 +59,9 @@ class Fragment {
 
 看代码，Fragment 一共声明了6个标识符，各个标识符的含义看注释即可
 
-我们这里重点关注 mState 变量，它表示的是 Fragment 当前的状态，默认为 INITIALIZING ，记住它，很重要
+这里重点关注 `mState` 变量，它表示的是 Fragment 当前的状态，默认为 `INITIALIZING `
 
-好，Fragment 的状态介绍完了，我们回到 FragmentManager#moveToState() 方法
+好，Fragment 的状态介绍完了，我们回到 `FragmentManager#moveToState()` 方法
 
 ``` java
     void moveToState(f,newState){
@@ -189,30 +74,36 @@ class Fragment {
     }
 ```
 
-在 moveToState() 方法中，只要 Fragment 状态为 INITIALIZING ，即执行 mHost 的赋值操作
+在 `moveToState()` 方法中，只要当前 Fragment 状态为 `INITIALIZING` ，即执行 `mHost` 的赋值操作
 
-也就是说，不管接下来 Fragment 要转变成什么状态（假设 newState 的值为 CREATED）
+巧了不是，前面刚说完，`mState` 默认值就是 `INITIALIZING` 
 
-首先，它都得从 INITIALIZING 状态变过去！那么，case = Fragment.INITIALIZING 这个分支必然会被执行！！mHost 也必然会被赋值！！！
+也就是说，在第一次调用 `moveToState()` 方法时，不管接下来 Fragment 要转变成什么状态（*根据 `newState` 的值来判断*）
 
-再然后，才会有 onAttach() / onCreate() / onStart() 等等这些生命周期的回调
+首先，它都得从 `INITIALIZING` 状态变过去！那么，`case = Fragment.INITIALIZING` 这个分支必然会被执行！！`mHost` 也必然会被赋值！！！
 
-回到楼主的提问：fragment 在点击按钮跳转一个新的 activity 的时候报错
+再然后，才会有 `onAttach()` / `onCreate()` / `onStart()` 等等这些生命周期的回调！
 
-fragment 能被点击，表示 fragment 视图肯定已经加载渲染完成，生命周期是正常走的
 
-而通过刚才源码跟踪我们发现，只有当 mHost 对象被赋值以后，才会执行 fragment 的生命周期
 
-因此，我们的第一个猜想：在 mHost 对象赋值前，有没有可能调用 startActivity() 进行页面跳转？
+我们回头看楼主的提问：**fragment 在点击按钮跳转一个新的 activity 的时候报错**
+
+这里有个重点，fragment 能被点击，那说明 fragment 视图已经加载并且渲染完成，生命周期肯定是正常走的
+
+而刚才通过源码跟踪我们发现，只有当 `mHost` 对象被赋值以后，才会执行 fragment 的生命周期
+
+因此，我们的第一个猜想：**在 `mHost` 对象赋值前，有没有可能调用 startActivity() 方法执行页面跳转？**
 
 答案显然是否定的
 
 
-继续，来看第二个问题：会不会因为发生一些事情，将 mHost 被置空？
 
-直接说答案，会！
 
-置空 mHost 的操作，同样藏在 FragmentManager 的源码里
+继续，来看第二个问题：**会不会因为发生一些事情，将 `mHost` 被置空？**
+
+直接说答案，**会！**
+
+置空 `mHost` 的操作，同样藏在 FragmentManager 的源码里：
 
 ``` java
 class FragmentManager {
@@ -221,19 +112,18 @@ class FragmentManager {
         if (f.mState < newState) {
             switch(f.mState){
                 case Fragment.INITIALIZING:
-                    f.mHost = mHost; // 赋值 Fragment 的 mHost 对象
+                    f.mHost = mHost; // mHost 对象赋值
             }
         } else if (f.mState > newState) {
             switch (f.mState) {
                 case Fragment.CREATED:
                     if (newState < Fragment.CREATED) {
-                        if (!keepActive) {
-                            if (!f.mRetaining) {
-                                makeInactive(f); // 重点1号，这里会清空 mHost
-                            } else {
-                                f.mHost = null; // 重点2号，这里也会清空 mHost 对象
-                            }
-                        }
+                        f.performDetach(); // 调用 Fragment 的 onDetach()
+                      	if (!f.mRetaining) {
+                          	makeInactive(f); // 重点1号，这里会清空 mHost
+                         } else {
+                            f.mHost = null; // 重点2号，这里也会清空 mHost 对象
+                         }
                     }
             }
         }
@@ -246,63 +136,112 @@ class FragmentManager {
 }
 ```
 
-先看代码，moveToState() 方法中，有两处会置空 mHost 的地方，我把它们标记为 "重点1号" 和 "重点2号"
+看上面的代码，执行 Fragment 的 `performDetach()` 方法后，紧接着就会把 `mHost` 对象置空！
 
-至于什么时候会走这两个分支，ummmmmmmm~ 我也不清楚，这里面判断条件有点多，我也懒得去一步步跟逻辑了
+标记为 "`重点1号`" 和 "`重点2号`" 的代码都执行了置空 `mHost` 对象的逻辑，两者的区别是：
 
-不过，虽然没有 debug 源码，但是我写了 demo 验证什么时候会抛错，好歹也算有个交代~
+Fragment 有一个保留实例的接口 `setRetainInstance(bool)` ，如果设置为 true ，那么在销毁重建 Activity 时，不会销毁该 Fragment 的实例对象
 
-验证的结果是：
+当然这不是本节的重点，我们只需要知道：执行完 `performDetach()` 方法后，无论如何，`mHost` 也都活不了了
 
-remove() / replace() 这两个方法会将 Fragment 状态置为失效，mHost 对象也会跟着置空
+那，什么动作会触发 `performDetach()` 方法？
 
-detach() / hide() 方法只是将视图移除或隐藏，不会更改 Fragment 的状态
 
-有意思的地方来了！
 
-这说明，只要用户能看到 Fragment 的视图，那就表示这是个活着的 Fragment
+**1、Activity 销毁重建**
 
-既然是活着的 Fragment 对象，那它的点击事件一定能响应！！！
+不管因为什么原因，只要 Activity 被销毁，Fragment 也不能独善其身，所有的 Fragment 都会被一起销毁，对应的生命周期如下：
 
-从我的测试结果来看，在 Fragment 同步调用 startActivity() 方法时，总是能够跳转成功，不会报错，和猜想是对得上的
+ `Activity#onDestroy()` -> `Fragment#onDestroyView(`) - > `Fragment#onDestroy()` - >`Fragment#onDetach()`
 
-Activity 销毁重建的测试我也做了，不管是使用"不保留活动"还是旋转屏幕，或是手动调用 Activity#recreate()，只要 Activity 销毁重建，从日志上来看，Fragment 也会跟着重建，一旦重建对象，那 mHost 肯定不为空
+**2、调用 `FragmentTransaction#remove()` 方法移除 Fragment**
 
-那到底什么情况下才会抛出 "Fragment not attached to Activity" 异常呢？
+`remove()` 方法会移除当前的 Fragment 实例，如果这个 Fragment 正在屏幕上显示，那么 Android 会先移除视图，对应的生命周期如下：
 
-答案是，异步调用！！！
+`Fragment#onPause()` -> `onStop()` -> `onDestroyView()` - > `onDestroy()` - >`onDetach()`
 
-什么意思呢？举个例子
+**3、调用 `FragmentTransaction#replace()` 方法显示新的 Fragment**
 
-同步调用代码：
+`replace()` 方法会将所有的 Fragment 实例对象都移除掉，只会保留当前提交的 Fragment 对象，生命周期参考 `remove()` 方法
+
+
+
+以上三种场景，是我自己做测试得出来的结果，应该还有其他没测出来的场景，欢迎大佬补充
+
+另外，FragmentTransaction 中还有两个常用的 `detach()` / `hide()` 方法，只会将视图移除或隐藏，不会触发 `performDetach()` 方法
+
+
+
+好了，现在我们知道了 `mHost` 对象置空的时机，答案已经越来越近了
+
+我们先来汇总下已有的线索
+
+从 FragmentManager 源码来看，只要我们的 `startActivity()` 页面跳转逻辑写在：
+
+**`onAttach()` 方法执行之后 ，`onDetach()` 方法执行之前**
+
+那结果一定总是能够跳转成功，不会报错！
+
+
+
+那么问题就来了
+
+**`onAttach()` 之前，视图不存在，`onDetach()` 之后，视图都已经销毁了，还点击哪门子按钮？**
+
+这句话翻译一下就是：
+
+**视图在，Activity 在，点击事件正常响应**
+
+**视图不在，按钮也不在了呀，也就不存在页面跳转了**
+
+这样看起来，似乎永远不会出现楼主说的异常嘛
+
+除非。。。
+
+
+
+**执行 `startActivity()` 方法的时候，视图已经不在了！！！**
+
+
+
+这听起来很熟悉，ummmmmm。。这不就是异步调用吗？
 
 ```java
 class Fragment {
-    void onClick(){  
-        startActivity();
-    }
-}
-```
-
-将上面的同步代码改成异步：
-
-```java
-class Fragment {
-    void onClick(){  
-        Handler().postDelayed(startActivity(),0);
+    void onClick(){
+      	//do something
+        Handler().postDelayed(startActivity(),1000);
     }
 }
 
 ```
 
-我这里是用 Handler 把同步改成异步，加了一句代码，将 startActivity() 方法放到了 postDelayed() 里面执行
+上面是一段异步调用的演示代码，为了省事我直接用 Handler 提交了延迟消息
 
-就改了这么一点，如果此时刚好发生了 remove() / replace() 或者宿主 Activity 被销毁重建，那么等到执行 startActivity() 方法时，就会看到我们期待已久的异常：Fragment not attached to Activity
+当用户点击跳转按钮后，一旦发生 Activity 销毁重建，或者 Fragment 被移除的情况
 
-为什么会这样？熟悉 JVM 的小伙伴这里肯定要说了，因为提交到 Handler 的 Runnable 是内部类呀，它会持有外部类，也就是宿主 Fragment 的引用，如果在执行 run() 方法之前 Fragment 的 mHost 被清空，就会发生崩溃
+等待1s 执行 `startActivity()` 方法时，程序就会发生崩溃，这时候终于可以看到我们期待已久的异常：**Fragment not attached to Activity**
 
-上面的代码其实还有个问题，有眼尖的同学可能已经发现了，我们的延迟时间 delay 传入的是0，代码应该会立即执行，不能算是异步吧~
+为什么会这样？熟悉 Java 的小伙伴这里肯定要说了，因为提交到 Handler 的 Runnable 会持有外部类呀，也就是宿主 Fragment 的引用。如果在执行 `Runnable#run()` 方法之前， Fragment 的 `mHost` 被清空，那程序肯定会发生崩溃的
 
-其实，这个 runnable 会被封装成消息提交到消息队列，
+那我们怎么样才能防止程序崩溃呢？
 
-好了，分析到这里我们可以尝试给出结论了，
+- **要么，同步执行，不要在异步中调用 Fragment 对象的方法**
+
+- **要么，异步判空，用到上下文前调用 `isAdded()` 方法检查 Fragment 存活状态**
+
+兜兜转转又回到了起点。。。不过好在，背后的逻辑算是理清了
+
+
+
+好，最后来尝试回答楼主的问题：**发生 not attached to Activity，可能路径是怎样的？**
+
+首先，必然存在一个异步任务调用了 `startActivity()` 方法。
+
+在这个异步任务提交之后，执行之前，程序又发生了以下列表中，一个及以上的情况时，程序将会抛出  **not attached to Activity** 异常：
+
+- **调用 `finishXXX()` 结束了 Activity，导致 Activity 为空**
+- **手动调用 `Activity#recreate()` 方法，导致 Activity 重建**
+- **旋转屏幕、键盘可用性改变、更改语言等配置更改，导致 Activity 重建**
+- **向 FragmentManager 提交 `remove()` / `replace()` 请求，导致 Fragment 实例被销毁**
+- **...**
