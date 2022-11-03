@@ -1,8 +1,5 @@
 package com.android.blog.designpattern.structural.decorator;
 
-import com.android.designpattern.structural.decorator.IClothes;
-import com.android.designpattern.structural.decorator.Pants;
-import com.android.designpattern.structural.decorator.Shirt;
 
 import org.junit.Test;
 

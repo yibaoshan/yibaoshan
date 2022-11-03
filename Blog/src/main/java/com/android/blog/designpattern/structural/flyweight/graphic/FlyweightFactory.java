@@ -1,6 +1,5 @@
 package com.android.blog.designpattern.structural.flyweight.graphic;
 
-import com.android.designpattern.structural.flyweight.graphic.ConcreteFlyweight;
 
 import java.util.HashMap;
 

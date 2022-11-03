@@ -1,4 +1,4 @@
-package com.android.designpattern.behavioral.observer
+package com.android.blog.designpattern.behavioral.observer
 
 import org.junit.Test
 

@@ -1,8 +1,9 @@
 package com.android.blog.designpattern.creational.abstractfactory;
 
-import com.android.designpattern.creational.abstractfactory.abstractfactory.AbstractPhoneFactory;
-import com.android.designpattern.creational.abstractfactory.factory.HuaWeiPhoneFactory;
-import com.android.designpattern.creational.abstractfactory.factory.XiaoMiPhoneFactory;
+
+import com.android.blog.designpattern.creational.abstractfactory.abstractfactory.AbstractPhoneFactory;
+import com.android.blog.designpattern.creational.abstractfactory.factory.HuaWeiPhoneFactory;
+import com.android.blog.designpattern.creational.abstractfactory.factory.XiaoMiPhoneFactory;
 
 import org.junit.Test;
 

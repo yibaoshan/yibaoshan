@@ -1,6 +1,5 @@
 package com.android.blog.designpattern.behavioral.observer.eventbus;
 
-import com.android.designpattern.behavioral.observer.eventbus.LocalBroadcastManager;
 
 import java.util.HashMap;
 

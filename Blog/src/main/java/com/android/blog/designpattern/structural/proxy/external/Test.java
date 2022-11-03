@@ -1,7 +1,5 @@
 package com.android.blog.designpattern.structural.proxy.external;
 
-import com.android.designpattern.structural.proxy.external.StackProxy;
-
 import java.util.Stack;
 
 public class Test {

@@ -1,6 +1,5 @@
 package com.android.blog.designpattern.creational.builder;
 
-import com.android.designpattern.creational.builder.CommonDialog;
 
 public class Main {
 

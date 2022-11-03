@@ -1,9 +1,5 @@
 package com.android.blog.designpattern.creational.singleton;
 
-import com.android.designpattern.creational.singleton.Singleton1;
-import com.android.designpattern.creational.singleton.Singleton2;
-import com.android.designpattern.creational.singleton.Singleton3;
-import com.android.designpattern.creational.singleton.Singleton4;
 
 import org.junit.Test;
 

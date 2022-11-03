@@ -1,8 +1,6 @@
 package com.android.blog.designpattern.behavioral.observer.livedata;
 
 
-import com.android.designpattern.behavioral.observer.livedata.LiveData;
-import com.android.designpattern.behavioral.observer.livedata.LiveDataObserver;
 
 public class Test {
 

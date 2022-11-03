@@ -1,8 +1,5 @@
 package com.android.blog.designpattern.behavioral.observer.eventbus;
 
-import com.android.designpattern.behavioral.observer.eventbus.LocalBroadcastManager;
-import com.android.designpattern.behavioral.observer.eventbus.LoginBroadcastReceiver;
-import com.android.designpattern.behavioral.observer.eventbus.LoginPage;
 
 public class Test {
 

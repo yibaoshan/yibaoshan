@@ -1,4 +1,4 @@
-package com.android.designpattern.behavioral.interpreter
+package com.android.blog.designpattern.behavioral.interpreter
 
 class Main {
 

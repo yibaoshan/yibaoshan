@@ -1,7 +1,5 @@
 package com.android.blog.designpattern.structural.flyweight.graphic;
 
-import com.android.designpattern.structural.flyweight.graphic.Flyweight;
-import com.android.designpattern.structural.flyweight.graphic.FlyweightFactory;
 
 import org.junit.Test;
 

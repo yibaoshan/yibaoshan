@@ -6,8 +6,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.designpattern.structural.adapter.AliPay;
-import com.android.designpattern.structural.adapter.ObjectAdapter;
 
 import org.junit.Test;
 

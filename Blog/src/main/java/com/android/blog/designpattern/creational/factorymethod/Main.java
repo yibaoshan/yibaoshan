@@ -1,10 +1,11 @@
 package com.android.blog.designpattern.creational.factorymethod;
 
-import com.android.designpattern.creational.factorymethod.abstractfactory.AbstractFactory;
-import com.android.designpattern.creational.factorymethod.abstractproduct.AbstractProduct;
-import com.android.designpattern.creational.factorymethod.factory.ProductAFactory;
-import com.android.designpattern.creational.factorymethod.factory.ProductBFactory;
-import com.android.designpattern.creational.factorymethod.factory.ProductCFactory;
+
+import com.android.blog.designpattern.creational.factorymethod.abstractfactory.AbstractFactory;
+import com.android.blog.designpattern.creational.factorymethod.abstractproduct.AbstractProduct;
+import com.android.blog.designpattern.creational.factorymethod.factory.ProductAFactory;
+import com.android.blog.designpattern.creational.factorymethod.factory.ProductBFactory;
+import com.android.blog.designpattern.creational.factorymethod.factory.ProductCFactory;
 
 import org.junit.Test;
 

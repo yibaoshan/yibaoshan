@@ -1,7 +1,5 @@
 package com.android.blog.designpattern.behavioral.cor;
 
-import com.android.designpattern.behavioral.cor.ConcreteHandler1;
-import com.android.designpattern.behavioral.cor.ConcreteHandler2;
 
 public class Test {
 

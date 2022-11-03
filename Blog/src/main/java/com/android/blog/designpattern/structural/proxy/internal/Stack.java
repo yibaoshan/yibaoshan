@@ -1,6 +1,5 @@
 package com.android.blog.designpattern.structural.proxy.internal;
 
-import com.android.designpattern.structural.proxy.internal.IStack;
 
 import java.util.EmptyStackException;
 

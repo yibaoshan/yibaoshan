@@ -1,4 +1,4 @@
-package com.android.designpattern.behavioral.cor
+package com.android.blog.designpattern.behavioral.cor
 
 class Main {
 

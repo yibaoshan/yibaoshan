@@ -1,8 +1,9 @@
 package com.android.blog.designpattern.creational.simplefactory;
 
-import com.android.designpattern.creational.simplefactory.abstractproduct.AbstractProduct;
-import com.android.designpattern.creational.simplefactory.product.ProductA;
-import com.android.designpattern.creational.simplefactory.product.ProductB;
+
+import com.android.blog.designpattern.creational.simplefactory.abstractproduct.AbstractProduct;
+import com.android.blog.designpattern.creational.simplefactory.product.ProductA;
+import com.android.blog.designpattern.creational.simplefactory.product.ProductB;
 
 public class ProductSimpleFactory {
 

@@ -1,7 +1,8 @@
 package com.android.blog.designpattern.creational.abstractfactory.abstractfactory;
 
-import com.android.designpattern.creational.abstractfactory.abstractproduct.AbstractProductBattery;
-import com.android.designpattern.creational.abstractfactory.abstractproduct.AbstractProductScreen;
+
+import com.android.blog.designpattern.creational.abstractfactory.abstractproduct.AbstractProductBattery;
+import com.android.blog.designpattern.creational.abstractfactory.abstractproduct.AbstractProductScreen;
 
 public abstract class AbstractPhoneFactory {
 

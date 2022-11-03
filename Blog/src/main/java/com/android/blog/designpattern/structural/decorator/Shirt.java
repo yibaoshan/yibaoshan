@@ -1,6 +1,5 @@
 package com.android.blog.designpattern.structural.decorator;
 
-import com.android.designpattern.structural.decorator.IClothes;
 
 public class Shirt implements IClothes {
 

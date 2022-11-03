@@ -1,9 +1,9 @@
 package com.android.blog.designpattern.creational.simplefactory;
 
-import com.android.designpattern.creational.simplefactory.ProductSimpleFactory;
-import com.android.designpattern.creational.simplefactory.product.ProductA;
-import com.android.designpattern.creational.simplefactory.product.ProductB;
-import com.android.designpattern.creational.simplefactory.product.ProductC;
+
+import com.android.blog.designpattern.creational.simplefactory.product.ProductA;
+import com.android.blog.designpattern.creational.simplefactory.product.ProductB;
+import com.android.blog.designpattern.creational.simplefactory.product.ProductC;
 
 import org.junit.Test;
 

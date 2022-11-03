@@ -21,6 +21,8 @@
 
         <activity android:name=".android.graphics.demo.v4.LayoutTestActivity" />
 
+        <activity android:name=".android.jetpack.fragment.blog.demo.FragmentTestMainActivity" />
+
     </application>
 
 </manifest>

@@ -2,7 +2,6 @@ package com.android.blog.designpattern.structural.bridge;
 
 import android.widget.ImageView;
 
-import com.android.designpattern.structural.bridge.IImageLoader;
 
 public class ImageLoader implements IImageLoader {
 

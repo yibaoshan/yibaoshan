@@ -1,4 +1,4 @@
-package com.android.designpattern.behavioral.mediator
+package com.android.blog.designpattern.behavioral.mediator
 
 class Main {
 

@@ -1,4 +1,4 @@
-package com.android.designpattern.behavioral.iterator
+package com.android.blog.designpattern.behavioral.iterator
 
 class Main {
 

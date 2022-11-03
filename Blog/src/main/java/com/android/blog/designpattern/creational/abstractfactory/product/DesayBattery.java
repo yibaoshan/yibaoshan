@@ -1,6 +1,7 @@
 package com.android.blog.designpattern.creational.abstractfactory.product;
 
-import com.android.designpattern.creational.abstractfactory.abstractproduct.AbstractProductBattery;
+
+import com.android.blog.designpattern.creational.abstractfactory.abstractproduct.AbstractProductBattery;
 
 public class DesayBattery extends AbstractProductBattery {
 

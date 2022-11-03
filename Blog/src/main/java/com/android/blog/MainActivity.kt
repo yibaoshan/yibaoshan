@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatButton
 import com.android.blog.android.graphics.demo.v4.LayoutTestActivity
 import com.android.blog.android.graphics.demo.v4.MeasureTestActivity
+import com.android.blog.android.jetpack.fragment.blog.demo.FragmentTestMainActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val rootView = findViewById<LinearLayout>(R.id.layout_root)
+        rootView.addView(generateButton("Fragment") { startActivity(Intent(this, FragmentTestMainActivity::class.java)) })
         rootView.addView(generateButton("") { })
         rootView.addView(generateButton("[measure-cnt]FrameLayout") { MeasureTestActivity.startActivity(this, MeasureTestActivity.CNT_FRAME_LAYOUT) })
         rootView.addView(generateButton("[measure-cnt]LinearLayout") { MeasureTestActivity.startActivity(this, MeasureTestActivity.CNT_LINEAR_LAYOUT) })

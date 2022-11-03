@@ -1,6 +1,5 @@
 package com.android.blog.designpattern.behavioral.observer.livedata;
 
-import com.android.designpattern.behavioral.observer.livedata.Observer;
 
 import java.util.LinkedList;
 import java.util.List;

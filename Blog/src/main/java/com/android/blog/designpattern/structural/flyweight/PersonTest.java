@@ -1,8 +1,9 @@
 package com.android.blog.designpattern.structural.flyweight;
 
 
-import com.android.designpattern.structural.flyweight.field.Country;
-import com.android.designpattern.structural.flyweight.field.Gender;
+
+import com.android.blog.designpattern.structural.flyweight.field.Country;
+import com.android.blog.designpattern.structural.flyweight.field.Gender;
 
 import org.junit.Test;
 

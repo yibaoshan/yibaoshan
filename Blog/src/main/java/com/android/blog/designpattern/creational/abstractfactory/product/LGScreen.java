@@ -1,6 +1,7 @@
 package com.android.blog.designpattern.creational.abstractfactory.product;
 
-import com.android.designpattern.creational.abstractfactory.abstractproduct.AbstractProductScreen;
+
+import com.android.blog.designpattern.creational.abstractfactory.abstractproduct.AbstractProductScreen;
 
 public class LGScreen extends AbstractProductScreen {
 

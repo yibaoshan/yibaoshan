@@ -1,9 +1,5 @@
 package com.android.blog.designpattern.structural.proxy.internal;
 
-import com.android.designpattern.structural.proxy.internal.IStack;
-import com.android.designpattern.structural.proxy.internal.Stack;
-import com.android.designpattern.structural.proxy.internal.StackDynamicProxy;
-import com.android.designpattern.structural.proxy.internal.StackProxy;
 
 public class Test {
 

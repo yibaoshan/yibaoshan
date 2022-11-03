@@ -5,7 +5,6 @@ import android.content.Context;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.designpattern.structural.proxy.hook.InstrumentationProxy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

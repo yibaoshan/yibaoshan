@@ -1,4 +1,4 @@
-package com.android.designpattern.behavioral.memento
+package com.android.blog.designpattern.behavioral.memento
 
 import android.graphics.Canvas
 
