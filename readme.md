@@ -26,6 +26,10 @@
 - [从Android源码角度谈设计模式（二）：结构型模式](https://yibs.space/post/design-pattern-structural/)
 - [从Android源码角度谈设计模式（三）：行为型模式](https://yibs.space/post/design-pattern-behavioral/)
 
+### 水文
+
+- [为什么会发生 Fragment not attached to Activity 异常？](https://yibs.space/post/fragment-not-attached-to-activity-exception/)
+
 ### 其他(工具/效率)
 
 - [给马总：斐讯K2-老毛子固件翻墙教程](https://yibs.space/post/phicomm-k2-user-guide-for-alicia/)
