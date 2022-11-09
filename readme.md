@@ -26,7 +26,11 @@
 - [从Android源码角度谈设计模式（二）：结构型模式](https://yibs.space/post/design-pattern-structural/)
 - [从Android源码角度谈设计模式（三）：行为型模式](https://yibs.space/post/design-pattern-behavioral/)
 
-### 水文
+### 读书笔记系列
+
+- [读书笔记：穿越计算机的迷雾（上）](https://yibs.space/post/book-notes-computers-lizhong-1//)
+
+### 水文系列
 
 - [为什么会发生 Fragment not attached to Activity 异常？](https://yibs.space/post/fragment-not-attached-to-activity-exception/)
 
