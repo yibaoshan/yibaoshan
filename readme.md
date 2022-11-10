@@ -29,6 +29,7 @@
 ### 读书笔记系列
 
 - [读书笔记：穿越计算机的迷雾（上）](https://yibs.space/post/book-notes-computers-lizhong-1//)
+- [读书笔记：穿越计算机的迷雾（下）](https://yibs.space/post/book-notes-computers-lizhong-2/)
 
 ### 水文系列
 
