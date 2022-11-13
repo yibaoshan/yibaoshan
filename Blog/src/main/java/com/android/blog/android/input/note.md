@@ -1,4 +1,34 @@
 
+早期的 win PC 流程
+
+鼠标点击、按键按下以后，硬件通过中断，向操作系统的 '系统消息队列' ， 存入原始的消息
+
+接着，应用程序调用 getMessage 获取消息，执行对应操作
+
+在 Android 系统中，触摸事件是注册制，消息来了会分发给注册的应用程序，不需要应用程序主动读取
+
+那么，我们需要了解，在 Framework 中，负责读取 '系统消息队列' 中的消息的角色是哪一个？
+
+我是分割线
+
+我们都知道，Android 系统使用了 Linux 作为内核程序，负责内存/CPU/其他设备等资源管理。最新的 Android 13 中，Linux 内核版本已经升到了 xxx
+
+Linux Kernel 层
+
+1. 设备注册
+2. 设备发送消息
+3. 源消息处理
+
+Android Framework 层
+
+1. 监听读取消息
+2. sf找到window，发送给window
+3. viewrootimpl，分发消息
+
+Application 应用
+
+1. Activity分发
+2. onTouch()...
 
 ### 一、触摸事件的起源与传递
 
