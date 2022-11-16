@@ -30,6 +30,7 @@
 
 - [读书笔记：穿越计算机的迷雾（上）](https://yibs.space/post/book-notes-computers-lizhong-1//)
 - [读书笔记：穿越计算机的迷雾（下）](https://yibs.space/post/book-notes-computers-lizhong-2/)
+- [读书笔记：十天学会51单片机](https://yibs.space/post/book-notes-computers-microcomputer-8051/)
 
 ### 水文系列
 
