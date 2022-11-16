@@ -1,4 +1,4 @@
-package com.android.blog.android.jetpack.fragment.blog.demo;
+package com.android.blog.android.jetpack.fragment.demo;
 
 
 /**

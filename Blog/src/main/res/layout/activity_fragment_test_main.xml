@@ -8,7 +8,7 @@
             android:layout_width="match_parent"
             android:layout_weight="1"
             android:tag="@string/app_name"
-            android:name="com.android.blog.android.jetpack.fragment.blog.demo.ChildFragment"
+            android:name="com.android.blog.android.jetpack.fragment.demo.ChildFragment"
             android:layout_height="0dp" />
 
     <FrameLayout

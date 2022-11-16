@@ -21,7 +21,7 @@
 
         <activity android:name=".android.graphics.demo.v4.LayoutTestActivity" />
 
-        <activity android:name=".android.jetpack.fragment.blog.demo.FragmentTestMainActivity" />
+        <activity android:name="com.android.blog.android.jetpack.fragment.demo.FragmentTestMainActivity" />
 
     </application>
 

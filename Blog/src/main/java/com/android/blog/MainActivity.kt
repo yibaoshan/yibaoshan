@@ -9,7 +9,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatButton
 import com.android.blog.android.graphics.demo.v4.LayoutTestActivity
 import com.android.blog.android.graphics.demo.v4.MeasureTestActivity
-import com.android.blog.android.jetpack.fragment.blog.demo.FragmentTestMainActivity
+import com.android.blog.android.jetpack.fragment.demo.FragmentTestMainActivity
 
 class MainActivity : AppCompatActivity() {
 

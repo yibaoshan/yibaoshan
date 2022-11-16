@@ -1,4 +1,4 @@
-package com.android.blog.android.jetpack.fragment.blog.demo
+package com.android.blog.android.jetpack.fragment.demo
 
 import android.content.Intent
 import android.os.Bundle
