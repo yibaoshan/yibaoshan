@@ -192,6 +192,7 @@ class InputDispatcher {
 
     // 我知道大家可能对怎么找到目标窗口的逻辑非常感兴趣，这个函数 400 多行代码，内部还调用了其他方法
     // 这个是以窗口为单位的，对于 ui boy 来说，Activity 、Dialog 等就是一个窗口
+    // 具体解析可以查看 https://xianzhu21.space/developer/window_touchable_region/
     int findTouchedWindowTargetsLocked(){//获取正在被触摸的window，触摸事件用
         /*
             // 1. 根据窗口的点击区域与事件发生的坐标点选取合适的目标窗口。注意其遍历顺序是沿
@@ -263,13 +264,6 @@ InputMonitor 类好像没见过，它是连接 WMS 和 IMS 的枢纽
 
 WMS 通过 InputMonitor.java 持有了 IMS 的引用，当窗口信息发生变化后，通过 InputMonitor#updateInputWindowsLw() 方法，将新的窗口集合更新到 IMS 中
 
-2. IMS 如何将触摸事件通知到 APP 进程的
-
-因为涉及到跨进程，常用的通信方式也就那么几个，IMS 这里选用的是 socket ，在 Java 层被包装为 InputChannel
-
-InputChannel 是分发 input 事件的通道，driver 产生 input 事件，发送到 system_server 后通过 socket 发送到 app 进程。
-
-每次创建 window 时会创建一对 InputChannel 对象，一个存到 app 进程的 ViewRootImpl 的 mInputChannel 变量，一个存到 system_server 的 WindowState 的 mInputChannel 字段。
 
 */
 
@@ -281,10 +275,27 @@ class InputDispatcher {
     }
 }
 
-//------------------------------------------------------------------------------native分界线----------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------IMS与WMS通信----------------------------------------------------------------------------------------------------------
 
+/*
 
-/frameworks/base/core/java/android/view/ViewRootImpl.java
+2. IMS 如何将触摸事件通知到 APP 进程的
+
+因为涉及到跨进程，常用的通信方式也就那么几个，IMS 这里选用的是 socket ，在 Java 层被包装为 InputChannel
+
+InputChannel 是分发 input 事件的通道，driver 产生 input 事件，发送到 system_server 后通过 socket 发送到 app 进程。
+
+每次创建 window 时会创建一对 InputChannel 对象
+
+一个存到 app 进程的 ViewRootImpl 的 mInputChannel 变量
+
+一个存到 system_server 的 WindowState 的 mInputChannel 字段。
+
+其中，APP 进程作为 client 端
+
+*/
+
+//frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
     InputChannel mInputChannel;
@@ -301,7 +312,7 @@ class ViewRootImpl {
     }
 }
 
-/frameworks/base/services/core/java/com/android/server/wm/Session.java
+//frameworks/base/services/core/java/com/android/server/wm/Session.java
 class Session {
 
     void addToDisplay(InputChannel inputChannel){
@@ -310,7 +321,7 @@ class Session {
 
 }
 
-/frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+//frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
 class WindowManagerService {
 
     int addWindow(InputChannel outInputChannel){
@@ -320,7 +331,7 @@ class WindowManagerService {
 
 }
 
-/frameworks/base/services/core/java/com/android/server/wm/WindowState.java
+//frameworks/base/services/core/java/com/android/server/wm/WindowState.java
 class WindowState {
 
     void openInputChannel(InputChannel outInputChannel) {
@@ -331,7 +342,7 @@ class WindowState {
     }
 }
 
-/frameworks/base/core/java/android/view/InputChannel.java
+//frameworks/base/core/java/android/view/InputChannel.java
 class InputChannel {
 
     static InputChannel[] openInputChannelPair() {
@@ -339,7 +350,7 @@ class InputChannel {
     }
 }
 
-/frameworks/base/services/core/java/com/android/server/input/InputManagerService.java
+//frameworks/base/services/core/java/com/android/server/input/InputManagerService.java
 class InputManagerService {
 
     // 启动 IMS 服务，不同版本代码细节或许有差别
@@ -355,9 +366,7 @@ class InputManagerService {
     }
 }
 
-//------------------------------------------------------------------------------native分界线----------------------------------------------------------------------------------------------------------
-
-/frameworks/base/services/core/jni/com_android_server_input_InputManagerService.cpp
+//frameworks/base/services/core/jni/com_android_server_input_InputManagerService.cpp
 class NativeInputManager {
 
     NativeInputManager(){
