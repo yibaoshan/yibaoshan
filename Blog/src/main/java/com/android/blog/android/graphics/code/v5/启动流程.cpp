@@ -21,7 +21,7 @@ frameworks/native/libs/input/
   - KeyCharacterMap.cpp
   - IInputFlinger.cpp
 
-frameworks/base/services/core/
+frameworks/base/services/core/ //InputManagerService，分为Java层和Native层两部分。Java层负责与WMS的通信。而Native层则是InputReader和InputDispatcher两个输入系统关键组件的运行容器。
   - java/com/android/server/input/InputManagerService.java
   - jni/com_android_server_input_InputManagerService.cpp
     - class NativeInputManager
@@ -31,6 +31,20 @@ frameworks/base/services/core/
 /*
 
 初始化流程：
+
+IMS 作为运行在 SystemServer 进程中的服务，启动顺序依旧拍照
+
+IMS分为Java层与Native层两个部分，其启动过程是从Java部分的初始化开始，进而完成 Native 部分的初始化
+
+分为Java层和Native层两部分。
+
+Java层负责与WMS的通信。
+
+而Native层则是InputReader和InputDispatcher两个输入系统关键组件的运行容器。
+
+简单来说，内核将原始事件写入到设备节点中，InputReader不断地通过EventHub将原始事件取出来并翻译加工成Android输入事件，然后交给InputDispatcher。InputDispatcher根据WMS提供的窗口信息将事件交给合适的窗口。窗口的ViewRootImpl对象再沿着控件树将事件派发给感兴趣的控件。控件对其收到的事件作出响应，更新自己的画面、执行特定的动作。所有这些参与者以IMS为核心，构建了Android庞大而复杂的输入体系。
+
+Linux内核对硬件中断的处理超出了本书的讨论范围，因此本章将以IMS为重点，详细讨论除Linux内核以外的其他参与者的工作原理。
 
 */
 
@@ -100,28 +114,10 @@ class EventHub {
 
     // 【step 1.3】
     EventHub::EventHub(void)  {
-        //创建epoll
+        // 创建 epoll，用于监听设备文件是否有可读事件
         mEpollFd = epoll_create(EPOLL_SIZE_HINT);
-
-        mINotifyFd = inotify_init(); // inotify 是用于通知文件系统变化的机制
-        int result = inotify_add_watch(mINotifyFd, "/dev/input", IN_DELETE | IN_CREATE); // 监听设备路径是否有设备插拔
-
-        struct epoll_event eventItem;
-        memset(&eventItem, 0, sizeof(eventItem));
-        eventItem.events = EPOLLIN;
-        eventItem.data.u32 = EPOLL_ID_INOTIFY;
-        //添加INotify到epoll实例
-        result = epoll_ctl(mEpollFd, EPOLL_CTL_ADD, mINotifyFd, &eventItem);
-
-        int wakeFds[2];
-        result = pipe(wakeFds); //创建管道
-
-        mWakeReadPipeFd = wakeFds[0]; // 创建可读监听
-        mWakeWritePipeFd = wakeFds[1];
-
-        eventItem.data.u32 = EPOLL_ID_WAKE;
-        //添加管道的读端到epoll实例
-        result = epoll_ctl(mEpollFd, EPOLL_CTL_ADD, mWakeReadPipeFd, &eventItem);
+        // 创建 inotify ，用于监听文件系统是否变化，有变化说明发生设备插拔
+        mINotifyFd = inotify_init();
         ...
     }
 }
