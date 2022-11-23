@@ -30,7 +30,19 @@ frameworks/base/services/core/
   - jni/com_android_server_input_InputManagerService.cpp
     - class NativeInputManager
 
-岗位职责，创建时机，所在进程
+源码稍微有点多，我们回到 Framework 层最核心的问题，怎么读取原始消息，并发送给需要处理消息的页面的
+
+这是最核心的问题，消息的分类包装，窗口的查找等等可以先放一放，用到的时候再去跟细节
+
+在 Framework 中，帮助完成读取/分发两件事的是 InputReader 和 InputDispatcher
+
+它们俩都运行在 system_server 进程，由 InputManagerService 服务进行管理
+
+而 IMS 和 APP 不在同一个进程运行，需要进行跨进程通信，因此，在 xx 小节又介绍了它俩建立通信的过程
+
+最后，我们简单的聊了聊，各自的启动/初始化的流程
+
+到这里，整个 Framework 层的分析就结束了，接下来我们进入比较轻松的分析环节，APP 的流程，记得提肛
 
 */
 
@@ -234,6 +246,18 @@ class InputDispatcher {
 
 }
 
+//frameworks/native/libs/input/InputTransport.cpp
+class InputTransport {
+
+    class InputChannel {
+
+        status_t InputChannel::sendMessage(InputMessage* msg) {
+            send(mFd, msg, msgLength, MSG_DONTWAIT | MSG_NOSIGNAL);
+            return OK;
+        }
+    }
+}
+
 /*
 
 IMS 和 WMS 的通信同步问题
@@ -298,19 +322,28 @@ InputChannel 是分发 input 事件的通道，driver 产生 input 事件，发�
 //frameworks/base/core/java/android/view/ViewRootImpl.java
 class ViewRootImpl {
 
-    InputChannel mInputChannel;
+    /*
+
+    起始点，当一个 window 被创建时，同步建立服务端和客户端的通信
+
+    建立通信过程涉及到的类比较多，展开来聊又会没完没了，我们这里只展示类和方法名
+
+    */
+
+    InputChannel mInputChannel; // 保存的是 client 端的管道
 
     void setView(){
-        mInputChannel = new InputChannel();
-        Session.addToDisplay(mInputChannel);//向wms添加窗口，最终调用到WindowManagerService#addWindow()方法
+        mInputChannel = new InputChannel(); // 创建了空的 InputChannel ，下面代码将会生成真实的 InputChannel，这里要吐槽一下 Google 的命名，源码看的我都懵了，客户端和服务端都tm的叫 mInputChannel
+        Session.addToDisplay(mInputChannel);//向wms添加窗口，最终调用到 WindowManagerService#addWindow() 方法
+
+        //执行到这里，说明服务端的 socket 已经送过去了。接下来的客户端的 InputChannel 要注册到 WindowInputEventReceiver 管理
         //这里的调用链是这样的，native 层的 NativeInputEventReceiver 将 InputChannel的fd 加入到 Native Looper中进行监听
-        mInputEventReceiver = new WindowInputEventReceiver(mInputChannel, Looper.myLooper());//客户端创建socket连接
+        if(mInputChannel!=null) mInputEventReceiver = new WindowInputEventReceiver(mInputChannel, Looper.myLooper());//客户端创建socket连接
     }
 
-    class WindowInputEventReceiver extends InputEventReceiver {
-        void onInputEvent(InputEvent event);
-    }
 }
+
+//------------------------------------------------------------------------------服务端过程----------------------------------------------------------------------------------------------------------
 
 //frameworks/base/services/core/java/com/android/server/wm/Session.java
 class Session {
@@ -334,11 +367,25 @@ class WindowManagerService {
 //frameworks/base/services/core/java/com/android/server/wm/WindowState.java
 class WindowState {
 
+    InputChannel mInputChannel;
+    InputChannel mClientChannel;
+
+    /*
+    InputChannel.openInputChannelPair() 函数定义在 InputTransport.cpp 中。
+    函数中调用 Linux 的 socketpair() 函数创建一对已连接的 socket，可以把这一对 socket 当成 pipe 返回的文件描述符使用，并且这两个文件描述符都是可读可写的，
+    参考「Linux 上实现双向进程间通信管道」。然后封装成 InputChannel 对象。
+    */
     void openInputChannel(InputChannel outInputChannel) {
+        // 创建两个 InputChannel，一个提供给 InputDispatcher，即 server 端，用于分发 input 事件
+        // 另一个提供给应用的 input 队列用于消费 input 事件
         InputChannel[] inputChannels = InputChannel.openInputChannelPair();
-        mInputChannel = inputChannels[0];
-        mClientChannel = inputChannels[1];
-        WindowManagerService.InputManager.registerInputChannel(mInputChannel);//通过wms持有的inputManager调用它的注册方法
+        // 这是一对已连接的管道，将管道两端分别保存到服务端和客户端即可进行通信
+        mInputChannel = inputChannels[0]; // 下标为0的传递给 IMS 服务端，服务端可通过该管道向窗口发送消息，并且，可以通过该管道接受来自 client 的消息
+        mClientChannel = inputChannels[1]; // 下标为1的留给 client 端，窗口持有的管道，通过该管道可以向 IMS 发送消息
+        //接下来分两步
+        mClientChannel.transferTo(outInputChannel);// 1. Client 端 InputChanenl 调用 transforTo() 方法传给 ViewRootImpl 的 mInputChannel
+        // 2. Server 端 InputChannel 存在 WindowState 的 mInputChannel 变量
+        InputManagerService.registerInputChannel(mInputChannel);//将服务端管道，注册到 IMS 的 InputDispatcher 中，当有触摸消息需要传递到该窗口时， InputDispatcher 可以通过该管道向 APP 发送消息
     }
 }
 
@@ -349,6 +396,7 @@ class InputChannel {
         return nativeOpenInputChannelPair();//native调用了socketpair()创建一对本地socket对象，被封装成两个 InputChannel
     }
 }
+
 
 //frameworks/base/services/core/java/com/android/server/input/InputManagerService.java
 class InputManagerService {
@@ -379,10 +427,86 @@ class NativeInputManager {
     }
 
     void nativeRegisterInputChannel(){
-        InputManager->getDispatcher()->registerInputChannel(
-                inputChannel, inputWindowHandle, monitor);
+        InputManager->getDispatcher()->registerInputChannel(inputChannel, inputWindowHandle, monitor);
     }
 
 }
 
+//frameworks/native/services/inputflinger/InputDispatcher.cpp
+class InputDispatcher {
 
+    /*
+    创建一个 Connection 对象封装 inputChannel 和 inputWindowHandle。
+    调用 inputChannel->getFd() 获得文件描述符。
+    最后加入到 mLooper 对象中，如果 client 发来消息，回调 handleReceiveCallback() 函数。
+    */
+
+    //一番长途跋涉后，最终将 socket 注册到 InputDispatcher，一起被注册过来的还有代表该窗口信息的 inputWindowHandle
+    status_t InputDispatcher::registerInputChannel(inputChannel,inputWindowHandle,monitor){
+        // 将代表窗口通信的 inputChannel ，以及代表窗口信息的 inputWindowHandle 封装成 Connection 对象
+        sp<Connection> connection = new Connection(inputChannel, inputWindowHandle, monitor);
+        int fd = inputChannel->getFd();
+        mConnectionsByFd.add(fd, connection);
+        if (monitor) mMonitoringChannels.push(inputChannel);
+        //将代表窗口通信的 inputChannel 的 fd 加入监听，如果窗口有消息发送过来，由 InputDispatcher#handleReceiveCallback() 方法来执行
+        mLooper->addFd(fd, 0, ALOOPER_EVENT_INPUT, handleReceiveCallback, this);
+    }
+
+    int InputDispatcher::handleReceiveCallback( fd, events, data) {
+        // 处理来自 client 的消息
+    }
+}
+
+//------------------------------------------------------------------------------客户端过程----------------------------------------------------------------------------------------------------------
+
+/*
+客户端的注册过程比较简单，说白了就是把 socketfd 丢到 native 层进行监听，其他啥也没做，只发生了传递，没有其他的动作
+*/
+
+//frameworks/base/core/java/android/view/ViewRootImpl.java
+class ViewRootImpl {
+    class WindowInputEventReceiver extends InputEventReceiver {
+        public WindowInputEventReceiver(InputChannel inputChannel, Looper looper){
+            super(inputChannel,looper);
+        }
+    }
+}
+
+//frameworks/base/core/java/android/view/InputEventReceiver.java
+class InputEventReceiver {
+
+    public InputEventReceiver(InputChannel inputChannel, Looper looper) {
+        ...
+        mInputChannel = inputChannel;
+        mMessageQueue = looper.getQueue(); // 注意，此处的 mMessageQueue 消息队列，是来自 Java 层的 main 线程，也就是说，当 InputDispatcher 向 APP 发送消息时，该消息将直接抵达 main 线程的消息队列
+        mReceiverPtr = nativeInit(new WeakReference<InputEventReceiver>(this),inputChannel, mMessageQueue);
+    }
+
+}
+
+//frameworks/base/core/jni/android_view_InputEventReceiver.cpp
+class NativeInputEventReceiver {
+
+    static jlong nativeInit(env, clazz, receiverWeak, inputChannelObj,  messageQueueObj) {
+       sp<InputChannel> inputChannel = android_view_InputChannel_getInputChannel(env,inputChannelObj);
+       sp<MessageQueue> messageQueue = android_os_MessageQueue_getMessageQueue(env, messageQueueObj);
+       ...
+       sp<NativeInputEventReceiver> receiver = new NativeInputEventReceiver(env,receiverWeak, inputChannel, messageQueue);
+       status_t status = receiver->initialize();
+       ...
+       receiver->incStrong(gInputEventReceiverClassInfo.clazz); // retain a reference for the object
+       return reinterpret_cast<jlong>(receiver.get());
+    }
+
+    status_t NativeInputEventReceiver::initialize() {
+       setFdEvents(ALOOPER_EVENT_INPUT);
+       return OK;
+    }
+
+    // 将客户端的InputChannel 保存的 Fd 加入到了 Native Looper 中进行监听
+    void NativeInputEventReceiver::setFdEvents(int events) {
+       int fd = mInputConsumer.getChannel()->getFd();
+       mMessageQueue->getLooper()->addFd(fd, 0, events, this, NULL);
+    }
+
+}
