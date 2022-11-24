@@ -23,6 +23,8 @@
 
         <activity android:name="com.android.blog.android.jetpack.fragment.demo.FragmentTestMainActivity" />
 
+        <activity android:name=".android.graphics.demo.v5.TouchTestActivity" />
+
     </application>
 
 </manifest>

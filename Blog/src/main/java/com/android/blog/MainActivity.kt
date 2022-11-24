@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatButton
 import com.android.blog.android.graphics.demo.v4.LayoutTestActivity
 import com.android.blog.android.graphics.demo.v4.MeasureTestActivity
+import com.android.blog.android.graphics.demo.v5.TouchTestActivity
 import com.android.blog.android.jetpack.fragment.demo.FragmentTestMainActivity
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +37,8 @@ class MainActivity : AppCompatActivity() {
         rootView.addView(generateButton("[measure-spec]ScrollDP100") { MeasureTestActivity.startActivity(this, MeasureTestActivity.SPEC_SCROLL_DP100) })
         rootView.addView(generateButton("") { })
         rootView.addView(generateButton("[layout]斜着的ViewGroup") { startActivity(Intent(this, LayoutTestActivity::class.java)) })
+        rootView.addView(generateButton("") { })
+        rootView.addView(generateButton("[Input]触摸测试") { startActivity(Intent(this, TouchTestActivity::class.java)) })
         rootView.addView(generateButton("") { })
     }
 
