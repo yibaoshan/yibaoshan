@@ -150,7 +150,6 @@ class InputReader {
 
 }
 
-
 //frameworks/native/services/inputflinger/InputDispatcher.cpp
 class InputDispatcher {
 
@@ -186,6 +185,13 @@ class InputDispatcher {
 
     //判断消息的类型：配置更改、插拔消息、key事件、触摸事件
     void dispatchOnceInnerLocked() {
+        mPendingEvent = queue.dequeue(); // 从派发队列取出一个事件，简略写法
+        switch (mPendingEvent->type) {
+            case EventEntry::TYPE_MOTION: {
+                dispatchMotionLocked();
+                break;
+            }
+        }
         // 如果派发队列为空，则会使派发线程陷入无限期休眠状态。
         // 即将被派发的事件从派发队列中取出并保存在mPendingEvent成员变量中。
         // 事件有可能因为某些原因而被丢弃，被丢弃的原因保存在dropReason中。
