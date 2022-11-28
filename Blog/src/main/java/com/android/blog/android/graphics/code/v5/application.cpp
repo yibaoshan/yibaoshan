@@ -9,6 +9,7 @@
     - boolean dispatchTouchEvent(event);
     - boolean onTouchEvent(event);
     - boolean onInterceptTouchEvent(event)
+    - boolean requestDisallowInterceptTouchEvent(disallowIntercept)
 
 /frameworks/base/core/java/android/view/View.java
     - boolean dispatchTouchEvent(event);
@@ -77,40 +78,95 @@ class DecorView extends FrameLayout {
 //frameworks/base/core/java/android/view/ViewGroup.java
 class ViewGroup extends View {
 
+    /**
+
+    如果是 DOWN 事件，表示一个事件序列的开始，对于这个事件
+
+    ViewGroup 要做的是
+
+    1. 查看 disallowIntercept 标识，子视图有没有请求过它想要下一个事件？
+    2. 通过 onInterceptTouchEvent() 方法询问自己要不要消费？
+    3. 找到触摸位置的子视图，检查是否可以触摸，可以的话调用 dispatchTransformedTouchEvent() 询问它要不要消费，一旦确定消费，创建 TouchTarget 记录该子视图
+    4. 找了一圈没人消费？丢给父视图，不管了
+
+    如果不是 DOWN 事件，则表示是一个事件序列的延续，对于这个事件，ViewGroup 要做的是
+
+    1. 查看保存的 mFirstTouchTarget 变量，为空表示这个事件序列是由 ViewGroup 自己消费的，不执行分发，直接调用 xxx 方法
+    2. mFirstTouchTarget 变量不为空，表示之前有子视图已经在使用该序列了，但是 ViewGroup 可以选择是否要拦截，调用 onInterceptTouchEvent() 询问是否拦截消费？
+
+    先看自己是否已经在消费触摸序列，拦截，后分发
+
+    如果 mFirstTouchTarget 为空，并且事件类型不为 DOWN ，表示先前的事件也是 ViewGroup 自己消费的，无需执行分发，再次交给自己执行即可
+
+    否则，只要 mFirstTouchTarget 不为空，并且事件类型为 DOWN 事件，进入考虑拦截环节
+
+    此时，如果子视图调用了 requestDisallowInterceptTouchEvent(true) 请求不拦截，那么先不拦截
+
+    如果子视图未发起请求，调用 onInterceptTouchEvent() 询问自身是否需要拦截消费该事件
+
+    如果都没有，那么进入分发模式
+
+    如果该view接收事件，则会为他创建一个TouchTarget，将该触控id和view进行绑定，之后该触控点的事件就可以直接分发给他了
+
+    */
+
     // 虽然是复写 View 的 dispatchTouchEvent() 方法，但是，ViewGroup 并没有使用 super()，也就是说，ViewGroup 的 dispatchTouchEvent() 是个新方法，和 View 逻辑无关
     // DecorView 是 ViewGroup ，所以，在首次执行事件分发时会进入到 ViewGroup#dispatchTouchEvent() 方法中
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
         int actionMasked = action & MotionEvent.ACTION_MASK;
-         // 如果事件类型是按下，表示又是新一轮分发的开始。那么清除之前的处理，重新开始处理触摸动作
-        if (actionMasked == MotionEvent.ACTION_DOWN) {
-            cancelAndClearTouchTargets(ev);
-            resetTouchState();
-        }
         boolean intercepted = false;
-        // 如果是按下事件（新的触摸动作），或者已经存在处理事件的子View
+        /*
+            1. 如果是 DOWN 事件，说明是一个事件序列的开始，查询子视图是否请求父视图放行，然后询问 ViewGroup 自身是否拦截
+            2. 如果 mFirstTouchTarget 不为空，说明是一个事件序列的延续，并且之前已经有子视图消费了事件序列的开始，此时，无视当前的事件类型，查询子视图是否请求放行，然后询问 ViewGroup 自身是否拦截
+
+            以上条件都不满足
+
+            表示上一个事件就是 ViewGroup 自身消费掉的，直接调用 dispatchTransformedTouchEvent() 分发给自己
+
+        */
         if (actionMasked == MotionEvent.ACTION_DOWN|| mFirstTouchTarget != null) {
-            // 子视图调用了 requestDisallowInterceptTouchEvent(true) 请求不拦截
+            // 检查子视图是否调用了 requestDisallowInterceptTouchEvent(true) 请求不拦截
             boolean disallowIntercept = (mGroupFlags & FLAG_DISALLOW_INTERCEPT) != 0;
-            if (!disallowIntercept) intercepted = onInterceptTouchEvent(ev); // 子视图未请求不拦截，执行我自己的拦截方法
+            if (!disallowIntercept) intercepted = onInterceptTouchEvent(ev); // 子视图未请求不拦截，询问 ViewGroup 自身是否需要消费
         } else {
-            // 如果不是一个新触摸动作的开始（不是down），并且没有处理该消息的目标（mFirstTouchTarget为null），说明当前view应该负责处理该事件，则当前view应该继续拦截并处理这个事件
-            intercepted = true;
+            intercepted = true; // 如果 mFirstTouchTarget 为空，并且事件类型不为 DOWN ，表示先前的事件也是 ViewGroup 自己消费的，无需执行分发，再次交给自己执行即可
         }
-        //根据子视图的 Z 值、是否能接受触摸事件、是否在该 View 的触摸范围等等，找到
+        // 子视图为请求放行，没人拦截，自己也不消费，进入分发流程
+        if (!intercepted) {
+            if (actionMasked == MotionEvent.ACTION_DOWN) {// 依旧先对 DOWN 做处理
+                for (int i = mChildrenCount - 1; i >= 0; i--) {
+                    ...// 检查子 View 是否可触摸，是否在触摸区域内等等，过程略
+                    // 找到合适的子 View后，调用 dispatchTransformedTouchEvent() 执行事件分发
+                    if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
+                        mFirstTouchTarget = addTouchTarget(child, idBitsToAssign); // 我把 mFirstTouchTarget 当变量用了
+                        break;
+                    }
+                }
+            }
+        }
+        // 有人拦截
+        dispatchTransformedTouchEvent();// 给自己执行
     }
 
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (ev.isFromSource(InputDevice.SOURCE_MOUSE)
-                && ev.getAction() == MotionEvent.ACTION_DOWN
-                && ev.isButtonPressed(MotionEvent.BUTTON_PRIMARY)
-                && isOnScrollbarThumb(ev.getX(), ev.getY())) {
-            return true;
-        }
+        //询问 ViewGroup 自身是否需要处理事件
         return false;
     }
+
+    private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,View child, int desiredPointerIdBits) {
+        boolean handled;
+        if (child == null) {
+            handled = super.dispatchTouchEvent(event);
+        } else {
+            handled = child.dispatchTouchEvent(event);
+        }
+        return handled;
+    }
 }
+
+
 
 /*
     对于 View 来说，它在分发流程中的话语权是非常弱的，只能选择要不要消费 DOWN 事件，一旦选择了不消费，那以后这组事件就和它无缘了
@@ -120,68 +176,8 @@ class ViewGroup extends View {
 //frameworks/base/core/java/android/view/View.java
 class View {
 
-    // 事件起点
-    public boolean dispatchPointerEvent(MotionEvent event) {
-        if (event.isTouchEvent()) {
-            return dispatchTouchEvent(event);
-        } else {
-            return dispatchGenericMotionEvent(event);
-        }
-    }
-
-    /**
-     * Pass the touch screen motion event down to the target view, or this view if it is the target.
-
-     * @param event The motion event to be dispatched.
-     * @return True if the event was handled by the view, false otherwise.
-     */
     public boolean dispatchTouchEvent(MotionEvent event) {
-        if (!isAccessibilityFocusedViewOrHost()) { // 没有焦点，不处理
-            return false;
-        }
-
-        boolean result = false;
-
-        if (mInputEventConsistencyVerifier != null) {
-            mInputEventConsistencyVerifier.onTouchEvent(event, 0);
-        }
-
-        final int actionMasked = event.getActionMasked();
-        if (actionMasked == MotionEvent.ACTION_DOWN) {
-            // Defensive cleanup for new gesture
-            stopNestedScroll();
-        }
-
-        if (onFilterTouchEventForSecurity(event)) {
-            if ((mViewFlags & ENABLED_MASK) == ENABLED && handleScrollBarDragging(event)) {
-                result = true;
-            }
-            //noinspection SimplifiableIfStatement
-            ListenerInfo li = mListenerInfo;
-            if (li != null && li.mOnTouchListener != null
-                    && (mViewFlags & ENABLED_MASK) == ENABLED
-                    && li.mOnTouchListener.onTouch(this, event)) {
-                result = true;
-            }
-
-            if (!result && onTouchEvent(event)) {
-                result = true;
-            }
-        }
-
-        if (!result && mInputEventConsistencyVerifier != null) {
-            mInputEventConsistencyVerifier.onUnhandledEvent(event, 0);
-        }
-
-        // Clean up after nested scrolls if this is the end of a gesture;
-        // also cancel it if we tried an ACTION_DOWN but we didn't want the rest
-        // of the gesture.
-        if (actionMasked == MotionEvent.ACTION_UP ||
-                actionMasked == MotionEvent.ACTION_CANCEL ||
-                (actionMasked == MotionEvent.ACTION_DOWN && !result)) {
-            stopNestedScroll();
-        }
-
+        boolean result = onTouchEvent(event);
         return result;
     }
 
