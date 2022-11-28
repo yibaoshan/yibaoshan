@@ -75,6 +75,7 @@ class DecorView extends FrameLayout {
     }
 }
 
+
 //frameworks/base/core/java/android/view/ViewGroup.java
 class ViewGroup extends View {
 
@@ -116,6 +117,7 @@ class ViewGroup extends View {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
         int actionMasked = action & MotionEvent.ACTION_MASK;
+        TouchTarget newTouchTarget = null;
         boolean intercepted = false;
         /*
             1. 如果是 DOWN 事件，说明是一个事件序列的开始，查询子视图是否请求父视图放行，然后询问 ViewGroup 自身是否拦截
@@ -125,6 +127,7 @@ class ViewGroup extends View {
 
             表示上一个事件就是 ViewGroup 自身消费掉的，直接调用 dispatchTransformedTouchEvent() 分发给自己
 
+
         */
         if (actionMasked == MotionEvent.ACTION_DOWN|| mFirstTouchTarget != null) {
             // 检查子视图是否调用了 requestDisallowInterceptTouchEvent(true) 请求不拦截
@@ -133,22 +136,51 @@ class ViewGroup extends View {
         } else {
             intercepted = true; // 如果 mFirstTouchTarget 为空，并且事件类型不为 DOWN ，表示先前的事件也是 ViewGroup 自己消费的，无需执行分发，再次交给自己执行即可
         }
-        // 子视图为请求放行，没人拦截，自己也不消费，进入分发流程
+        // 子视图未请求放行，ViewGroup 自身也不消费，进入分发流程
         if (!intercepted) {
             if (actionMasked == MotionEvent.ACTION_DOWN) {// 依旧先对 DOWN 做处理
                 for (int i = mChildrenCount - 1; i >= 0; i--) {
                     ...// 检查子 View 是否可触摸，是否在触摸区域内等等，过程略
-                    // 找到合适的子 View后，调用 dispatchTransformedTouchEvent() 执行事件分发
+                    // 找到合适的子 View 后，调用 dispatchTransformedTouchEvent() 执行事件分发，如果返回 true，记录本次分发
                     if (dispatchTransformedTouchEvent(ev, false, child, idBitsToAssign)) {
-                        mFirstTouchTarget = addTouchTarget(child, idBitsToAssign); // 我把 mFirstTouchTarget 当变量用了
+                        newTouchTarget = addTouchTarget(child, idBitsToAssign); // 生成一个新的 TouchTarget 对象，用于记录消费的 View
                         break;
+                    }
+                }
+                // 没有新的需要触摸事件的视图，那么，把链表尾部的 TouchTarget 拿出来，在下一步把事件分发给它
+                if (newTouchTarget == null && mFirstTouchTarget != null) {
+                    // 没有子view接收down事件，直接选择链表尾的view作为target
+                    newTouchTarget = mFirstTouchTarget;
+                    while (newTouchTarget.next != null) {
+                        newTouchTarget = newTouchTarget.next;
                     }
                 }
             }
         }
-        // 有人拦截
-        dispatchTransformedTouchEvent();// 给自己执行
+        // 跑到这，如果 mFirstTouchTarget 还是为空 ，表示
+        if (mFirstTouchTarget == null){
+            handled = dispatchTransformedTouchEvent(ev,canceled,null,TouchTarget.ALL_POINTER_IDS);
+        } else {
+            TouchTarget target = mFirstTouchTarget;
+            // 遍历 TouchTarget 链表，执行事件分发
+            while (target != null) {
+                final TouchTarget next = target.next;
+                if (dispatchTransformedTouchEvent(ev, cancelChild,target.child, target.pointerIdBits)) {
+                    handled = true;
+                }
+                target = next;
+            }
+        }
+        return handled;
     }
+
+    /*
+        继承 ViewGroup 以后，首先重写 onInterceptTouchEvent() 方法，这个方法无论是什么类型的事件都会放进来
+
+        然后我们根据自己的需求，判断要不要消费，true 表示自身需要消费，该事件不会继续分发；false 表示不消费，默认值，继续向下分发
+
+        然后，重写 onTouchEvent() 方法，在 onInterceptTouchEvent() 返回 true 时，onTouchEvent() 将会收到回调
+    */
 
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         //询问 ViewGroup 自身是否需要处理事件
@@ -158,14 +190,22 @@ class ViewGroup extends View {
     private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,View child, int desiredPointerIdBits) {
         boolean handled;
         if (child == null) {
-            handled = super.dispatchTouchEvent(event);
+            handled = super.dispatchTouchEvent(event); // ViewGroup 继承自 View ，这里调用的是 View#dispatchTouchEvent()
         } else {
             handled = child.dispatchTouchEvent(event);
         }
         return handled;
     }
-}
 
+    @Override
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        if (disallowIntercept) {
+            mGroupFlags |= FLAG_DISALLOW_INTERCEPT;
+        } else {
+            mGroupFlags &= ~FLAG_DISALLOW_INTERCEPT;
+        }
+    }
+}
 
 
 /*
@@ -179,6 +219,10 @@ class View {
     public boolean dispatchTouchEvent(MotionEvent event) {
         boolean result = onTouchEvent(event);
         return result;
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        return false;
     }
 
 
