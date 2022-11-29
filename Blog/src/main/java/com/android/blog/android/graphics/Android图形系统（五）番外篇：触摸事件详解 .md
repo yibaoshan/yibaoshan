@@ -1572,7 +1572,7 @@ class View {
 
 # 四、结语
 
-本篇文章稍微有点长，从硬件驱动，系统内核，到 Framework 都有涉及
+本篇文章稍微有点长，从硬件驱动，系统内核，到 Framework 都有涉及。其中，了解 IMS 的实现原理，APP 和 IMS 通信的建立，以及 ViewGroup 的 dispatchTouchEvent() 方法的事件派发逻辑，是本篇文章比较重要的内容
 
 在文章的最后，我们用张大伟老师[《深入理解Android 卷III》](https://book.douban.com/subject/26598458/)书中的一段话作为本文总结：
 

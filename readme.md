@@ -19,6 +19,7 @@
 - [Android图形系统（二）驱动篇：垂直同步到底要不要开？](https://yibs.space/post/android-graphics-driver/)
 - [Android图形系统（三）系统篇：渲染/合成的底层原理浅析](https://yibs.space/post/android-graphics-system/)
 - [Android图形系统（四）应用篇：自定义View/ViewGroup详解](https://yibs.space/post/android-graphics-application/)
+- [Android图形系统（五）番外篇：触摸事件详解](https://yibs.space/post/android-graphics-input/)
 
 ### Android设计模式
 
