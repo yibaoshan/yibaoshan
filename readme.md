@@ -7,13 +7,8 @@
 
 ## 一、本站导航
 
-### Android组件系列
 
-- [Android组件系列：Handler机制详解](https://yibs.space/post/android-components-handler/)
-- [Android组件系列：再谈Handler机制（Native篇）](https://yibs.space/post/android-components-handler-native/)
-- [Android组件系列：LocalBroadcastManager源码解析](https://yibs.space/post/android-components-localbroadcastmanager/)
-
-### Android图形系统
+### Android 图形系统
 
 - [Android图形系统（一）硬件篇：LCD和OLED怎么选？](https://yibs.space/post/android-graphics-first/)
 - [Android图形系统（二）驱动篇：垂直同步到底要不要开？](https://yibs.space/post/android-graphics-driver/)
@@ -21,21 +16,24 @@
 - [Android图形系统（四）应用篇：自定义View/ViewGroup详解](https://yibs.space/post/android-graphics-application/)
 - [Android图形系统（五）番外篇：触摸事件详解](https://yibs.space/post/android-graphics-input/)
 
-### Android设计模式
+### Android 系统组件
+
+- [Android组件系列：Handler机制详解](https://yibs.space/post/android-components-handler/)
+- [Android组件系列：再谈Handler机制（Native篇）](https://yibs.space/post/android-components-handler-native/)
+- [Android组件系列：LocalBroadcastManager源码解析](https://yibs.space/post/android-components-localbroadcastmanager/)
+
+### Android 设计模式
 
 - [从Android源码角度谈设计模式（一）：创建型模式](https://yibs.space/post/design-pattern-creational/)
 - [从Android源码角度谈设计模式（二）：结构型模式](https://yibs.space/post/design-pattern-structural/)
 - [从Android源码角度谈设计模式（三）：行为型模式](https://yibs.space/post/design-pattern-behavioral/)
 
-### 读书笔记系列
+### 闲聊系列
 
+- [为什么会发生 Fragment not attached to Activity 异常？](https://yibs.space/post/fragment-not-attached-to-activity-exception/)
 - [读书笔记：穿越计算机的迷雾（上）](https://yibs.space/post/book-notes-computers-lizhong-1//)
 - [读书笔记：穿越计算机的迷雾（下）](https://yibs.space/post/book-notes-computers-lizhong-2/)
 - [读书笔记：十天学会51单片机](https://yibs.space/post/book-notes-computers-microcomputer-8051/)
-
-### 水文系列
-
-- [为什么会发生 Fragment not attached to Activity 异常？](https://yibs.space/post/fragment-not-attached-to-activity-exception/)
 
 ### 其他(工具/效率)
 
