@@ -128,3 +128,22 @@ class Binder {
         ret = vm_insert_page(vma, user_page_addr, page[0]);
     }
 }
+
+/*
+
+补充：
+
+vm_area_struct
+
+vm_area_struct 结构体被定义在include/linux/mm_types.h中，描述了一段虚拟内存空间
+
+我们知道，进程所使用到的虚拟内存空间不连续，且各部分虚存空间的访问属性也可能不同，所以一个进程的虚拟内存空间需要多个vm_area_struct结构来描述（后面简称vma）
+
+每个进程都有一个对应的 task_struct 结构描述，这个 task_struct 结构中有一个 mm_struct结 构用于描述进程的内存空间
+
+mm_struct 结构中有两个域成员变量分别指向了 vma 链表头和红黑树根
+
+vma所描述的虚拟内存空间范围由 vm_start 和vm_end表示，vm_start代表当前vma的首地址，vm_end代表当前vma的末地址后第一个字节的地址，即虚拟内存空间范围为[vm_start, vm_end)
+
+
+*/
