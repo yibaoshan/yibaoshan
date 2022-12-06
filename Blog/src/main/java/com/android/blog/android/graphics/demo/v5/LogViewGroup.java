@@ -37,6 +37,7 @@ public class LogViewGroup extends ViewGroup {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         Log.e(TAG, "dispatchTouchEvent: " + event.toString());
+        Log.e(TAG, "dispatchTouchEvent: "+Thread.currentThread().toString() );
         return super.dispatchTouchEvent(event);
     }
 

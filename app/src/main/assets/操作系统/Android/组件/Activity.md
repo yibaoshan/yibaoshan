@@ -204,3 +204,8 @@ Activity.startActivity()->Instrument.execStartActivity(rpc)
 - 旋转屏幕导致Activity重建问题的解决办法
 - 什么时候抛出have you declared this activity in your AndroidManifest.xml?
 答：未在清单文件注册，Instrument解析AMS返回结果抛出异常
+
+### 参考资料
+
+- [Android应用杀死和恢复的流程](https://esligh.github.io/[object%20Object]/aosp-app-restore-src/)
+- [Activity的Finish过程分析](https://esligh.github.io/[object%20Object]/aosp-activity-finish-src/)
