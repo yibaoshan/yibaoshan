@@ -91,7 +91,8 @@ class Binder {
     }
 
     // 常用方法 一 ，返回值等于0表示成功，小于0表示失败
-    // 任何进程在使用Binder之前，都需要先通过open("/dev/binder")打开Binder设备
+    // 任何进程在使用 Binder 之前，都需要先通过 open("/dev/binder")打开 Binder 设备
+    // 该方法结束后，binder 驱动已经为用户创建了一个属于该进程的 binder_proc 实体，保存在 /proc/binder/procxxx
     static int binder_open(struct inode *nodp, struct file *filp){
         // 创建进程对应的binder_proc对象，每个进程
         struct binder_proc *proc = kzalloc(sizeof(*proc), GFP_KERNEL);
@@ -102,7 +103,7 @@ class Binder {
 
     // 常用方法 二
     static int binder_mmap(struct file *filp, struct vm_area_struct *vma){
-        // 在内核空间获取一块内存地址
+        // 在内核空间获取一块内存地址，用户申请的内存大小超过 4MB 时，按 4MB 来计算
         struct vm_struct *area = get_vm_area(vma->vm_end - vma->vm_start, VM_IOREMAP);
         binder_update_page_range(proc, 1, proc->buffer, proc->buffer + PAGE_SIZE, vma);
     }
@@ -145,5 +146,18 @@ mm_struct 结构中有两个域成员变量分别指向了 vma 链表头和红�
 
 vma所描述的虚拟内存空间范围由 vm_start 和vm_end表示，vm_start代表当前vma的首地址，vm_end代表当前vma的末地址后第一个字节的地址，即虚拟内存空间范围为[vm_start, vm_end)
 
+
+*/
+
+
+/*
+
+《深入理解 Android 内核设计思想》上
+
+binder 驱动为上层应用提供了 6 个接口
+
+binder_poll , binder_ioctl , binder_mmap , binder_open , binder_flush , binder_release
+
+其中使用最多的是 ioctl , mmap , open 这三个函数
 
 */
