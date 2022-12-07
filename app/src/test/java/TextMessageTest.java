@@ -1,10 +1,11 @@
 
-import com.android.blackboard.chatbot.SendResult;
-import com.android.blackboard.chatbot.WxChatbotClient;
-import com.android.blackboard.chatbot.message.TaskMessage;
-import com.android.blackboard.chatbot.test.TestConfig;
 
 import org.junit.Test;
+
+import chatbot.SendResult;
+import chatbot.WxChatbotClient;
+import chatbot.message.TaskMessage;
+import chatbot.test.TestConfig;
 
 /**
  *

@@ -11,7 +11,7 @@ import com.android.blog.android.graphics.demo.v4.LayoutTestActivity
 import com.android.blog.android.graphics.demo.v4.MeasureTestActivity
 import com.android.blog.android.graphics.demo.v5.TouchTestActivity
 import com.android.blog.android.jetpack.fragment.demo.FragmentTestMainActivity
-import com.android.blog.natter.quitloop.LooperQuitTestActivity
+import com.android.blog.informal.quitloop.LooperQuitTestActivity
 
 class MainActivity : AppCompatActivity() {
 

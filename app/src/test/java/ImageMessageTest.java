@@ -1,12 +1,13 @@
 
-import com.android.blackboard.chatbot.SendResult;
-import com.android.blackboard.chatbot.WxChatbotClient;
-import com.android.blackboard.chatbot.message.ImageMessage;
-import com.android.blackboard.chatbot.test.TestConfig;
-import com.android.blackboard.chatbot.utils.Base64Utils;
-import com.android.blackboard.chatbot.utils.dto.ImageBase64Md5;
 
 import org.junit.Test;
+
+import chatbot.SendResult;
+import chatbot.WxChatbotClient;
+import chatbot.message.ImageMessage;
+import chatbot.test.TestConfig;
+import chatbot.utils.Base64Utils;
+import chatbot.utils.dto.ImageBase64Md5;
 
 /**
  *
