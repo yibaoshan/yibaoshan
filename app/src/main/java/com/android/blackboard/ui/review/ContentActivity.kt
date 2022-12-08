@@ -1,12 +1,15 @@
-package com.android.blackboard
+package com.android.blackboard.ui.review
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
-import org.markdown4j.Markdown4jProcessor
+import br.tiagohm.markdownview.MarkdownView
+import br.tiagohm.markdownview.css.styles.Github
+import com.android.blackboard.R
+
 
 class ContentActivity : AppCompatActivity() {
 
@@ -21,22 +24,18 @@ class ContentActivity : AppCompatActivity() {
 
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_content)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         val contentUrl = intent.getStringExtra("url")
         title = contentUrl
-        if (contentUrl?.contains(".md") == true) {
-            val open = assets.open(contentUrl);
-            var contentMd = Markdown4jProcessor().process(open)
-            findViewById<WebView>(R.id.webView).loadDataWithBaseURL(null, contentMd, "text/html", "utf-8", null)
-            return
-        }
-        var baseUrl = "file:///android_asset/"
-        baseUrl += if (contentUrl?.isNotEmpty() == true) contentUrl
-        else "default.html"
-        findViewById<WebView>(R.id.webView).loadUrl(baseUrl)
+
+        val mMarkdownView = findViewById<MarkdownView>(R.id.markdown_view)
+        mMarkdownView.addStyleSheet(Github())
+        mMarkdownView.loadMarkdownFromAsset(contentUrl)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

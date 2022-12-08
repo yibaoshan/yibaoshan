@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
+import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
@@ -36,11 +37,17 @@ class ReviewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mPath = intent.getStringExtra("path") ?: ""
         initView()
         initData()
     }
 
     private fun initView() {
+
+        if (mPath.isNotEmpty()) {
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            title = mPath
+        }
 
         fun createScrollView(): ScrollView {
             return ScrollView(this)
@@ -63,7 +70,6 @@ class ReviewActivity : AppCompatActivity() {
     }
 
     private fun initData() {
-        mPath = intent.getStringExtra("path") ?: ""
         if (mPath.isEmpty()) {
             val list = arrayListOf<String>()
             list.add("JVM")
@@ -125,6 +131,16 @@ class ReviewActivity : AppCompatActivity() {
             return "${parent}/" + path
         }
 
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 }
