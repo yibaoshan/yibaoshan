@@ -33,8 +33,23 @@ public class Easy_704_二分查找 {
 
     @Test
     public void main() {
-        int[] nums = new int[]{2};
-        System.out.println(search(nums, 2));
+        int[] nums = new int[]{-1, 0, 3, 5, 9, 12};
+        int target = 5;
+        System.out.println(search(nums, target));
+        System.out.println(search2(nums, target));
+    }
+
+    public int search2(int[] nums, int target) {
+        if (nums == null || nums.length < 1) return -1;
+        if (nums.length == 1) return nums[0] == target ? 0 : -1;
+        int left = 0, right = nums.length - 1; // 左右指针分别指向，数组最左边，最右边
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] > target) right = mid - 1; // 中间值大于目标值，说明目标在中间值的左边👈🏻
+            else if (nums[mid] < target) left = mid + 1; // 中间值小于目标值，说明目标在中间值的右边👉🏻
+            else return mid;
+        }
+        return -1; // 时间复杂度 O(log2 n) 空间复杂度 O(1)
     }
 
     /**
