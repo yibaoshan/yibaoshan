@@ -3,6 +3,7 @@ package com.android.algorithm.leetcode;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 public class Easy_977_有序数组的平方 {
 
@@ -42,10 +43,49 @@ public class Easy_977_有序数组的平方 {
 
     @Test
     public void main() {
-        int[] nums = new int[]{-4, -1, 0, 3, 10};
+//        int[] nums = new int[]{-4, -1, 0, 3, 10};
+        int[] nums = new int[]{-5, -3, -2, -1};
         System.out.println(Arrays.toString(nums));
         System.out.println(Arrays.toString(sortedSquares(nums)));
         System.out.println(Arrays.toString(sortedSquares2(nums)));
+        System.out.println(Arrays.toString(sortedSquares3(nums)));
+    }
+
+    public int[] sortedSquares3(int[] nums) {
+        /**
+         * 题目很简单，我们可以先平方，再排序，这样的时间复杂度是 O(n+logn)
+         *
+         * 但是，进阶版本问我能不能把时间复杂度控制在 O(n)，那必须可以啊
+         *
+         * 根据题目描述我们发现，给到的数组是升序的，包含正数也包含负数
+         *
+         * 也就是说，最左侧的负数平方值可能比最右侧正数平方值要大
+         *
+         * 那我们可以继续使用双指针，指向最左和最右
+         *
+         * 每次遍历把左右指针的值拿出来比较，最大的数交换到右边，这样一次遍历后，排序也就排好了
+         *
+         * */
+        if (nums == null || nums.length < 1) return nums;
+        int len = nums.length, left = 0, right = len - 1;
+        int[] ret = new int[len];
+        while (--len >= 0) {
+            // 算出左右指针各自的平方
+            int leftVal = (int) Math.pow(nums[left], 2);
+            int rightVal = (int) Math.pow(nums[right], 2);
+
+            ret[len] = Math.max(leftVal, rightVal); // 从右到左，存入左右指针最大值
+
+            if (leftVal > rightVal) left++;
+            else right--;
+        }
+        return ret;
+    }
+
+    private void swap(int[] nums, int i1, int i2) {
+        nums[i1] = nums[i1] ^ nums[i2];
+        nums[i2] = nums[i1] ^ nums[i2];
+        nums[i1] = nums[i1] ^ nums[i2];
     }
 
     /**
