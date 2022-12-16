@@ -5,6 +5,23 @@
 - 修饰静态方法：锁对象为 class
 - 修饰代码块：开发者自行指定锁对象
 
+## 原理小结
+
+首先，不建议在成员方法或静态方法上直接加 synchronized 关键字
+
+因为锁的颗粒太大，假设 A 、B 两个方法彼此没有关系，只因为都加了锁，就导致两个方法无法同时执行，那简直太蠢了
+
+然后，我们讨论 synchronized 代码块的实现
+
+所有加入 synchronized 关键字的代码块，在编译后都会加入 "**monitorenter**" 、 "**monitorexit**" 指令
+
+通常你会发现 "**monitorexit**" 起码有两条，这是因为编译器会自动加入 try finally 逻辑，防止因代码出错导致的锁没有释放。
+
+在由 HotSpot 虚拟机实现的 "**monitorenter**" 指令逻辑中：
+
+- 通过 UseBiasedLocking 变量判断有没有开启偏向锁，java 1.7 以后默认开启
+- 开启偏向锁则执行 fast_enter() 方法，把它的线程 ID 写到对象头的 MarkWord 中去
+
 ## Java 对象头
 
 我们编写一个 Java 类，在编译后会生成 .class 文件
@@ -103,6 +120,14 @@ void main(){
 1. 临界资源：虽然多个进程可以共享系统中的各种资源，但其中许多资源一次只能为一个进程所使用，我们把一次仅允许一个进程使用的资源称为临界资源。许多物理设备都属于临界资源，如打印机等。此外，还有许多变量、数据等都可以被若干进程共享，也属于临界资源。
 2. 临界区：对临界资源的访问，必须互斥地进行，在每个进程中，访问临界资源的那段代码称为临界区。
 3. 互斥：只有一个线程能访问临界区。
+
+java 的 ObjectMonitor中有五个重要部分，分别为_ower,_WaitSet,_cxq,_EntryList和count。
+
+- _ower 用来指向持有monitor的线程，它的初始值为NULL,表示当前没有任何线程持有monitor。当一个线程成功持有该锁之后会保存线程的ID标识，等到线程释放锁后_ower又会被重置为NULL;
+- _WaitSet 调用了锁对象的wait方法后的线程会被加入到这个队列中；
+- _cxq  是一个阻塞队列，线程被唤醒后根据决策判读是放入cxq还是EntryList;
+- _EntryList 没有抢到锁的线程会被放到这个队列；
+- count 用于记录线程获取锁的次数，成功获取到锁后count会加1，释放锁时count减1。
 
 。。。太多了，管程暂时不理解，放弃
 
@@ -355,7 +380,7 @@ ObjectMonitor * ATTR ObjectSynchronizer::inflate (Thread * Self, oop object) {
 
 在monitorenter中是通过fast_enter来实现的，实际上就是第一个访问代码块的线程，把它的线程ID写到MarkWord中去。
 
-一旦有线程来竞争了，fast_enter就撤销偏向锁，然后调用slow_enter
+一旦有线程来竞争了，fast_enter 就撤销偏向锁，然后调用 slow_enter
 
 竞争的线程通过CAS自旋竞争，成功的线程就会在Markword中记录一个指针，指向竞争成功的线程的LR
 

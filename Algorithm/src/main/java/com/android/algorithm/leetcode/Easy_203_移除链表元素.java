@@ -29,10 +29,39 @@ public class Easy_203_移除链表元素 {
      */
     @Test
     public void main() {
-        ListNode listNode = new ListNode(7, new ListNode(7, new ListNode(7, new ListNode(7))));
-        ListNode result = removeElements(listNode, 7);
+        ListNode listNode = new ListNode(7, new ListNode(6, new ListNode(7, new ListNode(7))));
+        ListNode result = removeElements2(listNode, 7);
         System.out.println(result);
     }
+
+    /**
+     * 7 , 6 , 7 , 7
+     * <p>
+     * 开始拼凑链表
+     */
+    public ListNode removeElements2(ListNode head, int val) {
+        ListNode ret = new ListNode();
+        ListNode tmp = ret;
+        while (head != null) {
+            if (head.val != val) {
+                tmp.next = new ListNode(head.val);
+                tmp = tmp.next;
+            }
+            head = head.next;
+        }
+        return ret.next;
+    }
+
+    private void print(ListNode head) {
+        StringBuilder sb = new StringBuilder();
+        while (head != null) {
+            sb.append(head.val);
+            head = head.next;
+            if (head != null) sb.append(",");
+        }
+        System.out.println(sb.toString());
+    }
+
 
     /**
      * 迭代
