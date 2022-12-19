@@ -1,4 +1,14 @@
 
+虽然 Dalvik 已经被 ART 取代，但其中的 Dalvik 字节码格式还是被保留了下来。
+
+即便在最新版本的 Android 中，编译 Java 生成的依旧是 DEX 文件
+
+在 Android 7.0 中，Google又为Android添加了即时 (JIT) 编译器。
+
+JIT和AOT的配合，是取两者之长，避两者之短：在APK安装时，并不是一次性将所有代码全部编译成机器码。
+
+而是在实际运行过程中，对代码进行分析，将热点代码编译成机器码，让它可以在应用运行时持续提升 Android 应用的性能。
+
 **Ahead-of-time**（AOT）是相对于 **Just-in-time**（JIT）而言的。
 
 **JIT** 是在运行时进行 "**字节码**" 到 "**本地机器码**" 的编译，这也是为什么 Java 普遍被认为效率比 C++ 差的原因。
@@ -29,4 +39,12 @@
 - **/data/dalvik-cache/arm64/**
 
 "**oat 文件**" 中既包含了 **dex文件** 中原先的内容，也包含了已经编译好的 "**本地代码**"
+
+## OAT 文件
+
+OAT 文件 遵循 ELF 格式。
+
+ELF 是 Unix 系统上可执行文件，目标文件，共享库和 Core dump 文件的标准格式。
+
+全称是 Executable and Linkable Format 该文件格式如下图所示：
 

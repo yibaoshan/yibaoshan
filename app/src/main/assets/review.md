@@ -1,11 +1,9 @@
 
-## Linux
+- 掌握各个hook点，插件化，热修复，换肤
 
-## Android
+## 系统组件
 
-### 系统组件
-
-#### Activity
+### Activity
 
 - Activity 创建、启动、主被动销毁和恢复流程、启动模式及其生命周期变化
 - Activity 和 Window / View 的关系，View 可见性检测等
@@ -13,15 +11,25 @@
 - 子类 FragmentActivity 中的 FragmentController ，管理 Fragment 以及同步生命周期
 - 子类 AppCompatActivity
 
-#### Window / View
+### Window / View
 
 - View / ViewGroup 的绘制、渲染、事件分发流程
 - policy 包下的 DecorContext、DecorView、PhoneWindow、PhoneLayoutInflater 等
 - view 包下的 ContextThemeWrapper、ViewRootImpl
+- View.post() 和 handler 的区别？
 
-#### Context
+### Context
 
 - Context 的创建、传输与装饰者模式
 - ContextWrapper 包装类和实现类 ContextImpl
 
-## Java
+### 存储
+
+- SharedPreferences
+- MMKV
+
+## 虚拟机
+
+- dex 文件加载过程，class 加载过程
+- 加载器和双亲委托
+- 垃圾回收-守护线程
