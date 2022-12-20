@@ -19,11 +19,20 @@ BaseDexClassLoader 继承自 ClassLoader 类，实现了许多 DEX 相关的加�
 
 BootClassLoader 是继承自 java.lang.ClassLoader
 
-而 PathClassLoader 是继承自 BaseDexClassLoader
+PathClassLoader 是继承自 BaseDexClassLoader ，而 BaseDexClassLoader 才是继承自 java.lang.ClassLoader
 
-虽然它俩没有继承关系，但是 BootClassLoader 的确是 PathClassLoader 的 parent 加载器
+它俩没有直接的继承关系，PathClassLoader 的 parent 是在 ActivityThread#handleBindApplication() 创建 Application 时
 
-PathClassLoader 在初始化时，
+加载 apk 文件时， 在 PathClassLoader 构造函数中传入了 mPackageInfo.getClassLoader() 中的 BootClassLoader
+
+## 类的加载、链接和初始化
+
+- 加载：把类的信息从 class 文件，或者 dalvik 的 dex、art 中的 oat 文件里，读取到虚拟机内存
+- 链接：主要分为3个小任务
+  - 验证：类的格式是否正确，文件是否合法等等
+  - 准备：为这个类准备一块存储空间
+  - 解析：如果类成员有引用其他类，可能还需要把其他类也加载进来
+- 初始化：执行初始化静态成员变量的值、static 语法块等 
 
 ## ClassLoader
 
@@ -85,9 +94,82 @@ static jclass Class_classForName( env, jclass, javaName, initialize, javaLoader)
 
 ### FindClass
 
-FindClass 实现了根据类名查找类的过程，定义在 art/runtime/class_linker.cc 中
+```
+# dalvik.system.BaseDexClassLoader
+protected Class<?> findClass(String name) throws ClassNotFoundException {
+    List<Throwable> suppressedExceptions = new ArrayList<Throwable>();
+    // 调用DexPathList对象的findClass()方法
+    Class c = pathList.findClass(name, suppressedExceptions);
+    if (c == null) {
+        ClassNotFoundException cnfe = new ClassNotFoundException("Didn't find class \"" + name + "\" on path: " + pathList);
+        for (Throwable t : suppressedExceptions) {
+            cnfe.addSuppressed(t); // 找不到类抛出异常
+        }
+        throw cnfe;
+    }
+    return c;
+}
+```
+
+可以看到，实际上BaseDexClassLoader调用的是其成员变量DexPathList pathList的findClass()方法。
+
+```
+# dalvik.system.DexPathList
+public Class findClass(String name, List<Throwable> suppressed) {
+    // 遍历Element
+    for (Element element : dexElements) {
+        // 获取DexFile，然后调用DexFile对象的loadClassBinaryName()方法来加载Class文件。
+        DexFile dex = element.dexFile;
+       
+        if (dex != null) {
+            Class clazz = dex.loadClassBinaryName(name, definingContext, suppressed);
+            if (clazz != null) {
+                return clazz;
+            }
+        }
+    }
+    return null;
+}
+```
+
+实际上DexPathList最终还是遍历其自身的 Element[] 数组，获取 DexFile 对象来加载 Class 文件
+
+数组的遍历是有序的，假设有两个dex文件存放了二进制名称相同的Class，类加载器肯定就会加载在放在数组前面的dex文件中的Class。
+
+现在很多热修复技术就是把修复的dex文件放在DexPathList中Element[]数组的前面，这样就实现了修复后的Class抢先加载了，达到了修改bug的目的。
 
 ### DefineClass
+
+Android加载一个Class是调用DexFile的defineClass()方法。而不是调用ClassLoader的defineClass()方法。
+
+这一点与Java不同，毕竟Android虚拟机加载的dex文件，而不是class文件。
+
+```
+# dalvik.system.DexFile
+public Class loadClassBinaryName(String name, ClassLoader loader, List<Throwable> suppressed) {
+    return defineClass(name, loader, mCookie, suppressed);
+}
+
+private static Class defineClass(String name, ClassLoader loader, long cookie,
+                                 List<Throwable> suppressed) {
+    Class result = null;
+    try {
+        result = defineClassNative(name, loader, cookie);
+    } catch (NoClassDefFoundError e) {
+        if (suppressed != null) {
+            suppressed.add(e);
+        }
+    } catch (ClassNotFoundException e) {
+        if (suppressed != null) {
+            suppressed.add(e);
+        }
+    }
+    return result;
+}
+
+```
+
+Android中加载一个类是遍历PathDexList的Element[]数组，这个Element包含了DexFile，调用DexFile的方法来获取Class文件，如果获取到了Class，就跳出循环。否则就在下一个Element中寻找Class。
 
 ### LoadClass
 
