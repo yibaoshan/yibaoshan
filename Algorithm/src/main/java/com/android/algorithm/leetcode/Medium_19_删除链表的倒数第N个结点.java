@@ -34,7 +34,7 @@ public class Medium_19_删除链表的倒数第N个结点 {
     @Test
     public void main() {
         ListNode head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
-        ListNode result = removeNthFromEnd2(head, 4);
+        ListNode result = removeNthFromEnd(head, 4);
         while (result != null) {
             System.out.println(result.val);
             result = result.next;
@@ -43,20 +43,46 @@ public class Medium_19_删除链表的倒数第N个结点 {
 
 
     public ListNode removeNthFromEnd(ListNode head, int n) {
-        ListNode slow = head, fast = head;
-        while (n >= 0) {
-            if (fast != null) fast = fast.next;
-            n--;
+        /**
+         * 传统写法，思路：双指针 + 两轮遍历，左指针和右指针的间距为 n
+         *
+         * 第一轮遍历，找到倒数第n个节点，也就是左指针指向的节点
+         * 第二轮遍历，新建节点赋值，除了倒数第N个节点外，其他节点依次添加到新节点的尾部
+         *
+         * 时间复杂度 O(2n) ，空间复杂度 O(n)
+         * */
+        if (n < 1 || head == null) return head;
+        ListNode tmp = head, left = head, right = null, ret = new ListNode();
+        while (tmp != null) {
+            if (n == 1) right = tmp;
+            if (n-- < 1) {
+                left = left.next;
+                right = right.next;
+            }
+            tmp = tmp.next;
         }
-        while (fast != null) {
-            fast = fast.next;
-            slow = slow.next;
+        tmp = ret;
+        while (head != null) {
+            if (head != left) {
+                tmp.next = new ListNode(head.val);
+                tmp = tmp.next;
+            }
+            head = head.next;
         }
-        if (slow == head) return head.next;
-        else if (slow != null && slow.next != null) slow.next = slow.next.next;
-        else return null;
-        return head;
+        return ret.next;
     }
+
+
+    private String print(ListNode head) {
+        StringBuilder stringBuilder = new StringBuilder();
+        while (head != null) {
+            stringBuilder.append(head.val);
+            head = head.next;
+            if (head != null) stringBuilder.append(",");
+        }
+        return stringBuilder.toString();
+    }
+
 
     /**
      * 思路：创建两个节点，假节点和目标节点

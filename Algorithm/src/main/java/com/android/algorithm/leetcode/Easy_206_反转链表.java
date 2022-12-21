@@ -34,47 +34,41 @@ public class Easy_206_反转链表 {
 
     }
 
-    /**
-     * 双指针
-     * 执行结果：通过
-     * 执行用时：1 ms, 在所有 Java 提交中击败了5.48%的用户
-     * 内存消耗：38 MB, 在所有 Java 提交中击败了87.69%的用户
-     */
+
+    /** head = [1,2,3,4,5]  */
     public ListNode reverseList(ListNode head) {
-        if (head == null) return null;
-        Stack<ListNode> stack = new Stack<>();
-        ListNode temp = head;
-        while (temp != null) {
-            stack.push(new ListNode(temp.val));
-            temp = temp.next;
+
+        ListNode ret = null; // 最终结果，把一个个节点拼装，连接在一起
+        ListNode tmp = head; // 负责遍历链表，从 [1,2,3,4,5] 陆续变成：[2,3,4,5]、[3,4,5]、[4,5]、[5]
+
+        while (tmp != null) {
+
+            // 第一轮 next = [2,3,4,5]
+            // 第一轮 next = [3,4,5]
+            ListNode next = tmp.next;
+
+            // 第一轮 ret = null , tmp.next = null ，因此 tmp = [1]
+            // 第一轮 ret = [1] , tmp.next = [1] ，因此 tmp = [1,2]
+            tmp.next = ret;
+
+            // 第一轮 ret = [1]
+            // 第一轮 ret = [1,2]
+            ret = tmp;
+
+            // 第一轮 next = [2,3,4,5] ，因此 tmp = [2,3,4,5]
+            tmp = next;
         }
-        ListNode root = null;
-        while (!stack.empty()) {
-            if (root == null) {
-                root = stack.pop();
-                temp = root;
-            } else {
-                temp.next = stack.pop();
-                temp = temp.next;
-            }
-        }
-        return root;
+        return ret;
     }
 
-    /**
-     * 评论区答案模仿，节点的下一个节点等于上一个就相当于翻转了，思路相当完美
-     * 执行结果：通过
-     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：37.9 MB, 在所有 Java 提交中击败了94.35%的用户
-     */
-    public ListNode reverseList2(ListNode head) {
-        if (head == null) return null;
-        ListNode result = null;
+
+    public ListNode reverseList1(ListNode head) {
+        ListNode ret = null;
         while (head != null) {
-            result = new ListNode(head.val, result);
+            ret = new ListNode(head.val, ret);
             head = head.next;
         }
-        return result;
+        return ret;
     }
 
     public class ListNode {
