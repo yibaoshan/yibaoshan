@@ -43,7 +43,7 @@ public class Easy_242_有效的字母异位词 {
         char[] charsT = t.toCharArray();
         Arrays.sort(charsS);
         Arrays.sort(charsT);
-        return new String(charsS).equals(new String(charsT));
+        return Arrays.equals(charsS,charsT);
     }
 
 }

@@ -76,6 +76,7 @@ class ReviewActivity : AppCompatActivity() {
             list.add("Java")
             list.add("Linux")
             list.add("Android")
+            list.add("编程技巧")
             list.add("设计模式")
             for (path in list) mContentViewReference.get()?.addView(generateButtonView(path))
             return

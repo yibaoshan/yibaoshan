@@ -40,6 +40,14 @@ public class Medium_142_环形链表2 {
      * 快慢指针相遇的地方再燃头节点和相遇节点一起向下走，遇到的节点为入口
      */
     public ListNode detectCycle2(ListNode head) {
+        /**
+         * 思路，经典快慢指针
+         *
+         * 快指针每次两步，慢指针每次一步
+         * 快慢指针相遇的地方，再燃头节点和相遇节点一起向下走，遇到的节点为入口
+         *
+         * 时间复杂度 O(n)
+         * */
         ListNode slow = head;
         ListNode fast = head;
         while (fast != null && fast.next != null) {

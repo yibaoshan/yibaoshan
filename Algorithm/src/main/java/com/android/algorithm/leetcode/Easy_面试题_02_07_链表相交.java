@@ -16,6 +16,36 @@ public class Easy_面试题_02_07_链表相交 {
             node = node.next;
         }
     }
+
+
+
+    public ListNode getIntersectionNode2(ListNode headA, ListNode headB) {
+
+        HashSet<ListNode> hashSet = new HashSet<>();
+        while (headA!=null){
+            hashSet.add(headA);
+            headA = headA.next;
+        }
+        while (headB!=null){
+            if (hashSet.contains(headB))return headB;
+            headB = headB.next;
+        }
+        return null;
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * 搞了半天求的是相交的节点指针是否相同，不是比较值，暴力循环
      * 执行结果：通过

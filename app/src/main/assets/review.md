@@ -18,11 +18,6 @@
 - view 包下的 ContextThemeWrapper、ViewRootImpl
 - View.post() 和 handler 的区别？
 
-### Context
-
-- Context 的创建、传输与装饰者模式
-- ContextWrapper 包装类和实现类 ContextImpl
-
 ### 存储
 
 - SharedPreferences
@@ -30,6 +25,5 @@
 
 ## 虚拟机
 
-- dex 文件加载过程，class 加载过程
-- 加载器和双亲委托
-- 垃圾回收-守护线程
+- 内存分配
+- 垃圾回收器-守护线程
