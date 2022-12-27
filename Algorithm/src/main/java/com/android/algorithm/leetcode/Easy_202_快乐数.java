@@ -25,13 +25,16 @@ public class Easy_202_快乐数 {
 
     @Test
     public void main() {
-        int n = 2;
+        int n = 19;
         List<Integer> list = new ArrayList<>();
         list.add(0);
         list.add(0);
         list.add(1);
 //        System.out.println(isHappy(list));
-        System.out.println(isHappy(n));
+//        System.out.println(isHappy(n));
+
+        System.out.println(next(n));
+        System.out.println(isHappy2(n));
     }
 
     /**
@@ -41,21 +44,35 @@ public class Easy_202_快乐数 {
      * 内存消耗：35.5 MB, 在所有 Java 提交中击败了34.16%的用户
      */
     public boolean isHappy2(int n) {
-        HashSet<Integer> seen = new HashSet<>();
-        while (n != 1 && !seen.contains(n)) {
-            seen.add(n);
-            n = next(n);
+        /*
+         * 思路，hash 去重
+         *
+         * 非快乐数会在 4 → 16 → 37 → 58 → 89 → 145 → 42 → 20 → 4 不断的循环
+         * 假设入参为 2 ，第一次循环结果是 4，第二轮结果是 16，第三轮 37
+         *
+         * 当把所有的非快乐数都添加到 hashSet 以后，不满足循环条件，自动结束无限循环
+         *
+         * */
+        HashSet<Integer> hashSet = new HashSet<>();
+        while (n != 1 && !hashSet.contains(n)) {
+            hashSet.add(n);
+            int total = 0;
+            // 计算数字 n 每位数的平方，先将 int 转 string 再转 char 数组，遍历相加平方和
+            for (char c : Integer.toString(n).toCharArray()) total += Math.pow(Character.getNumericValue(c), 2);
+            n = total;
         }
         return n == 1;
     }
 
     private int next(int n) {
+        char[] chars = Integer.toString(n).toCharArray();
         int totalSum = 0;
-        while (n > 0) {
-            int d = n % 10;
-            n = n / 10;
-            totalSum += d * d;
-        }
+        for (char c : Integer.toString(n).toCharArray()) totalSum += Math.pow(Character.getNumericValue(c), 2);
+//        while (n > 0) {
+//            int d = n % 10;
+//            n = n / 10;
+//            totalSum += d * d;
+//        }
         return totalSum;
     }
 
