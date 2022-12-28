@@ -37,22 +37,45 @@
 - Another activity comes in front of the activity
 - window 层级发生变化，不是顶层 Window 时被调用，此时无法获取焦点，无法接收 key/touch 事件
 - 另一个 Activity 如果是投屏或者非全屏，那么该 Activity 可能是部分可见
+- 在此方法执行耗时，会影响下一个 Activity 的启动
+- 调用 finish() 方法后，很快会回调该方法
 
 ### onStop()
 
 - The activity is no longer visible，Activity 完全不可见时调用
+- AMS 回调时间不确定，由 IdleHandler 执行，但有保底 10s
 - 停止播放动画等资源
 
 ### onDestroy()
 
 - 死了
 - 释放资源，解除各种注册，防止内存泄漏
+- 回调时机同样不确定，由 IdleHandler 执行，保底 10s
+- Android 12 以后，杀后台不会回调该方法，所以如果是需要关闭蓝牙之类的操作，要另外想办法
+
+### onSaveInstanceState()
+
+Activity的onSaveInstanceState回调时机，取决于app的targetSdkVersion：
+
+- targetSdkVersion低于11的app，onSaveInstanceState方法会在Activity.onPause之前回调；
+- targetSdkVersion低于28的app，则会在onStop之前回调；
+- 28之后，onSaveInstanceState在onStop回调之后才回调。
+
+### Activity 跳转生命周期
 
 ```
+FirstActivity->onPause()
 
+SecondActivity->onCreate()
+SecondActivity->onStart()
+SecondActivity->onResume()
+
+FirstActivity->onStop()
 ```
 
-## 低内存通知 onLowMemory / onTrimMemory
+## 其他 / 杂项
+
+### 低内存通知 onLowMemory / onTrimMemory
 
 onLowMemory / onTrimMemory 是系统低内存通知的回调函数
 
