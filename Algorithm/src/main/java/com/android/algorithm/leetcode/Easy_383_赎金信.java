@@ -35,7 +35,7 @@ public class Easy_383_赎金信 {
     @Test
     public void main() {
         String ransomNote = "aa";
-        String magazine = "ab";
+        String magazine = "aab";
         System.out.println(canConstruct(ransomNote, magazine));
     }
 
@@ -45,23 +45,26 @@ public class Easy_383_赎金信 {
      * 内存消耗：39 MB, 在所有 Java 提交中击败了23.42%的用户
      */
     public boolean canConstruct(String ransomNote, String magazine) {
+        /**
+         * 简单题，利用 hashmap 对 magazine 字符串的每个字符出现次数
+         *
+         * 接着，遍历 ransomNote 字符串，判断 hashmap 保存的每个字符数量是否够用，不够直接返回 false
+         *
+         * 最差时间复杂度 O(m+n)
+         *
+         * */
         HashMap<Character, Integer> hashMap = new HashMap<>();
-        char[] chars = magazine.toCharArray();
-        for (char c : chars) {
-            int count = 0;
-            if (hashMap.containsKey(c)) count = hashMap.get(c);
-            hashMap.put(c, ++count);
+        // 利用 hashMap 保存每个字符出现的次数
+        for (int i = 0; i < magazine.length(); i++) {
+            if (hashMap.containsKey(magazine.charAt(i))) hashMap.put(magazine.charAt(i), hashMap.get(magazine.charAt(i)) + 1);
+            else hashMap.put(magazine.charAt(i), 1);
         }
-        char[] chars1 = ransomNote.toCharArray();
-        for (char c : chars1) {
-            if (hashMap.containsKey(c)) {
-                int count = hashMap.get(c);
-                if (count > 0) {
-                    hashMap.put(c, --count);
-                    continue;
-                }
-            }
-            return false;
+        // 比对过程，如果字符不够用，及时返回 false
+        for (int i = 0; i < ransomNote.length(); i++) {
+            if (hashMap.containsKey(ransomNote.charAt(i))) {
+                hashMap.put(ransomNote.charAt(i), hashMap.get(ransomNote.charAt(i)) - 1);
+                if (hashMap.get(ransomNote.charAt(i)) < 0) return false;
+            } else return false;
         }
         return true;
     }
