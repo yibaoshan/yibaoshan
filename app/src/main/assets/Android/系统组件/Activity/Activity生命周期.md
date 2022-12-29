@@ -55,9 +55,9 @@
 
 ### onSaveInstanceState()
 
-Activity的onSaveInstanceState回调时机，取决于app的targetSdkVersion：
+Activity 的 onSaveInstanceState 回调时机，取决于 app 的 targetSdkVersion：
 
-- targetSdkVersion低于11的app，onSaveInstanceState方法会在Activity.onPause之前回调；
+- targetSdkVersion 低于11的app，onSaveInstanceState方法会在Activity.onPause之前回调；
 - targetSdkVersion低于28的app，则会在onStop之前回调；
 - 28之后，onSaveInstanceState在onStop回调之后才回调。
 
@@ -72,6 +72,88 @@ SecondActivity->onResume()
 
 FirstActivity->onStop()
 ```
+
+### 横竖屏切换
+
+#### **Android 8.0及以上**
+
+没配置configChanges属性，切到横屏和再切到竖屏，生命周期调用顺序都表现为：
+
+```
+onPause
+onSaveInstanceState
+onStop
+onDestroy
+onCreate
+onStart
+onRestoreInstanceState
+onResume
+```
+
+配置了configChanges属性，切到横屏和再切到竖屏，生命周期调用顺序都表现为：
+
+```
+onConfigurationChanged
+```
+
+#### **Android7 .0、7.1.1**
+
+没配置 configChanges 属性和没配置全 configChanges = orientation|keyboardHidden|screenSize
+
+切到横屏和再切到竖屏，生命周期调用顺序都表现为：
+
+```
+onConfigurationChanged
+onPause
+onSaveInstanceState
+onStop
+onDestroy
+onCreate
+onStart
+onRestoreInstanceState
+onResume
+```
+
+和 8.0 以上相比，先回调了 onConfigurationChanged() 方法，再执行一系列的生命周期
+
+配置了configChanges属性是orientation|keyboardHidden|screenSize，切到横屏和再切到竖屏，生命周期调用顺序都表现为：
+
+```
+onConfigurationChanged
+```
+
+#### **Android6.0 及以下**
+
+未配置 configChanges 属性和未配置全 configChanges 属性是 orientation|keyboardHidden|screenSize
+
+切到横屏和再切到竖屏，生命周期调用顺序都表现为：
+
+```
+onPause
+onSaveInstanceState
+onStop
+onDestroy
+onCreate
+onStart
+onRestoreInstanceState
+onResume
+```
+
+和 8.0 是相同的结果
+
+配置了 configChanges 属性是 orientation|keyboardHidden|screenSize，切到横屏和再切到竖屏，生命周期调用顺序都表现为：
+
+```
+onConfigurationChanged
+```
+
+#### **小结**
+
+从打印顺序来看，大多数情况下，如果 orientation|keyboardHidden|screenSize 这三个属性缺少任意一个
+
+Activity 都会重新走生命周期，并且走 onSaveInstanceState / onRestoreInstanceState 保存恢复数据
+
+否则就只走 onConfigurationChanged() 回调
 
 ## 其他 / 杂项
 
