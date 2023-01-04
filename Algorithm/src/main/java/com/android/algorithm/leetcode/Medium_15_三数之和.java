@@ -103,6 +103,19 @@ public class Medium_15_三数之和 {
      * 内存消耗：41.7 MB, 在所有 Java 提交中击败了97.94%的用户
      */
     public List<List<Integer>> threeSum(int[] nums) {
+        /**
+         *
+         * 还是比较难的一道题
+         *
+         * 难点在于改为两数之和的方式实现，和回溯实现，结果都超时
+         *
+         * 双指针解法，思路：
+         *
+         * 1. 把数组排序
+         * 2. 遍历数组，在循环体中声明左右指针，left=i+1 right=n-1
+         * 2.1 判断当前值和左右指针的值，大于0，右指针左移，小于0，左指针右移
+         * 2.2 等于0则左指针+1右指针-1继续循环，开始之前，判断左右指针下一个值是否相同，跳过重复值
+         */
         List<List<Integer>> res = new ArrayList<>();
         if (nums == null || nums.length < 3) return res;
         Arrays.sort(nums);
@@ -120,9 +133,7 @@ public class Medium_15_三数之和 {
                     left++;
                 } else {
                     List<Integer> list = new ArrayList<>();
-                    list.add(num);
-                    list.add(nums[left]);
-                    list.add(nums[right]);
+                    Collections.addAll(list, num, nums[left], nums[right]);
                     res.add(list);
                     right--;
                     left++;

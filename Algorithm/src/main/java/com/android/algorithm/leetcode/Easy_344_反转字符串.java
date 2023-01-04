@@ -42,14 +42,14 @@ public class Easy_344_反转字符串 {
      * 内存消耗：45.1 MB, 在所有 Java 提交中击败了24.23%的用户
      */
     public void reverseString(char[] s) {
+        /**
+         * 简单题，双指针暴力遍历跑一遍就完了，时间复杂度 O(n/2)
+         * */
         int left = 0, right = s.length - 1;
-        char c;
         while (left < s.length / 2) {
-            c = s[right];
-            s[right] = s[left];
-            s[left] = c;
-            left++;
-            right--;
+            char c = s[right];
+            s[right--] = s[left];
+            s[left++] = c;
         }
     }
 
