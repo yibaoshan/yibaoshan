@@ -399,4 +399,5 @@ ObjectMonitor * ATTR ObjectSynchronizer::inflate (Thread * Self, oop object) {
 - [64位JVM的Java对象头详解，从hotspot源码中寻找答案 - Java艺术](https://juejin.cn/post/6844904069845221384)
 - [我所理解的管程以及Java中的管程样例 - 平笙](https://zhuanlan.zhihu.com/p/478819094)
 - [从 Monitorenter 源码看 Synchronized 锁优化的过程 - 小水滴滴滴](https://juejin.cn/post/7104638789456232478)
+- [ART虚拟机线程同步实现 - Pika](https://juejin.cn/post/7165318943077302285)
 
