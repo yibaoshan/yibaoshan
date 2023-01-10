@@ -19,6 +19,8 @@
         <activity
                 android:name=".ui.review.ContentActivity"
                 android:launchMode="standard" />
+        <activity android:name=".SimpleActivity" />
+        <activity android:name=".ui.bitmap.BitmapActivity" />
     </application>
 
 </manifest>

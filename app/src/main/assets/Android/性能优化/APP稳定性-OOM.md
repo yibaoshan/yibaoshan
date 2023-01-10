@@ -1,7 +1,7 @@
 
 OutOfMemoryError 内存溢出是一类难以解决的 Crash
 
-因为内存已经在其他位置增加到内存溢出的临界点，而上报的位置很可能不存在内存问题
+因为内存已经在其他位置增加到内存溢出的临界点，而上报的位置只是最后一次发起申请内存（最后一根稻草），很可能不存在内存问题
 
 所以上报的堆栈信息，用户日志等都没有太多的参考价值
 
@@ -14,7 +14,7 @@ OutOfMemoryError 内存溢出是一类难以解决的 Crash
 - 传统的java堆内存超限，即申请堆内存大小超过了 Runtime.getRuntime().maxMemory()
   - 内存泄漏累积导致
   - 申请大对象
-- （低概率）32为系统进程逻辑空间被占满导致OOM
+- （低概率）32为系统进程逻辑空间被占满导致 OOM
 
 ## 内存泄漏
 
@@ -30,6 +30,7 @@ OutOfMemoryError 内存溢出是一类难以解决的 Crash
 - Activity和Context对象被混淆和滥用，在许多只需要Application Context而不需要使用Activity对象的地方使用了Activity对象，比如注册各类Receiver、计算屏幕密度等等。
 - View对象处理不当，使用Activity的LayoutInflater创建的View自身持有的Context对象其实就是Activity，这点经常被忽略，在自己实现View重用等场景下也会导致Activity泄漏。
 
+## 查看内存配置
 
 ```
 ActivityManager.getMemoryClass()：     虚拟机java堆大小的上限，分配对象时突破这个大小就会OOM
@@ -44,9 +45,15 @@ ActivityManager.MemoryInfo.availMem:   设备当前可用内存
 
 ## Bitmap 优化
 
-常App中图片都是占用内存的大户，bitmap的管理是内存治理中非常重要的环节。
+### NativeBitmap
 
-对于这里的处理，我们首先是将图片加载统一使用Glide，再将App中的原生加载图片替换成Glide。
+无论是微信张绍文的《Android 开发高手课》，还是抖音、快手等大厂分享，在 OOM 方面关注的都是 Bitmap 的优化问题
+
+我们自己的项目保存海报，邀请好友的场景比较多，因此也会经常遇到低版本手机因为 Bitmap 导致的 OOM 问题
+
+常App中图片都是占用内存的大户，bitmap 的管理是内存治理中非常重要的环节。
+
+对于这里的处理，我们首先是将图片加载统一使用 Glide，再将App中的原生加载图片替换成Glide。
 
 另外，通过MAT工具，筛选、排序大对象，对头部大对象进行优化：
 
@@ -60,3 +67,7 @@ ActivityManager.MemoryInfo.availMem:   设备当前可用内存
 - 跨进程传递大图（Bundle#putBinder）
 - xhdpi的图片分别显示到hdpi和xxhdpi的手机上，显示的大小和内存是怎样的？
 - 资源文件加载规则。比如说图片存放在drawable-hdpi和drawable-xxhdpi下，xhdpi的手机会加载哪张？如果删除掉drawable-xxhdpi下的图片呢？
+
+## 参考资料
+
+- [抖音 Android 性能优化系列：Java OOM 优化之 NativeBitmap 方案](https://blog.csdn.net/ByteDanceTech/article/details/124487103)

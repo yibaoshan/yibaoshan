@@ -79,6 +79,12 @@ class ReviewActivity : AppCompatActivity() {
             list.add("编程技巧")
             list.add("设计模式")
             for (path in list) mContentViewReference.get()?.addView(generateButtonView(path))
+
+            // 增加 simple
+            val button = AppCompatButton(this)
+            button.text = "simple"
+            button.setOnClickListener { startActivity(Intent(this@ReviewActivity, SimpleActivity::class.java)) }
+            mContentViewReference.get()?.addView(button)
             return
         }
         parseAssets()
