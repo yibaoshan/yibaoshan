@@ -1,4 +1,13 @@
 
+大致流程是：
+
+- AMS 准备创建activity
+- 焦点切换，上一个activity的暂停
+- 目标进程启动，绑定与创建application
+- 创建activity实例并且调用onCreate
+- 调用active的resume方法，界面添加完成并可见
+- 上一个activity的停止
+
 ## 客户端
 
 ### 启动 Activity
@@ -352,7 +361,10 @@ private void handleBindApplication(AppBindData data) {
 
 如果想要更早可以在 Application.attachBaseContext 中，但此时 ContentProvider 没有安装完毕，因此只能执行不依赖于所注册 ContentProvider 的代码。
 
+## 参考资料
 
+- [android N进程启动流程(一)(捕获输入事件、准备创建activity、焦点切换)](https://blog.csdn.net/yun_hen/article/details/78428767)
+- [android N进程启动流程(二)(上一个activity的暂停、进程启动、绑定进程与创建application))](https://blog.csdn.net/yun_hen/article/details/78590991)
 
 
 

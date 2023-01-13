@@ -9,17 +9,19 @@ public class VMRuntime {
 
     public static void clearGrowthLimit() {
         try {
-            Class<?> vmRuntimeClass = Class.forName("dalvik.system.VMRuntime");
+            Class<?> vmRuntimeClass = Class.forName("dalvik.system.VMRuntime"); // 获取类
 
-            Field gDefaultField = vmRuntimeClass.getDeclaredField("THE_ONE");
-            gDefaultField.setAccessible(true);
+            Field instanceField = vmRuntimeClass.getDeclaredField("THE_ONE"); // 获取实例对象
 
-            Object gDefaultObj = gDefaultField.get(null);
+            instanceField.setAccessible(true);
 
-            Method growthLimit = vmRuntimeClass.getMethod("clearGrowthLimit");
+            Object vmRuntime = instanceField.get(null);
 
-            growthLimit.setAccessible(true);
-            growthLimit.invoke(gDefaultObj, null);
+            Method growthLimitMethod = vmRuntimeClass.getMethod("clearGrowthLimit");
+
+            growthLimitMethod.setAccessible(true);
+
+            growthLimitMethod.invoke(vmRuntime, null);
 
         } catch (Throwable e) {
             Log.e("TAG", "reflect bootstrap failed:", e);

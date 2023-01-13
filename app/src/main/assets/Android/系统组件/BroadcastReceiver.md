@@ -45,3 +45,7 @@
 ## 常见问题
 
 - Q:广播的功能并不复杂，为什么被称为四大组件之一？
+
+## 参考资料
+
+- [Android S动态广播注册流程](https://blog.csdn.net/yun_hen/article/details/124415431)

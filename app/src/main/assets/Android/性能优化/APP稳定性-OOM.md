@@ -71,3 +71,5 @@ ActivityManager.MemoryInfo.availMem:   设备当前可用内存
 ## 参考资料
 
 - [抖音 Android 性能优化系列：Java OOM 优化之 NativeBitmap 方案](https://blog.csdn.net/ByteDanceTech/article/details/124487103)
+- [关于虚拟机参数的调整 --- heapgrowthlimit/heapsize的配置](https://blog.csdn.net/yun_hen/article/details/120017180)
+- [Android APP memory用量如何回收](https://blog.csdn.net/yun_hen/article/details/122555845)
