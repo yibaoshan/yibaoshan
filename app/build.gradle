@@ -80,5 +80,7 @@ dependencies {
 
     implementation 'com.github.tiagohm.MarkdownView:library:0.19.0'
 
+    implementation 'org.openjdk.jol:jol-core:0.1' // 分析JVM中对象布局工具
+
 
 }

@@ -34,13 +34,34 @@ public class Medium_19_删除链表的倒数第N个结点 {
     @Test
     public void main() {
         ListNode head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4))));
-        ListNode result = removeNthFromEnd(head, 4);
+        ListNode result = removeNthFromEnd3(head, 4);
         while (result != null) {
             System.out.println(result.val);
             result = result.next;
         }
     }
 
+    public ListNode removeNthFromEnd3(ListNode head, int n) {
+        if (n < 1 || head == null) return head;
+        /**
+         * 经典快慢指针
+         *
+         * 1. 新建头节点 dummy ，next 指向 head （所有删除节点的都建议使用虚拟头节点）
+         * 2. 新建慢指针 slow，自身指向虚拟头节点
+         * 3. 新建快节点 fast，自身指向头节点，用于遍历链表
+         *
+         * 使用 fast 遍历链表，当快慢指针间隔差满足 n ，并且链表已经遍历到底
+         *
+         * slow 的 next 指针，指向的就是要删除的节点
+         * */
+        ListNode dummy = new ListNode(0, head), slow = dummy, fast = head;
+        while (fast != null) {
+            if (n-- <= 0) slow = slow.next; // 快慢指针间隔满足 n ，慢指针也要向下走
+            fast = fast.next; // 快指针正常遍历，向下走
+            if (fast == null) slow.next = slow.next.next; // 链表走到底了，删除 slow 指向的节点即可
+        }
+        return dummy.next;
+    }
 
     public ListNode removeNthFromEnd(ListNode head, int n) {
         /**
