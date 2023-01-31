@@ -32,19 +32,49 @@ public class Medium_15_三数之和 {
 
     @Test
     public void main() {
-//        int[] nums = new int[]{-1, 0, 1, 2, -1, -4};
+        int[] nums = new int[]{-1, 0, 1, 2, -1, -4};
 //        int[] nums = new int[]{-2, 0, 1, 1, 2};
 //        int[] nums = new int[]{-1, 0, 1, 2, -1, -4, -2, -3, 3, 0, 4};
 //        int[] nums = new int[]{-2, 0, 0, 2, 2};
-        int[] nums = new int[]{0, 0, 0};
+//        int[] nums = new int[]{0, 0, 0};
         List<List<Integer>> lists = threeSum(nums);
         for (int i = 0; i < lists.size(); i++) {
             System.out.println(Arrays.toString(new List[]{lists.get(i)}));
         }
-        lists = threeSum4(nums);
+        lists = threeSum5(nums);
         for (int i = 0; i < lists.size(); i++) {
             System.err.println(Arrays.toString(new List[]{lists.get(i)}));
         }
+    }
+
+    public List<List<Integer>> threeSum5(int[] nums) {
+        /**
+         * 思路，双指针遍历，使 i + left + right = 0
+         *
+         * 利用哈希做去重
+         *
+         * */
+        List<List<Integer>> ret = new ArrayList<>();
+        if (nums == null || nums.length < 3) return ret;
+        Arrays.sort(nums);
+        HashSet<String> hashSet = new HashSet<>();
+        for (int i = 0; i < nums.length - 1; i++) {
+            int left = i + 1, right = nums.length - 1;
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                if (sum > 0) right--;
+                else if (sum < 0) left++;
+                else {
+                    List<Integer> list = new ArrayList<>();
+                    Collections.addAll(list, nums[i], nums[left], nums[right]);
+                    Collections.sort(list);
+                    if (hashSet.add(list.toString())) ret.add(list);
+                    left++;
+                    right--;
+                }
+            }
+        }
+        return ret;
     }
 
     /**
