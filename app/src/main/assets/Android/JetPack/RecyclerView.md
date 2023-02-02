@@ -1,4 +1,6 @@
 
+RecyclerView 本质上也是一个 ViewGroup，那么它的 Item 要显示出来，自然需要 addView() 进来，移出的时候，当然也要 removeView() 出去
+
 ## 参考资料
 
 - [BaseRecyclerViewAdapterHelper](https://github.com/CymChad/BaseRecyclerViewAdapterHelper)
