@@ -39,3 +39,7 @@
 - allocation_record.h/.cc
 - reference_queue.h/.cc
 - reference_processor.h/.cc
+
+## 参考资料
+
+- [Android GC 从dalvik到ART的改进分析](https://cruise1008.github.io/2016/03/30/Android-GC-%E4%BB%8Edalvik%E5%88%B0ART%E7%9A%84%E6%94%B9%E8%BF%9B%E5%88%86%E6%9E%90/)

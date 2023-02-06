@@ -70,5 +70,5 @@ View / ViewGroup 测量、布局、绘制的触发时机
 
 - mTop、mBottom、mLeft、mRight 分别表示 View 上下左右四个坐标点相对 "父布局" 的值
 - mPaddingTop、Bottom、Left、Right 内边距的值，算作 View 自身大小。margin 是外边距，没有属性值，算作是父布局的大小
-- mScrollX、mScrollY，视图内容相对之前的滚动偏移量，比如在 onDraw 中，left = mScrollX + paddingLeft
+- mScrollX、mScrollY，视图内容相对之前的滚动偏移量，作用于 onDraw 中，left = mScrollX + paddingLeft
 - mContext，上下文环境，类型为 ContextThemeWrapper（因为要操作主题资源），可以递归调用 Context#getBaseContext() 再强转获取到 Activity

@@ -72,6 +72,7 @@ class ReviewActivity : AppCompatActivity() {
     private fun initData() {
         if (mPath.isEmpty()) {
             val list = arrayListOf<String>()
+            list.add("面试")
             list.add("JVM")
             list.add("Java")
             list.add("Linux")
