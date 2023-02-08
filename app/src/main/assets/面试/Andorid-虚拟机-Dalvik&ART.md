@@ -36,3 +36,14 @@ ART 对于 Java 方法实现了两种执行模式 ArtMethod#Invoke()
 
 - 解释执行字节码，入口是 EnterInterpreterFromInvoke，该函数定义在 art/runtime/interpreter/interpreter.cc
 - 快速执行，即直接调用通过 OAT 编译后的本地代码，在 ARM64 中的定义在 art/runtime/arch/arm64/quick_entrypoints_arm64.S
+
+## 守护线程
+
+- ReferenceQueueDaemon：引用队列守护线程，引用对象的关联的队列。当被引用对象引用的对象被GC回收的时候，被引用对象就会被加入到其创建时关联的队列去。这样应用程序就可以知道那些被引用对象引用的对象已经被回收了
+- FinalizerDaemon：析构守护线程。重写了 finalize 的对象，它们被GC决定回收时，并没有马上被回收，而是被放入到一个队列中，等待FinalizerDaemon守护线程去调用它们的成员函数finalize，然后再被回收。
+- FinalizerWatchdogDaemon：析构监护守护线程。用来监控FinalizerDaemon线程的执行。一旦检测那些重定了成员函数finalize的对象在执行成员函数finalize时超出一定的时候，那么就会退出VM。
+- HeapTrimmerDaemon：堆裁剪守护线程。用来执行裁剪堆的操作，也就是用来将那些空闲的堆内存归还给系统。
+- GCDaemon：并行GC线程。用来执行并行GC。
+
+
+
