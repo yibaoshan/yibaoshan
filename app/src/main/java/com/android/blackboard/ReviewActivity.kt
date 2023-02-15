@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.ViewGroup
@@ -40,6 +41,11 @@ class ReviewActivity : AppCompatActivity() {
         mPath = intent.getStringExtra("path") ?: ""
         initView()
         initData()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.e("TAG", "onSaveInstanceState: " )
     }
 
     private fun initView() {

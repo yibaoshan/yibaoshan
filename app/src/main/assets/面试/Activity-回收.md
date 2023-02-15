@@ -45,7 +45,7 @@ Low Memory Kill 根据进程优先级，直接干掉进程
 - 单进程应用，ActivityThread#attach() 中添加了 GC 监听
 - 若应用使用内存大于3/4的时，启动回收策略（releaseSomeActivities）
 - 非可见 Activity 都会加入回收列表（后台播放类 Activity、壁纸类除外），等待被回收
-- 回收的 Activity 会收到 onSaveInstanceState() 回调，返回到该页面时，重走 onCreate()
+- 回收的 Activity 会收到 onDestroy() 回调，返回到该页面时，重走 onCreate()
 - 若是 FragmentActivity，系统还会帮助恢复 fragment。fragment无默认构造发生崩溃，重影等bug就是因为这个。。
 
 补充，复现条件很简单，打开多个 Activity，在当前页面一点点申请内存（避免无法分配大内存触发 OOM）

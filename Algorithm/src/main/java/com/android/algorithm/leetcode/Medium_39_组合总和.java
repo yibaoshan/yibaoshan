@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -25,53 +26,38 @@ public class Medium_39_组合总和 {
 
     @Test
     public void main() {
-        int[] nums = new int[]{2, 3, 6, 7};
-        int target = 7;
+        int[] nums = new int[]{2, 3, 5};
+        int target = 8;
         List<List<Integer>> lists = combinationSum(nums, target);
         for (int i = 0; i < lists.size(); i++) {
-            System.out.println(Arrays.toString(new List[]{lists.get(i)}));
+            System.err.println(Arrays.toString(new List[]{lists.get(i)}));
         }
     }
 
-    /**
-     * 回溯法
-     * <p>
-     * 执行结果：通过
-     * 执行用时：64 ms, 在所有 Java 提交中击败了5.16%的用户
-     * 内存消耗：39.1 MB, 在所有 Java 提交中击败了6.49%的用户
-     */
-    public List<List<Integer>> combinationSum(int[] candidates, int target) {
-        Deque<Integer> path = new ArrayDeque<>();
-        List<List<Integer>> res = new ArrayList<>();
-        cnt = new int[candidates.length];
-        dfs(path, res, candidates, target);
-        return res;
-    }
-
+    private int cnt;
     private HashSet<String> hashSet = new HashSet<>();
-    private int[] cnt;
+    private List<Integer> integers = new ArrayList<>();
+    private List<List<Integer>> ret = new ArrayList<>();
 
-    private void dfs(Deque<Integer> path, List<List<Integer>> res, int[] candidates, int target) {
-        if (target == 0) {
-            String str = Arrays.toString(cnt);
-            if (!hashSet.contains(str)) {
-                hashSet.add(str);
-                res.add(new ArrayList<>(path));
-            }
-            return;
-        }
-        if (target < 0) {
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        backtrack(candidates, target);
+        return ret;
+    }
+
+    private void backtrack(int[] candidates, int target) {
+        if (cnt > target) return;
+        if (cnt == target) {
+            ArrayList<Integer> tmp = new ArrayList<>(this.integers);
+            Collections.sort(tmp);
+            if (hashSet.add(tmp.toString())) ret.add(tmp);
             return;
         }
         for (int i = 0; i < candidates.length; i++) {
-            int cur = candidates[i];
-            path.addLast(cur);
-            target -= cur;
-            cnt[i] += 1;
-            dfs(path, res, candidates, target);
-            target += cur;
-            cnt[i] -= 1;
-            path.removeLast();
+            integers.add(candidates[i]);
+            cnt += candidates[i];
+            backtrack(candidates, target);
+            cnt -= candidates[i];
+            integers.remove(integers.size() - 1);
         }
     }
 
