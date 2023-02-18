@@ -1,9 +1,12 @@
 package com.android.algorithm.leetcode;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 public class Easy_94_二叉树的中序遍历 {
 
@@ -42,40 +45,43 @@ public class Easy_94_二叉树的中序遍历 {
      * 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
      */
 
-    /**
-     * 执行结果：通过
-     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：36.7 MB, 在所有 Java 提交中击败了34.20%的用户
-     */
+    @Test
+    public void main() {
+        TreeNode root = new TreeNode(1, new TreeNode(4), new TreeNode(2, new TreeNode(3), null));
+        System.out.println(inorderTraversal(root));
+        System.out.println(stack(root));
+    }
+
     public List<Integer> inorderTraversal(TreeNode root) {
-        List<Integer> list = new LinkedList<>();
-        recursion(root, list);
-        return list;
+        travel(root);
+        return ret;
     }
 
-    private void recursion(TreeNode root, List<Integer> list) {
-        if (root == null) return;
-        recursion(root.left, list);
-        list.add(root.val);
-        recursion(root.right, list);
+    private final List<Integer> ret = new LinkedList<>();
+
+    private void travel(TreeNode node) {
+        if (node == null) return;
+        travel(node.left);
+        ret.add(node.val);
+        travel(node.right);
     }
 
-    /**
-     * 官解，迭代法
-     */
-    public List<Integer> preorderTraversal2(TreeNode root) {
-        List<Integer> res = new ArrayList<Integer>();
-        Deque<TreeNode> stk = new LinkedList<TreeNode>();
-        while (root != null || !stk.isEmpty()) {
+    private List<Integer> stack(TreeNode root) {
+        Stack<TreeNode> stack = new Stack<>();
+        List<Integer> ret = new LinkedList<>();
+        while (root != null || !stack.isEmpty()) {
+            // 1. 先处理左边的，将左边节点依次压栈
             while (root != null) {
-                stk.push(root);
+                stack.push(root);
                 root = root.left;
             }
-            root = stk.pop();
-            res.add(root.val);
-            root = root.right;
+            // 2. 取出栈顶，也就是树最底层左节点，取出值
+            TreeNode tmp = stack.pop();
+            ret.add(tmp.val);
+            // 3. 接着遍历右节点
+            root = tmp.right;
         }
-        return res;
+        return ret;
     }
 
     public class TreeNode {
