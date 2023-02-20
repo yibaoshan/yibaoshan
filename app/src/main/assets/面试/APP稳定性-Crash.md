@@ -113,6 +113,9 @@ APP 的稳定性治理包括 卡顿、ANR 、Crash（Java / Native）、内存�
 >
 > 2. 如果在DEBUG状态，传递超过512k，则我们可以直接崩溃，注意这个崩溃我们是可以捕获到的，也就是崩溃后台可以看到日志；
 
+- GC 超时：多个对象重写 finalize() 方法却没有在 10s 内完成，FinalizerDaemon 线程抛出 finalizerTimedOut 异常
+
+
 ## 组件
 
 ### EditText
