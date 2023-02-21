@@ -82,5 +82,8 @@ dependencies {
 
     implementation 'org.openjdk.jol:jol-core:0.1' // 分析JVM中对象布局工具
 
+    // debugImplementation because LeakCanary should only run in debug builds.
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.5'
+
 
 }
