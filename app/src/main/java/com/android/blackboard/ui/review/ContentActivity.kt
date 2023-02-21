@@ -34,7 +34,7 @@ class ContentActivity : AppCompatActivity() {
         title = contentUrl
 
         val mMarkdownView = findViewById<MarkdownView>(R.id.markdown_view)
-        mMarkdownView.addStyleSheet(Github())
+//        mMarkdownView.addStyleSheet(Github())
         mMarkdownView.loadMarkdownFromAsset(contentUrl)
     }
 
