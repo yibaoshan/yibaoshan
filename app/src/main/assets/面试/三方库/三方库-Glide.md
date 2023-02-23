@@ -10,7 +10,17 @@ Glide 源码保存在 library 目录下，以下基于 v4.11.0
 
 ## 基本用法
 
-我们的项目使用了 BindingAdapter 实现 AOP ，图片加载也在基建模块抽了接口出来，在业务模块由 Glide 实现
+图片框架解耦：
+
+- 我们在业务基建模块（business）定义了一系列的图片加载接口（ImageLoaderInterface），比如：圆形、圆角、毛玻璃
+- 又定义了 ImageLoader 单例对象，初始化时要求传入 ImageLoaderInterface
+- 接着在三方库模块（library）接入 glide ，创建 ImageLoaderImpl 实现 ImageLoaderInterface 接口
+- 最后在 application 创建 ImageLoaderImpl 对象，并传入 ImageLoader 单例
+
+AOP 框架：
+
+- 我们的项目利用 BindingAdapter 实现 AOP，图片的网络加载只需在 xml 指定 url 即可，由 BindingAdapter 调用 ImageLoader 实现
+- 另外，对于 drawable 类型资源，如果需要压缩（比如jpg格式），也可以在 xml 指定
 
 ```
 ImageLoader.loadXX() // 多个重载方法

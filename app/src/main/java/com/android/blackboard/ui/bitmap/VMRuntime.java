@@ -21,7 +21,7 @@ public class VMRuntime {
 
             growthLimitMethod.setAccessible(true);
 
-            growthLimitMethod.invoke(vmRuntime, null);
+            growthLimitMethod.invoke(vmRuntime, (Object) null);
 
         } catch (Throwable e) {
             Log.e("TAG", "reflect bootstrap failed:", e);

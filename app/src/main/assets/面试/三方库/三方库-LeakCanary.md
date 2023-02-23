@@ -20,3 +20,35 @@ com.squareup.leakcanary.${applicationId}
 - RootViewWatcher
 - ServiceWatcher
 
+## ActivityWatcher
+
+- 注册 ActivityLifecycleCallbacks 监听
+- 有 Activity 执行 onDestroy() 交给 ReachabilityWatcher 追踪判断
+
+## FragmentAndViewModelWatcher
+
+兼容多个 FragmentManager
+
+- android.app.FragmentManager (Deprecated)
+- android.support.v4.app.FragmentManager
+- androidx.fragment.app.FragmentManager
+
+流程：
+
+- onCreate() 注册 Fragment-Lifecycle 监听
+- 在 onFragmentViewDestroyed() 与 onFragmentDestroyed() 对 view对象 与 fragment对象 进行了内存泄漏追踪。
+
+## RootViewWatcher
+
+- 使用 curtains 库监听所有根 View 的创建与销毁
+- 初始化了 runable 用于监听视图是否泄漏
+- 在当前view被添加到窗口时，则从handler中移除该 runable
+- 如果当前view从窗口移除时，则触发该runable的执行。
+
+## ReachabilityWatcher
+
+最终实现类为 ObjectWatcher
+
+- removeWeaklyReachableObjects() 清除引用队列
+- 从 watchedObjects(key) 获取弱引用对象，若不为空
+  - 利用 backgroundHandler 子线程执行检查任务

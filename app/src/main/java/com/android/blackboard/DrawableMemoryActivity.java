@@ -31,7 +31,7 @@ public class DrawableMemoryActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         printBitmapSize(img);
-        Bitmap bitmap = decodeSampledBitmapFromResource(getResources(), R.mipmap.test, img.getWidth(), img.getHeight());
+        Bitmap bitmap = decodeSampledBitmapFromResource(getResources(), R.drawable.test, img.getWidth(), img.getHeight());
         img.setImageBitmap(bitmap);
         printBitmapSize(img);
     }
