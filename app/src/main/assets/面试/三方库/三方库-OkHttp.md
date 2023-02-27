@@ -1,4 +1,8 @@
 
+okhttp 的 call 封装了原始的 socket 通信连接，同时将整个复杂的请求过程，利用责任链解耦为一各个拦截器任务
+
+Request / Response 两个类，则完全符合 http 协议
+
 大体流程
 
 ```

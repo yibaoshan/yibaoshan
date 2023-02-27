@@ -1,4 +1,4 @@
-package com.android.blackboard;
+package com.android.blackboard.ui;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -12,6 +12,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.blackboard.R;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class DrawableMemoryActivity extends AppCompatActivity {

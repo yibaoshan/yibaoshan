@@ -42,9 +42,11 @@ RecyclerView 的 onLayout() 委托给 LayoutManager 完成，因此
 
 以 ViewHolder 为单位，为 RV 实现缓存回收机制的内部类
 
-- mAttachedScrap（ArrayList/<ViewHolder/>）：临时缓存，最终被添加回屏幕。比如有 3 个item，删掉中间的，1和3会被临时保存到这。
+- mAttachedScrap（ArrayList/<ViewHolder/>）：
+  - 临时缓存，最终被添加回屏幕。比如有 3 个item，删掉中间的，1和3会被临时保存到这。
+  - 再或者，自然滑动的时候（其实就是在反复 layout 布局），会把所有的 item 都临时保存到这，计算好了每个子 View 的新位置后，会一个个取出来，当然了不一定是全部都会取出来的，因为有些已经滑出屏幕了
 - mChangedScrap（ArrayList/<ViewHolder/>）：临时缓存，比如中间item被移除了，那它先添加到这，播放完动画丢进 pool。过渡用的
-- mCachedViews（ArrayList/<ViewHolder/>）：存储刚被移出屏幕外的 View ，默认上限为2 。无需重新 bind
+- mCachedViews（ArrayList/<ViewHolder/>）：存储刚被移出屏幕外的 View ，比如没有从 mAttachedScrap 取出来的就会被丢到这，默认上限为2 。无需重新 bind
 - mViewCacheExtension(ViewCacheExtension)：不用管
 - mRecyclerPool(RecycledViewPool)：缓存Item的最终站，用于保存那些Removed、Changed、以及mCachedViews满了之后更旧的Item，需要 bind
 
@@ -88,3 +90,9 @@ Google 控件：SwipeRefreshLayout
 - 自定义 VirtualLayoutManager 继承自 LinearLayoutManager。它管理着一系列的 LayoutHelper
 - 框架内置提供了几种常用的布局类型，包括：网格布局、线性布局、瀑布流布局、悬浮布局、吸边布局等
 - 支持扩展外部，注册新的LayoutHelper，实现特殊的布局方式
+
+## Q&A
+
+- setHasStableIds 用处
+  - 缓存相关，为 true 时，不走存入 mRecyclerPool 再取出的逻辑。因此，RV 所有 item 状态得以保存，比如焦点呐，图片呐（这也是 Glide 不会闪动的解决方案），同时也不会触发动画
+- View的onAttachedToWindow ,onDetachedFromWindow 在 RV 的对应关系
