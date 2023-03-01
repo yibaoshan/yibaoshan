@@ -1,4 +1,24 @@
 
+## 创建方式
+
+- Executors#newCached/SingleThreadPool 等等，被阿里开发手册禁用
+  - LinkedBlockingQueue 容量默认 MAX_VALUE，容易 OOM
+- new ThreadPoolExecutor()
+  - corePoolSize 为线程池的基本大小。通过 Runtime.getRuntime().availableProcessors() 获取 CPU 核心设置，效果不大。。
+  - maximumPoolSize 为线程池最大线程大小。我觉得和内存相关，大内存可以设置的多点，核心数 x 10 都没问题
+  - keepAliveTime 和 unit 则是线程空闲后的存活时间。
+  - workQueue 用于存放任务的阻塞队列。通常是 LinkedBlockingQueue
+  - threadFactory，设置创建线程方式，可以在这指定线程名称，优先级啥的，有默认值可以不传
+    - defaultThreadFactory，优先级为 NORM_PRIORITY
+  - handler 当队列和最大线程池都满了之后的饱和策略。系统实现了四个，可以不传
+    - AbortPolicy，直接抛出异常，默认策略
+    - CallerRunsPolicy，在当前线程执行
+    - DiscardPolicy，抛弃不管
+    - DiscardOldestPolicy，丢弃原先等待队列末尾任务，替换成自己
+
+submit() 和 execute()的区别：submit()方法有返回值Future，而execute()方法没有返回值
+
+
 ## 线程状态
 
 Linux 操作系统线程，有三种状态

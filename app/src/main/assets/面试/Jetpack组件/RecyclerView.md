@@ -95,4 +95,5 @@ Google 控件：SwipeRefreshLayout
 
 - setHasStableIds 用处
   - 缓存相关，为 true 时，不走存入 mRecyclerPool 再取出的逻辑。因此，RV 所有 item 状态得以保存，比如焦点呐，图片呐（这也是 Glide 不会闪动的解决方案），同时也不会触发动画
+  - 需要设置唯一 id
 - View的onAttachedToWindow ,onDetachedFromWindow 在 RV 的对应关系

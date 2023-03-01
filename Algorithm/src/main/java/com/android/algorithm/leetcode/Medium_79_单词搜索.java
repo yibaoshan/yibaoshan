@@ -22,47 +22,36 @@ public class Medium_79_单词搜索 {
                 new char[]{'S', 'F', 'C', 'S'},
                 new char[]{'A', 'D', 'E', 'E'}
         };
-        String word = "ABCCED";
+        String word = "ESED";
         System.out.println(exist(board, word));
     }
 
-    private boolean res = false;
+    private boolean ret = false;
 
-    /**
-     * 回溯法
-     * 执行结果：通过
-     * 执行用时：72 ms, 在所有 Java 提交中击败了88.46%的用户
-     * 内存消耗：36.2 MB, 在所有 Java 提交中击败了88.54%的用户
-     */
     public boolean exist(char[][] board, String word) {
-        if (board == null) return false;
-        if (word == null || word.isEmpty()) return true;
-        char[] words = word.toCharArray();
-        boolean[][] visited = new boolean[board.length][board[0].length];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                search(board, words, i, j, 0, visited);
-                if (res) return true;
+                boolean[][] visited = new boolean[board.length][board[0].length];
+                backtrace(board, word, i, j, 0, visited);
+                if (ret) return true;
             }
         }
         return false;
     }
 
-    private void search(char[][] board, char[] words, int m, int n, int cur, boolean[][] visited) {
-        if (m >= board.length || m < 0) return;
-        if (n >= board[m].length || n < 0) return;
-        if (visited[m][n]) return;
-        if (words[cur] != board[m][n]) return;
-        if (cur == words.length - 1) {
-            res = true;
-            return;
-        }
-        visited[m][n] = true;
-        search(board, words, m + 1, n, cur + 1, visited);
-        search(board, words, m - 1, n, cur + 1, visited);
-        search(board, words, m, n + 1, cur + 1, visited);
-        search(board, words, m, n - 1, cur + 1, visited);
-        visited[m][n] = false;
+    private void backtrace(char[][] board, String word, int i, int j, int cur, boolean[][] visited) {
+        if (i < 0 || i >= board.length) return;
+        if (j < 0 || j >= board[i].length) return;
+        if (cur >= word.length()) return;
+        if (word.charAt(cur) != board[i][j]) return;
+        if (visited[i][j]) return;
+        if (cur == word.length() - 1) ret = true;
+        visited[i][j] = true;
+        backtrace(board, word, i + 1, j, cur + 1, visited);
+        backtrace(board, word, i - 1, j, cur + 1, visited);
+        backtrace(board, word, i, j + 1, cur + 1, visited);
+        backtrace(board, word, i, j - 1, cur + 1, visited);
+        visited[i][j] = false;
     }
 
 
