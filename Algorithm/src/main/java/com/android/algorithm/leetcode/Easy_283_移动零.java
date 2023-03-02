@@ -53,4 +53,33 @@ public class Easy_283_移动零 {
         }
     }
 
+    public void moveZeroes2(int[] nums) {
+        // 思路，从第一个元素为 0 的开始，遇到非 0 交换
+        // 时间复杂度度 O(n)
+        if (nums == null || nums.length < 2) return;
+        int left = 0, right = 0;
+        while (left < nums.length && nums[left] != 0) left++;
+        right = left + 1;
+        while (right < nums.length) {
+            if (nums[right] != 0) {
+                nums[left++] = nums[right];
+            }
+            right++;
+        }
+        while (left < nums.length) nums[left++] = 0;
+    }
+
+    public void moveZeroes3(int[] nums) {
+        if (nums == null || nums.length < 2) return;
+        int[] tmp = new int[nums.length];
+        int index = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != 0) tmp[index++] = nums[i];
+        }
+        for (int i = 0; i < nums.length; i++) {
+            nums[i] = tmp[i];
+        }
+
+    }
+
 }

@@ -23,8 +23,6 @@ class ReviewActivity : AppCompatActivity() {
 
     companion object {
 
-        val list = ArrayList<Activity>()
-
         @JvmStatic
         fun startActivity(activity: Activity, path: String? = null) {
             val intent = Intent(activity, ReviewActivity::class.java)
@@ -43,7 +41,6 @@ class ReviewActivity : AppCompatActivity() {
         mPath = intent.getStringExtra("path") ?: ""
         initView()
         initData()
-        list.add(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
