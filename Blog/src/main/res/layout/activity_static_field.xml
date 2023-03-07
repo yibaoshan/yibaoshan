@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingHorizontal="20dp"
+        android:layout_height="match_parent">
+
+    <TextView
+            android:id="@+id/tv_classloader"
+            android:layout_width="match_parent"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:layout_height="150dp" />
+
+    <TextView
+            android:id="@+id/tv_reference"
+            android:layout_width="match_parent"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_height="100dp" />
+
+    <Button
+            android:layout_width="match_parent"
+            android:text="初始化 类加载器"
+            android:textColor="#00FF00"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:onClick="onInstallClassLoaderClick"
+            android:layout_height="wrap_content" />
+
+    <Button
+            android:layout_width="match_parent"
+            android:text="What is your dream?"
+            android:layout_marginVertical="10dp"
+            android:textSize="18sp"
+            android:onClick="onToastStaticFieldClick"
+            android:layout_height="wrap_content" />
+
+    <Button
+            android:layout_width="match_parent"
+            android:text="卸载 类加载器"
+            android:textColor="#FF0000"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:onClick="onUninstallClassLoaderClick"
+            android:layout_height="wrap_content" />
+
+</LinearLayout>
