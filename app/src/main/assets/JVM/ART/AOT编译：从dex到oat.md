@@ -3,6 +3,10 @@
 
 即便在最新版本的 Android 中，编译 Java 生成的依旧是 DEX 文件
 
+- APK 在安装的时候，打包在里面的 classes.dex 文件会被工具 dex2oat 翻译成本地机器指令，最终得到一个 ELF 格式的 oat 文件。
+
+- APK 运行时，上述生成的 oat 文件会被加载到内存中，并且 ART 虚拟机可以通过里面的 oatdata 和 oatexec 段找到任意一个类的方法对应的本地机器指令来执行。
+
 在 Android 7.0 中，Google又为Android添加了即时 (JIT) 编译器。
 
 JIT和AOT的配合，是取两者之长，避两者之短：在APK安装时，并不是一次性将所有代码全部编译成机器码。

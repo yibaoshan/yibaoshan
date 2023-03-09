@@ -22,3 +22,7 @@ Dalvik 之所以要被 ART 替代包含下面几个原因：
 - Dalvik 是为 32位 设计的，不适用于 64位 CPU。
 - 单纯的 "**字节码解释**" 加 "**JIT编译**" 的执行方式，性能要弱于本地机器码的执行。
 - 原先的 "**垃圾回收机制**" 不够好，会导致卡顿。
+
+## 参考资料
+
+- [Android运行时ART简要介绍和学习计划](https://blog.csdn.net/Luoshengyang/article/details/39256813)

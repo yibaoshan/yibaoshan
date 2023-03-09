@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.blog.R;
 
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
@@ -23,7 +22,6 @@ public class StaticFieldActivity extends AppCompatActivity {
 
     private DexClassLoader mDexClassLoader;
     private WeakReference<Field> mStaticFieldReference = new WeakReference<>(null);
-    private Field mField ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -51,10 +49,8 @@ public class StaticFieldActivity extends AppCompatActivity {
             if (mDexClassLoader != null) {
                 Field field = mDexClassLoader.loadClass("com.java.library.Test").getField("MyDream");
                 mStaticFieldReference = new WeakReference<>(field);
-                mField = field;
             }
-//            toast = mStaticFieldReference.get() == null ? "null" : (String) mStaticFieldReference.get().get(null);
-            toast = mField == null ? "null" : (String) mField.get(null);
+            toast = mStaticFieldReference.get() == null ? "null" : (String) mStaticFieldReference.get().get(null);
         } catch (IllegalAccessException | ClassNotFoundException | NoSuchFieldException e) {
             e.printStackTrace();
         }
