@@ -62,6 +62,25 @@
 
 我们先来讨论第一个问题：**静态变量存在哪？为什么说静态变量不会被 gc 回收？**
 
+答：静态变量可以被 gc 回收，但必须满足几个条件，这个我们下一个小节会聊到
+
+至于静态变量存在哪？这需要我们了解 jvm 虚拟机类加载、内存分配的流程
+
+简单来说，把一个加载静态变量到内存，要经过以下几个步骤：
+
+- 虚拟机把类文件加载类，为
+- 执行类初始化
+
+```
+http://androidxref.com/4.4_r1/xref/art/runtime/class_linker.cc
+Class* ClassLinker::FindClass(char* descriptor, ClassLoader* class_loader) {
+}
+```
+
+FindClass 函数主要负责使用 classloader 加载类，如果 classloader 参数为空，那么创建一个默认的
+
+如果
+
 ```
 class Test {
     Object o1 = new Object();
