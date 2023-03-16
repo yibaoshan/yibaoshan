@@ -50,8 +50,6 @@ class BitmapActivity : AppCompatActivity() {
         Log.e(TAG, "MemoryInfo#threshold: " + format(info.threshold, 2) + " MB , " + format(info.threshold, 3) + " GB")
         Log.e(TAG, "MemoryInfo#lowMemory: " + info.lowMemory)
 
-        VMRuntime.clearGrowthLimit()
-
         Log.e(TAG, "maxMemory: " + format(Runtime.getRuntime().maxMemory(), 2) + " MB")
     }
 

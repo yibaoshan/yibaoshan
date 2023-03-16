@@ -1,12 +1,18 @@
 
-👏  欢迎来到我的博客
+Hi 我叫易保山，是一名 Android 开发，这里是我的秘密基地 ㊙️，主要用于以下用途：
 
-这是我第一个静态博客，主要用它来记录自己的成长，同时也会分享一些我的生活
+- LeetCode 刷题[记录](./lib_algorithm/src/main/java/com/android/algorithm/Main.kt)，目前已经刷了小 300 道题了
+- 实现的小 demo，比如 [java tcp 通信](./app/src/main/java/com/android/blackboard/test/tcp)、[DrawableMemory 测试](./app/src/main/java/com/android/blackboard/ui/DrawableMemoryActivity.java)、[RecyclerView 缓存测试](./app/src/main/java/com/android/blackboard/ui/RecyclerViewActivity.java) 等等~
+- 一些[学习笔记](./学习笔记)、[工作笔记](./工作笔记)总结，和技术文章归档、备份
+- 以及最重要的，[知识库](./知识库)功能，它保存了我所有的已经知道但还是经常会忘掉的知识点
 
-博主坐标杭州，Android 开发工程师，爱好烹饪、摄影，更多[关于我](https://yibs.space/post/about/)
+博主坐标杭州，爱好烹饪、摄影，更多[关于我](https://yibs.space/post/about/)
 
-## 一、本站导航
+## 一、知识库导航
 
+点击 "[知识库](./知识库)" 进行跳转，或者点击[这里](./知识库/readme.md)直接查看文档
+
+## 二、技术文章导航
 
 ### Android 图形系统
 
@@ -38,7 +44,3 @@
 ### 其他(工具/效率)
 
 - [给马总：斐讯K2-老毛子固件翻墙教程](https://yibs.space/post/phicomm-k2-user-guide-for-alicia/)
-
-> - *注1：本站主题不支持目录功能，技术文章建议跳转到掘金阅读*
->
-> - *注2：本站使用GitHub Pages搭建，偶尔会存在无法访问或加载时间过长的情况，请耐心等待*
