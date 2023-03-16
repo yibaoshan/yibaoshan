@@ -1,10 +1,5 @@
 
-Hi 我叫易保山，是一名 Android 开发，这里是我的秘密基地 ㊙️，主要用于以下用途：
-
-- LeetCode 刷题[记录](./lib_algorithm/src/main/java/com/android/algorithm/Main.kt)，目前已经刷了小 300 道题了
-- 实现的小 demo，比如 [java tcp 通信](./app/src/main/java/com/android/blackboard/test/tcp)、[DrawableMemory 测试](./app/src/main/java/com/android/blackboard/ui/DrawableMemoryActivity.java)、[RecyclerView 缓存测试](./app/src/main/java/com/android/blackboard/ui/RecyclerViewActivity.java) 等等~
-- 一些[学习笔记](./学习笔记)、[工作笔记](./工作笔记)总结，和技术文章归档、备份
-- 以及最重要的，[知识库](./知识库)功能，它保存了我所有的已经知道但还是经常会忘掉的知识点
+Hi 我叫易保山，是一名 Android 开发，欢迎来到我的秘密基地 ㊙️
 
 博主坐标杭州，爱好烹饪、摄影，更多[关于我](https://yibs.space/post/about/)
 
