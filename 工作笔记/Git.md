@@ -21,3 +21,15 @@
 - 切换到 tag：git checkout tagName
 - 切换 tag 并创建分支：git checkout -b branchName tagName
 - 删除 tag ：git tag -d tagName
+
+## Stash
+
+- 保存当前进度：git stash
+- 保存进度并添加注释：git stash save 'message...'
+- 显示保存进度的列表：git stash list
+- 恢复：
+  - git stash pop：恢复并删除最新保存的进度
+  - git stash apply：恢复进度，但不删除
+- 删除：
+  - git stash drop stash_id：删除一个进度存储，若不指定 stash_id ，则删除最新
+  - git stash clear：删除所有
