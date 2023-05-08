@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="22dp"
+    app:contentPadding="16dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="#f4f4f4"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <ImageView
+                        android:id="@+id/iv_cover"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:scaleType="centerCrop" />
+
+                    <TextView
+                        android:id="@+id/tv_index"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textColor="@color/black"
+                        android:textSize="72sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="我是 RV1"
+                        android:textColor="@color/black"
+                        android:textSize="72sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="我是 RV2"
+                        android:textColor="@color/black"
+                        android:textSize="72sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="我是 RV3"
+                        android:textColor="@color/black"
+                        android:textSize="72sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="我是 RV4"
+                        android:textColor="@color/black"
+                        android:textSize="72sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="我是 RV5"
+                        android:textColor="@color/black"
+                        android:textSize="72sp" />
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+
+            <RelativeLayout
+                android:layout_width="6dp"
+                android:layout_height="90dp"
+                android:layout_margin="16dp">
+
+                <View
+                    android:id="@+id/view_progress_background"
+                    android:layout_width="6dp"
+                    android:layout_height="90dp"
+                    android:background="@drawable/shape_progress_background_vertical" />
+
+                <View
+                    android:id="@+id/view_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:background="@drawable/shape_progress_vertical" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+
+    </androidx.cardview.widget.CardView>
+</androidx.cardview.widget.CardView>

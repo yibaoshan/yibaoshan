@@ -1,13 +1,8 @@
-
+package com.android.blackboard;
 
 import org.junit.Test;
 
 import java.io.File;
-
-import chatbot.SendResult;
-import chatbot.WxChatbotClient;
-import chatbot.message.TaskMessage;
-import chatbot.test.TestConfig;
 
 /**
  *

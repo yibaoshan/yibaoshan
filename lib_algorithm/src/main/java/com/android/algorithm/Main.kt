@@ -1,6 +1,17 @@
 package com.android.algorithm
 
+import org.junit.Test
+
 class Main {
+
+    @Test
+    fun main(){
+
+    }
+
+    fun matrix2string(int: Int){
+
+    }
 
     /**
      * 算法思想汇总
