@@ -33,3 +33,7 @@ source ~/.bash_profile
 ```
 echo $JAVA_HOME
 ```
+
+## 参考资料
+
+- [adb command not found. Mac OS](https://punjabicoder.medium.com/adb-command-not-found-mac-os-69b3f2bb3859)
