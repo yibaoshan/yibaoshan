@@ -1,6 +1,4 @@
-include ':lib_java'
 include ':lib_blog'
-include ':lib_notebook'
 include ':lib_algorithm'
 include ':app'
 rootProject.name = "Blackboard"
