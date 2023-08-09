@@ -13,6 +13,16 @@ flag 的 1、3、5、12、13、14、15 位在 80X86 CPU 中没有使用，不具
 
 这些比特位非常非常非常非常重要，理解它，就能理解当前处理器的运行状态，模式，对后续的 io ，特权级帮助非常大。
 
+- EFLAGS （标志寄存器）
+
+- Memory-Management Registers （内存管理寄存器）
+
+- Control Registers （控制寄存器）
+
+- Debug Registers （调试寄存器）
+
+- Test Registers （测试寄存器）
+
 系统标志寄存器：
 
 - 0，CF，进位标识，Carry Flag。用来反应运算是否产生了进位或者借位，如果运算的最高位产生了进位或借位，CF = 1，否则为 0 
@@ -39,9 +49,20 @@ flag 的 1、3、5、12、13、14、15 位在 80X86 CPU 中没有使用，不具
 
 80X86 提供了 4 个内存管理寄存器：
 
-- GDTR
-- LDTR
-- IDTR
-- TR
+- GDTR，Global Descriptor Table Register ，全局描述表寄存器，16 位的表长度 + 32 / 64 线性基址
+  - 保存 Global Descriptor Table 的基址，32 / 64 bit 位
+  - 保存 Table Limit 表限制，16 bit 位
+  - 在后面出现的系统指令中，LGDT —— 加载全局描述符表寄存器 (Load GDT Register)
+  - SGDT —— 存储全局描述符表寄存器 (Store GDT Register)
+- IDTR，Interrupt Descriptor Table Register，中断描述表寄存器
+- LDTR，Local Descriptor Table Register，
+- TR，Task Register
+
+这几个寄存器用来保护，所以又称保护寄存器
 
 page 83
+
+## 参考资料
+
+- Linux 内存地址映射，https://lrita.github.io/images/posts/memory/Linux_Memory_Address_Mapping.pdf
+- Intel 80386 程序员参考手册，https://wizardforcel.gitbooks.io/intel-80386-ref-manual/content/index.html
