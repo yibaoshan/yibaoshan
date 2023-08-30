@@ -26,3 +26,4 @@ Dalvik 之所以要被 ART 替代包含下面几个原因：
 ## 参考资料
 
 - [Android运行时ART简要介绍和学习计划](https://blog.csdn.net/Luoshengyang/article/details/39256813)
+- [ART 在 Android 安全攻防中的应用](https://evilpan.com/2021/12/26/art-internal/#java-vm)
