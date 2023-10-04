@@ -1,4 +1,5 @@
 
+
 ## 前言
 
 标题有点唬人，汇编语言，听着好像离应用开发工程师有点遥远。
@@ -44,9 +45,17 @@
 
 地址总线、数据总线、控制总线
 
-## 8086的寄存器
+## 8086的寄存器（方法是如何执行的）
 
-## CPU 提供的栈机制
+先来学两个简单的汇编指令
+
+```
+mov 
+```
+
+SP 的内容不需要我们管，在代码编译阶段，编译器会帮助我们处理好。
+
+## CPU 提供的栈机制（栈和栈帧）
 
 ## jvm 虚拟机和 OS
 
@@ -62,4 +71,6 @@ https://book.douban.com/annotation/23343580/
 https://cloud.tencent.com/developer/article/1657345
 https://www.wanandroid.com/wenda/show/13383
 https://www.zhihu.com/question/266211661
-https://book.douban.com/subject/25726019//
+https://book.douban.com/subject/25726019/
+https://zhuanlan.zhihu.com/p/77663680
+https://gitbook.coder.cat/function-call-principle/content/function-stack-frame.html
