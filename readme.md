@@ -9,8 +9,6 @@ Hi 我是易保山，是一名 Android 开发，本仓库主要用于记录我�
 
 正在搭建中...
 
-语雀思维导图链接：https://www.yuque.com/u25185672/android/ozay8mxy2zg221fa
-
 ## 二、技术文章导航
 
 ### Android 图形系统
