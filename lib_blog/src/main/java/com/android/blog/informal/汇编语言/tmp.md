@@ -1,10 +1,15 @@
 
+其实我很早之前就看完了，一直懒得写文章。原本打算十一假期写的，也搁置了
+
+1. datasheet
+2. 电路设计
+3. 程序仿真
 
 ## 前言
 
-标题有点唬人，汇编语言，听着好像离应用开发工程师有点遥远。
+先来交代一下这本书的背景，王爽老师的《汇编语言》是基于 Intel 80X86 CPU 编著的
 
-王爽老师的《汇编语言》是基于 Intel 80X86 CPU 编著的，
+80X86 CPU 是怎么工作的？
 
 我看这本书的目的并不是为了学习汇编语言，只是想搞懂一个问题：在硬件侧，CPU 提供了哪些能力给应用程序使用？
 
@@ -35,7 +40,9 @@
 
 这些是结论，是 虚拟化 技术能做那些事情，不能做哪些事情，我们当然不能说它写错了。但是，对于新接触的一个名词，我更希望去了解这项技术的来龙去脉，是怎么一步一步发展成现在这个样子的。
 
-我想了解原理，即使以我当前的知识储备看不懂，
+## CPU 是如何运行的
+
+最小执行单元：取指（指令 + 操作数） -> 解析 -> 执行
 
 ## 贯穿全文的基础知识
 
@@ -74,3 +81,27 @@ https://www.zhihu.com/question/266211661
 https://book.douban.com/subject/25726019/
 https://zhuanlan.zhihu.com/p/77663680
 https://gitbook.coder.cat/function-call-principle/content/function-stack-frame.html
+https://www.0xffffff.org/2013/10/22/21-x86-asm-1/
+
+https://www.reddit.com/r/linux/comments/cbd9h/linux_or_bsd_and_similar_for_intel_8086/?rdt=45146
+https://elks.sourceforge.net/download.html
+
+Intel 8086仿真模拟器
+https://github.com/ZubinGou/8086-emulator
+
+Online 8086 EMULATOR
+https://yjdoc2.github.io/8086-emulator-web/
+
+在线汇编
+https://www.eecso.com/test/asm/
+
+在线汇编语言第四版 PDF 
+https://pdf.wenjie.store/pdf/%E7%B3%BB%E7%BB%9F/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80_%E7%AC%AC%E5%9B%9B%E7%89%88%20.pdf
+
+MAC下安装汇编环境的2种方式
+https://wenjie.store/archives/mac-xia-an-zhuang-hui-bian-huan-jing-de-2-zhong-fang-shi
+
+《汇编语言（第二版王爽）》读书笔记
+https://bbs.kanxue.com/thread-154158.htm
+http://8.129.108.223/post/book-notes/020-Assembly-Language/p1-p3/
+http://www.luzexi.com/2020/10/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B012
