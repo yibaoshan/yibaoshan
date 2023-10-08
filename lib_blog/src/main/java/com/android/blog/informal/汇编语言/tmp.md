@@ -105,3 +105,12 @@ https://wenjie.store/archives/mac-xia-an-zhuang-hui-bian-huan-jing-de-2-zhong-fa
 https://bbs.kanxue.com/thread-154158.htm
 http://8.129.108.223/post/book-notes/020-Assembly-Language/p1-p3/
 http://www.luzexi.com/2020/10/18/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B012
+
+维基百科
+https://zh.wikipedia.org/wiki/Intel_8086
+
+8086 datasheet
+https://www.inf.pucrs.br/~calazans/undergrad/orgcomp_EC/mat_microproc/intel-8086_datasheet.pdf
+
+80386与8086区别以及保护模式
+https://www.cnblogs.com/xuehongyang/p/5457413.html
