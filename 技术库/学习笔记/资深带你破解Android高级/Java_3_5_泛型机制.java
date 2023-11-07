@@ -3,9 +3,7 @@ package com.android.notebook.学习笔记.资深带你破解Android高级;
 import java.util.ArrayList;
 
 /**
- * author :Bob.
  * date : 2020/10/28
- * desc :
  */
 public class Java_3_5_泛型机制 {
 

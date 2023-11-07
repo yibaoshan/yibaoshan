@@ -1,9 +1,7 @@
 package com.android.notebook.学习笔记.资深带你破解Android高级;
 
 /**
- * author :Bob.
  * date : 2020/10/29
- * desc :
  */
 class Java_4_1_如何停止一个线程 {
 

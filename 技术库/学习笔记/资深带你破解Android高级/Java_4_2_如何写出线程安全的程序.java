@@ -1,9 +1,7 @@
 package com.android.notebook.学习笔记.资深带你破解Android高级;
 
 /**
- * author :Bob.
  * date : 2020/10/30
- * desc :
  */
 public class Java_4_2_如何写出线程安全的程序 {
 

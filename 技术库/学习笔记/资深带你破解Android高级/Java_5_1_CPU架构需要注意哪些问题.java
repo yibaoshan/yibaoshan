@@ -1,9 +1,7 @@
 package com.android.notebook.学习笔记.资深带你破解Android高级;
 
 /**
- * author :Bob.
  * date : 2020/11/2
- * desc :
  */
 class Java_5_1_CPU架构需要注意哪些问题 {
 
