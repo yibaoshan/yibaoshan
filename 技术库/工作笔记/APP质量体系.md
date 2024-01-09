@@ -4,7 +4,7 @@
 目前海外的 Android 应用
 
 - 稳定性监控（崩溃和无响应），依赖的是 Google Firebase 的 Crashlytics。
-- 性能监控（启动时长、FPS、网络等），依赖的是 Firebase 的 Perfromance。
+- 性能监控（启动时长、FPS、网络等），依赖的是 Firebase 的 Performance。
 
 以上两种监控方案都无法覆盖应用功能的可用性监测，比如最近一次事故， Android 13 版本无法进行选择图片，影响到注册、聊天和视频功能的正常使用。
 
