@@ -50,6 +50,13 @@ android {
         jvmTarget = '1.8'
     }
 
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+        }
+    }
+    ndkVersion '20.0.5594570'
+
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/NOTICE'

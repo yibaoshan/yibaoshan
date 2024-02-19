@@ -10,7 +10,7 @@
             android:supportsRtl="true"
             android:largeHeap="true"
             android:theme="@style/Theme.AppCompat">
-        <activity android:name=".ui.recyclerview.SwipeCardActivity">
+        <activity android:name=".JNIActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
