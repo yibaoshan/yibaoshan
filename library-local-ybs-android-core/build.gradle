@@ -1,0 +1,40 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+
+    namespace 'cn.ybs.core'
+    compileSdk COMPILE_SDK_VERSION.toInteger()
+
+    defaultConfig {
+        minSdk MIN_SDK_VERSION.toInteger()
+
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+
+    /*底层核心库*/
+
+    api "androidx.core:core-ktx:$ANDROIDX_CORE"
+    api "androidx.appcompat:appcompat:$ANDROIDX_APPCOMPAT"
+    api "com.google.android.material:material:$GOOGLE_MATERIAL"
+
+}

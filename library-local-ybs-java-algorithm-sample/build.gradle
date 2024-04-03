@@ -9,6 +9,6 @@ java {
 }
 
 dependencies {
-    implementation "junit:junit:$junit_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "junit:junit:$JUNIT_VERSION"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
 }
