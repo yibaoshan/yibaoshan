@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'cn.ybs.video.slide'
+    compileSdk COMPILE_SDK_VERSION.toInteger()
+
+    defaultConfig {
+        applicationId "cn.ybs.video.slide"
+        minSdk MIN_SDK_VERSION.toInteger()
+        targetSdk TARGET_SDK_VERSION.toInteger()
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    viewBinding {
+        enabled = true
+    }
+}
+
+dependencies {
+
+//    implementation "com.github.carguo.GSYvideoplayer:gsyVideoPlayer-java:$GSYVIDEOPLAYER"
+//    implementation "com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer-exo2:$GSYVIDEOPLAYER"
+//    implementation "com.github.CarGuo.GSYVideoPlayer:gsyVideoPlayer-arm64:${GSYVIDEOPLAYER}"
+//    implementation "com.github.CarGuo.GSYVideoPlayer:gsyVideoPlayer-armv7a:${GSYVIDEOPLAYER}"
+
+    implementation project(path: ':library-local-ybs-android-core')
+
+}
