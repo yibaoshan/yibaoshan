@@ -37,10 +37,10 @@ android {
 
 dependencies {
 
-//    implementation "com.github.carguo.GSYvideoplayer:gsyVideoPlayer-java:$GSYVIDEOPLAYER"
-//    implementation "com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer-exo2:$GSYVIDEOPLAYER"
-//    implementation "com.github.CarGuo.GSYVideoPlayer:gsyVideoPlayer-arm64:${GSYVIDEOPLAYER}"
-//    implementation "com.github.CarGuo.GSYVideoPlayer:gsyVideoPlayer-armv7a:${GSYVIDEOPLAYER}"
+    implementation "com.github.carguo.GSYvideoplayer:gsyVideoPlayer-java:$GSYVIDEOPLAYER"
+    implementation "com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer-exo2:$GSYVIDEOPLAYER"
+    implementation "com.github.CarGuo.GSYVideoPlayer:gsyVideoPlayer-arm64:${GSYVIDEOPLAYER}"
+    implementation "com.github.CarGuo.GSYVideoPlayer:gsyVideoPlayer-armv7a:${GSYVIDEOPLAYER}"
 
     implementation project(path: ':library-local-ybs-android-core')
 

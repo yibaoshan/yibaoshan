@@ -6,69 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Playing View -->
-    <LinearLayout
-        android:id="@+id/playingView"
+    <cn.ybs.video.slide.viewpager.VerticalViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/holo_blue_light"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_behavior=".SlideBehavior">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="Playing View"
-            android:textSize="24sp" />
-
-    </LinearLayout>
-
-    <!-- Matching View -->
-    <LinearLayout
-        android:id="@+id/matchingView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@android:color/holo_green_light"
-        android:gravity="center">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="Matching View"
-            android:textSize="24sp" />
-
-    </LinearLayout>
-
-    <!-- NestedScrollView -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <!-- Your scrollable content here -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:text="Scrollable Content"
-                android:textSize="24sp" />
-
-            <!-- Add more content if needed -->
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
+        android:layout_height="match_parent" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

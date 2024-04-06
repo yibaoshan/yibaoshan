@@ -23,17 +23,13 @@ abstract class BaseViewBindingActivity<VB : ViewBinding> : BaseAppCompatActivity
         val inflate = getTClass<VB>(javaClass).getDeclaredMethod("inflate", LayoutInflater::class.java)
         _binding = inflate.invoke(null, LayoutInflater.from(this)) as VB
         setContentView(requireNotNull(_binding).root)
-    }
-
-    override fun requestInterceptInitViewsAfterCreate(): Boolean {
         initViewsAfterCreate()
-        return true
+        initComponentsAfterCreate()
     }
 
-    override fun requestInterceptInitComponentsAfterCreate(): Boolean {
-        initComponentsAfterCreate()
-        return true
-    }
+    override fun requestInterceptInitViewsAfterCreate(): Boolean = true
+
+    override fun requestInterceptInitComponentsAfterCreate(): Boolean = true
 
     override fun onDestroy() {
         super.onDestroy()
