@@ -1,6 +1,7 @@
-include ':application-android-blog-sample'
-include ':library-local-ybs-java-algorithm-sample'
-include ':app'
 rootProject.name = "yibaoshan"
-include ':library-local-ybs-android-core'
+include ':app'
+include ':application-android-blog-sample'
 include ':application-android-ui-video-slide-sample'
+include ':library-local-ybs-android-core'
+include ':library-local-ybs-c-study-sample'
+include ':library-local-ybs-java-algorithm-sample'
