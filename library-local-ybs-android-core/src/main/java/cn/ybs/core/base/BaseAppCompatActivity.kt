@@ -1,10 +1,12 @@
 package cn.ybs.core.base
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import cn.ybs.core.base.interfaces.IInitComponents
+import cn.ybs.core.base.interfaces.IInitData
 import cn.ybs.core.base.interfaces.IInitView
 
 /**
@@ -12,7 +14,7 @@ import cn.ybs.core.base.interfaces.IInitView
  *  e-mail : yibaoshan@foxmail.com
  *  time   : 2024/04/03
  */
-abstract class BaseAppCompatActivity : AppCompatActivity(), IInitView, IInitComponents {
+abstract class BaseAppCompatActivity : AppCompatActivity(), IInitView, IInitComponents, IInitData {
 
     // 记录 Activity 是否暂停
     private var _isPaused: Boolean = false
@@ -28,11 +30,26 @@ abstract class BaseAppCompatActivity : AppCompatActivity(), IInitView, IInitComp
         if (!requestInterceptInitComponentsAfterCreate()) {
             initComponentsAfterCreate()
         }
+        if (!requestInterceptInitIntentBeforeViewCreate()) {
+            initIntentBeforeViewCreate(intent)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!requestInterceptInitIntentAfterViewCreated()) {
+            initIntentAfterViewCreated(intent)
+        }
     }
 
     override fun onResume() {
         super.onResume()
         _isPaused = false
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent != null) initIntentAfterViewCreated(intent)
     }
 
     override fun onPause() {
@@ -68,6 +85,8 @@ abstract class BaseAppCompatActivity : AppCompatActivity(), IInitView, IInitComp
      * 子类是否请求自行调用初始化组件函数
      * */
     protected open fun requestInterceptInitComponentsAfterCreate(): Boolean = false
+    protected open fun requestInterceptInitIntentBeforeViewCreate(): Boolean = false
+    protected open fun requestInterceptInitIntentAfterViewCreated(): Boolean = false
 
 
 }

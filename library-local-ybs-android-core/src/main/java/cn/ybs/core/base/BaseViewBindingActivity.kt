@@ -25,11 +25,14 @@ abstract class BaseViewBindingActivity<VB : ViewBinding> : BaseAppCompatActivity
         setContentView(requireNotNull(_binding).root)
         initViewsAfterCreate()
         initComponentsAfterCreate()
+        initIntentAfterViewCreated(intent)
     }
 
     override fun requestInterceptInitViewsAfterCreate(): Boolean = true
 
     override fun requestInterceptInitComponentsAfterCreate(): Boolean = true
+
+    override fun requestInterceptInitIntentAfterViewCreated(): Boolean = true
 
     override fun onDestroy() {
         super.onDestroy()
