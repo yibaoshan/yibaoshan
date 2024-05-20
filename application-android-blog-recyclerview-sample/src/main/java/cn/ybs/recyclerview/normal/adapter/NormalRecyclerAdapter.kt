@@ -18,21 +18,25 @@ import cn.ybs.recyclerview.normal.viewholder.NormalRecyclerTextViewHolder
  */
 class NormalRecyclerAdapter(data: MutableList<NormalEntity>) : BaseAdapter<NormalEntity, BaseViewHolder>(data) {
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): BaseViewHolder {
-        return when (data[position].type) {
-            NormalEntityType.TEXT -> NormalRecyclerTextViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.item_normal_recycler_view_text, viewGroup, false))
-            NormalEntityType.IMAGE -> NormalRecyclerImageViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.item_normal_recycler_view_image, viewGroup, false))
+    override fun onCreateViewHolder(viewGroup: ViewGroup, type: Int): BaseViewHolder {
+        return when (type) {
+            NormalEntityType.TEXT.ordinal -> NormalRecyclerTextViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.item_normal_recycler_view_text, viewGroup, false))
+            NormalEntityType.IMAGE.ordinal -> NormalRecyclerImageViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.item_normal_recycler_view_image, viewGroup, false))
+            NormalEntityType.TEXT_FLEXBOX.ordinal -> NormalRecyclerTextViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.item_normal_recycler_view_flexbox_text, viewGroup, false))
+            else -> throw IllegalArgumentException("type is not supported")
         }
     }
 
     override fun getItemCount(): Int = data.size
 
+    override fun getItemViewType(position: Int): Int {
+        return data[position].type.ordinal
+    }
+
     override fun onBindViewHolder(vh: BaseViewHolder, position: Int) {
         val cur = data[position]
-        when (cur.type) {
-            NormalEntityType.TEXT -> (vh as NormalRecyclerTextViewHolder).bindData(cur.text!!)
-            NormalEntityType.IMAGE -> (vh as NormalRecyclerImageViewHolder).bindData(cur.resId!!)
-        }
+        if (vh is NormalRecyclerTextViewHolder) vh.bindData(cur.text!!)
+        else if (vh is NormalRecyclerImageViewHolder) vh.bindData(cur.resId!!)
     }
 
 }

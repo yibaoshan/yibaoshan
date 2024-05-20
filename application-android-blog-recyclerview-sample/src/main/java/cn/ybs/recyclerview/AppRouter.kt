@@ -25,6 +25,18 @@ object AppRouter {
         startNormalRecyclerViewActivity(context, Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_MULTI)
     }
 
+    fun startTextVerticalGridLayoutNormalRecyclerViewActivity(context: Context) {
+        startNormalRecyclerViewActivity(context, Intents.INTENT_VALUE_VERTICAL_GRID_LAYOUT_TEXT)
+    }
+
+    fun startMultiTypeVerticalStaggeredGridLayoutNormalRecyclerViewActivity(context: Context) {
+        startNormalRecyclerViewActivity(context, Intents.INTENT_VALUE_VERTICAL_STAGGERED_LAYOUT_TEXT)
+    }
+
+    fun startTextVerticalFlexboxLayoutNormalRecyclerViewActivity(context: Context) {
+        startNormalRecyclerViewActivity(context, Intents.INTENT_VALUE_VERTICAL_FLEXBOX_LAYOUT_TEXT)
+    }
+
     private fun startNormalRecyclerViewActivity(context: Context, type: String) {
         val intent = Intent(context, NormalRecyclerViewActivity::class.java)
         intent.putExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE, type)

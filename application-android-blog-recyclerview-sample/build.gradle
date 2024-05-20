@@ -48,5 +48,8 @@ android {
 
 dependencies {
 
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
     implementation project(path: ':library-local-ybs-android-core')
+
 }

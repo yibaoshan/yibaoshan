@@ -13,9 +13,13 @@ class NormalEntity {
     companion object {
 
         fun createForText(text: String): NormalEntity {
+            return createForText(text, NormalEntityType.TEXT)
+        }
+
+        fun createForText(text: String, type: NormalEntityType): NormalEntity {
             val ret = NormalEntity()
             ret.text = text
-            ret.type = NormalEntityType.TEXT
+            ret.type = type
             return ret
         }
 
@@ -33,6 +37,7 @@ class NormalEntity {
 enum class NormalEntityType {
 
     TEXT,
+    TEXT_FLEXBOX,
     IMAGE
 
 }
