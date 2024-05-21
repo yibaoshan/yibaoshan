@@ -18,6 +18,7 @@ import cn.ybs.recyclerview.normal.viewholder.NormalRecyclerTextViewHolder
  */
 class NormalRecyclerAdapter(data: MutableList<NormalEntity>) : BaseAdapter<NormalEntity, BaseViewHolder>(data) {
 
+    // step 3,
     override fun onCreateViewHolder(viewGroup: ViewGroup, type: Int): BaseViewHolder {
         return when (type) {
             NormalEntityType.TEXT.ordinal -> NormalRecyclerTextViewHolder(LayoutInflater.from(viewGroup.context).inflate(R.layout.item_normal_recycler_view_text, viewGroup, false))
@@ -27,8 +28,10 @@ class NormalRecyclerAdapter(data: MutableList<NormalEntity>) : BaseAdapter<Norma
         }
     }
 
-    override fun getItemCount(): Int = data.size
+    // step 1, call this method get itemCount
+    override fun getItemCount(): Int = data.size * 10
 
+    // step 2, call this method get itemViewType
     override fun getItemViewType(position: Int): Int {
         return data[position].type.ordinal
     }

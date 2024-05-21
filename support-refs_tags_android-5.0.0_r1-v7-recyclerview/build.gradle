@@ -1,0 +1,27 @@
+plugins {
+    id 'com.android.library'
+}
+
+
+android {
+
+    namespace 'support.recyclerview.v1'
+    compileSdk COMPILE_SDK_VERSION.toInteger()
+
+    defaultConfig {
+        minSdk MIN_SDK_VERSION.toInteger()
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+
+}
+
+dependencies {
+
+    testImplementation 'junit:junit:4.12'
+    implementation("com.android.support:appcompat-v7:21.0.0")
+
+}
