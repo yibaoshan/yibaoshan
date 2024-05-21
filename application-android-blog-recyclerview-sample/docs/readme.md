@@ -42,6 +42,7 @@
 - [2018 年 9 月 21 日，最后一次在 support v7 28.0.0 更新 RecyclerView 库](https://developer.android.com/topic/libraries/support-library/rev-archive?hl=zh-cn#october-2014)
 - [RecyclerView 的第一次提交日志](https://android.googlesource.com/platform/frameworks/support/+/009b4ef9d97e1cc237477e3284fc305bb1438cc9)
 - [RecyclerView 的第一个版本](https://android.googlesource.com/platform/frameworks/support/+/refs/tags/android-5.0.0_r1/v7/recyclerview/)
+- [RecyclerView Support v7 的最后一个版本](https://android.googlesource.com/platform/frameworks/support/+/refs/tags/android-9.0.0_r1/v7/recyclerview/)
 
 
 - [深入理解 RecyclerView 系列之一：ItemDecoration](https://blog.piasy.com/2016/03/26/Insight-Android-RecyclerView-ItemDecoration/index.html)
