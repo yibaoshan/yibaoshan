@@ -33,6 +33,10 @@ class NormalRecyclerAdapter(data: MutableList<NormalEntity>) : BaseAdapter<Norma
         return data[position].type.ordinal
     }
 
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int, payloads: MutableList<Any>) {
+        super.onBindViewHolder(holder, position, payloads)
+    }
+
     override fun onBindViewHolder(vh: BaseViewHolder, position: Int) {
         val cur = data[position]
         if (vh is NormalRecyclerTextViewHolder) vh.bindData(cur.text!!)

@@ -8,6 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
  *  e-mail : yibaoshan@foxmail.com
  *  time   : 2024/05/19
  */
-open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+open class BaseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
 }
