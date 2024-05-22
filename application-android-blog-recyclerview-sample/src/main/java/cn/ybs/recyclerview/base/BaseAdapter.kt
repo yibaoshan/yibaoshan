@@ -2,6 +2,7 @@ package cn.ybs.recyclerview.base
 
 import androidx.recyclerview.widget.RecyclerView
 
+
 /**
  *  author : <a href="https://yibs.space"/>
  *  e-mail : yibaoshan@foxmail.com

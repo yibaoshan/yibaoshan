@@ -5,7 +5,7 @@ plugins {
 
 android {
 
-    namespace 'support.recyclerview.v1'
+    namespace 'android.support.v7.widget'
     compileSdk COMPILE_SDK_VERSION.toInteger()
 
     defaultConfig {

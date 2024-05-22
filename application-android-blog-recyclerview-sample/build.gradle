@@ -51,5 +51,6 @@ dependencies {
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
     implementation project(path: ':library-local-ybs-android-core')
+    implementation project(path: ':support-refs_tags_android-9.0.0_r61-v7-recyclerview')
 
 }
