@@ -1,0 +1,30 @@
+plugins {
+    id 'com.android.library'
+}
+
+
+android {
+
+    namespace 'androidx.recyclerview'
+    compileSdk COMPILE_SDK_VERSION.toInteger()
+
+    defaultConfig {
+        minSdk MIN_SDK_VERSION.toInteger()
+    }
+
+    lintOptions {
+        // TODO: fix errors and reenable.
+        abortOnError false
+    }
+
+}
+
+dependencies {
+
+    testImplementation 'junit:junit:4.12'
+    implementation 'androidx.core:core:1.6.0'
+    implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation("com.android.support:appcompat-v7:28.0.0")
+
+}
