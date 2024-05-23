@@ -1,4 +1,4 @@
-文章大纲，随时更新
+## 文章大纲（随时更新）
 
 1. RecyclerView 是什么？怎么用？
     1. 适用于什么场景？
@@ -32,18 +32,23 @@
     3. 显示不全的问题
     4. 如何做好 RV 的性能优化？
 
-参考资料：
+## 参考资料
 
-官方文档
+官方文档：
 
 - [Maven AndroidX RecyclerView](https://mvnrepository.com/artifact/androidx.recyclerview/recyclerview)
 - [Maven Support V7 RecyclerView](https://mvnrepository.com/artifact/com.android.support/recyclerview-v7)
 - [2014 年 10 月，首次在 support v7 21.0 发布 RecyclerView 库](https://developer.android.com/topic/libraries/support-library/rev-archive?hl=zh-cn#october-2014)
-- [2018 年 9 月 21 日，最后一次在 support v7 28.0.0 更新 RecyclerView 库](https://developer.android.com/topic/libraries/support-library/rev-archive?hl=zh-cn#october-2014)
+- [2018 年 9 月 21 日，最后一次在 support v7 28.0.0 更新 RecyclerView 库](https://developer.android.com/topic/libraries/support-library/revisions?hl=zh-cn#september-21,-2018)
 - [RecyclerView 的第一次提交日志](https://android.googlesource.com/platform/frameworks/support/+/009b4ef9d97e1cc237477e3284fc305bb1438cc9)
 - [RecyclerView 的第一个版本](https://android.googlesource.com/platform/frameworks/support/+/refs/tags/android-5.0.0_r1/v7/recyclerview/)
 - [RecyclerView Support v7 接近最后一个版本](https://android.googlesource.com/platform/frameworks/support/+/refs/tags/android-9.0.0_r61/v7/recyclerview/)
 
+基本使用：
+
+进阶使用：
+
+源码解析：
 
 - [深入理解 RecyclerView 系列之一：ItemDecoration](https://blog.piasy.com/2016/03/26/Insight-Android-RecyclerView-ItemDecoration/index.html)
 - [深入理解 RecyclerView 系列之二：ItemAnimator](https://blog.piasy.com/2016/04/04/Insight-Android-RecyclerView-ItemAnimator/index.html)
