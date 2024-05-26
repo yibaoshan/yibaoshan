@@ -13,13 +13,7 @@ class MainActivity : BaseViewBindingActivity<ActivityMainBinding>() {
 
     override fun initListenersWhenInitViews() {
         val view = viewBinding ?: return
-        view.tvNormalLinearLayoutVerticalTextType.setOnClickListener { AppRouter.startTextVerticalLinearLayoutNormalRecyclerViewActivity(this) }
-        view.tvNormalLinearLayoutVerticalImageType.setOnClickListener { AppRouter.startImageVerticalLinearLayoutNormalRecyclerViewActivity(this) }
-        view.tvNormalLinearLayoutVerticalMultiType.setOnClickListener { AppRouter.startMultiTypeVerticalLinearLayoutNormalRecyclerViewActivity(this) }
-
-        view.tvNormalGridLayoutVerticalTextType.setOnClickListener { AppRouter.startTextVerticalGridLayoutNormalRecyclerViewActivity(this) }
-        view.tvNormalStaggeredGridLayoutVerticalMultiType.setOnClickListener { AppRouter.startMultiTypeVerticalStaggeredGridLayoutNormalRecyclerViewActivity(this) }
-        view.tvNormalFlexboxLayoutVerticalTextType.setOnClickListener { AppRouter.startTextVerticalFlexboxLayoutNormalRecyclerViewActivity(this) }
+        view.tvBasicUsage.setOnClickListener { AppRouter.Basic.startBasicUsageActivity(this) }
     }
 
 }

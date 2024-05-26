@@ -1,4 +1,4 @@
-package cn.ybs.recyclerview.normal
+package cn.ybs.recyclerview.ui.basic
 
 import android.content.Intent
 import androidx.recyclerview.widget.GridLayoutManager
@@ -7,10 +7,10 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import cn.ybs.core.base.BaseViewBindingActivity
 import cn.ybs.recyclerview.R
 import cn.ybs.recyclerview.constans.Intents
-import cn.ybs.recyclerview.databinding.ActivityNormalRecyclerViewBinding
-import cn.ybs.recyclerview.normal.adapter.NormalRecyclerAdapter
-import cn.ybs.recyclerview.normal.entity.NormalEntity
-import cn.ybs.recyclerview.normal.entity.NormalEntityType
+import cn.ybs.recyclerview.databinding.ActivityBasicUsageExampleDetailBinding
+import cn.ybs.recyclerview.ui.basic.adapter.BasicRecyclerAdapter
+import cn.ybs.recyclerview.ui.basic.entity.NormalEntity
+import cn.ybs.recyclerview.ui.basic.entity.NormalEntityType
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import java.lang.StringBuilder
@@ -22,7 +22,7 @@ import java.util.Random
  * time   : 2024/05/19
  * desc   : 基础 RV 演示 demo
  */
-class NormalRecyclerViewActivity : BaseViewBindingActivity<ActivityNormalRecyclerViewBinding>() {
+class BasicExampleOfUsingRecyclerViewDetailActivity : BaseViewBindingActivity<ActivityBasicUsageExampleDetailBinding>() {
 
     override fun initIntentAfterViewCreated(intent: Intent) {
 
@@ -30,32 +30,32 @@ class NormalRecyclerViewActivity : BaseViewBindingActivity<ActivityNormalRecycle
 
         when (intent.getStringExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE)) {
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT -> {
-                recyclerView.adapter = NormalRecyclerAdapter(generateSingleTextData())
+                recyclerView.adapter = BasicRecyclerAdapter(generateSingleTextData())
                 recyclerView.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_IMAGE -> {
-                recyclerView.adapter = NormalRecyclerAdapter(generateSingleImageData())
+                recyclerView.adapter = BasicRecyclerAdapter(generateSingleImageData())
                 recyclerView.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_MULTI -> {
-                recyclerView.adapter = NormalRecyclerAdapter(generateMultiTypeData())
+                recyclerView.adapter = BasicRecyclerAdapter(generateMultiTypeData())
                 recyclerView.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_GRID_LAYOUT_TEXT -> {
-                recyclerView.adapter = NormalRecyclerAdapter(generateSingleTextData())
+                recyclerView.adapter = BasicRecyclerAdapter(generateSingleTextData())
                 recyclerView.layoutManager = GridLayoutManager(this, 2)
             }
 
             Intents.INTENT_VALUE_VERTICAL_STAGGERED_LAYOUT_TEXT -> {
-                recyclerView.adapter = NormalRecyclerAdapter(generateMultiTypeData())
+                recyclerView.adapter = BasicRecyclerAdapter(generateMultiTypeData())
                 recyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             }
 
             Intents.INTENT_VALUE_VERTICAL_FLEXBOX_LAYOUT_TEXT -> {
-                recyclerView.adapter = NormalRecyclerAdapter(generateSingleTextDataForFlexboxLayout())
+                recyclerView.adapter = BasicRecyclerAdapter(generateSingleTextDataForFlexboxLayout())
                 recyclerView.layoutManager = FlexboxLayoutManager(this, FlexDirection.ROW)
             }
         }

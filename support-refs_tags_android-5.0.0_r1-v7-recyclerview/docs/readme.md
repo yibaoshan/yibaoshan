@@ -1,17 +1,39 @@
-## RecyclerView 类结构
+# RecyclerView 类结构
 
-### Interface
+## Interface
 
-### Abstract
+- OnItemTouchListener
+    - 提供给外部的接口，用于拦截处理 RecyclerView 的触摸事件，拦截后，RecyclerView 会将事件传递给该监听器。
+    - boolean onInterceptTouchEvent(rv, e)，要求返回布尔值，是否要消费触摸事件。
+    - void onTouchEvent(rv, e)，如果上一步返回 true，则该函数会收到事件调用。
+    - 用途：item 的点击事件、长按事件；item 的侧滑菜单实现。
+- RecyclerListener
 
+## Abstract
+
+- ViewCacheExtension
+- Adapter
+- LayoutManager
+- ItemDecoration
+- OnScrollListener
+- ViewHolder
 - AdapterDataObserver
+- SmoothScroller
+- ItemAnimator
 
-### Private Class
+## Private Class
 
-### Public Class
+- ViewFlinger
+    - 滚动行为的核心组件，当用户快速滑动 RecyclerView 时，ViewFlinger 会计算出剩余的滚动距离并应用适当的动画，使得滚动可以逐渐减速至停止，这个过程也被称为“fling”动作。
+- RecyclerViewDataObserver
+- ItemAnimatorRestoreListener
+- ItemHolderInfo
 
-private class
+## Public Class
 
-- ViewFlinger，滚动行为的核心组件，当用户快速滑动 RecyclerView 时，ViewFlinger 会计算出剩余的滚动距离并应用适当的动画，使得滚动可以逐渐减速至停止，这个过程也被称为“fling”动作。
-- abstract AdapterDataObserver
-- LayoutManager，负责确定 RecyclerView 的布局，包括确定每个 View 的位置和大小，以及确定 RecyclerView 的大小。
+- RecycledViewPool
+- Recycler
+- LayoutParams
+- AdapterDataObservable
+- SavedState
+- State

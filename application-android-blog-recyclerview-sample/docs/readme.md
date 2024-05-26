@@ -46,10 +46,25 @@
 
 基本使用：
 
+- [Using the RecyclerView](https://guides.codepath.com/android/using-the-recyclerview)
+
 进阶使用：
 
 源码解析：
 
 - [深入理解 RecyclerView 系列之一：ItemDecoration](https://blog.piasy.com/2016/03/26/Insight-Android-RecyclerView-ItemDecoration/index.html)
 - [深入理解 RecyclerView 系列之二：ItemAnimator](https://blog.piasy.com/2016/04/04/Insight-Android-RecyclerView-ItemAnimator/index.html)
-- YasuoRecyclerViewAdapter,https://juejin.cn/post/6926784485623087117,https://github.com/q876625596/YasuoRecyclerViewAdapter
+
+三方库：
+
+- [YasuoRecyclerViewAdapter](https://github.com/q876625596/YasuoRecyclerViewAdapter)
+- [SwipeRecyclerView - 严振杰](https://github.com/yanzhenjie/SwipeRecyclerView)
+
+自定义：
+
+- [万字长文解析侧滑菜单的俩种实现原理 - yuanhao](https://juejin.cn/post/7114557569561001992)
+- [跨Item文字选择的RecyclerView - ekibook](https://ekibun.github.io/ekibook/2020/05/17/selectablerecyclerview/)
+- [总结一下RecyclerView侧滑菜单的两种实现 - giswangsj](https://juejin.cn/post/6997013239926095880)
+- [Android RecyclerView实现侧滑删除 - IT徐师兄](https://blog.csdn.net/yujun2023/article/details/130787198)
+- [RecyclerView 侧滑菜单，可轻松自定义菜单动画和样式 - aitsuki](https://www.wanandroid.com/blog/show/3151)
+- [Android 侧滑菜单的实现思考 - 徐永红](https://xuyonghong.cn/2021/11/25/Android-SwipeMenuLayout-Ponder/)

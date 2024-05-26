@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
             android:layout_marginTop="34dp"
-            android:text="LinearLayout 线性布局"
+            android:text="使用方式"
             android:textColor="@color/purple_500"
             android:textSize="16sp" />
 
@@ -27,124 +27,12 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_normal_linear_layout_vertical_text_type"
+                android:id="@+id/tv_basic_usage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
-                android:text="文本类型"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:drawableEndCompat="@drawable/ic_common_arrow_right" />
-
-            <TextView
-                android:id="@+id/tv_normal_linear_layout_vertical_image_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp"
-                android:text="图片类型"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:drawableEndCompat="@drawable/ic_common_arrow_right" />
-
-            <TextView
-                android:id="@+id/tv_normal_linear_layout_vertical_multi_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp"
-                android:text="多类型"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:drawableEndCompat="@drawable/ic_common_arrow_right" />
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginTop="34dp"
-            android:text="GridLayout 网格布局"
-            android:textColor="@color/purple_500"
-            android:textSize="16sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_shape_setting_item_background"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_normal_grid_layout_vertical_text_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp"
-                android:text="文本类型"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:drawableEndCompat="@drawable/ic_common_arrow_right" />
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginTop="34dp"
-            android:text="StaggeredGridLayout 交错（瀑布流）布局"
-            android:textColor="@color/purple_500"
-            android:textSize="16sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_shape_setting_item_background"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_normal_staggered_grid_layout_vertical_multi_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp"
-                android:text="多类型"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:drawableEndCompat="@drawable/ic_common_arrow_right" />
-
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="32dp"
-            android:layout_marginTop="34dp"
-            android:text="FlexboxLayout 盒子布局"
-            android:textColor="@color/purple_500"
-            android:textSize="16sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_shape_setting_item_background"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_normal_flexbox_layout_vertical_text_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="14dp"
-                android:text="文本类型"
+                android:text="基本使用"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:drawableEndCompat="@drawable/ic_common_arrow_right" />

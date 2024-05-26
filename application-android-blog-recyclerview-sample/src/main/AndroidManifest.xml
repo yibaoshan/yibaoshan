@@ -11,6 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Yibaoshan"
         tools:replace="android:appComponentFactory">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -22,7 +23,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".normal.NormalRecyclerViewActivity" />
+        <activity android:name=".ui.basic.BasicExampleOfUsingRecyclerViewGuideActivity" />
+        <activity android:name=".ui.basic.BasicExampleOfUsingRecyclerViewDetailActivity" />
 
     </application>
 
