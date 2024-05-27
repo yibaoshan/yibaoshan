@@ -16,7 +16,7 @@ import cn.ybs.recyclerview.ui.basic.viewholder.BasicRecyclerTextViewHolder
  * time   : 2024/05/19
  * desc   : RV 的数据适配器，控制使用何种 ViewHolder 来显示数据
  */
-class BasicRecyclerAdapter(data: MutableList<NormalEntity>) : BaseAdapter<NormalEntity, BaseViewHolder>(data) {
+open class BasicRecyclerAdapter(data: MutableList<NormalEntity>) : BaseAdapter<NormalEntity, BaseViewHolder>(data) {
 
     // step 3,
     override fun onCreateViewHolder(viewGroup: ViewGroup, type: Int): BaseViewHolder {

@@ -11,9 +11,10 @@ import cn.ybs.recyclerview.databinding.ActivityMainBinding
  */
 class MainActivity : BaseViewBindingActivity<ActivityMainBinding>() {
 
-    override fun initListenersWhenInitViews() {
+    override fun initListenersAfterViewCreated() {
         val view = viewBinding ?: return
         view.tvBasicUsage.setOnClickListener { AppRouter.Basic.startBasicUsageActivity(this) }
+        view.tvCustomItemClick.setOnClickListener { AppRouter.ItemClick.startItemClicksGuideActivity(this) }
     }
 
 }

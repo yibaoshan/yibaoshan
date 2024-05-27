@@ -22,7 +22,9 @@ import java.util.Random
  * time   : 2024/05/19
  * desc   : 基础 RV 演示 demo
  */
-class BasicExampleOfUsingRecyclerViewDetailActivity : BaseViewBindingActivity<ActivityBasicUsageExampleDetailBinding>() {
+open class BasicExampleOfUsingRecyclerViewDetailActivity : BaseViewBindingActivity<ActivityBasicUsageExampleDetailBinding>() {
+
+    protected var listCache: MutableList<NormalEntity> = mutableListOf()
 
     override fun initIntentAfterViewCreated(intent: Intent) {
 
@@ -30,32 +32,38 @@ class BasicExampleOfUsingRecyclerViewDetailActivity : BaseViewBindingActivity<Ac
 
         when (intent.getStringExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE)) {
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT -> {
-                recyclerView.adapter = BasicRecyclerAdapter(generateSingleTextData())
+                listCache = generateSingleTextData()
+                recyclerView.adapter = BasicRecyclerAdapter(listCache)
                 recyclerView.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_IMAGE -> {
-                recyclerView.adapter = BasicRecyclerAdapter(generateSingleImageData())
+                listCache = generateSingleImageData()
+                recyclerView.adapter = BasicRecyclerAdapter(listCache)
                 recyclerView.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_MULTI -> {
-                recyclerView.adapter = BasicRecyclerAdapter(generateMultiTypeData())
+                listCache = generateMultiTypeData()
+                recyclerView.adapter = BasicRecyclerAdapter(listCache)
                 recyclerView.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_GRID_LAYOUT_TEXT -> {
-                recyclerView.adapter = BasicRecyclerAdapter(generateSingleTextData())
+                listCache = generateSingleTextData()
+                recyclerView.adapter = BasicRecyclerAdapter(listCache)
                 recyclerView.layoutManager = GridLayoutManager(this, 2)
             }
 
             Intents.INTENT_VALUE_VERTICAL_STAGGERED_LAYOUT_TEXT -> {
-                recyclerView.adapter = BasicRecyclerAdapter(generateMultiTypeData())
+                listCache = generateMultiTypeData()
+                recyclerView.adapter = BasicRecyclerAdapter(listCache)
                 recyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             }
 
             Intents.INTENT_VALUE_VERTICAL_FLEXBOX_LAYOUT_TEXT -> {
-                recyclerView.adapter = BasicRecyclerAdapter(generateSingleTextDataForFlexboxLayout())
+                listCache = generateSingleTextDataForFlexboxLayout()
+                recyclerView.adapter = BasicRecyclerAdapter(listCache)
                 recyclerView.layoutManager = FlexboxLayoutManager(this, FlexDirection.ROW)
             }
         }

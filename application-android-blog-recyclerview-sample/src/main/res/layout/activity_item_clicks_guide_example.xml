@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
             android:layout_marginTop="34dp"
-            android:text="使用方式"
+            android:text="Item 的点击与长按"
             android:textColor="@color/purple_500"
             android:textSize="16sp" />
 
@@ -27,23 +27,23 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_basic_usage"
+                android:id="@+id/tv_item_clicks_touch_listener"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
-                android:text="基本使用"
+                android:text="基于 ItemTouchListener 实现"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:drawableEndCompat="@drawable/ic_common_arrow_right" />
 
             <TextView
-                android:id="@+id/tv_custom_item_click"
+                android:id="@+id/tv_item_clicks_click_listener"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="14dp"
-                android:text="Item 的点击与长按"
+                android:text="基于 View#OnClickListener 实现"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:drawableEndCompat="@drawable/ic_common_arrow_right" />

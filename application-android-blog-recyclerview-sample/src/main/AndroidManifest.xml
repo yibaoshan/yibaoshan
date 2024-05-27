@@ -23,8 +23,14 @@
             </intent-filter>
         </activity>
 
+        <!--基本的使用方式示例-->
         <activity android:name=".ui.basic.BasicExampleOfUsingRecyclerViewGuideActivity" />
         <activity android:name=".ui.basic.BasicExampleOfUsingRecyclerViewDetailActivity" />
+
+        <!--设置 item 的点击与长按事件-->
+        <activity android:name=".ui.click.ItemClicksGuideExampleActivity" />
+        <activity android:name=".ui.click.ItemClicksBaseClickListenerActivity" />
+        <activity android:name=".ui.click.ItemClicksBaseItemTouchListenerActivity" />
 
     </application>
 

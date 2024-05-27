@@ -54,6 +54,7 @@
 
 - [深入理解 RecyclerView 系列之一：ItemDecoration](https://blog.piasy.com/2016/03/26/Insight-Android-RecyclerView-ItemDecoration/index.html)
 - [深入理解 RecyclerView 系列之二：ItemAnimator](https://blog.piasy.com/2016/04/04/Insight-Android-RecyclerView-ItemAnimator/index.html)
+- [RecyclerView.OnItemTouchListener的用法](https://www.sunmoonblog.com/2017/02/24/rv-on-item-touch-listener/)
 
 三方库：
 

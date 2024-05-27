@@ -10,9 +10,9 @@ import cn.ybs.recyclerview.databinding.ActivityBasicUsageExampleGuideBinding
  * time   : 2024/05/19
  * desc   : RV 基础使用导航页
  */
-class BasicExampleOfUsingRecyclerViewGuideActivity : BaseViewBindingActivity<ActivityBasicUsageExampleGuideBinding>() {
+open class BasicExampleOfUsingRecyclerViewGuideActivity : BaseViewBindingActivity<ActivityBasicUsageExampleGuideBinding>() {
 
-    override fun initListenersWhenInitViews() {
+    override fun initListenersAfterViewCreated() {
         val view = viewBinding ?: return
         view.tvNormalLinearLayoutVerticalTextType.setOnClickListener { AppRouter.Basic.startTextVerticalLinearLayoutRecyclerViewActivity(this) }
         view.tvNormalLinearLayoutVerticalImageType.setOnClickListener { AppRouter.Basic.startImageVerticalLinearLayoutRecyclerViewActivity(this) }

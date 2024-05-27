@@ -23,7 +23,7 @@ abstract class BaseViewBindingActivity<VB : ViewBinding> : BaseAppCompatActivity
         val inflate = getTClass<VB>(javaClass).getDeclaredMethod("inflate", LayoutInflater::class.java)
         _binding = inflate.invoke(null, LayoutInflater.from(this)) as VB
         setContentView(requireNotNull(_binding).root)
-        initViewsAfterCreate()
+        initViewsAfterViewCreated()
         initComponentsAfterCreate()
         initIntentAfterViewCreated(intent)
     }

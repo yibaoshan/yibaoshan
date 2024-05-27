@@ -11,11 +11,11 @@ import cn.ybs.recyclerview.base.BaseViewHolder
  * time   : 2024/05/19
  * desc   : RV 的视图持有者 / 控制器，一般来说，所有对 View 的操作，都应该在 ViewHolder 中完成。
  */
-class BasicRecyclerTextViewHolder(itemView: View) : BaseViewHolder(itemView) {
+open class BasicRecyclerTextViewHolder(itemView: View) : BaseViewHolder(itemView) {
 
     private val mTvContent: TextView by lazy { itemView.findViewById(R.id.tv_content) }
 
-    fun bindData(data: String) {
+    open fun bindData(data: String) {
         mTvContent.text = data
     }
 

@@ -9,8 +9,8 @@ import cn.ybs.video.slide.viewpager.VerticalPagerAdapter
 
 class MainActivity : BaseViewBindingActivity<ActivityMainBinding>(), IPageState, IPageController, OnPageChangeListener {
 
-    override fun initViewsAfterCreate() {
-        super.initViewsAfterCreate()
+    override fun initViewsAfterViewCreated() {
+        super.initViewsAfterViewCreated()
         initViewPager()
     }
 

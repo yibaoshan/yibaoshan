@@ -7,36 +7,36 @@ package cn.ybs.core.base.interfaces
  */
 interface IInitView {
 
-    fun initViewsAfterCreate() {
-        initResourcesWhenInitViews()
-        initListenersWhenInitViews()
-        initDialogsWhenInitViews()
-        initFragmentsWhenInitViews()
-        initRecyclerViewWhenInitViews()
+    fun initViewsAfterViewCreated() {
+        initResourcesAfterViewCreated()
+        initListenersAfterViewCreated()
+        initDialogsAfterViewCreated()
+        initFragmentsAfterViewCreated()
+        initRecyclerViewAfterViewCreated()
     }
 
-    fun initFragmentsWhenInitViews() {
+    fun initFragmentsAfterViewCreated() {
         // 在此初始化 Fragment
     }
 
-    fun initResourcesWhenInitViews() {
+    fun initResourcesAfterViewCreated() {
         // 在此初始化资源
-        initAnimationsWhenInitResources()
+        initAnimationsAfterViewCreated()
     }
 
-    fun initListenersWhenInitViews() {
+    fun initListenersAfterViewCreated() {
         // 在此初始化监听器
     }
 
-    fun initDialogsWhenInitViews() {
+    fun initDialogsAfterViewCreated() {
         // 在此初始化 Dialog
     }
 
-    fun initRecyclerViewWhenInitViews() {
+    fun initRecyclerViewAfterViewCreated() {
         // 在此初始化 RecyclerView
     }
 
-    fun initAnimationsWhenInitResources() {
+    fun initAnimationsAfterViewCreated() {
         // 在此初始化动画
     }
 

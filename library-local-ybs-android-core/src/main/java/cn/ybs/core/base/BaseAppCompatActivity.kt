@@ -25,7 +25,7 @@ abstract class BaseAppCompatActivity : AppCompatActivity(), IInitView, IInitComp
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (!requestInterceptInitViewsAfterCreate()) {
-            initViewsAfterCreate()
+            initViewsAfterViewCreated()
         }
         if (!requestInterceptInitComponentsAfterCreate()) {
             initComponentsAfterCreate()
