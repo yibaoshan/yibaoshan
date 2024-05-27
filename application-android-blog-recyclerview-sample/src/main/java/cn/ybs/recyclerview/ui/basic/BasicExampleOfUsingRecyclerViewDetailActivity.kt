@@ -1,12 +1,16 @@
 package cn.ybs.recyclerview.ui.basic
 
 import android.content.Intent
+import android.util.Log
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.RecyclerListener
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import cn.ybs.core.base.BaseViewBindingActivity
 import cn.ybs.recyclerview.R
 import cn.ybs.recyclerview.constans.Intents
+import cn.ybs.recyclerview.constans.Tags
 import cn.ybs.recyclerview.databinding.ActivityBasicUsageExampleDetailBinding
 import cn.ybs.recyclerview.ui.basic.adapter.BasicRecyclerAdapter
 import cn.ybs.recyclerview.ui.basic.entity.NormalEntity
@@ -29,6 +33,9 @@ open class BasicExampleOfUsingRecyclerViewDetailActivity : BaseViewBindingActivi
     override fun initIntentAfterViewCreated(intent: Intent) {
 
         val recyclerView = viewBinding?.recyclerView ?: return
+
+        // 设置 ViewHolder 的回收监听器
+        recyclerView.setRecyclerListener(ExampleRecyclerListener())
 
         when (intent.getStringExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE)) {
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT -> {
@@ -99,6 +106,13 @@ open class BasicExampleOfUsingRecyclerViewDetailActivity : BaseViewBindingActivi
             else ret.add(NormalEntity.createForText("text $i"))
         }
         return ret
+    }
+
+    private inner class ExampleRecyclerListener : RecyclerListener {
+        override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+            Log.d(Tags.RECYCLER_VIEW, "onViewRecycled: ${holder.layoutPosition}")
+        }
+
     }
 
 }

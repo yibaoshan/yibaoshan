@@ -8,11 +8,13 @@
     - void onTouchEvent(rv, e)，如果上一步返回 true，则该函数会收到事件调用。
     - 用途：item 的点击事件、长按事件；item 的侧滑菜单实现。
 - RecyclerListener
+  - onViewRecycled(vh)，当 RecyclerView 的 item 被回收时，会调用该函数。
 
 ## Abstract
 
 - ViewCacheExtension
 - Adapter
+  - [点这](adapter.md)
 - LayoutManager
 - ItemDecoration
 - OnScrollListener
