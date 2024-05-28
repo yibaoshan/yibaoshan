@@ -32,6 +32,10 @@
         <activity android:name=".ui.click.ItemClicksBaseClickListenerActivity" />
         <activity android:name=".ui.click.ItemClicksBaseItemTouchListenerActivity" />
 
+        <!--启用或关闭稳定 ID 效果-->
+        <activity android:name=".ui.stable.StableIDGuideExampleActivity" />
+        <activity android:name=".ui.stable.StableIDSettingActivity" />
+
     </application>
 
 </manifest>

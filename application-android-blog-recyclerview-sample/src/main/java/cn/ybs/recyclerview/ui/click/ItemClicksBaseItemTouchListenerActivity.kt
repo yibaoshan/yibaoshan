@@ -4,7 +4,8 @@ import android.content.Intent
 import android.view.View
 import cn.ybs.core.utils.extensions.toast
 import cn.ybs.recyclerview.ui.basic.BasicExampleOfUsingRecyclerViewDetailActivity
-import cn.ybs.recyclerview.ui.click.RecyclerItemClickListener.OnItemClickListener
+import cn.ybs.recyclerview.ui.click.listeners.RecyclerItemClickListener
+import cn.ybs.recyclerview.ui.click.listeners.RecyclerItemClickListener.OnItemClickListener
 
 /**
  *  author : <a href="https://yibs.space"/>
@@ -14,12 +15,11 @@ import cn.ybs.recyclerview.ui.click.RecyclerItemClickListener.OnItemClickListene
  *
  * @see android.support.v7.widget.RecyclerView.OnItemTouchListener
  */
-class ItemClicksBaseItemTouchListenerActivity : BasicExampleOfUsingRecyclerViewDetailActivity(), OnItemClickListener {
+open class ItemClicksBaseItemTouchListenerActivity : BasicExampleOfUsingRecyclerViewDetailActivity(), OnItemClickListener {
 
     override fun initIntentAfterViewCreated(intent: Intent) {
         super.initIntentAfterViewCreated(intent)
-        val recyclerView = viewBinding?.recyclerView ?: return
-        recyclerView.addOnItemTouchListener(RecyclerItemClickListener(recyclerView, this))
+        recyclerView?.addOnItemTouchListener(RecyclerItemClickListener(recyclerView, this))
     }
 
     override fun onItemClick(view: View?, position: Int) {

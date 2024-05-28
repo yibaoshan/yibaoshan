@@ -3,12 +3,15 @@ package cn.ybs.recyclerview
 import android.content.Context
 import android.content.Intent
 import cn.ybs.recyclerview.constans.Intents
+import cn.ybs.recyclerview.constans.Intents.INTENT_KEY_STABLE_ID
 import cn.ybs.recyclerview.constans.Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT
 import cn.ybs.recyclerview.ui.basic.BasicExampleOfUsingRecyclerViewDetailActivity
 import cn.ybs.recyclerview.ui.basic.BasicExampleOfUsingRecyclerViewGuideActivity
 import cn.ybs.recyclerview.ui.click.ItemClicksBaseClickListenerActivity
 import cn.ybs.recyclerview.ui.click.ItemClicksBaseItemTouchListenerActivity
 import cn.ybs.recyclerview.ui.click.ItemClicksGuideExampleActivity
+import cn.ybs.recyclerview.ui.stable.StableIDGuideExampleActivity
+import cn.ybs.recyclerview.ui.stable.StableIDSettingActivity
 
 /**
  * author : <a href="https://yibs.space"/>
@@ -72,6 +75,29 @@ object AppRouter {
 
         fun startItemClicksBaseClickListenerActivity(context: Context) {
             val intent = Intent(context, ItemClicksBaseClickListenerActivity::class.java)
+            intent.putExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE, INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT)
+            context.startActivity(intent)
+        }
+
+    }
+
+    object StableID {
+
+        fun startStableIDGuideActivity(context: Context) {
+            val intent = Intent(context, StableIDGuideExampleActivity::class.java)
+            context.startActivity(intent)
+        }
+
+        fun startStableIDDisableActivity(context: Context) {
+            val intent = Intent(context, StableIDSettingActivity::class.java)
+            intent.putExtra(INTENT_KEY_STABLE_ID, false)
+            intent.putExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE, INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT)
+            context.startActivity(intent)
+        }
+
+        fun startStableIDEnableActivity(context: Context) {
+            val intent = Intent(context, StableIDSettingActivity::class.java)
+            intent.putExtra(INTENT_KEY_STABLE_ID, true)
             intent.putExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE, INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT)
             context.startActivity(intent)
         }

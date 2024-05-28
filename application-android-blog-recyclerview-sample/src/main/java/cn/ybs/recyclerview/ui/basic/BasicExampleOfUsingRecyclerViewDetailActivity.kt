@@ -12,9 +12,9 @@ import cn.ybs.recyclerview.R
 import cn.ybs.recyclerview.constans.Intents
 import cn.ybs.recyclerview.constans.Tags
 import cn.ybs.recyclerview.databinding.ActivityBasicUsageExampleDetailBinding
-import cn.ybs.recyclerview.ui.basic.adapter.BasicRecyclerAdapter
-import cn.ybs.recyclerview.ui.basic.entity.NormalEntity
-import cn.ybs.recyclerview.ui.basic.entity.NormalEntityType
+import cn.ybs.recyclerview.adapter.BasicRecyclerViewAdapter
+import cn.ybs.recyclerview.entity.NormalEntity
+import cn.ybs.recyclerview.entity.NormalEntityType
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import java.lang.StringBuilder
@@ -28,50 +28,50 @@ import java.util.Random
  */
 open class BasicExampleOfUsingRecyclerViewDetailActivity : BaseViewBindingActivity<ActivityBasicUsageExampleDetailBinding>() {
 
+    protected val recyclerView get() = viewBinding?.recyclerView
+
     protected var listCache: MutableList<NormalEntity> = mutableListOf()
 
     override fun initIntentAfterViewCreated(intent: Intent) {
 
-        val recyclerView = viewBinding?.recyclerView ?: return
-
         // 设置 ViewHolder 的回收监听器
-        recyclerView.setRecyclerListener(ExampleRecyclerListener())
+        recyclerView?.setRecyclerListener(ExampleRecyclerListener())
 
         when (intent.getStringExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE)) {
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT -> {
                 listCache = generateSingleTextData()
-                recyclerView.adapter = BasicRecyclerAdapter(listCache)
-                recyclerView.layoutManager = LinearLayoutManager(this)
+                recyclerView?.adapter = BasicRecyclerViewAdapter(listCache)
+                recyclerView?.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_IMAGE -> {
                 listCache = generateSingleImageData()
-                recyclerView.adapter = BasicRecyclerAdapter(listCache)
-                recyclerView.layoutManager = LinearLayoutManager(this)
+                recyclerView?.adapter = BasicRecyclerViewAdapter(listCache)
+                recyclerView?.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_MULTI -> {
                 listCache = generateMultiTypeData()
-                recyclerView.adapter = BasicRecyclerAdapter(listCache)
-                recyclerView.layoutManager = LinearLayoutManager(this)
+                recyclerView?.adapter = BasicRecyclerViewAdapter(listCache)
+                recyclerView?.layoutManager = LinearLayoutManager(this)
             }
 
             Intents.INTENT_VALUE_VERTICAL_GRID_LAYOUT_TEXT -> {
                 listCache = generateSingleTextData()
-                recyclerView.adapter = BasicRecyclerAdapter(listCache)
-                recyclerView.layoutManager = GridLayoutManager(this, 2)
+                recyclerView?.adapter = BasicRecyclerViewAdapter(listCache)
+                recyclerView?.layoutManager = GridLayoutManager(this, 2)
             }
 
             Intents.INTENT_VALUE_VERTICAL_STAGGERED_LAYOUT_TEXT -> {
                 listCache = generateMultiTypeData()
-                recyclerView.adapter = BasicRecyclerAdapter(listCache)
-                recyclerView.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+                recyclerView?.adapter = BasicRecyclerViewAdapter(listCache)
+                recyclerView?.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
             }
 
             Intents.INTENT_VALUE_VERTICAL_FLEXBOX_LAYOUT_TEXT -> {
                 listCache = generateSingleTextDataForFlexboxLayout()
-                recyclerView.adapter = BasicRecyclerAdapter(listCache)
-                recyclerView.layoutManager = FlexboxLayoutManager(this, FlexDirection.ROW)
+                recyclerView?.adapter = BasicRecyclerViewAdapter(listCache)
+                recyclerView?.layoutManager = FlexboxLayoutManager(this, FlexDirection.ROW)
             }
         }
     }

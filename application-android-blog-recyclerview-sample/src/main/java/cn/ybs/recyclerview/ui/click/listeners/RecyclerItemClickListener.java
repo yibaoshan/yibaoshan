@@ -1,4 +1,4 @@
-package cn.ybs.recyclerview.ui.click;
+package cn.ybs.recyclerview.ui.click.listeners;
 
 import android.content.Context;
 import android.view.GestureDetector;

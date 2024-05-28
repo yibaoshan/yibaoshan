@@ -1,4 +1,4 @@
-package cn.ybs.recyclerview.ui.basic.entity
+package cn.ybs.recyclerview.entity
 
 import androidx.annotation.DrawableRes
 

@@ -2,6 +2,8 @@ package cn.ybs.recyclerview.constans
 
 object Intents {
 
+    const val INTENT_KEY_STABLE_ID = "intent_key_stable_id"
+
     const val INTENT_KEY_RECYCLER_VIEW_TYPE = "intent_key_recycler_view_type"
 
     const val INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT = "intent_value_vertical_linear_layout_text"

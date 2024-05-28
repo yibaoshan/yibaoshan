@@ -1,9 +1,9 @@
-package cn.ybs.recyclerview.ui.basic.viewholder
+package cn.ybs.recyclerview.viewholder
 
 import android.view.View
 import android.widget.TextView
 import cn.ybs.recyclerview.R
-import cn.ybs.recyclerview.base.BaseViewHolder
+import cn.ybs.recyclerview.viewholder.BaseViewHolder
 
 /**
  * author : <a href="https://yibs.space"/>

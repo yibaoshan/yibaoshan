@@ -14,6 +14,7 @@ class MainActivity : BaseViewBindingActivity<ActivityMainBinding>() {
     override fun initListenersAfterViewCreated() {
         val view = viewBinding ?: return
         view.tvBasicUsage.setOnClickListener { AppRouter.Basic.startBasicUsageActivity(this) }
+        view.tvSetStableIds.setOnClickListener { AppRouter.StableID.startStableIDGuideActivity(this) }
         view.tvCustomItemClick.setOnClickListener { AppRouter.ItemClick.startItemClicksGuideActivity(this) }
     }
 
