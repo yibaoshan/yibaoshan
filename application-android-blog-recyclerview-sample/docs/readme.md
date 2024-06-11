@@ -1,11 +1,12 @@
 ## 文章大纲（随时更新）
 
-1. RecyclerView 是什么？怎么用？
+1. 怎么用？RecyclerView 提供了哪些 API？能实现什么效果？
     1. 适用于什么场景？
     2. 怎么用？如何创建一个 recyclerview ？分一二三四步
     3. 各种layoutmanager ，官方目前提供的类，能够实现哪些效果？
         1. 如何实现抖音视频列表？
     4. ItemAnimator，默认的动画效果有哪些？
+        1. DefaultItemAnimator
     5. ItemDecoration
         1. 分割线怎么设置？
         2. 如何实现首字母导航效果？
@@ -17,20 +18,22 @@
             2. 侧滑菜单
     7. 为 RV 添加功能
         1. 如何实现下拉刷新，上拉加载更多？
-2. 源码解析
+2. 怎么实现的？各个关键类、API 的源码解析
     1. 类介绍，继承关系，Adapter、ViewHolder、ItemTouchHelper
     2. Adapter，观察者模式，notifyChanged
     3. ViewHolder，视图持有者，一个屏幕中会创建多少个 ViewHolder？
     4. 缓存原理，嵌套是否会导致缓存无效？
-3. recyclerview 支持自定义的部分
-    1. 自定义 layoutmanager
+3. 怎么扩展 / 自定义？RecyclerView 有哪些支持自定义的 API？能实现什么效果？
+    1. 自定义 LayoutManager
     2. 自定义 ItemDecoration
     3. 自定义 SnapHelper
 4. 常见问题
     1. 滑动冲突问题
     2. 焦点问题
     3. 显示不全的问题
-    4. 如何做好 RV 的性能优化？
+    4. 图片显示错乱的问题
+    5. notifyAll，图片闪烁问题
+    6. 如何做好 RV 的性能优化？
 
 ## 参考资料
 
@@ -58,11 +61,13 @@
 - [深入理解 RecyclerView 系列之二：ItemAnimator - Piasy](https://blog.piasy.com/2016/04/04/Insight-Android-RecyclerView-ItemAnimator/index.html)
 - [RecyclerView.OnItemTouchListener的用法 - Sunmoon](https://www.sunmoonblog.com/2017/02/24/rv-on-item-touch-listener/)
 - [RecyclerView 源码分析(五) - Adapter的源码分析](https://juejin.cn/post/6844903937900822542)
+- [RecyclerView animations ](https://frogermcs.github.io/recyclerview-animations-androiddevsummit-write-up/)
 
 三方库：
 
 - [YasuoRecyclerViewAdapter](https://github.com/q876625596/YasuoRecyclerViewAdapter)
 - [SwipeRecyclerView - 严振杰](https://github.com/yanzhenjie/SwipeRecyclerView)
+- [BaseRecyclerViewAdapterHelper](https://github.com/CymChad/BaseRecyclerViewAdapterHelper)
 
 自定义：
 
@@ -72,3 +77,19 @@
 - [Android RecyclerView实现侧滑删除 - IT徐师兄](https://blog.csdn.net/yujun2023/article/details/130787198)
 - [RecyclerView 侧滑菜单，可轻松自定义菜单动画和样式 - aitsuki](https://www.wanandroid.com/blog/show/3151)
 - [Android 侧滑菜单的实现思考 - 徐永红](https://xuyonghong.cn/2021/11/25/Android-SwipeMenuLayout-Ponder/)
+- [自定义 LayoutManager，让 RecyclerView 效果起飞 - 快手](https://juejin.cn/post/7044797219878223909)
+- [Android自定义LayoutManager第十一式之飞龙在天 - 陈小缘](https://blog.csdn.net/u011387817/article/details/81875021)
+- [看完这篇文章你还不会自定义LayoutManager，我吃X！](https://juejin.cn/post/6870770285247725581)
+- [RecyclerView-onViewRecycled-什么时候被调用？](http://mesonwang.com/2017/11/25/When-Method-onViewRecycled-Call-in-RecyclerView/)
+- [RecyclerView 性能优化 | 是什么在破坏缓存机制?](https://juejin.cn/post/6945638073682100260)
+- [RecyclerView 性能优化 | 把加载表项耗时减半 (二)](https://juejin.cn/post/6942276625090215943)
+- [每日一问 | RecyclerView的多级缓存机制，每级缓存到底起到什么样的作用？](https://www.wanandroid.com/wenda/show/14222)
+- [每日一问 | 关于 RecyclerView$Adapter setHasStableIds(boolean)的一切](https://wanandroid.com/wenda/show/15514)
+- [每日一问 RecyclerView卡片中持有的资源，到底该什么时候释放？](https://wanandroid.com/wenda/show/12148)
+- [Android | Tangram动态页面之路（一）需求背景](https://juejin.cn/post/6844904152959565837)
+- [Android | Tangram动态页面之路（二）介绍](https://juejin.cn/post/6844904154842808334)
+- [Android | Tangram动态页面之路（三）使用](https://juejin.cn/post/6844904158126931975)
+- [Android | Tangram动态页面之路（四）vlayout原理](https://juejin.cn/post/6844904159255232526)
+- [Android | Tangram动态页面之路（五）Tangram原理](https://juejin.cn/post/6844904160333135879)
+- [Android | Tangram动态页面之路（六）数据分离](https://juejin.cn/post/6844904161398505479)
+- [Android | Tangram动态页面之路（七）硬核的Virtualview](https://juejin.cn/post/6844904165332746253)

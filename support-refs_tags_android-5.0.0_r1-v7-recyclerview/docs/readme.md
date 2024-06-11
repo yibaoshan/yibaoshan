@@ -14,7 +14,7 @@
 
 - ViewCacheExtension
 - Adapter
-    - [点这](adapter.md)
+    - [点这](Adapter.md)
 - LayoutManager
     - [点这](LayoutManager.md)
 - ItemDecoration
