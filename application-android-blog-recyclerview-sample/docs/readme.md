@@ -62,6 +62,11 @@
 - [RecyclerView.OnItemTouchListener的用法 - Sunmoon](https://www.sunmoonblog.com/2017/02/24/rv-on-item-touch-listener/)
 - [RecyclerView 源码分析(五) - Adapter的源码分析](https://juejin.cn/post/6844903937900822542)
 - [RecyclerView animations ](https://frogermcs.github.io/recyclerview-animations-androiddevsummit-write-up/)
+- [深入理解 RecyclerView 的绘制流程和滑动原理（匠心巨作-上）](https://juejin.cn/post/6980712937581346847)
+- [深入理解 RecyclerView 的嵌套滑动机制（匠心巨作-中）](https://juejin.cn/post/6982842953051930637)
+- [深入理解 RecyclerView 的回收复用缓存机制详解（匠心巨作-下）](https://juejin.cn/post/6984974879296585764)
+- [关于RecyclerView你知道的不知道的都在这了（上）](https://www.cnblogs.com/dasusu/p/9159904.html)
+- [关于RecyclerView你知道的不知道的都在这了（下）](https://www.cnblogs.com/dasusu/p/9255335.html)
 
 三方库：
 
@@ -93,3 +98,4 @@
 - [Android | Tangram动态页面之路（五）Tangram原理](https://juejin.cn/post/6844904160333135879)
 - [Android | Tangram动态页面之路（六）数据分离](https://juejin.cn/post/6844904161398505479)
 - [Android | Tangram动态页面之路（七）硬核的Virtualview](https://juejin.cn/post/6844904165332746253)
+- [RecyclerView自定义LayoutManager从0到1实践](https://juejin.cn/post/7296297545968730123)
