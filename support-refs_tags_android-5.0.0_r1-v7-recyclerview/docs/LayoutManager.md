@@ -51,5 +51,8 @@ SmoothScroller mSmoothScroller;
     - 获取视图类型
 - findViewByPosition(pos) / getChildAt(index) / getChildCount()
     - 查找子视图
+- detachView(view) / detachViewAt(index) / attachView()
+    - 从屏幕中移除 / 重新添加视图
+- detachAndScrapView()
 
 https://blog.csdn.net/sinat_33585352/article/details/78941169
