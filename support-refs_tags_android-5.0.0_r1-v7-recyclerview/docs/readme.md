@@ -14,12 +14,17 @@
 
 - ViewCacheExtension
 - Adapter
-    - [点这](Adapter.md)
+    - [点这](RecyclerView-Adapter.md)
 - LayoutManager
-    - [点这](LayoutManager.md)
+    - [点这](RecyclerView-LayoutManager.md)
 - ItemDecoration
+    - [点这](RecyclerView-ItemDecoration.md)
 - OnScrollListener
+    - Rv 的滚动监听，提供 onScrollStateChanged() 和 onScrolled() 两个函数
+    - onScrollStateChanged(rv,newState)，滚动状态改变时，告诉你滚动状态。
+    - onScrolled(rv,dx,dy)，滚动结束后，告诉你总的 x/y 滑动的距离。
 - ViewHolder
+    - [点这](RecyclerView-ViewHolder.md)
 - AdapterDataObserver
 - SmoothScroller
 - ItemAnimator

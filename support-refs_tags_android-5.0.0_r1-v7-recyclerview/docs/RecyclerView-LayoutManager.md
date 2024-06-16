@@ -53,6 +53,10 @@ SmoothScroller mSmoothScroller;
     - 查找子视图
 - detachView(view) / detachViewAt(index) / attachView()
     - 从屏幕中移除 / 重新添加视图
+- moveView(int fromIndex, int toIndex)
+    - 移动视图到指定位置
 - detachAndScrapView()
+- ignoreView()
+    - 被标记过的视图，不会被废弃
 
-https://blog.csdn.net/sinat_33585352/article/details/78941169
+函数太多了，等学习自定义 LayoutManager 的时候再细看。
