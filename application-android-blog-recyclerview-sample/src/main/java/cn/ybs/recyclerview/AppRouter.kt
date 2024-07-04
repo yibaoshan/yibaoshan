@@ -5,6 +5,7 @@ import android.content.Intent
 import cn.ybs.recyclerview.constans.Intents
 import cn.ybs.recyclerview.constans.Intents.INTENT_KEY_STABLE_ID
 import cn.ybs.recyclerview.constans.Intents.INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT
+import cn.ybs.recyclerview.ui.ExampleCalendarActivity
 import cn.ybs.recyclerview.ui.basic.BasicExampleOfUsingRecyclerViewDetailActivity
 import cn.ybs.recyclerview.ui.basic.BasicExampleOfUsingRecyclerViewGuideActivity
 import cn.ybs.recyclerview.ui.click.ItemClicksBaseClickListenerActivity
@@ -99,6 +100,15 @@ object AppRouter {
             val intent = Intent(context, StableIDSettingActivity::class.java)
             intent.putExtra(INTENT_KEY_STABLE_ID, true)
             intent.putExtra(Intents.INTENT_KEY_RECYCLER_VIEW_TYPE, INTENT_VALUE_VERTICAL_LINEAR_LAYOUT_TEXT)
+            context.startActivity(intent)
+        }
+
+    }
+
+    object Example {
+
+        fun startExampleCalendarActivity(context: Context) {
+            val intent = Intent(context, ExampleCalendarActivity::class.java)
             context.startActivity(intent)
         }
 

@@ -61,6 +61,37 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="34dp"
+            android:text="实战案例"
+            android:textColor="@color/purple_500"
+            android:textSize="16sp" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_shape_setting_item_background"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_example_calendar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp"
+                android:text="日历签到"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:drawableEndCompat="@drawable/ic_common_arrow_right" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

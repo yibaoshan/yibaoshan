@@ -36,6 +36,9 @@
         <activity android:name=".ui.stable.StableIDGuideExampleActivity" />
         <activity android:name=".ui.stable.StableIDSettingActivity" />
 
+        <!--实战示例-->
+        <activity android:name=".ui.ExampleCalendarActivity"/>
+
     </application>
 
 </manifest>

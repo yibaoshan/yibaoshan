@@ -16,6 +16,7 @@ class MainActivity : BaseViewBindingActivity<ActivityMainBinding>() {
         view.tvBasicUsage.setOnClickListener { AppRouter.Basic.startBasicUsageActivity(this) }
         view.tvSetStableIds.setOnClickListener { AppRouter.StableID.startStableIDGuideActivity(this) }
         view.tvCustomItemClick.setOnClickListener { AppRouter.ItemClick.startItemClicksGuideActivity(this) }
+        view.tvExampleCalendar.setOnClickListener { AppRouter.Example.startExampleCalendarActivity(this) }
     }
 
 }

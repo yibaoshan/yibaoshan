@@ -28,6 +28,8 @@ abstract class BaseViewBindingActivity<VB : ViewBinding> : BaseAppCompatActivity
         initIntentAfterViewCreated(intent)
     }
 
+    protected open fun requireViewBinding(): VB = requireNotNull(_binding)
+
     override fun requestInterceptInitViewsAfterCreate(): Boolean = true
 
     override fun requestInterceptInitComponentsAfterCreate(): Boolean = true
