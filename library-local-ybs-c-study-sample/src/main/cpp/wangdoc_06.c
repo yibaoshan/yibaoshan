@@ -18,7 +18,12 @@ int main(void) {
     printf("%d\n", a);
 
     // 弱类型语言，不管入参传的啥，都按照形参类型强转
-    dostuff('1', "1.0L");
+    // 返回值也一样，不管用什么类型接受，都只会返回函数定义的 int 类型
+    long long ret = dostuff('1', 1);
+
+    printf("ret: %lld\n", ret);
+
+    printf("sizeof %d\n", sizeof(int64_t));
 
     return 0;
 }
