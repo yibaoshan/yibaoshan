@@ -6,7 +6,6 @@
     <ImageView
             android:id="@+id/img"
             android:layout_width="match_parent"
-            android:src="@drawable/img_2000x3000"
             android:adjustViewBounds="true"
             android:layout_height="match_parent" />
 

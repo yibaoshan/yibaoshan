@@ -32,7 +32,6 @@ public class SwipeCardActivity extends BaseAppCompatActivity {
 
         ArrayList<CardBean> list = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            list.add(new CardBean(R.drawable.img_2000x3000));
             list.add(new CardBean(R.drawable.test));
         }
 

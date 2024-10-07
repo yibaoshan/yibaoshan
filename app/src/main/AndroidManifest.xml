@@ -10,7 +10,8 @@
             android:supportsRtl="true"
             android:largeHeap="true"
             android:theme="@style/Theme.AppCompat">
-        <activity android:name=".JNIActivity">
+        <activity android:name=".JNIActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
