@@ -13,6 +13,8 @@ int main(void) {
     system("clear");
     printf("--- c 语言 union 结构体 ---\n\n");
 
+    // 类似 struct，原理和使用上有些区别，一般用于节省内存。
+
     // 详细介绍：https://blog.csdn.net/huqinweI987/article/details/23597091
 
     union var data;
