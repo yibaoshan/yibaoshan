@@ -3,6 +3,8 @@ package com.android.algorithm.leetcode;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Medium_204_求质数 {
 
@@ -32,6 +34,16 @@ public class Medium_204_求质数 {
             if (isPrime) cnt++;
         }
         return cnt;
+    }
+
+    public void sieve(List<Integer> list, int prime) {
+        System.out.println(prime);
+        List<Integer> ret = list.stream()
+                .filter(num -> num % prime != 0) // 收集不能被 prime 整除的数列
+                .collect(Collectors.toList());
+        if (!ret.isEmpty()) {
+            sieve(ret, ret.get(0));             // 每次的递归调用，对应一次题目中的进程创建
+        }
     }
 
 }

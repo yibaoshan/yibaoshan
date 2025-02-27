@@ -9,6 +9,8 @@
 
 - 课程目标是理解操作系统的设计和实现，为了深入了解具体的工作原理，老师将会带着我们手写一个名为 xv6 的操作系统。
 
+Lab1 Xv6 and Unix utilities：https://pdos.csail.mit.edu/6.828/2020/labs/util.html
+
 # Boot xv6 (easy)
 
 搭建 xv6 的编译环境，启动系统并运行 `ls` 指令。
@@ -173,3 +175,222 @@ make qemu 编译启动，运行 pingpong 查看结果
 
 ![img.png](imgs/xv6-lab1-pingpong-grade.png)
 
+# primes (moderate)/(hard)
+
+> Write a concurrent version of prime sieve using pipes. This idea is due to Doug McIlroy, inventor of Unix pipes. The picture halfway down this page and the surrounding text explain how to do it. Your solution should be in the file user/primes.c.
+> 使用管道实现一个并发的素数筛选版本。
+
+这是一道算法题，LeetCode 上有原题：https://leetcode.cn/problems/count-primes/。
+
+和 LeetCode 不同的是，课程要求使用管道通信来实现，我花了大半天时间才通过测试，因为这道题涉及到进程链的创建和递归处理，而我的 VS Code 还没有配 Debug 环境，全程靠打日志来梳理思路。
+
+我用 Java 实现了一个版本，或许可以帮助后面的同学更好的理解实现逻辑。
+
+```java
+    public void sieve(List<Integer> list, int prime) {
+        System.out.println(prime);
+        List<Integer> ret = list.stream()
+                .filter(num -> num % prime != 0) // 收集不能被 prime 整除的数列
+                .collect(Collectors.toList());
+        if (!ret.isEmpty()) {
+            sieve(ret, ret.get(0));             // 这里每一次的递归调用，对应一次 c 语言中的进程创建
+        }
+    }
+```
+
+同时，我还把数据的处理过程打印了出来，白色字体表示每轮要处理的数据，红色字体表示的是每一轮中被删除掉的元素。
+
+![img.png](imgs/xv6-lab1-primes-demo.png)
+
+好，回到正题，首先我们还是在 `user` 目录下，新建 `primes.c` 文件
+
+```c
+#include "kernel/types.h"
+#include "user/user.h"
+
+void sieve(int input_fd) {
+    int p;
+
+    // 每个进程只负责一个素数，所以读取到的数肯定是质数，参考 Java 版本的第一行打印函数
+    if (read(input_fd, &p, sizeof(int)) <= 0) {
+        exit(0); // 无数据或者写端已关闭，退出
+    }
+
+    printf("prime %d\n", p);
+
+    int fd_pipe[2];
+    pipe(fd_pipe); // 创建新管道
+
+    if (fork() == 0) {
+        // 子进程：处理下一层筛法
+        close(fd_pipe[1]); // 关闭写端
+        sieve(fd_pipe[0]); // 递归调用
+        close(fd_pipe[0]);
+        exit(0);
+    } else {
+        // 父进程：过滤当前素数的倍数
+        close(fd_pipe[0]); // 关闭读端
+        int num;
+        while (read(input_fd, &num, sizeof(int)) > 0) {
+            if (num % p != 0) {
+                write(fd_pipe[1], &num, sizeof(int)); // 写入未被过滤的数，等同于 Java 版本的：向 ret 集合中 add 一条数据。
+            }
+        }
+        close(input_fd);    // 关闭输入管道
+        close(fd_pipe[1]);   // 关闭输出管道写端
+        wait(0);            // 等待子进程结束
+        exit(0);
+    }
+}
+
+int main() {
+    int initial_pipe[2];
+    pipe(initial_pipe); // 创建初始管道
+
+    if (fork() == 0) {
+        // 子进程：开始筛法
+        close(initial_pipe[1]); // 关闭写端
+        sieve(initial_pipe[0]);
+        close(initial_pipe[0]);
+        exit(0);
+    } else {
+        // 主进程：生成初始数列
+        close(initial_pipe[0]); // 关闭读端
+        // 第一轮，把 2 ~ 35 通过管道通知给子进程
+        for (int i = 2; i <= 35; i++) {
+            write(initial_pipe[1], &i, sizeof(int));
+        }
+        close(initial_pipe[1]); // 关闭写端，无用端
+        wait(0);               // 等待子进程结束
+        exit(0);
+    }
+}
+```
+
+每个素数对应一个进程，通过管道连接。初始进程生成数字，每个后续进程过滤掉当前素数的倍数，并将剩余数传递给下一个进程。
+
+打开根目录下的 `Makefile` 文件，找到 `UPROGS` 块，在最后一行新增 `$U/_primes\`
+
+```makefile
+UPROGS=\
+$U/_cat\
+$U/_echo\
+...
+$U/_wc\
+$U/_zombie\
+$U/_sleep\
+$U/_pingpong\
+$U/_primes\ # 新增项
+```
+
+make qemu 编译启动，运行 primes 查看结果
+
+![img.png](imgs/xv6-lab1-primes-result.png)
+
+最后运行 `./grade-lab-util primes` 命令，来测试代码是否通过。
+
+![img.png](imgs/xv6-lab1-primes-grade.png)
+
+# find (moderate)
+
+> Write a simple version of the UNIX find program: find all the files in a directory tree with a specific name. Your solution should be in the file user/find.c.
+> 编写一个简单 find ：输入目录 + 文件名，查找该目录下所有匹配的文件。
+
+虽然这道题标的难度是 moderate，但是实现并不难，因为 xv6 已经帮我们实现了很多功能，所以我们只需要简单地调用系统函数，再注意判定几个边界条件就行了。
+
+涉及到的知识点： fstat()、stat()、open() 等系统函数调用；dirent、stat 两个结构体包含的信息；strcmp()、strcpy() 操作字符串函数。
+
+直接上代码
+
+```c
+#include "kernel/types.h"
+#include "kernel/stat.h" 
+#include "user/user.h"   
+#include "kernel/fs.h"   
+#include "kernel/fcntl.h"
+
+// 递归查找指定目录下所有匹配目标文件名的文件
+void find(char *path, const char *target_name) {
+
+    char buf[1024];           // 路径缓冲区
+    struct dirent de;        // 目录条目结构体
+    struct stat st;          // 文件状态结构体
+    int fd;                  // 文件描述符
+
+    // 以只读模式打开目录，并返回文件描述符 fd，失败则直接 return
+    if ((fd = open(path, O_RDONLY)) < 0) {
+        fprintf(2, "error: cannot open %s\n", path);
+        return;
+    }
+
+    // 获取文件的状态，stat 结构体包含：类型、索引号、文件的类型（文件、目录、设备）等信息
+    if (fstat(fd, &st) < 0) {
+        fprintf(2, "error: cannot stat %s\n", path);
+        close(fd);
+        return;
+    }
+
+    // 检查当前路径是否是目录
+    if (st.type != T_DIR) {
+        fprintf(2, "error: %s is not a directory\n", path);
+        close(fd);
+        return;
+    }
+
+    // 读取目录中的每一个条目
+    while (read(fd, &de, sizeof(de)) == sizeof(de)) {
+        // 跳过无效条目（inode号为0）
+        if (de.inum == 0)
+            continue;
+
+        // 跳过 "." 和 ".." 目录（避免无限递归）
+        if (strcmp(de.name, ".") == 0 || strcmp(de.name, "..") == 0)
+            continue;
+
+        // 拼接完整路径：当前目录路径 + "/" + 文件名
+        // 例如：path="a", de.name="b" → "a/b"
+        strcpy(buf, path);
+        char *p = buf + strlen(buf);
+        *p++ = '/';
+        strcpy(p, de.name);
+
+        // 获取当前文件的状态
+        if (stat(buf, &st) < 0) {
+            fprintf(2, "find: cannot stat %s\n", buf);
+            continue;
+        }
+
+        // 如果是目录，递归处理
+        if (st.type == T_DIR) {
+            find(buf, target_name);     // 递归查找子目录
+        } else if (st.type == T_FILE) { // 如果是文件，检查文件名是否匹配
+            if (strcmp(de.name, target_name) == 0) {
+                printf("%s\n", buf);    // 打印匹配的完整路径
+            }
+        }
+    }
+
+    close(fd); // 关闭目录文件描述符
+}
+
+int main(int argc, char *argv[]) {
+    // 参数校验
+    if (argc != 3) {
+        fprintf(2, "Usage: find <directory> <filename>\n");
+        exit(1);
+    }
+
+    find(argv[1], argv[2]);
+    exit(0);
+}
+```
+
+把 `$U/_find\` 添加到 `Makefile` 文件中，运行测试 `./grade-lab-util find`
+
+![img.png](imgs/xv6-lab1-find-grade.png)
+
+# 小结
+
+sleep 帮助我们了解怎么获取命令行的参数，pingpong、primes 帮助我们了解怎么使用管道，以及如何使用 fork 创建进程。find 让我们了解了 xv6 的文件系统。
+
+后面还有几道
