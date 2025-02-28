@@ -1,21 +1,37 @@
 
+`MIT6.S081` 是麻省理工的操作系统公开课，前身是 `MIT6.82`8，它包含操作系统的知识和前沿 research 内容，2020 年以后，`6.828` 被拆分成两个课程，`6.828` 和 `6.S081`。
 
-> This lab will familiarize you with xv6 and its system calls.
-> 本次实验的目的是让你熟悉 xv6 操作系统和它的一些系统调用。
+新的 `6.S081` 课程去除了原课程中的 research 部分，定位是 **更适合入门的本科课程**，二者的区别之一：
 
-在开始实验之前，你需要看完[第一节课的视频](https://www.bilibili.com/video/BV19k4y1C7kA)和阅读[配套书籍第一章](https://th0ar.gitbooks.io/xv6-chinese/content/index.html)的内容，不分先后顺序。
+- `6.828` 基于英特尔 **`IA-32`** 开发名为 `JOS` 的操作系统
+- `6.S081` 课程则基于 **`RISC-V`** 开发名为 `xv6` 的操作系统
 
-个人省流版：
+对操作系统感兴趣的同学可以上手 `6.S081`，这样可以避开 `Intel x86` 在发展过程中，为了向下兼容引发的一些历史遗留问题，这部分内容理解起来还是有点头疼的。
 
-- 课程目标是理解操作系统的设计和实现，为了深入了解具体的工作原理，老师将会带着我们手写一个名为 xv6 的操作系统。
+`MIT6.S081` 课程目前有三个版本，`2020`、`2021`、`2022`，课程之间区别不大，建议看 `2020` 版，网上资料比较多。
 
-Lab1 Xv6 and Unix utilities：https://pdos.csail.mit.edu/6.828/2020/labs/util.html
+> - 课程地址：https://pdos.csail.mit.edu/6.828/2020/schedule.html
+> - 课程录播：https://www.youtube.com/watch?v=L6YqHxYHa7A
+> - 《xv6 os book》：https://pdos.csail.mit.edu/6.S081/2020/xv6/book-riscv-rev1.pdf
+> - 课后 lab：https://pdos.csail.mit.edu/6.S081/2020/labs
+> - 源码仓库：git://g.csail.mit.edu/xv6-labs-2020
+> - 中文翻译版
+>   - 视频课程：https://www.bilibili.com/video/BV19k4y1C7kA/
+>   - 视频课程 - 文字版：https://mit-public-courses-cn-translatio.gitbook.io/mit6-s081
+>   - 《xv6 os book》：https://th0ar.gitbooks.io/xv6-chinese/content/index.html
+
+本篇是 Lab1 的课后实验，实验的目的是让你熟悉 `xv6` 操作系统和它的一些系统调用。
+
+在开始实验之前，你需要先看完[《MIT 6.S081 2020 Lec01》](https://www.bilibili.com/video/BV19k4y1C7kA)和[《xv6 第 0章》](https://th0ar.gitbooks.io/xv6-chinese/content/index.html)中的内容，了解 `xv6` 操作系统的基本接口、操作系统应该怎么设计，并熟悉 `进程`、`内存`、`I/O`、`管道`等基础概念。
+
+> - Lab1 地址：https://pdos.csail.mit.edu/6.828/2020/labs/util.html
+> - 我的实验记录：https://github.com/yibaoshan/xv6-labs-2020/tree/util
 
 # Boot xv6 (easy)
 
-搭建 xv6 的编译环境，启动系统并运行 `ls` 指令。
+第一步是搭建 `xv6` 的编译环境，启动系统并运行 `ls` 指令。
 
-网上有很多搭环境的介绍，我这里就不多赘述。如果懒得去折腾的话，可以借助 docker 使用其他同学制作好的镜像：https://zhuanlan.zhihu.com/p/449687883。
+网上有很多环境搭建的教程，比如[《MIT6.828 准备 — risc-v 和 xv6 环境搭建》](https://zhayujie.com/mit6828-env.html)，我这里就不多介绍了，如果不想去折腾的话，也可以使用其他同学制作好的 docker 镜像：https://zhuanlan.zhihu.com/p/449687883。
 
 - `make qemu`，构建并运行 xv6 操作系统。
 - xv6 没有 `ps` 命令，但你可以使用 `Ctrl-p` 打印每个进程的信息。
@@ -25,17 +41,18 @@ Lab1 Xv6 and Unix utilities：https://pdos.csail.mit.edu/6.828/2020/labs/util.ht
 # sleep (easy)
 
 > Implement the UNIX program sleep for xv6; your sleep should pause for a user-specified number of ticks. A tick is a notion of time defined by the xv6 kernel, namely the time between two interrupts from the timer chip. Your solution should be in the file user/sleep.c.
-> 为 xv6 系统写一个 sleep 程序，调用系统提供的 sleep() 函数，让程序暂停指定数量的时钟 tick。
+
+为 `xv6` 系统写一个 `sleep` 程序，调用系统提供的 `sleep()` 函数，让程序暂停指定数量的时钟 `tick`。
 
 Some hints:
 
-- 查看 user 目录下的程序（例如 user/echo.c 、 user/grep.c 和 user/rm.c ），看看他们怎么获取从命令行输入的参数。
-- 因为命令行参数的类型是字符串，你需要调用 atoi() 将参数转为 int 类型。
-- 使用系统提供的 sleep() 函数完成暂停功能。
-- 在程序最后，记得调用 exit() 函数退出进程。
-- 将 sleep.c 文件添加到 Makefile 的 UPROGS 中，然后使用 make qemu 编译。
+- 查看 `user` 目录下的程序（例如 `user/echo.c` 、 `user/grep.c` 和 `user/rm.c` ），看看他们怎么获取从命令行输入的参数。
+- 因为命令行参数的类型是字符串，你需要调用 `atoi()` 将参数转为 `int` 类型。
+- 使用系统提供的 `sleep()` 函数完成暂停功能。
+- 在程序最后，记得调用 `exit()` 函数退出进程。
+- 将 `sleep.c` 文件添加到 `Makefile` 的 `UPROGS` 中，然后使用 `make qemu` 编译。
 
-在 `user` 目录下，新建 `sleep.c` 文件
+练手题，非常简单，首先在 `user` 目录下新建 `sleep.c` 文件
 
 ```c
 #include "kernel/types.h"
@@ -61,7 +78,7 @@ int main(int argc, char *argv[]) {
 }
 ```
 
-打开根目录下的 `Makefile` 文件，找到 `UPROGS` 块，在最后一行新增 `$U/_sleep\`
+然后打开根目录下的 `Makefile` 文件，找到 `UPROGS` 块，在最后一行新增 `$U/_sleep\`
 
 ```makefile
 UPROGS=\
@@ -80,10 +97,13 @@ $U/_sleep\ # 新增项
 # pingpong (easy)
 
 > Write a program that uses UNIX system calls to ''ping-pong'' a byte between two processes over a pair of pipes, one for each direction. The parent should send a byte to the child; the child should print "<pid>: received ping", where <pid> is its process ID, write the byte on the pipe to the parent, and exit; the parent should read the byte from the child, print "<pid>: received pong", and exit. Your solution should be in the file user/pingpong.c.
-> 利用 fork()、pipe()、read()、write() 等系统函数，写个名为乒乓的程序，完成父子进程通信，子进程收到以后打印 ‘<pid>: received ping’ 然后将字节发送给父进程后退出，父进程收到回复打印 ‘<pid>: received pong’，over。
 
-- 父进程先说话，子进程收到消息后打印 ‘<pid>: received ping’ 然后退出自己。
-- 父进程接收到子进程消息，打印 ‘<pid>: received pong’ 然后退出进程。
+利用 `fork()`、`pipe()`、`read()`、`write()` 等系统函数，写个名为 `ping-pong` 的程序，完成父子进程通信，子进程收到以后打印 `‘<pid>: received ping’` 然后将字节发送给父进程后退出，父进程收到回复打印 `‘<pid>: received pong’`，结束。
+
+实验考察的是 `管道` 和 `进程` 的使用，执行过程如下：
+
+- 父进程先说话，子进程收到消息后打印 `‘<pid>: received ping’` 然后退出自己。
+- 父进程接收到子进程消息，打印 `‘<pid>: received pong’` 然后退出进程。
 
 在 `user` 目录下，新建 `pingpong.c` 文件
 
@@ -167,7 +187,7 @@ $U/_sleep\
 $U/_pingpong\ # 新增项
 ```
 
-make qemu 编译启动，运行 pingpong 查看结果
+`make qemu` 编译启动，运行 `pingpong` 查看结果
 
 ![img.png](imgs/xv6-lab1-pingpong-result.png)
 
@@ -178,13 +198,12 @@ make qemu 编译启动，运行 pingpong 查看结果
 # primes (moderate)/(hard)
 
 > Write a concurrent version of prime sieve using pipes. This idea is due to Doug McIlroy, inventor of Unix pipes. The picture halfway down this page and the surrounding text explain how to do it. Your solution should be in the file user/primes.c.
-> 使用管道实现一个并发的素数筛选版本。
 
-这是一道算法题，LeetCode 上有原题：https://leetcode.cn/problems/count-primes/。
+使用 `管道` 实现一个并发的 `素数` 筛选版本，这是一道算法题，LeetCode 上有原题：https://leetcode.cn/problems/count-primes/。
 
-和 LeetCode 不同的是，课程要求使用管道通信来实现，我花了大半天时间才通过测试，因为这道题涉及到进程链的创建和递归处理，而我的 VS Code 还没有配 Debug 环境，全程靠打日志来梳理思路。
+和 LeetCode 不同的是，实验要求使用 `管道` 通信来实现。我在这个实验上花了大半天时间，因为涉及到进程链的创建和递归处理，而我的 `VS Code` 还没有配 `Debug 环境`，全程只能靠打日志来梳理思路。
 
-我用 Java 实现了一个版本，或许可以帮助后面的同学更好的理解实现逻辑。
+为了帮助后面的同学更好理解 `素数` 筛选过程中的递归逻辑，我用 Java 实现了一个版本，通过递归调用来模拟每个进程的工作方式，或许会对大家有帮助。
 
 ```java
     public void sieve(List<Integer> list, int prime) {
@@ -198,7 +217,7 @@ make qemu 编译启动，运行 pingpong 查看结果
     }
 ```
 
-同时，我还把数据的处理过程打印了出来，白色字体表示每轮要处理的数据，红色字体表示的是每一轮中被删除掉的元素。
+同时，我还把数据的处理过程打印了出来，`白色字体` 表示每轮要处理的数据，`红色字体` 表示的是每一轮中被删除掉的元素。
 
 ![img.png](imgs/xv6-lab1-primes-demo.png)
 
@@ -267,7 +286,7 @@ int main() {
 }
 ```
 
-每个素数对应一个进程，通过管道连接。初始进程生成数字，每个后续进程过滤掉当前素数的倍数，并将剩余数传递给下一个进程。
+每个 `素数` 对应一个 `进程`，通过 `管道` 连接。初始进程生成数字，每个后续进程过滤掉当前 `素数` 的倍数，并将剩余数传递给下一个进程。
 
 打开根目录下的 `Makefile` 文件，找到 `UPROGS` 块，在最后一行新增 `$U/_primes\`
 
@@ -283,7 +302,7 @@ $U/_pingpong\
 $U/_primes\ # 新增项
 ```
 
-make qemu 编译启动，运行 primes 查看结果
+`make qemu` 编译启动，运行 `primes` 查看结果
 
 ![img.png](imgs/xv6-lab1-primes-result.png)
 
@@ -294,11 +313,12 @@ make qemu 编译启动，运行 primes 查看结果
 # find (moderate)
 
 > Write a simple version of the UNIX find program: find all the files in a directory tree with a specific name. Your solution should be in the file user/find.c.
-> 编写一个简单 find ：输入目录 + 文件名，查找该目录下所有匹配的文件。
 
-虽然这道题标的难度是 moderate，但是实现并不难，因为 xv6 已经帮我们实现了很多功能，所以我们只需要简单地调用系统函数，再注意判定几个边界条件就行了。
+编写一个简单 `find` 程序 ：输入 `目录` + `文件名`，查找该目录下所有匹配的文件。
 
-涉及到的知识点： fstat()、stat()、open() 等系统函数调用；dirent、stat 两个结构体包含的信息；strcmp()、strcpy() 操作字符串函数。
+虽然这道题标的难度是 `moderate`，但是实现其实并不难，因为 `xv6` 已经提供了很多功能，所以我们只需要简单地调用系统函数，再注意判定几个边界条件就行了。
+
+涉及到的知识点：`fstat()`、`stat()`、`open()` 等系统函数调用；`dirent`、`stat` 两个结构体包含的信息；`strcmp()`、`strcpy()` 操作字符串函数。
 
 直接上代码
 
@@ -389,8 +409,126 @@ int main(int argc, char *argv[]) {
 
 ![img.png](imgs/xv6-lab1-find-grade.png)
 
-# 小结
+# xargs (moderate)
 
-sleep 帮助我们了解怎么获取命令行的参数，pingpong、primes 帮助我们了解怎么使用管道，以及如何使用 fork 创建进程。find 让我们了解了 xv6 的文件系统。
+> Write a simple version of the UNIX xargs program: read lines from the standard input and run a command for each line, supplying the line as arguments to the command. Your solution should be in the file user/xargs.c.
 
-后面还有几道
+编写一个简单的 `xargs` ：从标准输入读取行，对每一行运行一个命令，将行作为命令的参数。
+
+我之前没用过 `Unix` 的 `xargs` 命令，所以刚开始完全不知道这个实验要做什么，后面是专门查资料了解 `xargs` 是什么以后，才让实验能顺利进行。
+
+以下关于 `xargs` 的介绍来自阮一峰老师的博客：https://www.ruanyifeng.com/blog/2019/08/xargs-tutorial.html
+
+> `Unix` 命令都带有参数，有些命令可以接受 "`标准输入`"（`stdin`）作为参数。
+> 
+> ```shell
+> $ cat /etc/passwd | grep root
+> ```
+> 
+> 上面的代码使用了 `管道命令`（|）。管道命令的作用，是将左侧命令`（cat /etc/passwd）`的标准输出转换为标准输入，提供给右侧命令`（grep root）`作为参数。 
+> 
+> 因为 `grep` 命令可以接受标准输入作为参数，所以上面的代码等同于下面的代码。
+> ```shell
+> $ grep root /etc/passwd
+> ```
+> 
+> 但是，大多数命令都不接受标准输入作为参数，只能直接在命令行输入参数，这导致无法用管道命令传递参数。举例来说，`echo` 命令就不接受管道传参。
+> 
+> ```shell
+> $ echo "hello world" | echo
+> ```
+> 
+> 上面的代码不会有输出。因为管道右侧的 `echo` 不接受管道传来的标准输入作为参数。
+> 
+> `xargs` 的更多功能请查看：https://www.ruanyifeng.com/blog/2019/08/xargs-tutorial.html
+
+简单来说，`xargs` 命令是给其他命令传递参数的一个 `过滤器`，也是 `组合多个命令` 的一个工具。
+
+`xv6` 要求实现的是一个简单版本，只保留最核心的 `逐行参数追加` 功能，所以我们在做实验的时候，只需确保逐行读取输入、能正确分割参数、逐行调用命令即可。
+
+```c
+#include "kernel/types.h"
+#include "kernel/stat.h"
+#include "user/user.h"
+#include "kernel/fs.h"
+
+void exec_by_child(char *program, char **args) {
+    // fork 出一个子进程去执行
+    if (fork() == 0) {
+        if (exec(program, args) == -1) {
+            printf("\nexec faild, not found the %s!\n\n", program);
+        }
+        exit(0);
+    }
+    return;
+}
+
+int main(int argc, char *argv[]) {
+    char buf[1024];                           // 指令缓冲区
+    char *args_buf[128];                      // 参数缓冲区
+    char *start_ptr = buf, *last_ptr = buf;   // 参数列表的开始、结束指针
+    char **args = args_buf;                   // 当前参数的指针
+
+    if (argc < 2) {
+        fprintf(2, "Usage: <command> <params> | xargs <command>  <params>\n");
+        exit(1);
+    }
+
+    // 读取所有传入的参数
+    for (int i = 1; i < argc; i++) {
+        *args = argv[i];
+        args++;
+    }
+
+    char **cur_arg = args;
+
+    // 循环读入参数
+    while (read(0, start_ptr, 1) != 0) {
+
+        // 遇到空格或换行符，则将参数结束符置为空，并记录参数的结束位置
+        if (*start_ptr == ' ' || *start_ptr == '\n') {
+            *start_ptr = '\0';          // 将当前字符替换为字符串结束符
+            *(cur_arg++) = last_ptr;    // 将当前参数的起始地址存入参数列表
+            last_ptr = start_ptr + 1;   // 更新last_ptr指向下一个字符
+
+            // 如果读取到换行符 则执行子进程
+            if (*start_ptr == '\n') {
+                *cur_arg = 0;
+                exec_by_child(argv[1], args_buf);
+                cur_arg = args;
+            }
+        }
+        start_ptr++;
+    }
+
+    // 如果还有未处理的参数，同样执行子进程
+    if (cur_arg != args) {
+        *start_ptr = '\0';
+        *(cur_arg++) = last_ptr;
+        *cur_arg = 0;
+        exec_by_child(argv[1], args_buf);
+    }
+
+    while (wait(0) != -1) {
+        // wait for child processes
+    }
+    exit(0);
+}
+```
+
+把 `$U/_xargs\` 添加到 `Makefile` 文件中，运行测试 `./grade-lab-util xargs`
+
+![img.png](imgs/xv6-lab1-xargs-grade.png)
+
+# 结语
+
+Lab1 的这几个实验都不是很难，还没深入到内核的实现机制，主要是让我们熟悉 `xv6` 的环境，常用的 `系统调用`，理解 `进程创建` 和 `通信`，`文件系统` 操作等。
+
+接下来的 Lab2 会涉及到 `内存管理` 和 `内核态` 的切换，应该会更有意思，那么我们，下次再见。
+
+# 参考资料
+
+- CS自学指南：https://csdiy.wiki/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/MIT6.S081/
+- Miigon：https://blog.miigon.net/categories/mit6-s081/
+- Wings：https://blog.wingszeng.top/series/learning-mit-6-s081/
+- 知乎专栏《28天速通MIT 6.S081操作系统》：https://zhuanlan.zhihu.com/p/632281381

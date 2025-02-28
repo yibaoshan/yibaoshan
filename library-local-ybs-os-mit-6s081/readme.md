@@ -1,23 +1,24 @@
 
-MIT6.S081 是麻省理工的操作系统公开课，前身是 MIT6.828，它包含操作系统的知识和前沿 research 内容，2020 年以后，6.828 被拆分成两个课程，6.828 和 6.S081。
+`MIT6.S081` 是麻省理工的操作系统公开课，前身是 `MIT6.82`8，它包含操作系统的知识和前沿 research 内容，2020 年以后，`6.828` 被拆分成两个课程，`6.828` 和 `6.S081`。
 
-新的 6.S081 课程去除了原课程中的 research 部分，定位是更适合入门的本科课程，二者的区别之一是
+新的 `6.S081` 课程去除了原课程中的 research 部分，定位是 **更适合入门的本科课程**，二者的区别之一：
 
-- 6.828 基于英特尔 IA-32 开发名为 JOS 的操作系统
-- 6.S081 课程则基于 RISC-V 开发名为 XV6 的操作系统
+- `6.828` 基于英特尔 **`IA-32`** 开发名为 `JOS` 的操作系统
+- `6.S081` 课程则基于 **`RISC-V`** 开发名为 `xv6` 的操作系统
 
-对操作系统感兴趣的同学可以上手 6.S081，可以避开 X86 发展过程中为了向下兼容引发的一些历史遗留问题，这部分内容理解起来还是有点头疼的。
+对操作系统感兴趣的同学可以上手 `6.S081`，这样可以避开 `Intel x86` 在发展过程中，为了向下兼容引发的一些历史遗留问题，这部分内容理解起来还是有点头疼的。
 
-MIT6.S081 课程目前有三个版本，2020、2021、2022，课程之间区别不大，建议看 2020 版，网上资料比较多。
+`MIT6.S081` 课程目前有三个版本，`2020`、`2021`、`2022`，课程之间区别不大，建议看 `2020` 版，网上资料比较多。
 
-- 官网课程安排：https://pdos.csail.mit.edu/6.828/2020/schedule.html
-- 课程视频：https://www.youtube.com/watch?v=L6YqHxYHa7A
-  - 中文翻译版：https://www.bilibili.com/video/BV19k4y1C7kA/
-  - 中文翻译 - 文字版：https://mit-public-courses-cn-translatio.gitbook.io/mit6-s081
-- 课程配套书籍：https://pdos.csail.mit.edu/6.S081/2020/xv6/book-riscv-rev1.pdf
-  - 中文翻译版：https://th0ar.gitbooks.io/xv6-chinese/content/index.html
-- 课程 lab：https://pdos.csail.mit.edu/6.S081/2020/labs
-- 源码仓库：git://g.csail.mit.edu/xv6-labs-2020
+- 课程地址：https://pdos.csail.mit.edu/6.828/2020/schedule.html
+- 课程录播：https://www.youtube.com/watch?v=L6YqHxYHa7A
+- 《xv6 os book》：https://pdos.csail.mit.edu/6.S081/2020/xv6/book-riscv-rev1.pdf
+- 课后 lab：https://pdos.csail.mit.edu/6.S081/2020/labs
+- 源码仓库：git://g.csail.mit.edu/xv6-labs-2020 
+- 中文翻译版
+  - 视频课程：https://www.bilibili.com/video/BV19k4y1C7kA/
+  - 视频课程 - 文字版：https://mit-public-courses-cn-translatio.gitbook.io/mit6-s081
+  - 《xv6 os book》：https://th0ar.gitbooks.io/xv6-chinese/content/index.html
 - 其他博客：
   - CS自学指南：https://csdiy.wiki/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/MIT6.S081/
   - Miigon：https://blog.miigon.net/categories/mit6-s081/
