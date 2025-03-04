@@ -18,11 +18,11 @@
 > - 中文翻译版
 >   - 视频课程：https://www.bilibili.com/video/BV19k4y1C7kA/
 >   - 视频课程 - 文字版：https://mit-public-courses-cn-translatio.gitbook.io/mit6-s081
->   - 《xv6 os book》：https://th0ar.gitbooks.io/xv6-chinese/content/index.html
+>   - 《xv6 os book》：https://xv6.dgs.zone/
 
 本篇是 Lab1 的课后实验，实验的目的是让你熟悉 `xv6` 操作系统和它的一些系统调用。
 
-在开始实验之前，你需要先看完[《MIT 6.S081 2020 Lec01》](https://www.bilibili.com/video/BV19k4y1C7kA)和[《xv6 第 0章》](https://th0ar.gitbooks.io/xv6-chinese/content/index.html)中的内容，了解 `xv6` 操作系统的基本接口、操作系统应该怎么设计，并熟悉 `进程`、`内存`、`I/O`、`管道`等基础概念。
+在开始实验之前，你需要先看完[《MIT 6.S081 2020 Lec01》](https://www.bilibili.com/video/BV19k4y1C7kA)和[《xv6 第一章 操作系统接口》](https://xv6.dgs.zone/tranlate_books/book-riscv-rev1/c1/s0.html)中的内容，了解 `xv6` 操作系统的基本接口、操作系统应该怎么设计，并熟悉 `进程`、`内存`、`I/O`、`管道`等基础概念。
 
 > - Lab1 地址：https://pdos.csail.mit.edu/6.828/2020/labs/util.html
 > - 我的实验记录：https://github.com/yibaoshan/xv6-labs-2020/tree/util
@@ -92,7 +92,7 @@ $U/_sleep\ # 新增项
 
 最后运行 `./grade-lab-util sleep` 命令，来测试代码是否通过。
 
-![img.png](imgs/xv6-lab1-sleep-grade.png)
+![img.png](imgs/lab-1/xv6-lab1-sleep-grade.png)
 
 # pingpong (easy)
 
@@ -189,11 +189,11 @@ $U/_pingpong\ # 新增项
 
 `make qemu` 编译启动，运行 `pingpong` 查看结果
 
-![img.png](imgs/xv6-lab1-pingpong-result.png)
+![img.png](imgs/lab-1/xv6-lab1-pingpong-result.png)
 
 最后运行 `./grade-lab-util pingpong` 命令，来测试代码是否通过。
 
-![img.png](imgs/xv6-lab1-pingpong-grade.png)
+![img.png](imgs/lab-1/xv6-lab1-pingpong-grade.png)
 
 # primes (moderate)/(hard)
 
@@ -219,7 +219,7 @@ $U/_pingpong\ # 新增项
 
 同时，我还把数据的处理过程打印了出来，`白色字体` 表示每轮要处理的数据，`红色字体` 表示的是每一轮中被删除掉的元素。
 
-![img.png](imgs/xv6-lab1-primes-demo.png)
+![img.png](imgs/lab-1/xv6-lab1-primes-demo.png)
 
 好，回到正题，首先我们还是在 `user` 目录下，新建 `primes.c` 文件
 
@@ -304,11 +304,11 @@ $U/_primes\ # 新增项
 
 `make qemu` 编译启动，运行 `primes` 查看结果
 
-![img.png](imgs/xv6-lab1-primes-result.png)
+![img.png](imgs/lab-1/xv6-lab1-primes-result.png)
 
 最后运行 `./grade-lab-util primes` 命令，来测试代码是否通过。
 
-![img.png](imgs/xv6-lab1-primes-grade.png)
+![img.png](imgs/lab-1/xv6-lab1-primes-grade.png)
 
 # find (moderate)
 
@@ -407,7 +407,7 @@ int main(int argc, char *argv[]) {
 
 把 `$U/_find\` 添加到 `Makefile` 文件中，运行测试 `./grade-lab-util find`
 
-![img.png](imgs/xv6-lab1-find-grade.png)
+![img.png](imgs/lab-1/xv6-lab1-find-grade.png)
 
 # xargs (moderate)
 
@@ -518,7 +518,7 @@ int main(int argc, char *argv[]) {
 
 把 `$U/_xargs\` 添加到 `Makefile` 文件中，运行测试 `./grade-lab-util xargs`
 
-![img.png](imgs/xv6-lab1-xargs-grade.png)
+![img.png](imgs/lab-1/xv6-lab1-xargs-grade.png)
 
 # 结语
 

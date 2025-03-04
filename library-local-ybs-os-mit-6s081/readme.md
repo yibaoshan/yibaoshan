@@ -18,7 +18,7 @@
 - 中文翻译版
   - 视频课程：https://www.bilibili.com/video/BV19k4y1C7kA/
   - 视频课程 - 文字版：https://mit-public-courses-cn-translatio.gitbook.io/mit6-s081
-  - 《xv6 os book》：https://th0ar.gitbooks.io/xv6-chinese/content/index.html
+  - 《xv6 os book》：https://xv6.dgs.zone/
 - 其他博客：
   - CS自学指南：https://csdiy.wiki/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/MIT6.S081/
   - Miigon：https://blog.miigon.net/categories/mit6-s081/
