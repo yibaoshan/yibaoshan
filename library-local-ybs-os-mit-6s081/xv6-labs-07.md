@@ -1,6 +1,6 @@
 # MIT6.S081 - Lab7 Multithreading（多线程）
 
-本篇是 MIT6.S081 操作系统课程 Lab7 的实验笔记，任务是完成多线程并发功能。
+本篇是 MIT6.S081 操作系统课程 Lab7 的实验笔记，任务是模仿内核进程切换，写一个用户态线程切换功能。
 
 > - Lab7 地址：https://pdos.csail.mit.edu/6.828/2020/labs/thread.html
 > - 我的实验记录：https://github.com/yibaoshan/xv6-labs-2020/tree/thread
@@ -21,3 +21,5 @@
 4. 阅读 [《xv6 book》](https://xv6.dgs.zone/tranlate_books/book-riscv-rev1/c3/s0.html) 第七章： **Scheduling（调度）**
     - 英文原版：https://pdos.csail.mit.edu/6.828/2020/xv6/book-riscv-rev1.pdf
     - 中译版：https://xv6.dgs.zone/tranlate_books/book-riscv-rev1/c7/s0.html
+
+# xv6 如何是完成进程切换的？
