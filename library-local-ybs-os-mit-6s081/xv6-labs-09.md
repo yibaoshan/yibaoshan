@@ -25,6 +25,14 @@
    - https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/file.c
    - https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/log.c
 
+# 聊聊 xv6 的文件系统
+
+### 1、文件系统是怎么使用磁盘的
+
+从操作系统的角度来说，可以把磁盘看作是一个巨大的 block 数组
+
+### 2、xv6 文件系统是如何工作的？
+
 # 参考资料
 
 - CS自学指南：https://csdiy.wiki/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/MIT6.S081/
