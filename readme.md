@@ -1,4 +1,4 @@
-Android 开发工程师，热爱技术，喜欢分享。欢迎关注我的公众号：**[The Android Developer](wechat-official-account.png)** 。
+Android 开发工程师，热爱技术，喜欢分享。欢迎关注我的公众号：**[易保山](wechat-official-account.png)** 。
 
 1. 架构设计（MVX/Clean/动态化/DI/IoC/AOP/Hook/APT） ![](https://geps.dev/progress/50)
 2. 计算机基础（数据结构/算法/OS/Net/编译/并发/Java/C/Python） ![](https://geps.dev/progress/70)
