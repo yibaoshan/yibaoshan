@@ -1,0 +1,36 @@
+
+### 计算机基础
+
+##### 数据结构和算法
+
+LeetCode Hot 100，每天 1~3 题。
+
+https://leetcode.cn/studyplan/top-100-liked/
+
+##### 操作系统
+
+基础版 OS 可以阅读 [MIT6.S081 XV6 操作系统专栏](https://www.zhihu.com/column/c_1883164478474000252)
+
+##### 编译
+
+两个维度
+
+- 一是了解 [C、Java 编译过程](计算机基础-编译-C&Java) ，每个阶段都有哪些工具，是否有扩展的可能性。
+    - 比如 C 语言的预处理、编译、汇编、链接，预处理阶段可以通过宏定义进行修改，编译阶段可以用自定义的编译器插件，链接阶段可以替换库文件。
+    - 再比如 Java 的字节码增强工具 ASM 修改代码，在 CI/CD 中可能用于性能监控或代码注入。
+- 二是了解 [Android APK 的构建流程](计算机基础-编译-Android.md)，资源处理、代码编译、打包签名等步骤
+    - 资源处理阶段使用aapt/aapt2，可以修改资源或生成额外的R.java；
+    - 代码编译阶段，Java 转 dex 时，可以用Transform API（AGP）插入自定义任务，修改字节码
+
+##### 并发
+
+##### Java & JVM
+
+### 架构设计（MVX/Clean/动态化/IoC/AOP/响应式/DDD）
+
+### Android 系统与主流框架技术（View/Handler/Framework/Glide/Retrofit/LeakCanary/MMKV）
+
+### 具⼯程化和团队协作（CI/CD/DevOps/Gradle/Lint/CR/Log/Trace）
+
+### 稳定性治理和性能优化（Crash/ANR/Mem/Boot/Leak/FPS/Monitor/APM）
+
