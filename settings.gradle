@@ -1,5 +1,4 @@
 rootProject.name = "yibaoshan"
-include ':app'
 include ':application-android-blog-recyclerview-sample'
 include ':application-android-ui-card-slide-sample'
 include ':application-android-ui-video-slide-sample'
