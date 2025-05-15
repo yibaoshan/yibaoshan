@@ -1,5 +1,5 @@
 
-![img](imgs/compile-android-apk-process.png)
+![img](../imgs/compile-android-apk-process.png)
 
 1. 资源编译阶段（AAPT2） 
    - 流程：XML/图片资源 → 编译为二进制格式 → 生成R.java和resources.arsc
