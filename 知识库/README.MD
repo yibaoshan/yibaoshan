@@ -36,11 +36,28 @@ https://leetcode.cn/studyplan/top-100-liked/
 
 ## 5、Java & JVM
 
-### 架构设计
+- [Java 基础语法和特性](docs/计算机基础-编程语言-Java-基础语法和特性.md)
+  - 面向对象基础，类和对象，继承、封装、多态，抽象类和接口，内部类和匿名类
+  - Java 基本类型和包装类，基本数据类型，自动装箱和拆箱，String 和字符串池，常量池机制
+  - 异常处理，异常体系，try-catch-finally，自定义异常
+- [Java 集合框架](docs/计算机基础-编程语言-Java-集合框架.md)
+  - Collection 体系，List（ArrayList、LinkedList），Set（HashSet、TreeSet），Queue（ArrayDeque、PriorityQueue）
+  - Map 体系，HashMap 原理和实现，TreeMap 和红黑树，ConcurrentHashMap 实现
+- [Java 反射和注解](docs/计算机基础-编程语言-Java-反射和注解.md)
+  - 反射机制，Class 类，反射 API，动态代理
+  - 注解，内置注解，自定义注解，注解处理器
+- [Java IO/NIO](docs/计算机基础-编程语言-Java-IO&NIO.md)
+  - 传统 I/O，字节流和字符流，缓冲流，序列化
+  - NIO，Buffer 和 Channel，Selector，文件系统
+- [JVM/Dalvik/ART](docs/计算机基础-编程语言-Java-JVM.md)
+  - 内存模型，运行时数据区，对象创建过程，垃圾回收机制
+  - 类加载机制，类加载过程，类加载器，双亲委派模型
 
-### Android 系统与主流框架技术
+# 架构设计
 
-### ⼯程化和团队协作
+# Android 系统与主流框架技术
 
-### 稳定性治理和性能优化
+# ⼯程化和团队协作
+
+# 稳定性治理和性能优化
 
