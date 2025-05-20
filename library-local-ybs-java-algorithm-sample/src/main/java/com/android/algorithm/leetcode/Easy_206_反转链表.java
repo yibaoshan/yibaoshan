@@ -31,37 +31,44 @@ public class Easy_206_反转链表 {
      */
     @Test
     public void main() {
+        int[] ret = new int[]{1, 8, 4, 5};
+        ListNode retNode = new ListNode(0);
+        ListNode next = retNode;
 
-    }
-
-
-    /** head = [1,2,3,4,5]  */
-    public ListNode reverseList(ListNode head) {
-
-        ListNode ret = null; // 最终结果，把一个个节点拼装，连接在一起
-        ListNode tmp = head; // 负责遍历链表，从 [1,2,3,4,5] 陆续变成：[2,3,4,5]、[3,4,5]、[4,5]、[5]
-
-        while (tmp != null) {
-
-            // 第一轮 next = [2,3,4,5]
-            // 第一轮 next = [3,4,5]
-            ListNode next = tmp.next;
-
-            // 第一轮 ret = null , tmp.next = null ，因此 tmp = [1]
-            // 第一轮 ret = [1] , tmp.next = [1] ，因此 tmp = [1,2]
-            tmp.next = ret;
-
-            // 第一轮 ret = [1]
-            // 第一轮 ret = [1,2]
-            ret = tmp;
-
-            // 第一轮 next = [2,3,4,5] ，因此 tmp = [2,3,4,5]
-            tmp = next;
+        for (int i = 0; i < ret.length; i++) {
+            next.next = new ListNode(ret[i]);
+            next = next.next;
         }
-        return ret;
+        retNode = retNode.next;
+        System.out.println(reverseList(retNode).val);
     }
 
 
+    /**
+     * head = [1,2,3,4,5]
+     */
+    public ListNode reverseList(ListNode head) {
+        // 传统解决方案
+        if (head == null) return null;
+        Stack<Integer> stack = new Stack<>();
+        while (head != null) {
+            stack.push(head.val);
+            head = head.next;
+        }
+        head = new ListNode(0);
+        ListNode ret = head;
+        while (!stack.empty()) {
+            ret.next = new ListNode(stack.pop());
+            ret = ret.next;
+        }
+        return head.next;
+    }
+
+
+    /**
+     * 正确打开方式
+     * 0 ms 击败 100.00%
+     * */
     public ListNode reverseList1(ListNode head) {
         ListNode ret = null;
         while (head != null) {

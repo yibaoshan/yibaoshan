@@ -19,6 +19,35 @@ public class Easy_160_相交链表 {
     @Test
     public void main() {
 
+        int[] ret = new int[]{1, 8, 4, 5};
+        ListNode retNode = new ListNode(0);
+        ListNode next = retNode;
+
+        for (int i = 0; i < ret.length; i++) {
+            next.next = new ListNode(ret[i]);
+            next = next.next;
+        }
+        retNode = retNode.next;
+
+        int[] arr1 = new int[]{4, 4, 4};
+        ListNode list1 = new ListNode(0);
+        next = list1;
+
+        for (int i = 0; i < arr1.length; i++) {
+            next.next = new ListNode(arr1[i]);
+            if (i == arr1.length - 1) next.next.next = retNode;
+            else next = next.next;
+        }
+
+        int[] arr2 = new int[]{5, 6};
+        ListNode list2 = new ListNode(0);
+        next = list2;
+        for (int i = 0; i < arr2.length; i++) {
+            next.next = new ListNode(arr2[i]);
+            if (i == arr2.length - 1) next.next.next = retNode;
+            else next = next.next;
+        }
+        System.out.println(getIntersectionNode(list1.next, list2.next).val);
     }
 
     /**
