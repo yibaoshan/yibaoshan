@@ -90,6 +90,41 @@ https://leetcode.cn/studyplan/top-100-liked/
 
 # Android 系统与主流框架技术
 
+![](imgs/android-stack-2025.png)
+
+截止到 2025 年，[Android 官网](https://source.android.com/docs/core/architecture) 为 Android 系统架构分了 11  个级别，从上到下分别是：
+
+1. 普通应用（Android Apps），在应用商店下载的非官方应用基本都在这一层，微信、支付宝、抖音、快手、淘宝、京东、美团、饿了么啥的。
+2. 特权应用（Privileged Apps），权限更敏感的系统应用吧，比如 系统更新、安全中心之类的。
+3. 设备制造商应用（Device Manufacturer Apps），系统应用，比如系统自带的天气、日历、便签、计算器啥的。Google 对它的描述是：
+   - 结合使用 Android API、系统 API 并直接访问 Android 框架实现而创建的应用。由于设备制造商可能会直接访问 Android 框架中的不稳定的 API，因此这些应用必须预安装在设备上，并且只能在设备的系统软件更新时进行更新。
+4. 系统 API（System API），需要的系统权限才能调用，只能被上面的系统应用和特权系统应用使用，比如，静默安装/卸载、控制数据流量限制、流量统计、读电池状态、屏幕使用时间啥的，官方描述是：
+   - 系统 API 表示仅供合作伙伴和 OEM 纳入捆绑应用的 Android API。这些 API 在源代码中被标记为 @SystemApi。
+5. Android API，平时开发时用到的 API，比如 View、Activity、Context、Intent、Service 等等。
+6. Android 框架（Framework），Framework 层，AMS、PMS、WMS 之类的，官方解释是：
+   - 构建应用所依据的一组 Java 类、接口和其他预编译代码。框架的某些部分可通过使用 Android API 公开访问。框架的其他部分只能由 OEM 通过系统 API 来访问。Android 框架代码在应用进程内运行。
+7. 系统服务（System Services），为上面的 AMS、PMS 服务的更底层的服务，比如 system_server、SurfaceFlinger。
+8. Android 运行时 (ART)，Java 的运行时，上面的服务都需要虚拟机来跑，ART 就是这个虚拟机。
+9. 硬件抽象层 (HAL)，各个驱动的抽象层，比如相机，hal 提供 camera.h 头文件，实现交给各个厂商。
+10. 原生守护程序和库（System Services and Daemons），官方解释：
+    - 该层中的原生守护程序包括 init、healthd、logd 和 storaged。这些守护程序直接与内核或其他接口进行交互，并且不依赖于基于用户空间的 HAL 实现。
+    - 该层中的原生库包括 libc、liblog、libutils、libbinder 和 libselinux。这些原生库直接与内核或其他接口进行交互，并且不依赖于基于用户空间的 HAL 实现。
+11. 内核（Linux Kernel），进程、内存、文件系统、网络服务和管理和各种基础驱动等，还有基于 Linux 主线增加的 Android 特性，比如著名的 Binder 驱动，Ashmem 匿名共享内存等
+
+官方新的 11 个层级我个人觉得有点啰嗦，分的太细，我还是更习惯原来的 5 层结构
+
+![](imgs/android-architecture.png) 
+
+如上图，还是按照从上到下来介绍：
+
+1. Applications，普通应用，除了厂商应用外，需要上架到应用商店的 APP。
+2. Application Framework，框架层，管理应用和为应用提供服务，四大组件的 AMS，窗口的 WMS，包管理的 PMS 等，View 系统、Handler 啥的也在这儿。
+3. Libraries & Android Runtime，主要是一些 Native 系统库，例如图中的 surface、webkit、sql 等，还有最重要的 Android 运行时 ART，从这一层开始继续向下的，基本都是 C/C++ 实现。
+4. HAL，定义硬件协议的抽象层，普通应用开发不太需要了解这方面内容。
+5. Linux Kernel，OS 内核，相较于 Linux 主线，另外需要关注的就是 binder、lowmemorykiller 和 Ashmem 匿名共享内存了。
+
+## 主流框架技术
+
 # ⼯程化和团队协作
 
 # 稳定性治理和性能优化
