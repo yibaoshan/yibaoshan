@@ -115,7 +115,7 @@ https://leetcode.cn/studyplan/top-100-liked/
 
 ![](imgs/android-architecture.png) 
 
-如上图，还是按照从上到下来介绍：
+如上图，还是按照从上到下的顺序来介绍：
 
 1. Applications，普通应用，除了厂商应用外，需要上架到应用商店的 APP。
 2. Application Framework，框架层，管理应用和为应用提供服务，四大组件的 AMS，窗口的 WMS，包管理的 PMS 等，View 系统、Handler 啥的也在这儿。
@@ -123,7 +123,61 @@ https://leetcode.cn/studyplan/top-100-liked/
 4. HAL，定义硬件协议的抽象层，普通应用开发不太需要了解这方面内容。
 5. Linux Kernel，OS 内核，相较于 Linux 主线，另外需要关注的就是 binder、lowmemorykiller 和 Ashmem 匿名共享内存了。
 
-## 主流框架技术
+## 1、主流框架技术
+
+应用层将会介绍一些常见的 Jetpack 库和三方的框架技术，首先是 [Android Jetpack](docs/Android-Jetpack-Overview.md)（只展示部分用过的库）
+
+![](imgs/jetpack-category-2025.png)
+
+按官网顺序
+
+1. 手机以外的（beyond）
+   - TV、手表、车载相关，和应用有关系的好像只有 [window](https://developer.android.com/jetpack/androidx/releases/window?hl=zh-cn)。
+2. 数据（data）
+    - [Room](docs/Android-Jetpack-Data-Room.md)，数据库框架，几个注解的使用、版本升级、常用 sql 等
+    - [Paging](docs/Android-Jetpack-Data-Paging.md)，分页的，了解怎么用就好了。
+3. 图形（graphics）
+   - [Animation](docs/Android-Jetpack-Graphics-Animation.md)，属性动画、视图动画、插值器、触摸处理、可见性处理（先启动动画再gone）等
+4. 声明周期（lifecycle）
+   - [Lifecycle](docs/Android-Jetpack-Lifecycle-Lifecycle.md)，生命周期状态、所有者（LifecycleOwner/Act/Frag）、观察者模式
+   - [ViewModel](docs/Android-Jetpack-Lifecycle-ViewModel.md)，数据持久化、生命周期感知、SavedStateHandle
+   - [LiveData](docs/Android-Jetpack-Lifecycle-LiveData.md)，生命周期管理、观察机制、粘性事件
+5. 媒体（media）
+   - [Media3](docs/Android-Jetpack-Media-Media3.md)，媒体播放器的使用，ExoPlayer
+6. 导航（navigation）
+   - [Navigation](docs/Android-Jetpack-Navigation-Navigation.md)，NavController、NavHost、Frag/Act/对话框 导航、参数传递、Deep、隐式显式、转场动画
+7. 安全性（security）
+   - [Credentials](docs/Android-Jetpack-Security-Credentials.md)，基本使用、凭证管理、存储机制
+8. 性能/测试（performance）
+   - [Startup](docs/Android-Jetpack-Performance-Startup.md)]，依赖关系处理、懒加载支持、ContentProvider
+9. 界面（UI）
+   - [AppCompatActivity](docs/Android-Jetpack-UI-AppCompatActivity)，最基本的组件，代表一个窗口用于显示用户界面
+     - 生命周期、启动模式、数据传递、状态保存和恢复、和 Window 的交互等。
+     - 和 FragmentActivity、ComponentActivity、Activity 之间的关系。
+   - [Fragment](docs/Android-Jetpack-UI-Fragment)：可重用的组件，可以简单理解为拥有声明周期的 View。
+     - 自己和 Activity 的生命周期管理、FM 使用、事务处理、BackStack 管理、通信、视图管理等等。
+   - [Recyclerview](docs/Android-Jetpack-UI-Recyclerview.md)，缓存机制、布局管理、适配器、ItemDecoration、ItemTouchHelper 等。
+   - [Viewpager2](docs/Android-Jetpack-UI-Viewpager.md)，垂直滑动支持、Fragment 状态管理、可见性、嵌套滑动
+10. App Architecture：https://developer.android.com/topic/architecture/intro?hl=zh-cn
+    - [Hilt](docs/Android-Jetpack-Architecture-Hilt)，依赖注入框架，作用域管理、限定符、入口
+    - manifest: https://developer.android.com/guide/topics/manifest/manifest-intro?hl=zh-cn
+
+然后是一些常见的三方库
+
+- [Glide](docs/Android-OpenSource-Glide.md)，图片加载流程、缓存机制、生命周期、缩略图、图片转换（圆角、高斯模糊、裁剪）
+- [OkHttp](docs/Android-OpenSource-Glide.md)，请求/响应模型，连接池、拦截器链、缓存、Cookie 处理、文件上传下载
+- [Retrofit](docs/Android-OpenSource-Glide.md)，基本使用，注解处理、适配器模式、转换机制、请求构建、协程/RxJava/Flow 支持
+- [LeakCanary](docs/Android-OpenSource-Glide.md)，引用类型、GC 机制、泄漏检测原理、支持检测的类型、堆内存分析、泄漏路径分析、对象引用链、常见泄漏场景
+- [MMKV](docs/Android-OpenSource-Glide.md)，mmap 内存映射、多进程并发
+- [RxJava](docs/Android-OpenSource-Glide.md)，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
+- [ARouter](docs/Android-OpenSource-Glide.md)，注解处理器、依赖注入、拦截器、降级、动态路由
+- [Tinker](docs/Android-OpenSource-Glide.md)，类加载机制、资源替换、Dex 替换、下发策略
+- [ButterKnife](docs/Android-OpenSource-Glide.md)，注解处理器
+- [EventBus](docs/Android-OpenSource-Glide.md)，发布订阅、线程切换、粘性事件、内存泄漏风险
+
+## 2、Framework
+
+View-Bitmap
 
 # ⼯程化和团队协作
 
