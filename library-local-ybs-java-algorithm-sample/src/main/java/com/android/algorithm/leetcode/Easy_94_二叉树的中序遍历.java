@@ -53,17 +53,16 @@ public class Easy_94_二叉树的中序遍历 {
     }
 
     public List<Integer> inorderTraversal(TreeNode root) {
-        travel(root);
+        List<Integer> ret = new LinkedList<>();
+        traverse(root, ret);
         return ret;
     }
 
-    private final List<Integer> ret = new LinkedList<>();
-
-    private void travel(TreeNode node) {
-        if (node == null) return;
-        travel(node.left);
-        ret.add(node.val);
-        travel(node.right);
+    private void traverse(TreeNode node, List<Integer> list){
+        if(node == null)return;
+        traverse(node.left, list);
+        list.add(node.val);
+        traverse(node.right, list);
     }
 
     private List<Integer> stack(TreeNode root) {

@@ -63,34 +63,23 @@ public class Easy_21_合并两个有序链表 {
      * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
      * 内存消耗：37.9 MB, 在所有 Java 提交中击败了37.65%的用户
      */
-    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
-        if (l1 == null) return l2;
-        if (l2 == null) return l1;
-        ListNode root = null, temp = null;
-        while (l1 != null || l2 != null) {
-            ListNode cur;
-            if (l1 == null) {
-                cur = l2;
-                l2 = l2.next;
-            } else if (l2 == null) {
-                cur = l1;
-                l1 = l1.next;
-            } else if (l1.val < l2.val) {
-                cur = l1;
-                l1 = l1.next;
-            } else {
-                cur = l2;
-                l2 = l2.next;
-            }
-            if (root == null) {
-                root = new ListNode(cur.val);
-                temp = root;
-            } else {
-                temp.next = new ListNode(cur.val);
-                temp = temp.next;
-            }
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        if (list1 == null) return list2;
+        if (list2 == null) return list1;
+        ListNode ret = new ListNode();
+        ListNode tmp = ret;
+        while (list1 != null && list2 != null) {
+            int val = list1.val;
+            if (list1.val > list2.val) {
+                val = list2.val;
+                list2 = list2.next;
+            } else list1 = list1.next;
+            tmp.next = new ListNode(val);
+            tmp = tmp.next;
         }
-        return root;
+        if (list1 != null) tmp.next = list1;
+        if (list2 != null) tmp.next = list2;
+        return ret.next;
     }
 
     public class ListNode {
