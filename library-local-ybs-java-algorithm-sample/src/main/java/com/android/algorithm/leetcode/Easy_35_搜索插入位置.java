@@ -38,7 +38,8 @@ public class Easy_35_搜索插入位置 {
      */
     @Test
     public void main() {
-
+        int[] nums = new int[]{1, 3, 5};
+        System.out.println(searchInsert(nums, 0));
     }
 
     /**
@@ -48,15 +49,23 @@ public class Easy_35_搜索插入位置 {
      */
     public int searchInsert(int[] nums, int target) {
         if (nums == null || nums.length == 0) return 0;
-        int left = 0, right = nums.length - 1;
-        int mid = left + (right - left) / 2;
-        while (left <= right) {
-            if (target > nums[mid]) left = mid + 1;
-            else if (target < nums[mid]) right = mid - 1;
+        int begin = 0, end = nums.length - 1, mid = begin + (end - begin) / 2;
+        while (begin <= end) {
+            if (target > nums[mid]) begin = mid + 1;
+            else if (target < nums[mid]) end = mid - 1;
             else return mid;
-            mid = left + (right - left) / 2;
+            mid = begin + (end - begin) / 2;
         }
         return mid;
+    }
+
+    public int search(int[] nums, int target, int begin, int end) {
+        if (begin >= end) return begin;
+        int midInx = (begin + end) / 2;
+        int midVal = nums[midInx];
+        if (midVal == target) return midInx;
+        else if (midVal > target) return search(nums, target, begin, midInx - 1);
+        else return search(nums, target, midInx + 1, end);
     }
 
 }
