@@ -49,36 +49,20 @@ public class Easy_20_有效的括号 {
 
     /**
      * 执行结果：通过
-     * 执行用时：1 ms, 在所有 Java 提交中击败了98.94%的用户
-     * 内存消耗：36.5 MB, 在所有 Java 提交中击败了45.71%的用户
+     * 执行用时分布2ms击败97.94%
+     * 消耗内存分布40.78MB击败95.89%
      */
     public boolean isValid(String s) {
-        if (s == null) return false;
+        if (s == null || s.isEmpty() || s.length() % 2 != 0) return false;
+        Stack<Character> stack = new Stack<>();
         char[] chars = s.toCharArray();
-        int sBracket = 0, mBracket = 0, bBracket = 0;
-        Stack<Integer> stack = new Stack<>();
         for (char c : chars) {
-            if (c == '(') {
-                sBracket++;
-                stack.push(1);
-            } else if (c == ')' && !stack.empty() && stack.peek() == 1) {
-                sBracket--;
-                stack.pop();
-            } else if (c == '[') {
-                mBracket++;
-                stack.push(2);
-            } else if (c == ']' && !stack.empty() && stack.peek() == 2) {
-                mBracket--;
-                stack.pop();
-            } else if (c == '{') {
-                bBracket++;
-                stack.push(3);
-            } else if (c == '}' && !stack.empty() && stack.peek() == 3) {
-                bBracket--;
-                stack.pop();
-            } else return false;
+            if (c == '(' || c == '[' || c == '{') stack.push(c);
+            else if (stack.isEmpty() || c == ')' && stack.pop() != '('
+                    || c == ']' && stack.pop() != '['
+                    || c == '}' && stack.pop() != '{') return false;
         }
-        return sBracket == 0 && mBracket == 0 && bBracket == 0;
+        return stack.isEmpty();
     }
 
     /**

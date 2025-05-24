@@ -36,11 +36,11 @@ public class Easy_104_二叉树的最大深度 {
     /**
      * 执行结果：通过
      * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：38.4 MB, 在所有 Java 提交中击败了19.35%的用户
+     * 内存消耗：38.4 MB 击败99.99%
      */
     public int maxDepth(TreeNode root) {
         if (root == null) return 0;
-        return max(root, 0);
+        return Math.max(maxDepth(root.left) + 1, maxDepth(root.right) + 1);
     }
 
     private int max(TreeNode root, int i) {
