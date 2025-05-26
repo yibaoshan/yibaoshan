@@ -241,5 +241,17 @@ Kernel 的上一层还有个 HAL，不过应用开发实在接触不到，略略
 
 # ⼯程化和团队协作
 
+- [Continuous Integration]()，Jenkins 和 Gitlab、Lint 检查代码准入、渠道/分支管理、自动构建、编译报告（资源增删、包体积）、测试分发（上传 OSS 与更新通知）
+- [Continuous Delivery]()，Jenkins 和 Gitlab、Firebase
+- [DevOps]()，需求群、线上 Bug 群、发布群、飞书卡片通知/操作确认（同意/打回）、测试阶段、产品验收、线上回归、自动发布、代码/文档/tag/分支归档、监控面板、最终交付。
+- [Gradle]()，各种自定义任务、马甲包管理、Debug Only、本地环境隔离
+- [Log & Trace]()，线上/线下日志和埋点解决方案
+
 # 稳定性治理和性能优化
+
+- [ANR]()，ANR 产生原因（触发条件/时机）、怎么分析、解决/优化方案、线上/线下监控、主线程 I/O、Method 耗时监控
+- [Crash]()，Crash 常见原因和解决方案、Java 崩溃体系，预防与治理，CI 阶段如何检测、处理、线上/线下收集/监控，如何收敛？
+- [OOM]()，内存管理/回收/泄/LMK等基础知识，线下内存使用量监控，LeakCanary 泄漏监控，线上 KOOM/Matrix 数据收集/监控
+- [FPS/卡顿掉帧]()，View 渲染过程，布局优化、RV优化、线上/线下监控、收集
+- [App/Page Startup]()，应用冷启动优化、Systrace、页面的启动和可交互速度优化、生命周期和埋点时机
 
