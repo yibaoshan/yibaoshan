@@ -28,46 +28,24 @@ public class Easy_70_爬楼梯 {
     public void main() {
         int step = 13;
         System.out.println(climbStairs(step));
-        System.out.println(climbStairs2(step));
-        System.out.println(climbStairs3(step));
     }
 
     /**
-     * 执行结果：超时
+     * 找规律，从第 3 阶开始，解决方案有 n-1 + n-2 种。
+     * 1 阶楼梯时，解决方案为 1
+     * 2 阶楼梯时，解决方案为 2
+     * 3 阶楼梯时，n-1 + n-2 = 1 + 2 = 3
+     * 4 阶楼梯时，n-1 + n-2 = 2 + 3 = 5
+     * 5 阶楼梯时，n-1 + n-2 = 3 + 5 = 8
+     * 6 阶楼梯时，n-1 + n-2 = 5 + 8 = 13
+     * 7 阶楼梯时，n-1 + n-2 = 8 + 13 = 21
+     * ...
+     * <p>
+     * 执行用时分布0ms击败100.00%
+     * 内存消耗：38.2 MB, 在所有 Java 提交中击败了5.37%的用户
+     * 消耗内存分布39.63MB击败35.69%
      */
     public int climbStairs(int n) {
-        if (n < 3) return n;
-        return climbStairs(n - 1) + climbStairs(n - 2);
-    }
-
-    /**
-     * 动态规划，评论区答案，这一次的结果依赖于上一次计算结果
-     * 执行结果：通过
-     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：34.9 MB, 在所有 Java 提交中击败了90.06%的用户
-     */
-    public int climbStairs2(int n) {
-        if (n < 3) return n;
-        int one = 1, two = 2, temp;
-        for (int i = 3; i <= n; i++) {
-            temp = one;
-            one = two;
-            two = temp + one;
-        }
-        return two;
-    }
-
-    /**
-     * 动态规划，和509 1137题思路一毛一样
-     *
-     * @see com.android.algorithm.leetcode.Easy_509_斐波那契数
-     * @see com.android.algorithm.leetcode.Easy_1137_第N个泰波那契数
-     * <p>
-     * 执行结果：通过
-     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：38.2 MB, 在所有 Java 提交中击败了5.37%的用户
-     */
-    public int climbStairs3(int n) {
         if (n <= 3) return n;
         int a = 1, b = 2, sum = a + b;
         while (n-- > 3) {

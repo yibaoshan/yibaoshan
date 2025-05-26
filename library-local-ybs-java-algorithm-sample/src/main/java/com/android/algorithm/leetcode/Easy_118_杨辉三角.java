@@ -38,32 +38,25 @@ public class Easy_118_杨辉三角 {
     }
 
     /**
-     * 执行结果：通过
-     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：36.4 MB, 在所有 Java 提交中击败了22.44%的用户
+     * 执行用时分布1ms击败98.35%
+     * 消耗内存分布41.32MB击败31.85%
      */
     public List<List<Integer>> generate(int numRows) {
         if (numRows < 1) return null;
-        List<List<Integer>> result = new ArrayList<>();
-        List<Integer> oneIntegers = new ArrayList<>();
-        List<Integer> last = new ArrayList<>();
-        oneIntegers.add(1);
-        result.add(oneIntegers);
-        int count = 2;
-        while (count <= numRows) {
-            List<Integer> once = new ArrayList<>();
-            for (int i = 0; i < count; i++) {
-                if (i == 0) once.add(1);
-                else if (i + 1 == count) once.add(1);
-                else {
-                    once.add(last.get(i - 1) + last.get(i));
-                }
+        List<List<Integer>> ret = new ArrayList<>();
+        List<Integer> tmp = new ArrayList<>();
+        tmp.add(1);
+        ret.add(tmp);
+        for (int i = 1; i < numRows; i++) {
+            tmp = new ArrayList<>();
+            tmp.add(1);
+            for (int j = 1; j < i; j++) {
+                tmp.add(ret.get(i - 1).get(j - 1) + ret.get(i - 1).get(j));
             }
-            last = once;
-            result.add(once);
-            count++;
+            tmp.add(1);
+            ret.add(tmp);
         }
-        return result;
+        return ret;
     }
 
 }

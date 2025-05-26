@@ -25,6 +25,23 @@ public class Easy_121_买卖股票的最佳时机 {
         System.out.println(maxProfit2(prices));
     }
 
+    /**
+     * 一把过，思路：
+     * 1. 遍历数组，记录最小值，并计算最大差值
+     * <p>
+     * 执行用时分布2ms击败44.95%
+     * 消耗内存分布60.29MB击败70.23%
+     */
+    public int maxProfit(int[] prices) {
+        if (prices == null || prices.length < 2) return 0;
+        int min = prices[0], ret = 0;
+        for (int i = 1; i < prices.length; i++) {
+            ret = Math.max(ret, prices[i] - min);
+            if (prices[i] < min) min = prices[i];
+        }
+        return ret;
+    }
+
     //开始转变思路，最小值默认等于下标0
     //向后遍历时动态更改最小值的值，最小值就等于当前值和最小值比较
     //以2，4，1举例
@@ -43,7 +60,7 @@ public class Easy_121_买卖股票的最佳时机 {
      * 执行用时：2 ms, 在所有 Java 提交中击败了93.52%的用户
      * 内存消耗：51.4 MB, 在所有 Java 提交中击败了39.99%的用户
      */
-    public int maxProfit(int[] prices) {
+    public int maxProfitOld(int[] prices) {
         int min = prices[0];
         int max = Integer.MIN_VALUE;
         for (int i = 0; i < prices.length; i++) {
