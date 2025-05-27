@@ -22,24 +22,23 @@ public class Easy_108_将有序数组转换为二叉搜索树 {
         print(build);
     }
 
+    /**
+     * 执行用时分布0ms击败100.00%
+     * 消耗内存分布42.31MB击败61.03%
+     * */
     public TreeNode sortedArrayToBST(int[] nums) {
-        if (nums == null || nums.length == 0) return null;
-        return build(nums, 0, nums.length - 1);
+        return traverse(nums, 0, nums.length);
     }
 
-    /**
-     * 递归，分治法
-     * 执行结果：通过
-     * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户
-     * 内存消耗：38 MB, 在所有 Java 提交中击败了87.40%的用户
-     */
-    private TreeNode build(int[] nums, int left, int right) {
-        if (left > right) return null;
-        int m = (left + right) / 2;
-        TreeNode treeNode = new TreeNode(nums[m]);
-        treeNode.left = build(nums, left, m - 1);
-        treeNode.right = build(nums, m + 1, right);
-        return treeNode;
+    private TreeNode traverse(int[] nums, int start, int end) {
+        if (start == end) return new TreeNode(nums[end]);
+        if (start > end) return null;
+        int mid = start + (end - start) / 2;
+        TreeNode node = new TreeNode(nums[mid]);
+        //System.out.println("start = " + start + ", end = "+end + ", mid = " + mid);
+        if (mid > 0) node.left = traverse(nums, start, mid - 1);
+        if (mid + 1 < nums.length) node.right = traverse(nums, mid + 1, end);
+        return node;
     }
 
     private void print(TreeNode root) {
