@@ -22,22 +22,17 @@ public class Medium_11_盛最多水的容器 {
 
     /**
      * 双指针解法，思路：左右指针从最左侧和最右侧开始遍历，那边值小就动那边的指针，同时更新最大值即可
-     * 执行结果：通过
-     * 执行用时：5 ms, 在所有 Java 提交中击败了15.65%的用户
-     * 内存消耗：52.2 MB, 在所有 Java 提交中击败了5.06%的用户
+     * 执行用时分布4ms击败74.54%
+     * 消耗内存分布56.91MB击败36.16%
      */
     public int maxArea(int[] height) {
         if (height == null || height.length < 2) return 0;
         if (height.length == 2) return Math.min(height[0], height[1]);
-        int left = 0, right = height.length - 1, length = right;
-        int max = 0;
+        int left = 0, right = height.length - 1, max = 0;
         while (left < right) {
-            int leftValue = height[left];
-            int rightValue = height[right];
-            max = Math.max(max, Math.min(height[left], height[right]) * length);
-            if (leftValue < rightValue) left++;
-            else right--;
-            length--;
+            max = Math.max(max, Math.min(height[left], height[right]) * (right - left));
+            if (height[left] > height[right]) right--;
+            else left++;
         }
         return max;
     }
