@@ -5,7 +5,7 @@
 
 SQLite 是 Android 系统为开发者提供的数据库引擎,它在 Android 架构中的位置如下图
 
-![](../imgs/jetpack-room-architecture.png)
+![](imgs/jetpack-room-architecture.png)
 
 今天的主角是 Jetpack 的 Room，它是 Google 基于 SQLite 实现的 ORM 框架。 ORM 全称是对象关系映射（Object Relational Mapping），使用 ORM 框架就不需要我们手写 SQL 语句了，直接操作 Java/Kotlin 对象就可以了。
 
@@ -222,7 +222,7 @@ SELECT  * from xxx WHERE uuid IN (:uuids) ORDER BY xxx
 
 这条查询语句中最终会被展开为 IN (1,2,3,...) 的形式执行，而 SQLite 默认限制了单条语句的参数数量，如果 List 的长度超过限制数量，就会抛出 too many SQL variables 异常
 
-![](../imgs/jetpack-room-sqlite-max-function-arg.png)
+![](imgs/jetpack-room-sqlite-max-function-arg.png)
 
 发现问题以后，我们把这块业务修改为 分批 执行，每次最多传入 100 个参数
 
