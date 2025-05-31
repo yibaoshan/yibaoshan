@@ -22,6 +22,32 @@ public class Medium_24_两两交换链表中的节点 {
     }
 
     /**
+     * 执行用时分布0ms击败100.00%
+     * 消耗内存分布40.57MB击败24.48%
+     */
+    public ListNode swapPairs_2025(ListNode head) {
+        ListNode ret = new ListNode(), tmp = ret;
+        while (head != null) {
+            int n = 2;
+            ListNode once = null;
+            while (n-- > 0 && head != null) {
+                //System.out.println("enter traverse " + head.val);
+                once = new ListNode(head.val, once);
+                head = head.next;
+            }
+            //tmp.next = once;
+            //tmp = tmp.next;
+            while (once != null) {
+                //System.out.println("print once " + once.val);
+                tmp.next = once;
+                once = once.next;
+                tmp = tmp.next;
+            }
+        }
+        return ret.next;
+    }
+
+    /**
      * 递归交换法，较为简单
      * 执行结果：通过
      * 执行用时：0 ms, 在所有 Java 提交中击败了100.00%的用户

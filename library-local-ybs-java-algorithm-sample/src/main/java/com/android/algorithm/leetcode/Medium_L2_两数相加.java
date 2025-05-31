@@ -29,39 +29,51 @@ public class Medium_L2_两数相加 {
     }
 
     /**
-     * 执行结果：通过
-     * 执行用时：20 ms, 在所有 Java 提交中击败了5.48%的用户
-     * 内存消耗：39.1 MB, 在所有 Java 提交中击败了5.13%的用户
+     * 执行用时分布1ms击败100.00%
+     * 消耗内存分布43.55MB击败62.67%
      */
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        if (l1 == null) return l2;
-        if (l2 == null) return l1;
-        Queue<Integer> queue1 = nodeToQueue(l1);
-        Queue<Integer> queue2 = nodeToQueue(l2);
-        Queue<Integer> queueResult = new LinkedList<>();
-        if (queue1.size() < queue2.size()) {
-            Queue<Integer> temp = queue1;
-            queue1 = queue2;
-            queue2 = temp;
-        }
-        boolean addStep = false;
-        while (!queue1.isEmpty()) {
-            int once = queue1.poll();
-            if (!queue2.isEmpty()) once += queue2.poll();
-            if (addStep) once++;
-            if (once > 9) {
-                queueResult.offer(once % 10);
-                addStep = true;
-            } else {
-                queueResult.offer(once);
-                addStep = false;
+        ListNode ret = new ListNode(), tmp = ret;
+        boolean flag = false;
+        while (l1 != null && l2 != null) {
+            boolean curFlag = false;
+            int val = l1.val + l2.val + (flag ? 1 : 0);
+            if (val >= 10) {
+                val -= 10;
+                curFlag = true;
             }
+            tmp.next = new ListNode(val);
+            tmp = tmp.next;
+            l1 = l1.next;
+            l2 = l2.next;
+            flag = curFlag;
         }
-        if (addStep) queueResult.offer(1);
-        System.out.println(queue1.toString());
-        System.out.println(queue2.toString());
-        System.out.println(queueResult.toString());
-        return queueToNode(queueResult);
+        while (l1 != null) {
+            boolean curFlag = false;
+            int val = l1.val + (flag ? 1 : 0);
+            if (val >= 10) {
+                val -= 10;
+                curFlag = true;
+            }
+            tmp.next = new ListNode(val);
+            tmp = tmp.next;
+            l1 = l1.next;
+            flag = curFlag;
+        }
+        while (l2 != null) {
+            boolean curFlag = false;
+            int val = l2.val + (flag ? 1 : 0);
+            if (val >= 10) {
+                val -= 10;
+                curFlag = true;
+            }
+            tmp.next = new ListNode(val);
+            tmp = tmp.next;
+            l2 = l2.next;
+            flag = curFlag;
+        }
+        if (flag) tmp.next = new ListNode(1);
+        return ret.next;
     }
 
     private Queue<Integer> nodeToQueue(ListNode node) {
