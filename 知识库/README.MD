@@ -52,7 +52,7 @@
    - [Animation](android-jetpack/jetpack-graphics-animation)，属性动画、视图动画、插值器、触摸处理、可见性处理（先启动动画再gone）等
 4. 声明周期（lifecycle）
    - [Lifecycle](android-jetpack/jetpack-lifecycle-lifecycle.md)，生命周期状态、所有者（LifecycleOwner/Act/Frag）、观察者模式
-   - [ViewModel](docs/Android-Jetpack-Lifecycle-ViewModel.md)，数据持久化、生命周期感知、SavedStateHandle
+   - [ViewModel](android-jetpack/jetpack-lifecycle-viewmodel)，数据持久化、生命周期感知、SavedStateHandle
    - [LiveData](docs/Android-Jetpack-Lifecycle-LiveData.md)，生命周期管理、观察机制、粘性事件
 5. 媒体（media）
    - [Media3](docs/Android-Jetpack-Media-Media3.md)，媒体播放器的使用，ExoPlayer
