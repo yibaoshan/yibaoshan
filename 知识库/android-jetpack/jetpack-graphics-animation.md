@@ -1,0 +1,13 @@
+
+- 逐帧动画，类比 GIF
+  - 出于内存和包体积考虑，已放弃并禁止在项目中使用。
+- 补间动画
+  - 作用于 View，淡入淡出（透明度），缩放，平移，旋转四种
+  - 简单易用，项目现在还到处都是 View.startAnimation()，配合 Interpolator、AnimationSet 很方便。
+  - just animation only，位置不会变动，比如新位置不会响应触摸事件。
+- 属性动画 from Android 3.0
+  - 不断刷新目标对象属性值从而达到动画效果，ValueAnimator.ofXXX()
+- Compose，it's not view, android team create a new animation library for compose
+  - AnimatedVisibility，显示隐藏动画
+  - AnimatedContent，淡入淡出
+  - animateAsState，类似 属性动画

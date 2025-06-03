@@ -48,11 +48,10 @@
    - TV、手表、车载相关，和应用有关系的好像只有 [window](https://developer.android.com/jetpack/androidx/releases/window?hl=zh-cn)。
 2. 数据（data）
     - [Room](android-jetpack/jetpack-data-room)，数据库框架，几个注解的使用、版本升级、常用 sql 等
-    - [Paging](docs/Android-Jetpack-Data-Paging.md)，分页的，了解怎么用就好了。
 3. 图形（graphics）
-   - [Animation](docs/Android-Jetpack-Graphics-Animation.md)，属性动画、视图动画、插值器、触摸处理、可见性处理（先启动动画再gone）等
+   - [Animation](android-jetpack/jetpack-graphics-animation)，属性动画、视图动画、插值器、触摸处理、可见性处理（先启动动画再gone）等
 4. 声明周期（lifecycle）
-   - [Lifecycle](docs/Android-Jetpack-Lifecycle-Lifecycle.md)，生命周期状态、所有者（LifecycleOwner/Act/Frag）、观察者模式
+   - [Lifecycle](android-jetpack/jetpack-lifecycle-lifecycle.md)，生命周期状态、所有者（LifecycleOwner/Act/Frag）、观察者模式
    - [ViewModel](docs/Android-Jetpack-Lifecycle-ViewModel.md)，数据持久化、生命周期感知、SavedStateHandle
    - [LiveData](docs/Android-Jetpack-Lifecycle-LiveData.md)，生命周期管理、观察机制、粘性事件
 5. 媒体（media）
@@ -73,6 +72,7 @@
    - [Viewpager2](docs/Android-Jetpack-UI-Viewpager.md)，垂直滑动支持、Fragment 状态管理、可见性、嵌套滑动
 10. App Architecture：https://developer.android.com/topic/architecture/intro?hl=zh-cn
     - [Hilt](docs/Android-Jetpack-Architecture-Hilt)，依赖注入框架，作用域管理、限定符、入口
+    - [Flow](docs/Android-Jetpack-Architecture-Hilt)，依赖注入框架，作用域管理、限定符、入口
     - manifest: https://developer.android.com/guide/topics/manifest/manifest-intro?hl=zh-cn
 
 然后是一些常见的三方库
