@@ -50,18 +50,18 @@
     - [Room](android-jetpack/jetpack-data-room)，数据库框架，几个注解的使用、版本升级、常用 sql 等
 3. 图形（graphics）
    - [Animation](android-jetpack/jetpack-graphics-animation)，属性动画、视图动画、插值器、触摸处理、可见性处理（先启动动画再gone）等
-4. 声明周期（lifecycle）
+4. 生命周期（lifecycle）
    - [Lifecycle](android-jetpack/jetpack-lifecycle-lifecycle.md)，生命周期状态、所有者（LifecycleOwner/Act/Frag）、观察者模式
    - [ViewModel](android-jetpack/jetpack-lifecycle-viewmodel)，数据持久化、生命周期感知、SavedStateHandle
-   - [LiveData](docs/Android-Jetpack-Lifecycle-LiveData.md)，生命周期管理、观察机制、粘性事件
+   - [LiveData](android-jetpack/jetpack-lifecycle-livedata)，生命周期管理、观察机制、粘性事件
 5. 媒体（media）
-   - [Media3](docs/Android-Jetpack-Media-Media3.md)，媒体播放器的使用，ExoPlayer
+   - ~~[Media3](android-jetpack/jetpack-media-media3)，媒体播放器的使用，ExoPlayer~~
 6. 导航（navigation）
-   - [Navigation](docs/Android-Jetpack-Navigation-Navigation.md)，NavController、NavHost、Frag/Act/对话框 导航、参数传递、Deep、隐式显式、转场动画
+   - ~~[Navigation](android-jetpack/jetpack-navigation-navigation)，NavController、NavHost、Frag/Act/对话框 导航、参数传递、Deep、隐式显式、转场动画~~
 7. 安全性（security）
-   - [Credentials](docs/Android-Jetpack-Security-Credentials.md)，基本使用、凭证管理、存储机制
+   - ~~[Credentials](android-jetpack/jetpack-security-credentials)，基本使用、凭证管理、存储机制~~
 8. 性能/测试（performance）
-   - [Startup](docs/Android-Jetpack-Performance-Startup.md)]，依赖关系处理、懒加载支持、ContentProvider
+   - ~~[Startup](android-jetpack/jetpack-performance-startup)]，依赖关系处理、懒加载支持、ContentProvider~~
 9. 界面（UI）
    - [AppCompatActivity](docs/Android-Jetpack-UI-AppCompatActivity)，最基本的组件，代表一个窗口用于显示用户界面
      - 生命周期、启动模式、数据传递、状态保存和恢复、和 Window 的交互等。

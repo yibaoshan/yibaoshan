@@ -34,7 +34,7 @@ androidx.fragment.app 实现了 LifecycleOwner 接口，功能同样交给成员
 
 handleLifecycleEvent() -> moveToState() -> sync()
 
-fragment 的生命周期依赖 act，不是 ams 直接调度，可以简单看做有生命周期的 View，注意区分 mViewLifecycleOwner 和 mLifecycleRegistry，即 getLifecycle() 和 getViewLifecycleOwner().getLifecycle()
+fragment 的生命周期依赖 act，不是 ams 直接调度，可以简单看做有生命周期的 View，配合 LiveData 时 注意区分 mViewLifecycleOwner 和 mLifecycleRegistry，即 getLifecycle() 和 getViewLifecycleOwner().getLifecycle()
 
 # ActivityLifecycleCallbacks
 
