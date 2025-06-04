@@ -45,25 +45,25 @@
 按官网顺序
 
 1. 手机以外的（beyond）
-   - TV、手表、车载相关，和应用有关系的好像只有 [window](https://developer.android.com/jetpack/androidx/releases/window?hl=zh-cn)。
+   - ~~TV、手表、车载相关，和应用有关系的好像只有 [window](https://developer.android.com/jetpack/androidx/releases/window?hl=zh-cn)。~~
 2. 数据（data）
-    - [Room](android-jetpack/jetpack-data-room)，数据库框架，几个注解的使用、版本升级、常用 sql 等
+    - [Room](android-jetpack/jetpack-data-room.md)，数据库框架，几个注解的使用、版本升级、常用 sql 等
 3. 图形（graphics）
-   - [Animation](android-jetpack/jetpack-graphics-animation)，属性动画、视图动画、插值器、触摸处理、可见性处理（先启动动画再gone）等
+   - [Animation](android-jetpack/jetpack-graphics-animation.md)，属性动画、视图动画、插值器、触摸处理、可见性处理（先启动动画再gone）等
 4. 生命周期（lifecycle）
    - [Lifecycle](android-jetpack/jetpack-lifecycle-lifecycle.md)，生命周期状态、所有者（LifecycleOwner/Act/Frag）、观察者模式
-   - [ViewModel](android-jetpack/jetpack-lifecycle-viewmodel)，数据持久化、生命周期感知、SavedStateHandle
-   - [LiveData](android-jetpack/jetpack-lifecycle-livedata)，生命周期管理、观察机制、粘性事件
+   - [ViewModel](android-jetpack/jetpack-lifecycle-viewmodel.md)，数据持久化、生命周期感知、SavedStateHandle
+   - [LiveData](android-jetpack/jetpack-lifecycle-livedata.md)，生命周期管理、观察机制、粘性事件
 5. 媒体（media）
-   - ~~[Media3](android-jetpack/jetpack-media-media3)，媒体播放器的使用，ExoPlayer~~
+   - ~~[Media3](android-jetpack/jetpack-media-media3.md)，媒体播放器的使用，ExoPlayer~~
 6. 导航（navigation）
-   - ~~[Navigation](android-jetpack/jetpack-navigation-navigation)，NavController、NavHost、Frag/Act/对话框 导航、参数传递、Deep、隐式显式、转场动画~~
+   - ~~[Navigation](android-jetpack/jetpack-navigation-navigation.md)，NavController、NavHost、Frag/Act/对话框 导航、参数传递、Deep、隐式显式、转场动画~~
 7. 安全性（security）
-   - ~~[Credentials](android-jetpack/jetpack-security-credentials)，基本使用、凭证管理、存储机制~~
+   - ~~[Credentials](android-jetpack/jetpack-security-credentials.md)，基本使用、凭证管理、存储机制~~
 8. 性能/测试（performance）
-   - ~~[Startup](android-jetpack/jetpack-performance-startup)]，依赖关系处理、懒加载支持、ContentProvider~~
+   - ~~[Startup](android-jetpack/jetpack-performance-startup.md)]，依赖关系处理、懒加载支持、ContentProvider~~
 9. 界面（UI）
-   - [AppCompatActivity](docs/Android-Jetpack-UI-AppCompatActivity)，最基本的组件，代表一个窗口用于显示用户界面
+   - [AppCompatActivity](android-jetpack/jetpack-ui-appcompatactivity.md)，最基本的组件，代表一个窗口用于显示用户界面
      - 生命周期、启动模式、数据传递、状态保存和恢复、和 Window 的交互等。
      - 和 FragmentActivity、ComponentActivity、Activity 之间的关系。
    - [Fragment](docs/Android-Jetpack-UI-Fragment)：可重用的组件，可以简单理解为拥有声明周期的 View。
@@ -88,6 +88,8 @@
 - [ButterKnife](docs/Android-OpenSource-Glide.md)，注解处理器
 - [EventBus](docs/Android-OpenSource-Glide.md)，发布订阅、线程切换、粘性事件、内存泄漏风险
 - [AndroidHiddenApiBypass](docs/Android-OpenSource-Glide.md)，隐藏 API 访问，反射机制
+- [Matrix](docs/Android-OpenSource-Glide.md)，
+- [KOOM](docs/Android-OpenSource-Glide.md)，
 
 ## Framework
 
