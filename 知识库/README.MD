@@ -68,8 +68,7 @@
      - 和 FragmentActivity、ComponentActivity、Activity 之间的关系。
    - [Fragment](android-jetpack/jetpack-ui-fragment.md)：可重用的组件，可以简单理解为拥有声明周期的 View。
      - 自己和 Activity 的生命周期管理、FM 使用、事务处理、BackStack 管理、通信、视图管理等等。
-   - [Recyclerview](docs/Android-Jetpack-UI-Recyclerview.md)，缓存机制、布局管理、适配器、ItemDecoration、ItemTouchHelper 等。
-   - [Viewpager2](docs/Android-Jetpack-UI-Viewpager.md)，垂直滑动支持、Fragment 状态管理、可见性、嵌套滑动
+   - [Recyclerview](android-jetpack/jetpack-ui-recyclerview.md)，缓存机制、布局管理、适配器、ItemDecoration、ItemTouchHelper 等。
 10. App Architecture：https://developer.android.com/topic/architecture/intro?hl=zh-cn
     - [Hilt](docs/Android-Jetpack-Architecture-Hilt)，依赖注入框架，作用域管理、限定符、入口
     - [Flow](docs/Android-Jetpack-Architecture-Hilt)，依赖注入框架，作用域管理、限定符、入口
