@@ -70,8 +70,8 @@
      - 自己和 Activity 的生命周期管理、FM 使用、事务处理、BackStack 管理、通信、视图管理等等。
    - [Recyclerview](android-jetpack/jetpack-ui-recyclerview.md)，缓存机制、布局管理、适配器、ItemDecoration、ItemTouchHelper 等。
 10. App Architecture：https://developer.android.com/topic/architecture/intro?hl=zh-cn
-    - [Hilt](docs/Android-Jetpack-Architecture-Hilt)，依赖注入框架，作用域管理、限定符、入口
-    - [Flow](docs/Android-Jetpack-Architecture-Hilt)，依赖注入框架，作用域管理、限定符、入口
+    - [Hilt](android-jetpack/jetpack-architecture-hilt.md)，依赖注入框架，作用域管理、限定符、入口
+    - [Flow](android-jetpack/jetpack-architecture-hilt)，依赖注入框架，作用域管理、限定符、入口
     - manifest: https://developer.android.com/guide/topics/manifest/manifest-intro?hl=zh-cn
 
 然后是一些常见的三方库
