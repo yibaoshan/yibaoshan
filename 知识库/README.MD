@@ -71,7 +71,6 @@
    - [Recyclerview](android-jetpack/jetpack-ui-recyclerview.md)，缓存机制、布局管理、适配器、ItemDecoration、ItemTouchHelper 等。
 10. App Architecture：https://developer.android.com/topic/architecture/intro?hl=zh-cn
     - [Hilt](android-jetpack/jetpack-architecture-hilt.md)，依赖注入框架，作用域管理、限定符、入口
-    - [Flow](android-jetpack/jetpack-architecture-hilt)，依赖注入框架，作用域管理、限定符、入口
     - manifest: https://developer.android.com/guide/topics/manifest/manifest-intro?hl=zh-cn
 
 然后是一些常见的三方库

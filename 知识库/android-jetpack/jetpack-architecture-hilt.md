@@ -237,7 +237,7 @@ hilt 是基于 Dagger2 实现，Dagger2 我也没用过，基本原理肯定是�
 1. Hilt（实际上是底层的 Dagger）的注解处理器扫描项目代码，寻找所有的 Hilt 相关的注解，HiltViewModel、Module、Provides 啥的
 2. 根据收集到的注解，构建出一个依赖图
   - 比如要创建 xxViewModel，需要 xxxUseCase
-  - 要创建 xxxHeartUseCase，又需要 xxxRepository
+  - 要创建 xxxUseCase，又需要 xxxRepository
   - 创建 xxxRepository，又需要 xxApiService
   - 以上，hilt 会验证这个图是否完整，即所有 @Inject 的依赖是否都有对应的提供方式，如果缺少，编译就会报错
 3. 开始生成代码
