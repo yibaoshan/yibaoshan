@@ -38,7 +38,7 @@
 
 ## 主流框架技术
 
-应用层将会介绍一些常见的 Jetpack 库和三方的框架技术，首先是 [Android Jetpack](docs/Android-Jetpack-Overview.md)（只展示部分用过的库）
+应用层将会介绍一些常见的 Jetpack 库和三方的框架技术，首先是 [Android Jetpack](android-jetpack/jetpack-overview.md)（只展示部分用过的库）
 
 ![](imgs/jetpack-category-2025.png)
 
@@ -75,19 +75,19 @@
 
 然后是一些常见的三方库
 
-- [Glide](docs/Android-OpenSource-Glide.md)，图片加载流程、缓存机制、生命周期、缩略图、图片转换（圆角、高斯模糊、裁剪）
-- [OkHttp](docs/Android-OpenSource-Glide.md)，请求/响应模型，连接池、拦截器链、缓存、Cookie 处理、文件上传下载
-- [Retrofit](docs/Android-OpenSource-Glide.md)，基本使用，注解处理、适配器模式、转换机制、请求构建、协程/RxJava/Flow 支持
-- [LeakCanary](docs/Android-OpenSource-Glide.md)，引用类型、GC 机制、泄漏检测原理、支持检测的类型、堆内存分析、泄漏路径分析、对象引用链、常见泄漏场景
-- [MMKV](docs/Android-OpenSource-Glide.md)，mmap 内存映射、多进程并发
-- [RxJava](docs/Android-OpenSource-Glide.md)，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
-- [ARouter](docs/Android-OpenSource-Glide.md)，注解处理器、依赖注入、拦截器、降级、动态路由
-- [Tinker](docs/Android-OpenSource-Glide.md)，类加载机制、资源替换、Dex 替换、下发策略
-- [ButterKnife](docs/Android-OpenSource-Glide.md)，注解处理器
-- [EventBus](docs/Android-OpenSource-Glide.md)，发布订阅、线程切换、粘性事件、内存泄漏风险
-- [AndroidHiddenApiBypass](docs/Android-OpenSource-Glide.md)，隐藏 API 访问，反射机制
-- [Matrix](docs/Android-OpenSource-Glide.md)，
-- [KOOM](docs/Android-OpenSource-Glide.md)，
+- [Glide](android-opensource/opensource-glide.md)，图片加载流程、缓存机制、生命周期、缩略图、图片转换（圆角、高斯模糊、裁剪）
+- [OkHttp](android-opensource/opensource-glide)，请求/响应模型，连接池、拦截器链、缓存、Cookie 处理、文件上传下载
+- [Retrofit](android-opensource/opensource-glide)，基本使用，注解处理、适配器模式、转换机制、请求构建、协程/RxJava/Flow 支持
+- [LeakCanary](android-opensource/opensource-glide)，引用类型、GC 机制、泄漏检测原理、支持检测的类型、堆内存分析、泄漏路径分析、对象引用链、常见泄漏场景
+- [MMKV](android-opensource/opensource-glide)，mmap 内存映射、多进程并发
+- [RxJava](android-opensource/opensource-glide)，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
+- [ARouter](android-opensource/opensource-glide)，注解处理器、依赖注入、拦截器、降级、动态路由
+- [Tinker](android-opensource/opensource-glide)，类加载机制、资源替换、Dex 替换、下发策略
+- [ButterKnife](android-opensource/opensource-glide)，注解处理器
+- [EventBus](android-opensource/opensource-glide)，发布订阅、线程切换、粘性事件、内存泄漏风险
+- [AndroidHiddenApiBypass](android-opensource/opensource-glide)，隐藏 API 访问，反射机制
+- [Matrix](android-opensource/opensource-glide)，线上 APM 框架
+- [KOOM](android-opensource/opensource-glide)，线上内存泄漏检测
 
 ## Framework
 
@@ -183,10 +183,10 @@ https://leetcode.cn/studyplan/top-100-liked/
 
 ## 编译
 
-- 了解 [Java/Kotlin 编译过程](docs/计算机基础-编译-Java&Kotlin) ，每个阶段都有哪些工具，是否有扩展的可能性。
+- 了解 [Java/Kotlin 编译过程](computer-science-compile/计算机基础-编译-Java&Kotlin) ，每个阶段都有哪些工具，是否有扩展的可能性。
     - 比如 C 语言的预处理、编译、汇编、链接，预处理阶段可以通过宏定义进行修改，编译阶段可以用自定义的编译器插件，链接阶段可以替换库文件。
     - 再比如 Java 的字节码增强工具 ASM 修改代码，在 CI/CD 中可能用于性能监控或代码注入。
-- 二是了解 [Android APK 的构建流程](docs/计算机基础-编译-Android.md)，资源处理、代码编译、打包签名等步骤
+- 二是了解 [Android APK 的构建流程](computer-science-compile/计算机基础-编译-Android.md)，资源处理、代码编译、打包签名等步骤
     - 资源处理阶段使用aapt/aapt2，可以修改资源或生成额外的R.java；
     - 代码编译阶段，Java 转 dex 时，可以用Transform API（AGP）插入自定义任务，修改字节码
 
@@ -194,28 +194,28 @@ https://leetcode.cn/studyplan/top-100-liked/
 
 并发安全问题的本质，是 **共享资源的竞争** 和 **操作的原子性**
 
-1. [在硬件层面上](docs/计算机基础-并发-硬件支持.md)
+1. [在硬件层面上](computer-science-concurrency/计算机基础-并发-硬件支持.md)
     - 共享资源就是主存，多个执行单元（CPU 核心）对共享资源（主存）的并发访问，这点由 MESI 缓存一致性协议保证数据一致性。
     - 操作原子性方面，CPU 提供了原子操作指令和内存屏障指令。
-2. [操作系统层面的支持](docs/计算机基础-并发-操作系统.md)
-3. 语言层面，[C 的 POSIX 线程库](docs/计算机基础-并发-语言-C.md) 和 [Java 对并发的支持](docs/计算机基础-并发-语言-Java.md)
+2. [操作系统层面的支持](computer-science-concurrency/计算机基础-并发-操作系统.md)
+3. 语言层面，[C 的 POSIX 线程库](computer-science-concurrency/计算机基础-并发-语言-C.md) 和 [Java 对并发的支持](computer-science-concurrency/计算机基础-并发-语言-Java.md)
 
 ## Java & JVM
 
-- [Java 基础语法和特性](docs/计算机基础-编程语言-Java-基础语法和特性.md)
+- [Java 基础语法和特性](computer-science-language/计算机基础-编程语言-Java-基础语法和特性.md)
     - 面向对象基础，类和对象，继承、封装、多态，抽象类和接口，内部类和匿名类
     - Java 基本类型和包装类，基本数据类型，自动装箱和拆箱，String 和字符串池，常量池机制
     - 异常处理，异常体系，try-catch-finally，自定义异常
-- [Java 集合框架](docs/计算机基础-编程语言-Java-集合框架.md)
+- [Java 集合框架](computer-science-language/计算机基础-编程语言-Java-集合框架.md)
     - Collection 体系，List（ArrayList、LinkedList），Set（HashSet、TreeSet），Queue（ArrayDeque、PriorityQueue）
     - Map 体系，HashMap 原理和实现，TreeMap 和红黑树，ConcurrentHashMap 实现
-- [Java 反射和注解](docs/计算机基础-编程语言-Java-反射和注解.md)
+- [Java 反射和注解](computer-science-language/计算机基础-编程语言-Java-反射和注解.md)
     - 反射机制，Class 类，反射 API，动态代理
     - 注解，内置注解，自定义注解，注解处理器
-- [Java IO/NIO](docs/计算机基础-编程语言-Java-IO&NIO.md)
+- [Java IO/NIO](computer-science-language/计算机基础-编程语言-Java-IO&NIO.md)
     - 传统 I/O，字节流和字符流，缓冲流，序列化
     - NIO，Buffer 和 Channel，Selector，文件系统
-- [JVM/Dalvik/ART](docs/计算机基础-编程语言-Java-JVM.md)
+- [JVM/Dalvik/ART](computer-science-language/计算机基础-编程语言-Java-JVM.md)
     - 内存模型，运行时数据区，对象创建过程，垃圾回收机制
     - 类加载机制，类加载过程，类加载器，双亲委派模型
 
@@ -223,7 +223,7 @@ https://leetcode.cn/studyplan/top-100-liked/
 
 架构设计不是很好分类，我个人是按照 设计思想/原则（设计模式、SOLID）、基础开发模式（MVX、Clean），和高级框架技术（组件化、动态化、IoC）这三类来划分的
 
-- [架构设计思想](docs/架构设计-架构设计思想.md)
+- [架构设计思想](architecture/架构设计-架构设计思想.md)
     1. SOLID 原则
         - 单一职责原则、开闭原则、里氏替换原则、接口隔离原则、依赖倒置原则
         - 尤其是依赖倒置（DIP）与接口隔离（ISP）在模块化中的应用
@@ -231,7 +231,7 @@ https://leetcode.cn/studyplan/top-100-liked/
         - 创建型：工厂模式（组件化中模块初始化）、单例模式（需注意线程安全）。
         - 行为型：观察者模式（LiveData/RxJava）、策略模式（动态替换算法，如图片加载策略）。
         - 结构型：代理模式（AOP切面）、装饰器模式（扩展功能，如OkHttp Interceptor）。
-- [基础开发模式](docs/架构设计-基础开发模式.md)
+- [基础开发模式](architecture/架构设计-基础开发模式.md)
     1. MVC → MVP → MVVM → MVI
         - 各架构模式的优缺点及适用场景，如 MVP 的 View 接口解耦、MVVM 的 DataBinding/ViewModel 双向绑定
         - 对比 Jetpack 的 ViewModel 与纯 MVVM 实现，注意 LiveData 与 RxJava 在响应式中的差异。
@@ -239,7 +239,7 @@ https://leetcode.cn/studyplan/top-100-liked/
         - 分层设计（Entities → Use Cases → Interface Adapters → Frameworks），依赖规则（内层不依赖外层）
         - 中心思想，分层、依赖倒置原则、边界划分、数据流转
         - 结合 Dagger/Hilt 实现依赖注入，业务逻辑与框架解耦
-- [高级架构实践](docs/架构设计-高级架构实践.md)
+- [高级架构实践](architecture/架构设计-高级架构实践.md)
     1. 组件化
         - 解决模块间通信（ARouter原理）、资源冲突（资源命名规范）、独立调试（Gradle动态切换Application/Library）。
         - 架构图：分层设计（App壳工程 → 业务组件 → 功能层 → 基础库）。
