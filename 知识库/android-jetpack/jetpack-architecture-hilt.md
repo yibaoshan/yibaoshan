@@ -1,15 +1,15 @@
 
-hilt 是 jetpack 团队为 Android 应用提供的一个 依赖注入（DI）框架，内置了对组件（如 Activity、Fragment、ViewModel、Service 等）的依赖注入支持，属于业务架构用到的框架之一
+聊聊 Hilt：业务架构如何更优雅的解耦
+
+hilt 是 jetpack 团队为 Android 应用提供的一个 依赖注入（DI）框架，内置了对组件（如 Activity、Fragment、ViewModel 等）的依赖注入支持，属于业务架构框架之一
 
 依赖注入（Dependency Injection）是面向对象设计的 解耦 思想，最早应用于 Java 服务端，比如大名鼎鼎的 string 框架，它的核心思想是：
 
 - 把某个类所 “**依赖**” 的对象，不由它自己创建，而是由外部提供并 “**注入**” 给它。
 
-如果你是第一次接触依赖注入的框架，上面的概念可能不很好理解，接下来我将通过两个代码🌰来尝试解释一下下
-
 # 一、什么是 DI
 
-想要了解 hilt，必须先知道 DI 是什么，它解决了什么问题，我们为什么要用它？
+如果你是第一次接触依赖注入的框架，上面关于 hilt/依赖注入的介绍可能不是很好理解，接下来我将通过一个 🌰 来尝试解释一下下：什么是依赖注入 DI？
 
 > Android 官网有对 DI 的介绍，我这里偷懒直接搬运过来了😁
 
@@ -65,9 +65,11 @@ class Car{
 
 ## Clean Arch
 
-将自己 new 对象，改为用构造函数传参，或者公开成员属性由外部传参，就是这简单的一小步，帮助业务架构完成了：更优雅的 “解耦”
+将自己 new 对象，改为用构造函数传参，或者公开成员属性由外部传参，依赖注入的基础功能就是这么简单，这看似简单的一小步，却能帮助业务架构实现 更优雅的 “解耦”
 
-我们很早就把项目的业务架构往 Google 推荐的 Clean Architecture 上去靠拢，现在各个组件的依赖关系大概是这样的：
+举例说明
+
+我们很早就把项目架构往 Google 推荐的 Clean Architecture 上去靠，现在各个组件的依赖关系大概是这样的：
 
 ```text
 UI（Activity/Fragment/Compose） → ViewModel → UseCase → Repository（接口） ← Impl → ApiService
@@ -80,7 +82,7 @@ UI（Activity/Fragment/Compose） → ViewModel → UseCase → Repository（接
 - 在 clean 的依赖关系中，有个很重要的原则：内层不依赖外层，最外层只需要干好自己的事儿就行了（单一职责），内层的行为和它无关
 - 这种依赖关系，就非常适合使用 DI 框架，内层所需要的实例对象由 DI 框架自动完成注入，最起码，可以减少我们写模板代码的时间，不用你一个个去 new 了。
 
-简而言之
+总之
 
 如果你的业务分层不是很清晰，DI 框架的确只能帮你解决不用手动 new 对象的问题
 
@@ -88,7 +90,7 @@ UI（Activity/Fragment/Compose） → ViewModel → UseCase → Repository（接
 
 # 二、基本使用
 
-接下来我将快速介绍 hilt 的基本使用，大概可以分为 2 个部分：
+接下来我将分 2 部分快速介绍 hilt 的基本使用
 
 1. 依赖方（消费者），怎么样才能获得自己想要的对象？
 2. 生产者，怎么对外提供自己的服务？
@@ -214,7 +216,7 @@ Module 使用上比较自由，没啥要求，你可以按照业务模块来组�
 
 如果项目中使用了 @Inject 作用在某个成员变量上，但这个对象的创建没有使用 @Provides 和 @Binds 提供给 hilt，编译期间 hilt 会报错
 
-# 基本原理
+# 三、基本原理
 
 hilt 是基于 Dagger2 实现，Dagger2 我也没用过，基本原理肯定是注解处理器在编译期生成代码，Java 肯定是 APT，kotlin 不清楚是 KAPT 还是已经升级到了 KSP
 
@@ -236,19 +238,19 @@ hilt 是基于 Dagger2 实现，Dagger2 我也没用过，基本原理肯定是�
 
 1. Hilt（实际上是底层的 Dagger）的注解处理器扫描项目代码，寻找所有的 Hilt 相关的注解，HiltViewModel、Module、Provides 啥的
 2. 根据收集到的注解，构建出一个依赖图
-  - 比如要创建 xxViewModel，需要 xxxUseCase
-  - 要创建 xxxUseCase，又需要 xxxRepository
-  - 创建 xxxRepository，又需要 xxApiService
-  - 以上，hilt 会验证这个图是否完整，即所有 @Inject 的依赖是否都有对应的提供方式，如果缺少，编译就会报错
+   - 比如要创建 xxViewModel，需要 xxxUseCase
+   - 要创建 xxxUseCase，又需要 xxxRepository
+   - 创建 xxxRepository，又需要 xxApiService
+   - 以上，hilt 会验证这个图是否完整，即所有 @Inject 的依赖是否都有对应的提供方式，如果缺少，编译就会报错
 3. 开始生成代码
-  - 为 AndroidEntryPoint 创建  hilt_xxActivity 类，为 HiltViewModel 创建 ViewModelProvider.Factory 类等
+   - 为 AndroidEntryPoint 创建  hilt_xxActivity 类，为 HiltViewModel 创建 ViewModelProvider.Factory 类等
 
-# 常见问题
+# 四、常见问题
 
 - ViewModel 注入失败，老熟人了，改为 by viewModels() 或者 by activityViewModels()
 - 工程中已有的单例有没有必要改成 DI 实现？我个人不建议，尤其是 core 层的，因为你不知道哪里的 aar 会用到导致 class not found
 
-# 参考资料
+# 五、参考资料
 
 - [Android - Hilt 官方文档](https://developer.android.com/training/dependency-injection/hilt-android)
 - [Android 中的依赖项注入 官方文档](https://developer.android.com/training/dependency-injection)
