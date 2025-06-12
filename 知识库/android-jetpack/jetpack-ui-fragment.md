@@ -1,4 +1,6 @@
 
+# Jetpack 速通之 Fragment
+
 因为 fragment 不是由 ams 直接调度，不参与 binder 跨进程通信，仅有 activity 进行管理
 
 所以，我个人其实一直把 fragment 看做是一个自带生命周期的特殊的 view 容器，它必须依赖 Activity 或者其他 fragment 才能显示，叠个甲，这是我个人看法。

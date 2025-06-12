@@ -1,3 +1,4 @@
+# Jetpack 速通之 Lifecycle
 
 Lifecycle 的作用是让某一个类变成 Activity 或 Fragment 的生命周期观察者类，让其拥有感知 Act、Frag 生命周期的能力，核心设计分为三个角色
 
