@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btn_preload_no_args"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#B22222"
+        android:text="option 1 preload no args" />
+
+    <Button
+        android:id="@+id/btn_preload_match_args"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#008000"
+        android:text="option 2 preload matching args" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="wait 10s, preload not support listener" />
+
+    <ImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:layout_marginTop="12dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_launcher" />
+
+    <Button
+        android:id="@+id/btn_load"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#0000FF"
+        android:text="load into" />
+
+</LinearLayout>

@@ -41,5 +41,6 @@ android {
 dependencies {
 
     implementation project(path: ':library-local-ybs-android-core')
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
 
 }
