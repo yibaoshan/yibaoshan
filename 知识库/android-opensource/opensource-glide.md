@@ -40,7 +40,7 @@ Glide.with(context).load(url).into(imageView)
 `Glide#with(context)` 是我们使用 Glide 的第一步，传入 Context 的作用开头已经介绍过了
 
 - 一是 **绑定生命周期**，Glide 会在内部创建一个与该组件生命周期绑定的 RequestManager，这个 RequestManager 会监听传入的组件的生命周期事件，用来管理请求。
-- 二是为 Glide 提供上下文，如果你接下来传入的是资源文件，那 Glide 需要 Context 才可以访问 Res，另外，磁盘缓存涉及到的文件系统也需要 Context 才能工作。
+- 二是为 Glide 提供上下文，如果你接下来传入的是资源文件，那 Glide 需要 Context 才可以访问 Res，另外，磁盘缓存涉及到的 文件系统 也需要 Context 才能工作。
 
 本小节还会来探讨
 
@@ -170,9 +170,9 @@ public final class GlideBuilder {
 
 ### 2. 短暂的内存泄漏风险
 
-最后，有个关于生命周期的点需要注意，虽然 FragmentActivity/Fragment 有 Lifecycle 可以自动释放资源，但如果使用不当，还是有内存泄漏的风险的
+最后，还有个关于生命周期的点需要注意，虽然 FragmentActivity/Fragment 有 Lifecycle 可以自动释放资源，但如果使用不当，还是有内存泄漏的风险的
 
-假设这么个场景，你在 Act/Frag 中调用 `Glide#with()` 不小心传错 Context 了，本来想传的是 `this`，结果传入了 Application 的上下文，into 的 Target 又引用了 Act/Frag
+假设这么个场景，你在 Act/Frag 中调用 `Glide#with()` 不小心传错 Context 了，本来想传的是 `this`，结果传入了 Application 的上下文，`into()` 的 Target 又引用了 Act/Frag
 
 **如果此时页面被关闭了，那么在 request 结束之前，Act/Frag 是无法被正常回收的，会发生一个短暂的 内存泄漏**
 
@@ -389,7 +389,7 @@ Glide 提供了两种 缓存策略，一是 **内存缓存**，二是 **磁盘�
 
 设置完 Target 后，接下来会真正进入图片的加载和显示流程，整个过程大概可以分为以下几个阶段：
 
-1. **Engine！启动！**前面两个章节构建的 Request 最终会转交给 Glide 的核心组件 Engine 去执行，`Engine#load()` 是整个执行阶段的启动点
+1. **Engine！启动！，**前面两个章节构建的 Request 最终会转交给 Glide 的核心组件 Engine 去执行，`Engine#load()` 是整个执行阶段的启动点
 2. **查找缓存**，Engine 接到请求后，会首先检查 内存缓存，如果没有则继续查找 磁盘缓存，都没有才去 请求数据
 3. **请求图片数据**，Glide 先会校验数据源是否合法，然后根据不同的数据源使用不同的 ModelLoader，是文件就去读取文件，是链接就发起网络请求去下载
    - 另外，`Glide#load()` 是支持传入 Object 类型的任意值的，所以，如果你有自定义图片源的需求，可以在这一步继承 ModelLoader 去处理
@@ -812,7 +812,7 @@ ImageViewTarget 拿到 Drawable 对象，又持有 ImageView 对象，接调用 
 
 一路跟下来，发现 Glide 真的是一套非常优秀的图片加载框架，非常的稳定、可靠，这么多年我好像都没有处理过因为 Glide 自身 bug 导致的线上问题
 
-在使用层面上，Glide 开箱即用，3 步链式调用即可自动完成下载、缓存、转换和显示的工作，还自带 Bitmap 优化，内存磁盘缓存和生命周期管理
+使用层面上，Glide 开箱即用，3 步链式调用即可自动完成下载、缓存、转换和显示的工作，还自带 Bitmap 优化，内存磁盘缓存和生命周期管理
 
 代码设计上，Glide 的代码结构也非常清晰，把 Java 面向对象编程 三大特点 表现的淋漓尽致
 
@@ -820,10 +820,10 @@ ImageViewTarget 拿到 Drawable 对象，又持有 ImageView 对象，接调用 
 - 继承性，抛开 Glide 内部大量的 继承体系（*比如 Request、ViewTarget、ResourceDecoder等*）不谈，它还对外提供了比较多的 抽象类和接口 给开发者使用，比如 ModelLoader、ResourceDecoder、Target 等这些都可以自定义，其中最常用的，可能就是继承 AppGlideModule，自定义 内存、磁盘缓存、日志的使用规则了
 - 多态，比如 `with()`、`load()` 这些方法的重载啊，DiskCacheStrategy 和 DownsampleStrategy 这些策略的应用啊，都是多态的体现
 
-除了这些，Glide 还有随处可见的设计模式，比如 GlideBuilder、RequestBuilder、RequestOptions 的 建造者模式，BitmapPool、ArrayPool 的 享元，ModelLoaderFactory、StreamModelLoaderFactory 的工厂，以及 EngineJob 里面的 观察者模式 等等
-
-如果你在项目中也有使用 Glide，欢迎在评论区分享你的 使用心得 或者 优化小技巧，我们一起交流
+除了这些，Glide 还有随处可见的设计模式，比如 GlideBuilder、RequestBuilder、RequestOptions 的 建造者模式，BitmapPool、ArrayPool 的 享元，ModelLoaderFactory、StreamModelLoaderFactory 的工厂，以及 EngineJob 里面的 观察者模式 等等。
 
 好了，以上就是本文的全部内容，希望能给大家带来帮助
+
+如果你在项目中也有使用 Glide，欢迎在评论区分享你的 使用心得 或者 优化小技巧，我们一起交流
 
 全文完
