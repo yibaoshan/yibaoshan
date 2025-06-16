@@ -78,9 +78,9 @@
 - [Glide](android-opensource/opensource-glide.md)，图片加载流程、缓存机制、生命周期、缩略图、图片转换（圆角、高斯模糊、裁剪）
 - [OkHttp](android-opensource/opensource-okhttp.md)，请求/响应模型，连接池、拦截器链、缓存、Cookie 处理、文件上传下载
 - [Retrofit](android-opensource/opensource-retrofit.md)，基本使用，注解处理、适配器模式、转换机制、请求构建、协程/RxJava/Flow 支持
-- [LeakCanary](android-opensource/opensource-glide)，引用类型、GC 机制、泄漏检测原理、支持检测的类型、堆内存分析、泄漏路径分析、对象引用链、常见泄漏场景
-- [MMKV](android-opensource/opensource-glide)，mmap 内存映射、多进程并发
-- [RxJava](android-opensource/opensource-glide)，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
+- [LeakCanary](android-opensource/opensource-leak-canary.md)，引用类型、GC 机制、泄漏检测原理、支持检测的类型、堆内存分析、泄漏路径分析、对象引用链、常见泄漏场景
+- [MMKV](android-opensource/opensource-mmkv.md)，mmap 内存映射、多进程并发
+- [RxJava](android-opensource/opensource-rxjava.md)，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
 - [ARouter](android-opensource/opensource-glide)，注解处理器、依赖注入、拦截器、降级、动态路由
 - [Tinker](android-opensource/opensource-glide)，类加载机制、资源替换、Dex 替换、下发策略
 - [ButterKnife](android-opensource/opensource-glide)，注解处理器
@@ -163,7 +163,7 @@ Kernel 的上一层还有个 HAL，不过应用开发实在接触不到，略略
 
 # 三、稳定性治理和性能优化
 
-- [ANR]()，ANR 产生原因（触发条件/时机）、怎么分析、解决/优化方案、线上/线下监控、主线程 I/O、Method 耗时监控
+- [ANR](architecture/system-stability-anr.md)，ANR 产生原因（触发条件/时机）、怎么分析、解决/优化方案、线上/线下监控、主线程 I/O、Method 耗时监控
 - [Crash]()，Crash 常见原因和解决方案、Java 崩溃体系，预防与治理，CI 阶段如何检测、处理、线上/线下收集/监控，如何收敛？
 - [OOM]()，内存管理/回收/泄漏/LMK等基础知识，线下内存使用量监控，LeakCanary 泄漏监控，线上 KOOM/Matrix 数据收集/监控
 - [FPS/卡顿掉帧]()，View 渲染过程，布局优化、RV优化、线上/线下监控、收集
