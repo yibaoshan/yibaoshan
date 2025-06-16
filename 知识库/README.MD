@@ -76,8 +76,8 @@
 然后是一些常见的三方库
 
 - [Glide](android-opensource/opensource-glide.md)，图片加载流程、缓存机制、生命周期、缩略图、图片转换（圆角、高斯模糊、裁剪）
-- [OkHttp](android-opensource/opensource-glide)，请求/响应模型，连接池、拦截器链、缓存、Cookie 处理、文件上传下载
-- [Retrofit](android-opensource/opensource-glide)，基本使用，注解处理、适配器模式、转换机制、请求构建、协程/RxJava/Flow 支持
+- [OkHttp](android-opensource/opensource-okhttp.md)，请求/响应模型，连接池、拦截器链、缓存、Cookie 处理、文件上传下载
+- [Retrofit](android-opensource/opensource-retrofit.md)，基本使用，注解处理、适配器模式、转换机制、请求构建、协程/RxJava/Flow 支持
 - [LeakCanary](android-opensource/opensource-glide)，引用类型、GC 机制、泄漏检测原理、支持检测的类型、堆内存分析、泄漏路径分析、对象引用链、常见泄漏场景
 - [MMKV](android-opensource/opensource-glide)，mmap 内存映射、多进程并发
 - [RxJava](android-opensource/opensource-glide)，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
