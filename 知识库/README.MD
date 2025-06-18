@@ -223,7 +223,7 @@ https://leetcode.cn/studyplan/top-100-liked/
 
 架构设计不是很好分类，我个人是按照 设计思想/原则（设计模式、SOLID）、基础开发模式（MVX、Clean），和高级框架技术（组件化、动态化、IoC）这三类来划分的
 
-- [架构设计思想](architecture/架构设计-架构设计思想.md)
+- [项目的设计思想](architecture/arch-design-patterns)
     1. SOLID 原则
         - 单一职责原则、开闭原则、里氏替换原则、接口隔离原则、依赖倒置原则
         - 尤其是依赖倒置（DIP）与接口隔离（ISP）在模块化中的应用
@@ -231,15 +231,11 @@ https://leetcode.cn/studyplan/top-100-liked/
         - 创建型：工厂模式（组件化中模块初始化）、单例模式（需注意线程安全）。
         - 行为型：观察者模式（LiveData/RxJava）、策略模式（动态替换算法，如图片加载策略）。
         - 结构型：代理模式（AOP切面）、装饰器模式（扩展功能，如OkHttp Interceptor）。
-- [基础开发模式](architecture/架构设计-基础开发模式.md)
+- [UI 的开发架构](architecture/arch-ui)
     1. MVC → MVP → MVVM → MVI
         - 各架构模式的优缺点及适用场景，如 MVP 的 View 接口解耦、MVVM 的 DataBinding/ViewModel 双向绑定
         - 对比 Jetpack 的 ViewModel 与纯 MVVM 实现，注意 LiveData 与 RxJava 在响应式中的差异。
-    2. Clean Architecture
-        - 分层设计（Entities → Use Cases → Interface Adapters → Frameworks），依赖规则（内层不依赖外层）
-        - 中心思想，分层、依赖倒置原则、边界划分、数据流转
-        - 结合 Dagger/Hilt 实现依赖注入，业务逻辑与框架解耦
-- [高级架构实践](architecture/架构设计-高级架构实践.md)
+- [工程/业务的脚手架和架构实现](architecture/arch-project)
     1. 组件化
         - 解决模块间通信（ARouter原理）、资源冲突（资源命名规范）、独立调试（Gradle动态切换Application/Library）。
         - 架构图：分层设计（App壳工程 → 业务组件 → 功能层 → 基础库）。
@@ -250,6 +246,7 @@ https://leetcode.cn/studyplan/top-100-liked/
         - Dagger2/Hilt的核心：@Component、@Module、@Inject，解决依赖图的构建与生命周期管理。
     4. AOP 切面编程
         - 使用 AspectJ 或 ASM 实现无侵入埋点、性能监控（如方法耗时统计）。
-    5. RxJava/Coroutine Flow
-        - 对比观察者模式与协程的挂起机制，掌握背压处理（Flow的buffer()/conflate()）。
-        - 应用场景：多数据源合并、UI事件防抖（如搜索框输入）
+    5. Clean Architecture
+        - 分层设计（Entities → Use Cases → Interface Adapters → Frameworks），依赖规则（内层不依赖外层）
+        - 中心思想，分层、依赖倒置原则、边界划分、数据流转
+        - 结合 Dagger/Hilt 实现依赖注入，业务逻辑与框架解耦
