@@ -80,30 +80,30 @@
 - [Retrofit](android-opensource/opensource-retrofit.md)，基本使用，注解处理、适配器模式、转换机制、请求构建、协程/RxJava/Flow 支持
 - [LeakCanary](android-opensource/opensource-leak-canary.md)，引用类型、GC 机制、泄漏检测原理、支持检测的类型、堆内存分析、泄漏路径分析、对象引用链、常见泄漏场景
 - [MMKV](android-opensource/opensource-mmkv.md)，mmap 内存映射、多进程并发
-- [RxJava](android-opensource/opensource-rxjava.md)，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
-- [ARouter](android-opensource/opensource-glide)，注解处理器、依赖注入、拦截器、降级、动态路由
-- [Tinker](android-opensource/opensource-glide)，类加载机制、资源替换、Dex 替换、下发策略
-- [ButterKnife](android-opensource/opensource-glide)，注解处理器
-- [EventBus](android-opensource/opensource-glide)，发布订阅、线程切换、粘性事件、内存泄漏风险
-- [AndroidHiddenApiBypass](android-opensource/opensource-glide)，隐藏 API 访问，反射机制
-- [Matrix](android-opensource/opensource-glide)，线上 APM 框架
-- [KOOM](android-opensource/opensource-glide)，线上内存泄漏检测
+- [Matrix](android-opensource/opensource-matrix.md)，线上 APM 框架
+- RxJava，响应式编程，Observable/Observer、线程切换，各种操作符（转换、过滤、错误处理）
+- ARouter，注解处理器、依赖注入、拦截器、降级、动态路由
+- Tinker，类加载机制、资源替换、Dex 替换、下发策略
+- ButterKnife，注解处理器
+- EventBus，发布订阅、线程切换、粘性事件、内存泄漏风险
+- AndroidHiddenApiBypass，隐藏 API 访问，反射机制
+- KOOM，线上内存泄漏检测
 
 ## Framework
 
 ### 1、四大组件
 
-- [Activity]()，启动流程、启动来源、hook 点、任务栈管理机制（最近任务/拉起其他应用/单例弊端及解决方案）、Window&DecorView、软键盘
-- [Service]()，启动和绑定流程、生命周期、前台服务机制及保活、回收和ANR
-- [BroadcastReceiver]()，还有在用吗？有序粘性本地、AMS 中的注册流程、队列管理、分发机制、优先级、拦截机制、ANR和内存泄漏
-- [ContentProvider]()，数据共享、跨进程数据访问、权限控制、启动点和启动优化、Provider 进程创建及实例化
-- [Application]()，启动流程、ActivityThread、多进程、全局单例、ActivityLifecycleCallbacks、低内存回调
+- Activity，启动流程、启动来源、hook 点、任务栈管理机制（最近任务/拉起其他应用/单例弊端及解决方案）、Window&DecorView、软键盘
+- Service，启动和绑定流程、生命周期、前台服务机制及保活、回收和ANR
+- BroadcastReceiver，还有在用吗？有序粘性本地、AMS 中的注册流程、队列管理、分发机制、优先级、拦截机制、ANR和内存泄漏
+- ContentProvider，数据共享、跨进程数据访问、权限控制、启动点和启动优化、Provider 进程创建及实例化
+- Application，启动流程、ActivityThread、多进程、全局单例、ActivityLifecycleCallbacks、低内存回调
   - 启动优化大头，全局配置管理、组件初始化、崩溃处理、性能监控、第三方 SDK 初始化等等
 
 ### 2、消息机制
 
-- [Handler]()，几个角色责任，分发流程、卡顿监控、消息出入队机制、消息池享元模式、同步屏障和异步消息及应用、空闲处理器 IdleHandler、ThreadLocal、View.post()、内测泄漏防范、pollOnce()
-- [Input]()，消息的传递流程，Window/Act/View 分发流程，确定谁来消费，input 的 ANR 
+- Handler，几个角色责任，分发流程、卡顿监控、消息出入队机制、消息池享元模式、同步屏障和异步消息及应用、空闲处理器 IdleHandler、ThreadLocal、View.post()、内测泄漏防范、pollOnce()
+- Input，消息的传递流程，Window/Act/View 分发流程，确定谁来消费，input 的 ANR 
   - InputReader、InputDispatcher、WindowManagerService、ViewRootImpl
   - Linux 内核层的驱动、Native 的 EventHub、Framework InputManager、应用层的 Act、View 分发
   - dispatchTouchEvent、onInterceptTouchEvent、onTouchEvent
@@ -112,31 +112,31 @@
 
 ### 3、视图系统
 
-- [View/ViewGroup]()，绑定流程、坐标系、测量布局绘制三部曲、绘制流程、树结构
+- View/ViewGroup，绑定流程、坐标系、测量布局绘制三部曲、绘制流程、树结构
   - Choreographer，VSync 处理、input、动画、帧率监控 api
-- [Window]()，LayoutParams、PhoneWindow、DecorView、ViewRootImpl、WindowManager 增删改
+- Window，LayoutParams、PhoneWindow、DecorView、ViewRootImpl、WindowManager 增删改
   - 与 act 关系，与 view 的关系，与 SurfaceView 关系，谁包含谁？谁管理谁？
   - Dialog、、PopupWindow、Toast、悬浮窗
-- [Bitmap]()，888/565，内存大小占用及位置、缩放/裁剪/矩阵变换、压缩、内存监控、OOM 、Bitmap 缓存、Bitmap 池、BitmapFactory
+- [Bitmap](android-framework/graphics-bitmap.md)，888/565，内存大小占用及位置、缩放/裁剪/矩阵变换、压缩、内存监控、OOM 、Bitmap 缓存、Bitmap 池、BitmapFactory
   - 大图加载（详情页）、列表、图片保存
-- [Not View 自绘方案]()
+- Not View 自绘方案
   - compose 使用 Skia 图形库通过 Canvas 直接绘制，不依赖 Android View 系统
   - flutter 自带渲染引擎（Skia）直接操作 GPU，自定义渲染管线
 
 ### 4、系统服务
 
-- [ActivityManagerService]()，主要关注和应用有关系的，比如，能拿到的最早 hook 点，ActivityThread ，四大组件的创建、优先级、生命周期调度、回收与销毁、多进程、Act 的任务栈怎么设计和管理、ANR 触发
+- ActivityManagerService，主要关注和应用有关系的，比如，能拿到的最早 hook 点，ActivityThread ，四大组件的创建、优先级、生命周期调度、回收与销毁、多进程、Act 的任务栈怎么设计和管理、ANR 触发
   - 核心组件（简单了解），ActivityManagerService、ActivityStackSupervisor、ActivityStack、ProcessRecord
   - AMS 的启动和注册，同样简单了解即可，毕竟应用层改不了一点。
-- [WindowManagerService]()，Activity 创建窗口流程、DecorView 添加过程、生命周期与窗口关系
+- WindowManagerService，Activity 创建窗口流程、DecorView 添加过程、生命周期与窗口关系
   - 显示相关，ViewRootImpl.setView()、Surface.lockCanvas()、WindowManagerGlobal.addView()
   - 交互，InputEventReceiver.dispatchInputEvent()、ViewRootImpl.handleMessage()、Choreographer.doFrame()
-- [PackageManagerService]()，主要了解 签名机制，apk 包内容、解压安装过程（apk文件都被丢到哪，安装位置，渠道包信息存储和读取）、AndroidManifest 解析
-- [ServiceManager]()，简单了解 binder 部分以及怎么管理各个 ms
+- PackageManagerService，主要了解 签名机制，apk 包内容、解压安装过程（apk文件都被丢到哪，安装位置，渠道包信息存储和读取）、AndroidManifest 解析
+- ServiceManager，简单了解 binder 部分以及怎么管理各个 ms
 
 ## Native Runtime
 
-- [ART]()，常规类加载，内存分配，堆空间划分，GC 算法/Roots/触发时机和条件
+- ART，常规类加载，内存分配，堆空间划分，GC 算法/Roots/触发时机和条件
   - bitmap 的 oom 优化，字节的 mSponge 方案，移出 LargeObjectSpace 内存占用，间接增加虚拟机可用内存，降低 Android 8.0 以下的 OOM 率
   - 启动优化，启动阶段减少类加载，减少反射
   - AOT 的 dex2oat 工具，编译优化和空间开销，JIT 的热点识别和编译缓存
@@ -146,28 +146,28 @@
 
 Kernel 的上一层还有个 HAL，不过应用开发实在接触不到，略略略😛
 
-- [Binder Driver]()，Android IPC 最闪亮的仔，在保证通信安全的前提下，尽可能提升通信效率/性能。
+- Binder Driver，Android IPC 最闪亮的仔，在保证通信安全的前提下，尽可能提升通信效率/性能。
   - 几个 ipc 对比，性能、安全方面
   - 权限控制、UID/PID 检查、SELinux、mmap、引用计数、死亡通知
-- [Ashmem 匿名共享内存]()，大数据传输，跨进程共享、自动回收，surface、图形缓冲区都用它
-- [Low Memory Kill]()，优先级管理、内存水位线、回收策略、与 AMS 的配合
-- [进程调度]()，相较于 Linux 主线，Android 特性增加，CFS、前台进程/UI线程优先级++、nice 值管理、cgroup 分组、schedtune 调节
+- Ashmem 匿名共享内存，大数据传输，跨进程共享、自动回收，surface、图形缓冲区都用它
+- Low Memory Kill，优先级管理、内存水位线、回收策略、与 AMS 的配合
+- 进程调度，相较于 Linux 主线，Android 特性增加，CFS、前台进程/UI线程优先级++、nice 值管理、cgroup 分组、schedtune 调节
 
 # 二、⼯程化和团队协作
 
-- [Continuous Integration]()，Jenkins 和 Gitlab、Lint 检查代码准入、渠道/分支管理、自动构建、编译报告（资源增删、包体积）、测试分发（上传 OSS 与更新通知）
-- [Continuous Delivery]()，Jenkins 和 Gitlab、Firebase
-- [DevOps]()，需求群、线上 Bug 群、发布群、飞书卡片通知/操作确认（同意/打回）、测试阶段、产品验收、线上回归、自动发布、代码/文档/tag/分支归档、监控面板、最终交付。
-- [Gradle]()，各种自定义任务、马甲包管理、Debug Only、本地环境隔离
-- [Log & Trace]()，线上/线下日志和埋点解决方案
+- Continuous Integration，Jenkins 和 Gitlab、Lint 检查代码准入、渠道/分支管理、自动构建、编译报告（资源增删、包体积）、测试分发（上传 OSS 与更新通知）
+- Continuous Delivery，Jenkins 和 Gitlab、Firebase
+- DevOps，需求群、线上 Bug 群、发布群、飞书卡片通知/操作确认（同意/打回）、测试阶段、产品验收、线上回归、自动发布、代码/文档/tag/分支归档、监控面板、最终交付。
+- Gradle，各种自定义任务、马甲包管理、Debug Only、本地环境隔离
+- Log & Trace，线上/线下日志和埋点解决方案
 
 # 三、稳定性治理和性能优化
 
 - [ANR](architecture/system-stability-anr.md)，ANR 产生原因（触发条件/时机）、怎么分析、解决/优化方案、线上/线下监控、主线程 I/O、Method 耗时监控
-- [Crash]()，Crash 常见原因和解决方案、Java 崩溃体系，预防与治理，CI 阶段如何检测、处理、线上/线下收集/监控，如何收敛？
-- [OOM]()，内存管理/回收/泄漏/LMK等基础知识，线下内存使用量监控，LeakCanary 泄漏监控，线上 KOOM/Matrix 数据收集/监控
-- [FPS/卡顿掉帧]()，View 渲染过程，布局优化、RV优化、线上/线下监控、收集
-- [App/Page Startup]()，应用冷启动优化、Systrace、页面的启动和可交互速度优化、生命周期和埋点时机
+- [FPS/卡顿掉帧](architecture/system-stability-fps.md)，View 渲染过程，布局优化、RV优化、线上/线下监控、收集
+- Crash，Crash 常见原因和解决方案、Java 崩溃体系，预防与治理，CI 阶段如何检测、处理、线上/线下收集/监控，如何收敛？
+- OOM，内存管理/回收/泄漏/LMK等基础知识，线下内存使用量监控，LeakCanary 泄漏监控，线上 KOOM/Matrix 数据收集/监控
+- App/Page Startup，应用冷启动优化、Systrace、页面的启动和可交互速度优化、生命周期和埋点时机
 
 # 四、计算机基础
 
