@@ -164,9 +164,9 @@ Kernel 的上一层还有个 HAL，不过应用开发实在接触不到，略略
 # 三、稳定性治理和性能优化
 
 - [ANR](architecture/system-stability-anr.md)，ANR 产生原因（触发条件/时机）、怎么分析、解决/优化方案、线上/线下监控、主线程 I/O、Method 耗时监控
-- [FPS/卡顿掉帧](architecture/system-stability-fps.md)，View 渲染过程，布局优化、RV优化、线上/线下监控、收集
 - Crash，Crash 常见原因和解决方案、Java 崩溃体系，预防与治理，CI 阶段如何检测、处理、线上/线下收集/监控，如何收敛？
-- OOM，内存管理/回收/泄漏/LMK等基础知识，线下内存使用量监控，LeakCanary 泄漏监控，线上 KOOM/Matrix 数据收集/监控
+- [OOM](architecture/system-stability-oom.md)，内存管理/回收/泄漏/LMK等基础知识，线下内存使用量监控，LeakCanary 泄漏监控，线上 KOOM/Matrix 数据收集/监控
+- [FPS/卡顿掉帧](architecture/user-experience-fps)，View 渲染过程，布局优化、RV优化、线上/线下监控、收集
 - App/Page Startup，应用冷启动优化、Systrace、页面的启动和可交互速度优化、生命周期和埋点时机
 
 # 四、计算机基础
